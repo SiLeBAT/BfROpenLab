@@ -29,7 +29,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -44,11 +43,8 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -67,16 +63,13 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.primitives.Doubles;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
@@ -286,25 +279,25 @@ public class GeocodingNodeModel extends NodeModel {
 
 		String url = "https://open.mapquestapi.com/geocoding/v1/address?key="
 				+ URLEncoder.encode(mapQuestKey, StandardCharsets.UTF_8.name()) + "&location="
-				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name()) + "&outFormat=xml";
-		URLConnection yc = new URL(url).openConnection();
+				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
+		String urlWithoutKey = url.replace(mapQuestKey, "XXXXXX");
 
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-				.parse(new InputSource(new InputStreamReader(yc.getInputStream(), StandardCharsets.UTF_8.name())));
-		int n = getNodeCount(doc, "/response/results/result/locations/location");
-		List<GeocodingResult> results = new ArrayList<>();
+		try (BufferedReader buffer = new BufferedReader(
+				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
+			String json = buffer.lines().collect(Collectors.joining("\n"));
+			JSONArray jsonResults = JsonPath.parse(json).read("$.results[*].locations[*]");
+			List<GeocodingResult> results = new ArrayList<>();
 
-		for (int i = 0; i < n; i++) {
-			String location = "/response/results/result/locations/location[" + (i + 1) + "]";
+			for (Object jsonResult : jsonResults) {
+				DocumentContext r = JsonPath.parse(jsonResult);
 
-			results.add(new GeocodingResult(url.replace(mapQuestKey, "XXXXXX"), getValue(doc, location + "/street"),
-					getValue(doc, location + "/adminArea5"), getValue(doc, location + "/adminArea4"),
-					getValue(doc, location + "/adminArea3"), getValue(doc, location + "/adminArea1"),
-					getValue(doc, location + "/postalCode"), Doubles.tryParse(getValue(doc, location + "/latLng/lat")),
-					Doubles.tryParse(getValue(doc, location + "/latLng/lng"))));
+				results.add(new GeocodingResult(url, read(r, "$.street"), read(r, "$.adminArea5"),
+						read(r, "$.adminArea4"), read(r, "$.adminArea3"), read(r, "$.adminArea1"),
+						read(r, "$.postalCode"), readDouble(r, "$.latLng.lat"), readDouble(r, "$.latLng.lng")));
+			}
+
+			return getIndex(address, results, new GeocodingResult(urlWithoutKey));
 		}
-
-		return getIndex(address, results, new GeocodingResult(url.replace(mapQuestKey, "XXXXXX")));
 	}
 
 	private GeocodingResult performGisgraphyGeocoding(String address, String countryCode)
@@ -315,13 +308,23 @@ public class GeocodingNodeModel extends NodeModel {
 		}
 
 		String url = set.getGisgraphyServer() + "?address=" + URLEncoder.encode(address, StandardCharsets.UTF_8.name())
-				+ "&country=" + URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name());
-		URLConnection yc = new URL(url).openConnection();
-		Document doc = null;
+				+ "&country=" + URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name()) + "&format=json";
 
-		try {
-			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-					.parse(new InputSource(new InputStreamReader(yc.getInputStream(), StandardCharsets.UTF_8.name())));
+		try (BufferedReader buffer = new BufferedReader(
+				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
+			String json = buffer.lines().collect(Collectors.joining("\n"));
+			JSONArray jsonResults = JsonPath.parse(json).read("$.result[*]");
+			List<GeocodingResult> results = new ArrayList<>();
+
+			for (Object jsonResult : jsonResults) {
+				DocumentContext r = JsonPath.parse(jsonResult);
+
+				results.add(new GeocodingResult(url, read(r, "$.streetName"), read(r, "$.city"), read(r, "$.district"),
+						read(r, "$.state"), read(r, "$.countryCode"), read(r, "$.zipCode"), readDouble(r, "$.lat"),
+						readDouble(r, "$.lng")));
+			}
+
+			return getIndex(address + ", " + countryCode, results, new GeocodingResult(url));
 		} catch (IOException e) {
 			JOptionPane options = new JOptionPane(e.getMessage() + "\nDo you want to continue?",
 					JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
@@ -336,21 +339,6 @@ public class GeocodingNodeModel extends NodeModel {
 				throw e;
 			}
 		}
-
-		int n = getNodeCount(doc, "/results/result");
-		List<GeocodingResult> results = new ArrayList<>();
-
-		for (int i = 0; i < n; i++) {
-			String location = "/results/result[" + (i + 1) + "]";
-
-			results.add(
-					new GeocodingResult(url, getValue(doc, location + "/streetName"), getValue(doc, location + "/city"),
-							null, getValue(doc, location + "/state"), getValue(doc, location + "/countryCode"),
-							getValue(doc, location + "/zipCode"), Doubles.tryParse(getValue(doc, location + "/lat")),
-							Doubles.tryParse(getValue(doc, location + "/lng"))));
-		}
-
-		return getIndex(address + ", " + countryCode, results, new GeocodingResult(url));
 	}
 
 	private GeocodingResult performBkgGeocoding(String address)
@@ -368,6 +356,7 @@ public class GeocodingNodeModel extends NodeModel {
 		String url = "https://sg.geodatenzentrum.de/gdz_geokodierung__"
 				+ URLEncoder.encode(uuid, StandardCharsets.UTF_8.name()) + "/geosearch?query="
 				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
+		String urlWithoutUuid = url.replace(uuid, "XXXXXX");
 
 		try (BufferedReader buffer = new BufferedReader(
 				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
@@ -378,12 +367,13 @@ public class GeocodingNodeModel extends NodeModel {
 			for (Object jsonResult : jsonResults) {
 				DocumentContext r = JsonPath.parse(jsonResult);
 
-				results.add(new GeocodingResult(url, r.read("$.properties.strasse"), r.read("$.properties.ort"),
-						r.read("$.properties.kreis"), r.read("$.properties.bundesland"), DE, r.read("$.properties.plz"),
-						r.read("$.geometry.coordinates[1]"), r.read("$.geometry.coordinates[0]")));
+				results.add(new GeocodingResult(urlWithoutUuid, read(r, "$.properties.strasse"),
+						read(r, "$.properties.ort"), read(r, "$.properties.kreis"), read(r, "$.properties.bundesland"),
+						DE, read(r, "$.properties.plz"), readDouble(r, "$.geometry.coordinates[1]"),
+						readDouble(r, "$.geometry.coordinates[0]")));
 			}
 
-			return getIndex(address, results, new GeocodingResult(url.replace(uuid, "XXXXXX")));
+			return getIndex(address, results, new GeocodingResult(urlWithoutUuid));
 		}
 	}
 
@@ -412,13 +402,20 @@ public class GeocodingNodeModel extends NodeModel {
 		return defaultValue;
 	}
 
-	private static int getNodeCount(Document doc, String xPath) throws XPathExpressionException {
-		return ((NodeList) XPathFactory.newInstance().newXPath().compile(xPath).evaluate(doc, XPathConstants.NODESET))
-				.getLength();
+	private static String read(DocumentContext doc, String path) {
+		try {
+			return doc.read(path);
+		} catch (PathNotFoundException | ClassCastException e) {
+			return null;
+		}
 	}
 
-	private static String getValue(Document doc, String xPath) throws XPathExpressionException {
-		return Strings.emptyToNull(XPathFactory.newInstance().newXPath().compile(xPath).evaluate(doc).trim());
+	private static Double readDouble(DocumentContext doc, String path) {
+		try {
+			return doc.read(path);
+		} catch (PathNotFoundException | ClassCastException e) {
+			return null;
+		}
 	}
 
 	private static class GeocodingResult {
