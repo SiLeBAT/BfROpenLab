@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="KNIME 3.0 TP" sequenceNumber="13">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
+<unit id="org.knime.features.base.feature.group" version="0.0.0"/>
+<repository location="http://update.knime.org/analytics-platform/3.0/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.0.1.0049649"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.0.0.0049649"/>
+<unit id="org.knime.features.network.feature.group" version="3.0.1.0049649"/>
+<unit id="org.knime.features.ext.poi.feature.group" version="3.0.1.0049649"/>
+<unit id="org.knime.features.ext.svg.feature.group" version="3.0.1.0049649"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.0.1.0049649"/>
+<unit id="org.knime.features.ext.jep.feature.group" version="3.0.1.0049649"/>
+<repository location="http://update.knime.org/analytics-platform/3.0/"/>
+</location>
+</locations>
+<targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+<launcherArgs>
+<vmArgs>-Xmx768m
+-server
+-Dsun.java2d.d3d=false
+-Dosgi.classloader.lock=classname
+-XX:+UnlockDiagnosticVMOptions
+-XX:+UnsyncloadClass 
+-Dknime.enable.fastload=true
+-ea
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-Dorg.eclipse.swt.internal.gtk.useCairo=false
+-Dorg.eclipse.swt.browser.IEVersion=10001</vmArgs>
+</launcherArgs>
+</target>
