@@ -58,7 +58,7 @@
 <config key="0">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="http://vm-knime:8888/geocoding/geocode?address=Unter%20den%20Linden%206,%2010117%20Berlin&amp;country=DE&amp;postal=true"/>
+<entry key="StringCell" type="xstring" value="http://vm-knime:8888/geocoding/geocode?address=Unter+den+Linden+6%2C+10117+Berlin&amp;country=DE&amp;format=json"/>
 </config>
 </config>
 </config>
