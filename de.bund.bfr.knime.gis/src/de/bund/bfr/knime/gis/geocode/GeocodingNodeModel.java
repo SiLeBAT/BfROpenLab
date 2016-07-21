@@ -296,7 +296,7 @@ public class GeocodingNodeModel extends NodeModel {
 			for (Object jsonResult : jsonResults) {
 				DocumentContext r = JsonPath.parse(jsonResult);
 
-				results.add(new GeocodingResult(url, read(r, "$.street"), read(r, "$.adminArea5"),
+				results.add(new GeocodingResult(urlWithoutKey, read(r, "$.street"), read(r, "$.adminArea5"),
 						read(r, "$.adminArea4"), read(r, "$.adminArea3"), read(r, "$.adminArea1"),
 						read(r, "$.postalCode"), readDouble(r, "$.latLng.lat"), readDouble(r, "$.latLng.lng")));
 			}
