@@ -285,6 +285,11 @@ public class GeocodingNodeModel extends NodeModel {
 		try (BufferedReader buffer = new BufferedReader(
 				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
 			String json = buffer.lines().collect(Collectors.joining("\n"));
+
+			if (Strings.isNullOrEmpty(json)) {
+				return new GeocodingResult(urlWithoutKey);
+			}
+
 			JSONArray jsonResults = JsonPath.parse(json).read("$.results[*].locations[*]");
 			List<GeocodingResult> results = new ArrayList<>();
 
@@ -313,6 +318,11 @@ public class GeocodingNodeModel extends NodeModel {
 		try (BufferedReader buffer = new BufferedReader(
 				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
 			String json = buffer.lines().collect(Collectors.joining("\n"));
+
+			if (Strings.isNullOrEmpty(json)) {
+				return new GeocodingResult(url);
+			}
+
 			JSONArray jsonResults = JsonPath.parse(json).read("$.result[*]");
 			List<GeocodingResult> results = new ArrayList<>();
 
@@ -361,6 +371,11 @@ public class GeocodingNodeModel extends NodeModel {
 		try (BufferedReader buffer = new BufferedReader(
 				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
 			String json = buffer.lines().collect(Collectors.joining("\n"));
+
+			if (Strings.isNullOrEmpty(json)) {
+				return new GeocodingResult(urlWithoutUuid);
+			}
+
 			JSONArray jsonResults = JsonPath.parse(json).read("$.features[*]");
 			List<GeocodingResult> results = new ArrayList<>();
 
