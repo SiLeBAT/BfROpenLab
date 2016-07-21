@@ -5,5 +5,5 @@ Bundle-SymbolicName: de.bund.bfr.knime.gis.test
 Bundle-Version: 1.1.5.qualifier
 Fragment-Host: de.bund.bfr.knime.gis
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
+Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.junit

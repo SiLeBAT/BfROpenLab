@@ -5,7 +5,7 @@ Bundle-SymbolicName: de.bund.bfr.knime.openkrise.util; singleton:=true
 Bundle-Version: 1.1.5.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.openkrise.util.Activator
-Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
+Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.knime.base;bundle-version="3.0.0",
  org.apache.commons.math3,
  de.bund.bfr.knime.openkrise,

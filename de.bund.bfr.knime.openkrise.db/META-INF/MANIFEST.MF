@@ -43,4 +43,4 @@ Export-Package: de.bund.bfr.knime.openkrise.db,
 Bundle-ClassPath: .,
  lib/hsqldb.jar,
  lib/sqltool.jar
-Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
+Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
