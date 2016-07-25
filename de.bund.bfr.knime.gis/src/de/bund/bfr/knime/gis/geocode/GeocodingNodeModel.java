@@ -26,8 +26,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -43,8 +42,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -63,7 +60,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.xml.sax.SAXException;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -99,6 +95,7 @@ public class GeocodingNodeModel extends NodeModel {
 			DISTRICT_COLUMN, STATE_COLUMN, COUNTRY_COLUMN, POSTAL_CODE_COLUMN, LATITUDE_COLUMN, LONGITUDE_COLUMN);
 
 	private static final String DE = "DE";
+	private static final String NO_KEY = "XXXXXX";
 
 	private GeocodingSettings set;
 
@@ -142,7 +139,21 @@ public class GeocodingNodeModel extends NodeModel {
 				countryCode = IO.getCleanString(row.getCell(countryCodeIndex));
 			}
 
-			GeocodingResult result = performGeocoding(address, countryCode);
+			GeocodingResult result;
+
+			switch (set.getServiceProvider()) {
+			case MAPQUEST:
+				result = performMapQuestGeocoding(address);
+				break;
+			case GISGRAPHY:
+				result = performGisgraphyGeocoding(address, countryCode);
+				break;
+			case BKG:
+				result = performBkgGeocoding(address);
+				break;
+			default:
+				throw new RuntimeException("Should not happen");
+			}
 
 			if (result.getLatitude() == null || result.getLongitude() == null) {
 				setWarningMessage("Geocoding failed for row " + row.getKey().getString());
@@ -247,24 +258,8 @@ public class GeocodingNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private GeocodingResult performGeocoding(String address, String countryCode)
-			throws XPathExpressionException, IOException, ParserConfigurationException, URISyntaxException,
-			SAXException, CanceledExecutionException, InvalidSettingsException {
-		switch (set.getServiceProvider()) {
-		case MAPQUEST:
-			return performMapQuestGeocoding(address);
-		case GISGRAPHY:
-			return performGisgraphyGeocoding(address, countryCode);
-		case BKG:
-			return performBkgGeocoding(address);
-		}
-
-		throw new RuntimeException("Should not happen");
-	}
-
 	private GeocodingResult performMapQuestGeocoding(String address)
-			throws IOException, ParserConfigurationException, XPathExpressionException, URISyntaxException,
-			SAXException, InvalidSettingsException, CanceledExecutionException {
+			throws IOException, InvalidSettingsException, CanceledExecutionException {
 		if (address == null) {
 			return new GeocodingResult();
 		}
@@ -277,10 +272,8 @@ public class GeocodingNodeModel extends NodeModel {
 					"MapQuest key in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		String url = "https://open.mapquestapi.com/geocoding/v1/address?key="
-				+ URLEncoder.encode(mapQuestKey, StandardCharsets.UTF_8.name()) + "&location="
-				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
-		String urlWithoutKey = url.replace(mapQuestKey, "XXXXXX");
+		String url = createMapQuestUrl(address, mapQuestKey);
+		String urlWithoutKey = createMapQuestUrl(address, NO_KEY);
 
 		try (BufferedReader buffer = new BufferedReader(
 				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
@@ -306,14 +299,12 @@ public class GeocodingNodeModel extends NodeModel {
 	}
 
 	private GeocodingResult performGisgraphyGeocoding(String address, String countryCode)
-			throws IOException, ParserConfigurationException, XPathExpressionException, URISyntaxException,
-			SAXException, CanceledExecutionException {
+			throws IOException, CanceledExecutionException {
 		if (address == null || countryCode == null) {
 			return new GeocodingResult();
 		}
 
-		String url = set.getGisgraphyServer() + "?address=" + URLEncoder.encode(address, StandardCharsets.UTF_8.name())
-				+ "&country=" + URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name()) + "&format=json";
+		String url = createGisgraphyUrl(set.getGisgraphyServer(), address, countryCode);
 
 		try (BufferedReader buffer = new BufferedReader(
 				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
@@ -352,7 +343,7 @@ public class GeocodingNodeModel extends NodeModel {
 	}
 
 	private GeocodingResult performBkgGeocoding(String address)
-			throws MalformedURLException, IOException, InvalidSettingsException, CanceledExecutionException {
+			throws IOException, InvalidSettingsException, CanceledExecutionException {
 		if (address == null) {
 			return new GeocodingResult();
 		}
@@ -363,10 +354,8 @@ public class GeocodingNodeModel extends NodeModel {
 			throw new InvalidSettingsException("UUID in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		String url = "https://sg.geodatenzentrum.de/gdz_geokodierung__"
-				+ URLEncoder.encode(uuid, StandardCharsets.UTF_8.name()) + "/geosearch?query="
-				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
-		String urlWithoutUuid = url.replace(uuid, "XXXXXX");
+		String url = createBkgUrl(address, uuid);
+		String urlWithoutUuid = createBkgUrl(address, NO_KEY);
 
 		try (BufferedReader buffer = new BufferedReader(
 				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
@@ -415,6 +404,24 @@ public class GeocodingNodeModel extends NodeModel {
 		}
 
 		return defaultValue;
+	}
+
+	private static String createMapQuestUrl(String address, String key) throws UnsupportedEncodingException {
+		return "https://open.mapquestapi.com/geocoding/v1/address?key="
+				+ URLEncoder.encode(key, StandardCharsets.UTF_8.name()) + "&location="
+				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
+	}
+
+	private static String createGisgraphyUrl(String server, String address, String countryCode)
+			throws UnsupportedEncodingException {
+		return server + "?address=" + URLEncoder.encode(address, StandardCharsets.UTF_8.name()) + "&country="
+				+ URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name()) + "&format=json";
+	}
+
+	private static String createBkgUrl(String address, String key) throws UnsupportedEncodingException {
+		return "https://sg.geodatenzentrum.de/gdz_geokodierung__"
+				+ URLEncoder.encode(key, StandardCharsets.UTF_8.name()) + "/geosearch?query="
+				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
 	}
 
 	private static String read(DocumentContext doc, String path) {
