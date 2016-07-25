@@ -379,6 +379,11 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	@Override
+	public String getMetaNodeProperty() {
+		return metaNodeProperty;
+	}
+
+	@Override
 	public Naming getNaming() {
 		return naming;
 	}

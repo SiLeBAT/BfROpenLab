@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -40,7 +39,9 @@ import javax.swing.JTextField;
 import com.google.common.collect.Iterables;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
@@ -58,8 +59,9 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 
 	private boolean approved;
 
-	public EditableSinglePropertiesDialog(Component parent, Element element, Map<String, Class<?>> properties) {
-		super(parent, "Properties", DEFAULT_MODALITY_TYPE);
+	public EditableSinglePropertiesDialog(ICanvas<?> parent, Element element, Map<String, Class<?>> properties,
+			boolean ingredientsMissing) {
+		super(parent.getComponent(), "Properties", DEFAULT_MODALITY_TYPE);
 		this.element = element;
 
 		Map<String, Object> values = element.getProperties();
@@ -91,6 +93,22 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
+
+		if (ingredientsMissing && element instanceof Node
+				&& !Boolean.TRUE.equals(element.getProperties().get(parent.getMetaNodeProperty()))) {
+			JButton button = new JButton("Assign Ingredients");
+
+			button.addActionListener(e -> {
+				IngredientAssignerDialog dialog = new IngredientAssignerDialog(this);
+
+				dialog.setVisible(true);
+
+				if (dialog.isApproved()) {
+				}
+			});
+			northPanel.add(UI.createHorizontalPanel(UI.createCenterPanel(button)), BorderLayout.NORTH);
+		}
+
 		northPanel.add(inputPanel, BorderLayout.CENTER);
 		northPanel.add(tracingPanel, BorderLayout.SOUTH);
 
@@ -132,7 +150,7 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 		pack();
 		UI.adjustDialog(this, 0.5, 0.8);
-		setLocationRelativeTo(parent);
+		setLocationRelativeTo(parent.getComponent());
 		getRootPane().setDefaultButton(okButton);
 
 		approved = false;

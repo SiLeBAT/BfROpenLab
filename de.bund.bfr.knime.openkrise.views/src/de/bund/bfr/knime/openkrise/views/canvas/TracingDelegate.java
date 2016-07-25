@@ -75,6 +75,7 @@ public class TracingDelegate<V extends Node> {
 	private Map<String, Edge<V>> edgeSaveMap;
 	private Map<Edge<V>, Set<Edge<V>>> joinMap;
 	private Map<String, Delivery> deliveries;
+	private boolean ingredientsMissing;
 
 	private boolean performTracing;
 
@@ -83,12 +84,13 @@ public class TracingDelegate<V extends Node> {
 	private DateSlider dateSlider;
 
 	public TracingDelegate(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap,
-			Map<Edge<V>, Set<Edge<V>>> joinMap, Map<String, Delivery> deliveries) {
+			Map<Edge<V>, Set<Edge<V>>> joinMap, Map<String, Delivery> deliveries, boolean ingredientsMissing) {
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
 		this.edgeSaveMap = edgeSaveMap;
 		this.joinMap = joinMap;
 		this.deliveries = deliveries;
+		this.ingredientsMissing = ingredientsMissing;
 
 		performTracing = DEFAULT_PERFORM_TRACING;
 
@@ -405,8 +407,8 @@ public class TracingDelegate<V extends Node> {
 
 	public void doubleClickedOn(Object obj) {
 		if (obj instanceof Node) {
-			EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas.getViewer(),
-					(Element) obj, canvas.getNodeSchema().getMap());
+			EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas, (Element) obj,
+					canvas.getNodeSchema().getMap(), ingredientsMissing);
 
 			dialog.setVisible(true);
 
@@ -417,8 +419,8 @@ public class TracingDelegate<V extends Node> {
 			}
 		} else if (obj instanceof Edge) {
 			if (!canvas.isJoinEdges()) {
-				EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas.getViewer(),
-						(Element) obj, canvas.getEdgeSchema().getMap());
+				EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas, (Element) obj,
+						canvas.getEdgeSchema().getMap(), ingredientsMissing);
 
 				dialog.setVisible(true);
 

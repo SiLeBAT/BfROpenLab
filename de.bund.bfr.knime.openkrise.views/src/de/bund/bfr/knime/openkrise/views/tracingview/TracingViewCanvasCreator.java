@@ -114,7 +114,7 @@ public class TracingViewCanvasCreator {
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
 		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges, skippedTracingRows);
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
-				edgeSchema, deliveries, lotBased);
+				edgeSchema, deliveries, lotBased, tracingTable.size() == 0);
 
 		canvas.setPerformTracing(false);
 		set.setToCanvas(canvas);
@@ -133,10 +133,11 @@ public class TracingViewCanvasCreator {
 
 		if (set.getGisType() == GisType.SHAPEFILE) {
 			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
-					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased);
+					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased,
+					tracingTable.size() == 0);
 		} else {
 			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries,
-					lotBased);
+					lotBased, tracingTable.size() == 0);
 			((TracingOsmCanvas) canvas).setTileSource(set.getGisType().getTileSource());
 		}
 

@@ -45,14 +45,15 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 
 	public TracingGraphCanvas() {
 		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(),
-				new LinkedHashMap<>(0), false);
+				new LinkedHashMap<>(0), false, false);
 	}
 
 	public TracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
-			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased) {
+			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased,
+			boolean ingredientsMissing) {
 		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING,
 				true);
-		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
+		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries, ingredientsMissing);
 	}
 
 	@Override
