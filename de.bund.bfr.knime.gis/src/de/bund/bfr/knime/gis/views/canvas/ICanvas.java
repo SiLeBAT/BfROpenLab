@@ -116,8 +116,6 @@ public interface ICanvas<V extends Node> {
 
 	EdgePropertySchema getEdgeSchema();
 
-	String getMetaNodeProperty();
-
 	Naming getNaming();
 
 	Set<V> getSelectedNodes();
