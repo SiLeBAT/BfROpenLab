@@ -201,17 +201,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 			@Override
 			public void componentResized(ComponentEvent e) {
-				if (getSize().width < getPreferredSize().width) {
-					if (getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
-						setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-						getParent().revalidate();
-					}
-				} else {
-					if (getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
-						setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-						getParent().revalidate();
-					}
-				}
+				updateScrollbars();
 			}
 		});
 	}
@@ -465,6 +455,20 @@ public class CanvasOptionsPanel extends JScrollPane {
 		avoidOverlayBox.addItemListener(e -> call(ChangeListener::avoidOverlayChanged));
 	}
 
+	private void updateScrollbars() {
+		if (getSize().width < getPreferredSize().width) {
+			if (getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
+				setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+				getParent().revalidate();
+			}
+		} else {
+			if (getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
+				setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+				getParent().revalidate();
+			}
+		}
+	}
+
 	private void advancedButtonClicked() {
 		if (advancedButton.getText().equals(SHOW_ADVANCED)) {
 			advancedButton.setText(HIDE_ADVANCED);
@@ -477,6 +481,8 @@ public class CanvasOptionsPanel extends JScrollPane {
 			panel.remove(panel.getComponentCount() - 1);
 			panel.revalidate();
 		}
+
+		updateScrollbars();
 	}
 
 	private void fontSizeChanged() {
