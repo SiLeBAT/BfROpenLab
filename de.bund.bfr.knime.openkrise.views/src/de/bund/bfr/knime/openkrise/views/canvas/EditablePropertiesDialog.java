@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
+import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
@@ -106,6 +108,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 		elementList = new ArrayList<>(elements);
 		table = new PropertiesTable(elementList, schema, idColumns);
 		table.getRowSorter().addRowSorterListener(this);
+		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		table.getSelectionModel().addListSelectionListener(this);
 
 		TableColumnModel columnModel = table.getColumnModel();
@@ -129,6 +132,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 
 		inputTable = new InputTable(inputTableHeader, elementList);
 		inputTable.getColumn(InputTable.INPUT).getCellEditor().addCellEditorListener(this);
+		inputTable.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		inputTable.getSelectionModel().addListSelectionListener(this);
 		inputTable.setTransferHandler(new PropertiesTableTransferHandler(table));
 		values = new LinkedHashMap<>();
@@ -227,16 +231,24 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		if (e.getSource() == table.getSelectionModel()) {
-			inputTable.getSelectionModel().removeListSelectionListener(this);
-			inputTable.getSelectionModel().setSelectionInterval(table.getSelectionModel().getMinSelectionIndex(),
-					table.getSelectionModel().getMaxSelectionIndex());
-			inputTable.getSelectionModel().addListSelectionListener(this);
-		} else if (e.getSource() == inputTable.getSelectionModel()) {
+		if (e.getSource() == inputTable.getSelectionModel()) {
+			int hScroll = scrollPane.getHorizontalScrollBar().getValue();
+
 			table.getSelectionModel().removeListSelectionListener(this);
 			table.getSelectionModel().setSelectionInterval(inputTable.getSelectionModel().getMinSelectionIndex(),
 					inputTable.getSelectionModel().getMaxSelectionIndex());
 			table.getSelectionModel().addListSelectionListener(this);
+
+			table.setVisible(false);
+			table.scrollRectToVisible(
+					new Rectangle(table.getCellRect(inputTable.getSelectionModel().getLeadSelectionIndex(), 0, true)));
+			scrollPane.getHorizontalScrollBar().setValue(hScroll);
+			table.setVisible(true);
+		} else if (e.getSource() == table.getSelectionModel()) {
+			inputTable.getSelectionModel().removeListSelectionListener(this);
+			inputTable.getSelectionModel().setSelectionInterval(table.getSelectionModel().getMinSelectionIndex(),
+					table.getSelectionModel().getMaxSelectionIndex());
+			inputTable.getSelectionModel().addListSelectionListener(this);
 		}
 	}
 
