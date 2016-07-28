@@ -55,13 +55,16 @@ public class PropertiesTableTransferHandler extends TransferHandler implements U
 		}
 
 		List<String> lines = new ArrayList<>();
-		List<String> columnNames = new ArrayList<>();
 
-		for (int col : cols) {
-			columnNames.add(table.getColumnName(col));
+		if (cols.length != 1) {
+			List<String> columnNames = new ArrayList<>();
+
+			for (int col : cols) {
+				columnNames.add(table.getColumnName(col));
+			}
+
+			lines.add(Joiner.on("\t").join(columnNames));
 		}
-
-		lines.add(Joiner.on("\t").join(columnNames));
 
 		for (int row : rows) {
 			List<String> values = new ArrayList<>();
