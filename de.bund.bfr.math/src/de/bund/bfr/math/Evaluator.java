@@ -25,26 +25,35 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.primitives.Doubles;
 
 public class Evaluator {
 
-	private static Map<FunctionConf, double[]> results = new LinkedHashMap<>();
-	private static Map<ErrorFunctionConf, double[]> errorResults = new LinkedHashMap<>();
-	private static Map<DiffFunctionConf, double[]> diffResults = new LinkedHashMap<>();
-	private static Map<ErrorDiffFunctionConf, double[]> errorDiffResults = new LinkedHashMap<>();
+	private static Cache<FunctionConf, double[]> results = createCache();
+	private static Cache<ErrorFunctionConf, double[]> errorResults = createCache();
+	private static Cache<DiffFunctionConf, double[]> diffResults = createCache();
+	private static Cache<ErrorDiffFunctionConf, double[]> errorDiffResults = createCache();
+
+	private static <K> Cache<K, double[]> createCache() {
+		return CacheBuilder.newBuilder().weigher((K key, double[] value) -> value.length).maximumWeight(1000000)
+				.expireAfterAccess(1, TimeUnit.MINUTES).build();
+	}
 
 	public static double[] getFunctionPoints(Map<String, Double> parserConstants, String formula, String varX,
 			double[] valuesX) throws ParseException {
 		FunctionConf function = new FunctionConf(parserConstants, formula, varX, valuesX);
+		double[] result = results.getIfPresent(function);
 
-		if (results.containsKey(function)) {
-			return results.get(function);
+		if (result != null) {
+			return result;
 		}
 
 		Parser parser = new Parser();
@@ -85,9 +94,10 @@ public class Evaluator {
 			throws ParseException {
 		ErrorFunctionConf function = new ErrorFunctionConf(parserConstants, formula, varX, valuesX, covariances,
 				extraVariance, degreesOfFreedom);
+		double[] result = errorResults.getIfPresent(function);
 
-		if (errorResults.containsKey(function)) {
-			return errorResults.get(function);
+		if (result != null) {
+			return result;
 		}
 
 		Parser parser = new Parser();
@@ -163,9 +173,10 @@ public class Evaluator {
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
 		DiffFunctionConf function = new DiffFunctionConf(parserConstants, functions, initValues, initParameters,
 				conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator, interpolator);
+		double[] result = diffResults.getIfPresent(function);
 
-		if (diffResults.containsKey(function)) {
-			return diffResults.get(function);
+		if (result != null) {
+			return result;
 		}
 
 		Node[] fs = new Node[functions.size()];
@@ -241,9 +252,10 @@ public class Evaluator {
 		ErrorDiffFunctionConf function = new ErrorDiffFunctionConf(parserConstants, functions, initValues,
 				initParameters, conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
 				interpolator, covariances, extraVariance, degreesOfFreedom);
+		double[] result = errorDiffResults.getIfPresent(function);
 
-		if (errorDiffResults.containsKey(function)) {
-			return errorDiffResults.get(function);
+		if (result != null) {
+			return result;
 		}
 
 		List<String> paramList = new ArrayList<>(covariances.keySet());
