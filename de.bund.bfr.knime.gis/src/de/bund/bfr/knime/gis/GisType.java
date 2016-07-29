@@ -23,8 +23,6 @@ import java.util.stream.Stream;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 public enum GisType {
@@ -34,11 +32,7 @@ public enum GisType {
 
 	CYCLE_MAP("Cycle Map", new OsmTileSource.CycleMap()),
 
-	BING_AERIAL("Bing Aerial", new BingAerialTileSource()),
-
-	MAPQUEST("MapQuest", new MapQuestOsmTileSource()),
-
-	MAPQUEST_AERIAL("MapQuest Aerial", new MapQuestOpenAerialTileSource());
+	BING_AERIAL("Bing Aerial", new BingAerialTileSource());
 
 	private String name;
 	private TileSource tileSource;

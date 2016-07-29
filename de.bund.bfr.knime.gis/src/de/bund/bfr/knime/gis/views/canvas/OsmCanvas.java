@@ -142,10 +142,10 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 		int maxY = Math.min(max, startY + (h - dy) / tileSize);
 
 		lastZoom = zoom;
-		lastTopLeft = new Coordinate(OsmMercator.YToLat(startY * tileSize, zoom),
-				OsmMercator.XToLon(startY * tileSize, zoom));
-		lastBottomRight = new Coordinate(OsmMercator.YToLat((maxY + 1) * tileSize, zoom),
-				OsmMercator.XToLon((maxX + 1) * tileSize, zoom));
+		lastTopLeft = new Coordinate(new OsmMercator().yToLat(startY * tileSize, zoom),
+				new OsmMercator().xToLon(startY * tileSize, zoom));
+		lastBottomRight = new Coordinate(new OsmMercator().yToLat((maxY + 1) * tileSize, zoom),
+				new OsmMercator().xToLon((maxX + 1) * tileSize, zoom));
 
 		Map<Point, Tile> tiles = new LinkedHashMap<>();
 

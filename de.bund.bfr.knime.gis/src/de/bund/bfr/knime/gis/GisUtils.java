@@ -82,7 +82,7 @@ public class GisUtils {
 	}
 
 	public static Point2D latLonToViz(Point2D p) {
-		return new Point2D.Double(OsmMercator.LonToX(p.getY(), 0), OsmMercator.LatToY(p.getX(), 0));
+		return new Point2D.Double(new OsmMercator().lonToX(p.getY(), 0), new OsmMercator().latToY(p.getX(), 0));
 	}
 
 	public static MultiPolygon latLonToViz(MultiPolygon multiPolygon) {
@@ -99,7 +99,7 @@ public class GisUtils {
 
 	private static LinearRing latLonToViz(LinearRing ring) {
 		return FACTORY.createLinearRing(Stream.of(ring.getCoordinates())
-				.map(c -> new Coordinate(OsmMercator.LonToX(c.y, 0), OsmMercator.LatToY(c.x, 0)))
+				.map(c -> new Coordinate(new OsmMercator().lonToX(c.y, 0), new OsmMercator().latToY(c.x, 0)))
 				.toArray(Coordinate[]::new));
 	}
 
