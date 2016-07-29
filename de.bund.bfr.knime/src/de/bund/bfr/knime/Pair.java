@@ -48,13 +48,13 @@ public final class Pair<T, M> implements Serializable {
 			return true;
 		}
 
-		if (obj == null || obj.getClass() != getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		Pair<?, ?> p = (Pair<?, ?>) obj;
+		Pair<?, ?> other = (Pair<?, ?>) obj;
 
-		return Objects.equals(first, p.first) && Objects.equals(second, p.second);
+		return Objects.equals(first, other.first) && Objects.equals(second, other.second);
 	}
 
 	@Override

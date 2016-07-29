@@ -70,10 +70,12 @@ public class InterpolationFactory {
 			return true;
 		}
 
-		if (obj == null || obj.getClass() != getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		return type == ((InterpolationFactory) obj).type;
+		InterpolationFactory other = (InterpolationFactory) obj;
+
+		return type == other.type;
 	}
 }

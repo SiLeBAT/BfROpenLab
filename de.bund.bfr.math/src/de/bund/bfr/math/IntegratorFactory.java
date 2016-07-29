@@ -81,12 +81,12 @@ public class IntegratorFactory {
 			return true;
 		}
 
-		if (obj == null || obj.getClass() != getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		IntegratorFactory factory = (IntegratorFactory) obj;
+		IntegratorFactory other = (IntegratorFactory) obj;
 
-		return type == factory.type && step == factory.step;
+		return type == other.type && step == other.step;
 	}
 }

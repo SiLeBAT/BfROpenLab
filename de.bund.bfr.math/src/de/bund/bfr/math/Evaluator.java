@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.nfunk.jep.Node;
@@ -350,15 +351,7 @@ public class Evaluator {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-
-			result = prime * result + parserConstants.hashCode();
-			result = prime * result + formula.hashCode();
-			result = prime * result + varX.hashCode();
-			result = prime * result + Arrays.hashCode(valuesX);
-
-			return result;
+			return Objects.hash(parserConstants, formula, varX, Arrays.hashCode(valuesX));
 		}
 
 		@Override
@@ -367,14 +360,14 @@ public class Evaluator {
 				return true;
 			}
 
-			if (obj == null || obj.getClass() != getClass()) {
+			if (obj == null || getClass() != obj.getClass()) {
 				return false;
 			}
 
-			FunctionConf f = (FunctionConf) obj;
+			FunctionConf other = (FunctionConf) obj;
 
-			return parserConstants.equals(f.parserConstants) && formula.equals(f.formula) && varX.equals(f.varX)
-					&& Arrays.equals(valuesX, f.valuesX);
+			return Objects.equals(parserConstants, other.parserConstants) && Objects.equals(formula, other.formula)
+					&& Objects.equals(varX, other.varX) && Arrays.equals(valuesX, other.valuesX);
 		}
 	}
 
@@ -394,15 +387,7 @@ public class Evaluator {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = super.hashCode();
-			long temp = Double.doubleToLongBits(extraVariance);
-
-			result = prime * result + covariances.hashCode();
-			result = prime * result + degreesOfFreedom;
-			result = prime * result + (int) (temp ^ (temp >>> 32));
-
-			return result;
+			return Objects.hash(super.hashCode(), covariances, extraVariance, degreesOfFreedom);
 		}
 
 		@Override
@@ -411,14 +396,14 @@ public class Evaluator {
 				return true;
 			}
 
-			if (!super.equals(obj) || obj.getClass() != getClass()) {
+			if (obj == null || getClass() != obj.getClass()) {
 				return false;
 			}
 
-			ErrorFunctionConf f = (ErrorFunctionConf) obj;
+			ErrorFunctionConf other = (ErrorFunctionConf) obj;
 
-			return covariances.equals(f.covariances) && extraVariance == f.extraVariance
-					&& degreesOfFreedom == f.degreesOfFreedom;
+			return super.equals(other) && Objects.equals(covariances, other.covariances)
+					&& extraVariance == other.extraVariance && degreesOfFreedom == other.degreesOfFreedom;
 		}
 	}
 
@@ -456,22 +441,8 @@ public class Evaluator {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-
-			result = prime * result + parserConstants.hashCode();
-			result = prime * result + functions.hashCode();
-			result = prime * result + initValues.hashCode();
-			result = prime * result + initParameters.hashCode();
-			result = prime * result + convert(conditionLists).hashCode();
-			result = prime * result + dependentVariable.hashCode();
-			result = prime * result + independentVariables.hashCode();
-			result = prime * result + varX.hashCode();
-			result = prime * result + Arrays.hashCode(valuesX);
-			result = prime * result + integrator.hashCode();
-			result = prime * result + interpolator.hashCode();
-
-			return result;
+			return Objects.hash(parserConstants, functions, initValues, initParameters, convert(conditionLists),
+					dependentVariable, independentVariables, varX, Arrays.hashCode(valuesX), integrator, interpolator);
 		}
 
 		@Override
@@ -480,19 +451,20 @@ public class Evaluator {
 				return true;
 			}
 
-			if (obj == null || obj.getClass() != getClass()) {
+			if (obj == null || getClass() != obj.getClass()) {
 				return false;
 			}
 
-			DiffFunctionConf f = (DiffFunctionConf) obj;
+			DiffFunctionConf other = (DiffFunctionConf) obj;
 
-			return parserConstants.equals(f.parserConstants) && functions.equals(f.functions)
-					&& initValues.equals(f.initValues) && initParameters.equals(f.initParameters)
-					&& convert(conditionLists).equals(convert(f.conditionLists))
-					&& dependentVariable.equals(f.dependentVariable)
-					&& independentVariables.equals(f.independentVariables) && varX.equals(f.varX)
-					&& Arrays.equals(valuesX, f.valuesX) && integrator.equals(f.integrator)
-					&& interpolator.equals(f.interpolator);
+			return Objects.equals(parserConstants, other.parserConstants) && Objects.equals(functions, other.functions)
+					&& Objects.equals(initValues, other.initValues)
+					&& Objects.equals(initParameters, other.initParameters)
+					&& Objects.equals(convert(conditionLists), convert(other.conditionLists))
+					&& Objects.equals(dependentVariable, other.dependentVariable)
+					&& Objects.equals(independentVariables, other.independentVariables)
+					&& Objects.equals(varX, other.varX) && Arrays.equals(valuesX, other.valuesX)
+					&& Objects.equals(integrator, other.integrator) && Objects.equals(interpolator, other.interpolator);
 		}
 
 		private static Map<String, List<Double>> convert(Map<String, double[]> map) {
@@ -525,15 +497,7 @@ public class Evaluator {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = super.hashCode();
-			long temp = Double.doubleToLongBits(extraVariance);
-
-			result = prime * result + covariances.hashCode();
-			result = prime * result + degreesOfFreedom;
-			result = prime * result + (int) (temp ^ (temp >>> 32));
-
-			return result;
+			return Objects.hash(super.hashCode(), covariances, extraVariance, degreesOfFreedom);
 		}
 
 		@Override
@@ -542,14 +506,14 @@ public class Evaluator {
 				return true;
 			}
 
-			if (!super.equals(obj) || obj.getClass() != getClass()) {
+			if (obj == null || getClass() != obj.getClass()) {
 				return false;
 			}
 
-			ErrorDiffFunctionConf f = (ErrorDiffFunctionConf) obj;
+			ErrorDiffFunctionConf other = (ErrorDiffFunctionConf) obj;
 
-			return covariances.equals(f.covariances) && extraVariance == f.extraVariance
-					&& degreesOfFreedom == f.degreesOfFreedom;
+			return super.equals(other) && Objects.equals(covariances, other.covariances)
+					&& extraVariance == other.extraVariance && degreesOfFreedom == other.degreesOfFreedom;
 		}
 	}
 }

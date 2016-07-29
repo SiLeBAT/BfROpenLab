@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -159,32 +160,22 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((logicalCondition == null) ? 0 : logicalCondition.hashCode());
-		result = prime * result + ((valueCondition == null) ? 0 : valueCondition.hashCode());
-		return result;
+		return Objects.hash(logicalCondition, valueCondition);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		}
+
 		LogicalValueHighlightCondition other = (LogicalValueHighlightCondition) obj;
-		if (logicalCondition == null) {
-			if (other.logicalCondition != null)
-				return false;
-		} else if (!logicalCondition.equals(other.logicalCondition))
-			return false;
-		if (valueCondition == null) {
-			if (other.valueCondition != null)
-				return false;
-		} else if (!valueCondition.equals(other.valueCondition))
-			return false;
-		return true;
+
+		return Objects.equals(logicalCondition, other.logicalCondition)
+				&& Objects.equals(valueCondition, other.valueCondition);
 	}
 }

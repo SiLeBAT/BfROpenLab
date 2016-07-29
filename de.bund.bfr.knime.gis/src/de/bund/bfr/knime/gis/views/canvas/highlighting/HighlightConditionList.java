@@ -68,13 +68,7 @@ public class HighlightConditionList implements Serializable {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-
-		result = prime * result + Objects.hashCode(conditions);
-		result = prime * result + (prioritizeColors ? 1231 : 1237);
-
-		return result;
+		return Objects.hash(conditions, prioritizeColors);
 	}
 
 	@Override
@@ -83,12 +77,12 @@ public class HighlightConditionList implements Serializable {
 			return true;
 		}
 
-		if (obj == null || obj.getClass() != getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		HighlightConditionList l = (HighlightConditionList) obj;
+		HighlightConditionList other = (HighlightConditionList) obj;
 
-		return Objects.equals(conditions, l.conditions) && prioritizeColors == l.prioritizeColors;
+		return Objects.equals(conditions, other.conditions) && prioritizeColors == other.prioritizeColors;
 	}
 }

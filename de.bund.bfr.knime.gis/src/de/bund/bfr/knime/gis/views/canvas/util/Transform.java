@@ -23,6 +23,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.geotools.geometry.jts.LiteShape;
 
@@ -99,20 +100,7 @@ public class Transform implements Serializable {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		long temp;
-
-		temp = Double.doubleToLongBits(scaleX);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(scaleY);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(translationX);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(translationY);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-
-		return result;
+		return Objects.hash(scaleX, scaleY, translationX, translationY);
 	}
 
 	@Override
@@ -121,14 +109,14 @@ public class Transform implements Serializable {
 			return true;
 		}
 
-		if (obj == null || obj.getClass() != getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		Transform t = (Transform) obj;
+		Transform other = (Transform) obj;
 
-		return scaleX == t.scaleX && scaleY == t.scaleY && translationX == t.translationX
-				&& translationY == t.translationY;
+		return scaleX == other.scaleX && scaleY == other.scaleY && translationX == other.translationX
+				&& translationY == other.translationY;
 	}
 
 	@Override

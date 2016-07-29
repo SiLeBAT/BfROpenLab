@@ -118,76 +118,6 @@ public class AndOrHighlightConditionTest {
 	}
 
 	@Test
-	public void testGetConditions() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetConditions() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetName() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetName() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsShowInLegend() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetShowInLegend() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetColor() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetColor() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsInvisible() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetInvisible() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsUseThickness() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetUseThickness() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetLabelProperty() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetLabelProperty() {
-		// method automatically generated
-	}
-
-	@Test
 	public void testGetConditionCount() {
 		AndOrHighlightCondition c = new AndOrHighlightCondition(
 				Arrays.asList(Arrays.asList(equal11Condition, equal21Condition), Arrays.asList(equal12Condition)), NAME,
@@ -227,15 +157,4 @@ public class AndOrHighlightConditionTest {
 
 		assertNotEquals(c, copy);
 	}
-
-	@Test
-	public void testHashCode() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testEqualsObject() {
-		// method automatically generated
-	}
-
 }

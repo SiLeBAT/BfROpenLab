@@ -86,56 +86,6 @@ public class LogicalValueHighlightConditionTest {
 	}
 
 	@Test
-	public void testGetValueCondition() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetValueCondition() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetLogicalCondition() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetLogicalCondition() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetName() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsShowInLegend() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetColor() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsInvisible() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsUseThickness() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetLabelProperty() {
-		// method automatically generated
-	}
-
-	@Test
 	public void testGetValues() {
 		LogicalValueHighlightCondition c = new LogicalValueHighlightCondition(valueCondition, equal1Condition);
 		Map<Element, Double> values = c.getValues(
@@ -167,15 +117,4 @@ public class LogicalValueHighlightConditionTest {
 
 		assertNotEquals(c, copy);
 	}
-
-	@Test
-	public void testHashCode() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testEqualsObject() {
-		// method automatically generated
-	}
-
 }
