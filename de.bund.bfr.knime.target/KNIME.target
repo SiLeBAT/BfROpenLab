@@ -7,13 +7,13 @@
 <repository location="http://update.knime.org/analytics-platform/3.2/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.knime.features.testingapplication.feature.group" version="3.2.0.v201606211823"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.2.0.v201607131246"/>
 <unit id="org.knime.features.ext.osm.feature.group" version="3.2.0.v201606131354"/>
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="3.2.0.v201605301230"/>
-<unit id="org.knime.product.desktop" version="3.2.0.v201607070854"/>
+<unit id="org.knime.product.desktop" version="3.2.0.v201607131338"/>
 <unit id="org.knime.features.ext.svg.feature.group" version="3.2.0.v201606131354"/>
 <unit id="com.knime.features.reporting.designer.feature.group" version="3.2.0.v201604232015"/>
-<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.3.0.v201607040724"/>
+<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.3.0.v201607211448"/>
 <unit id="org.knime.features.network.feature.group" version="3.2.0.v201606131354"/>
 <unit id="org.knime.features.js.views.feature.group" version="3.2.0.v201607061823"/>
 <repository location="http://update.knime.org/analytics-platform/3.2/"/>
