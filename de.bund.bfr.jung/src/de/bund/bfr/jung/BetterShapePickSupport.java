@@ -143,7 +143,7 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 				float newX = seg[0];
 				float newY = seg[1];
 
-				if (!Double.isNaN(lastX)) {
+				if (!Float.isNaN(lastX)) {
 					float dist = getDistanceToLine(lastX, lastY, newX, newY, (float) x, (float) y);
 
 					if (dist < minDistance) {

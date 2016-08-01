@@ -184,11 +184,11 @@ public class ChartCreator extends JPanel {
 			}
 		}
 
-		if (Double.isInfinite(usedMinX)) {
+		if (!Double.isFinite(usedMinX)) {
 			usedMinX = 0.0;
 		}
 
-		if (Double.isInfinite(usedMaxX)) {
+		if (!Double.isFinite(usedMaxX)) {
 			usedMaxX = 100.0;
 		}
 
