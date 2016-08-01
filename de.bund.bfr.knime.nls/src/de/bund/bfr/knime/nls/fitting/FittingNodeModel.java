@@ -37,7 +37,6 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
-import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -219,7 +218,7 @@ public class FittingNodeModel extends NodeModel {
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		Function function = ((FunctionPortObjectSpec) inSpecs[0]).getFunction();
 		DataTableSpec dataSpec = (DataTableSpec) inSpecs[1];
-		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec, StringValue.class));
+		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec, StringCell.TYPE));
 		List<String> dataDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec, DoubleValue.class));
 
 		if (!dataStringColumns.contains(NlsUtils.ID_COLUMN)) {
@@ -230,7 +229,7 @@ public class FittingNodeModel extends NodeModel {
 		if (isDiff) {
 			DataTableSpec conditionSpec = (DataTableSpec) inSpecs[2];
 			List<String> conditionStringColumns = KnimeUtils
-					.getColumnNames(KnimeUtils.getColumns(conditionSpec, StringValue.class));
+					.getColumnNames(KnimeUtils.getColumns(conditionSpec, StringCell.TYPE));
 			List<String> conditionDoubleColumns = KnimeUtils
 					.getColumnNames(KnimeUtils.getColumns(conditionSpec, DoubleValue.class));
 

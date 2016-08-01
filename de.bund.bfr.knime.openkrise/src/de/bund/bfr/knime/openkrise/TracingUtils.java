@@ -296,14 +296,13 @@ public class TracingUtils {
 	public static List<RegionNode> readRegions(BufferedDataTable shapeTable, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		List<RegionNode> nodes = new ArrayList<>();
-		List<String> shapeColumns = KnimeUtils
-				.getColumnNames(KnimeUtils.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE));
+		List<DataColumnSpec> shapeColumns = KnimeUtils.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE);
 
 		if (shapeColumns.isEmpty()) {
 			throw new NotConfigurableException("Shape Table: Shape Column missing");
 		}
 
-		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumns.get(0));
+		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumns.get(0).getName());
 		int index = 0;
 
 		for (DataRow row : shapeTable) {
