@@ -38,8 +38,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.referencing.CRS;
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataTableSpec;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.openstreetmap.gui.jmapviewer.OsmMercator;
@@ -54,7 +52,6 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.shapecell.ShapeValue;
 
 /**
@@ -117,10 +114,6 @@ public class GisUtils {
 
 	public static Geometry getShape(DataCell cell) {
 		return cell instanceof ShapeValue ? ((ShapeValue) cell).getShape() : null;
-	}
-
-	public static List<DataColumnSpec> getShapeColumns(DataTableSpec spec) {
-		return KnimeUtils.streamOf(spec).filter(c -> c.getType() == ShapeBlobCell.TYPE).collect(Collectors.toList());
 	}
 
 	public static Point2D getCenterOfLargestPolygon(MultiPolygon poly) {

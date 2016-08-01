@@ -38,7 +38,7 @@ import org.knime.core.data.def.StringCell;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
-import de.bund.bfr.knime.gis.GisUtils;
+import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
@@ -67,7 +67,7 @@ public class RegionToRegionVisualizerInputDialog extends KnimeDialog {
 
 		gisBox = new JComboBox<>(GisType.values());
 		gisBox.setSelectedItem(set.getGisSettings().getGisType());
-		shapeBox = new ColumnComboBox(false, GisUtils.getShapeColumns(shapeSpec));
+		shapeBox = new ColumnComboBox(false, KnimeUtils.getColumns(shapeSpec, ShapeBlobCell.TYPE));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		shapeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(shapeSpec, StringCell.TYPE, IntCell.TYPE));
 		shapeRegionBox.setSelectedColumnName(set.getGisSettings().getShapeRegionColumn());
