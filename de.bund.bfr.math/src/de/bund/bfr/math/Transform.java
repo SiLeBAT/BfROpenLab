@@ -34,11 +34,7 @@ public enum Transform {
 		return name;
 	}
 
-	public Double to(Double value) {
-		if (value == null) {
-			return null;
-		}
-
+	public double to(double value) {
 		switch (this) {
 		case NO_TRANSFORM:
 			return value;
@@ -56,14 +52,10 @@ public enum Transform {
 			return value - 273.15;
 		}
 
-		return null;
+		return Double.NaN;
 	}
 
-	public Double from(Double value) {
-		if (value == null) {
-			return null;
-		}
-
+	public double from(double value) {
 		switch (this) {
 		case NO_TRANSFORM:
 			return value;
@@ -81,7 +73,7 @@ public enum Transform {
 			return value + 273.15;
 		}
 
-		return null;
+		return Double.NaN;
 	}
 
 	public String to(String term) {

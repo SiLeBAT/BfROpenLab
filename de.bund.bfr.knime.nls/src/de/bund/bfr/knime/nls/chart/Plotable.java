@@ -222,10 +222,10 @@ public class Plotable {
 		List<Point2D.Double> points = new ArrayList<>(xList.length);
 
 		for (int i = 0; i < xList.length; i++) {
-			Double x = transformX.to(xList[i]);
-			Double y = transformY.to(yList[i]);
+			double x = transformX.to(xList[i]);
+			double y = transformY.to(yList[i]);
 
-			if (x != null && y != null && Double.isFinite(x) && Double.isFinite(y)) {
+			if (Double.isFinite(x) && Double.isFinite(y)) {
 				points.add(new Point2D.Double(x, y));
 			}
 		}
@@ -259,18 +259,13 @@ public class Plotable {
 		}
 
 		double[] convertedYs = Evaluator.getFunctionPoints(parserConstants, function, varX, convertedXs);
-
-		if (convertedYs == null) {
-			return null;
-		}
-
 		double[][] points = new double[2][functionSteps];
 		boolean containsValidPoint = false;
 
 		for (int i = 0; i < functionSteps; i++) {
-			Double y = transformY.to(convertedYs[i]);
+			double y = transformY.to(convertedYs[i]);
 
-			if (y != null && Double.isFinite(y)) {
+			if (Double.isFinite(y)) {
 				points[1][i] = y;
 				containsValidPoint = true;
 			} else {
@@ -305,18 +300,13 @@ public class Plotable {
 
 		double[] convertedYs = Evaluator.getFunctionErrors(parserConstants, function, varX, convertedXs, covariances,
 				prediction ? mse : 0.0, degreesOfFreedom);
-
-		if (convertedYs == null) {
-			return null;
-		}
-
 		double[][] points = new double[2][functionSteps];
 		boolean containsValidPoint = false;
 
 		for (int i = 0; i < functionSteps; i++) {
-			Double y = transformY.to(convertedYs[i]);
+			double y = transformY.to(convertedYs[i]);
 
-			if (y != null && Double.isFinite(y)) {
+			if (Double.isFinite(y)) {
 				points[1][i] = y;
 				containsValidPoint = true;
 			} else {
@@ -354,18 +344,13 @@ public class Plotable {
 		InterpolationFactory interpolator = new InterpolationFactory(this.interpolator);
 		double[] convertedYs = Evaluator.getDiffPoints(parserConstants, functions, initValues, initParameters,
 				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator, interpolator);
-
-		if (convertedYs == null) {
-			return null;
-		}
-
 		double[][] points = new double[2][functionSteps];
 		boolean containsValidPoint = false;
 
 		for (int i = 0; i < functionSteps; i++) {
-			Double y = transformY.to(convertedYs[i]);
+			double y = transformY.to(convertedYs[i]);
 
-			if (y != null && Double.isFinite(y)) {
+			if (Double.isFinite(y)) {
 				points[1][i] = y;
 				containsValidPoint = true;
 			} else {
@@ -413,9 +398,9 @@ public class Plotable {
 		boolean containsValidPoint = false;
 
 		for (int i = 0; i < functionSteps; i++) {
-			Double y = transformY.to(convertedYs[i]);
+			double y = transformY.to(convertedYs[i]);
 
-			if (y != null && Double.isFinite(y)) {
+			if (Double.isFinite(y)) {
 				points[1][i] = y;
 				containsValidPoint = true;
 			} else {

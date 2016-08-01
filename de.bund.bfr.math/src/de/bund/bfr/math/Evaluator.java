@@ -63,25 +63,12 @@ public class Evaluator {
 
 		Node f = parser.parse(formula);
 		double[] valuesY = new double[valuesX.length];
-		boolean containsValidPoint = false;
 
 		Arrays.fill(valuesY, Double.NaN);
 
 		for (int i = 0; i < valuesX.length; i++) {
 			parser.setVarValue(varX, valuesX[i]);
-
-			double y = parser.evaluate(f);
-
-			if (Double.isFinite(y)) {
-				valuesY[i] = y;
-				containsValidPoint = true;
-			} else {
-				valuesY[i] = Double.NaN;
-			}
-		}
-
-		if (!containsValidPoint) {
-			valuesY = null;
+			valuesY[i] = parser.evaluate(f);
 		}
 
 		results.put(function, valuesY);
@@ -114,7 +101,6 @@ public class Evaluator {
 		}
 
 		double[] valuesY = new double[valuesX.length];
-		boolean containsValidPoint = false;
 		double conf95 = MathUtils.get95PercentConfidence(degreesOfFreedom);
 
 		Arrays.fill(valuesY, Double.NaN);
@@ -148,18 +134,7 @@ public class Evaluator {
 				}
 			}
 
-			double y = Math.sqrt(variance + extraVariance) * conf95;
-
-			if (!Double.isFinite(y)) {
-				continue loop;
-			}
-
-			valuesY[index] = y;
-			containsValidPoint = true;
-		}
-
-		if (!containsValidPoint) {
-			valuesY = null;
+			valuesY[index] = Math.sqrt(variance + extraVariance) * conf95;
 		}
 
 		errorResults.put(function, valuesY);
@@ -213,29 +188,17 @@ public class Evaluator {
 		DiffFunction f = new DiffFunction(parser, fs, valueVariables, conditionLists, varX, interpolator);
 		FirstOrderIntegrator instance = integrator.createIntegrator();
 		double diffValue = conditionLists.get(varX)[0];
-		boolean containsValidPoint = false;
 
 		for (int i = 0; i < valuesX.length; i++) {
-			double y = Double.NaN;
-
 			if (valuesX[i] == diffValue) {
-				y = values[depIndex];
+				valuesY[i] = values[depIndex];
 			} else if (valuesX[i] > diffValue) {
 				instance.integrate(f, diffValue, values, valuesX[i], values);
-				y = values[depIndex];
 				diffValue = valuesX[i];
-			}
-
-			if (Double.isFinite(y)) {
-				valuesY[i] = y;
-				containsValidPoint = true;
+				valuesY[i] = values[depIndex];
 			} else {
 				valuesY[i] = Double.NaN;
 			}
-		}
-
-		if (!containsValidPoint) {
-			valuesY = null;
 		}
 
 		diffResults.put(function, valuesY);
@@ -269,24 +232,20 @@ public class Evaluator {
 			constantsMinus.put(param, value - MathUtils.DERIV_EPSILON);
 			constantsPlus.put(param, value + MathUtils.DERIV_EPSILON);
 
-			double[] valuesMinus = null;
-			double[] valuesPlus = null;
-
-			try {
-				valuesMinus = getDiffPoints(constantsMinus, functions, initValues, initParameters, conditionLists,
-						dependentVariable, independentVariables, varX, valuesX, integrator, interpolator);
-				valuesPlus = getDiffPoints(constantsPlus, functions, initValues, initParameters, conditionLists,
-						dependentVariable, independentVariables, varX, valuesX, integrator, interpolator);
-			} catch (ParseException e) {
-			}
-
 			double[] deriv = new double[valuesX.length];
 
-			if (valuesMinus != null && valuesPlus != null) {
+			try {
+				double[] valuesMinus = getDiffPoints(constantsMinus, functions, initValues, initParameters,
+						conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
+						interpolator);
+				double[] valuesPlus = getDiffPoints(constantsPlus, functions, initValues, initParameters,
+						conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
+						interpolator);
+
 				for (int i = 0; i < valuesX.length; i++) {
 					deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * MathUtils.DERIV_EPSILON);
 				}
-			} else {
+			} catch (ParseException e) {
 				Arrays.fill(deriv, Double.NaN);
 			}
 
@@ -294,7 +253,6 @@ public class Evaluator {
 		});
 
 		double[] valuesY = new double[valuesX.length];
-		boolean containsValidPoint = false;
 		double conf95 = MathUtils.get95PercentConfidence(degreesOfFreedom);
 
 		Arrays.fill(valuesY, Double.NaN);
@@ -328,18 +286,7 @@ public class Evaluator {
 				}
 			}
 
-			double y = Math.sqrt(variance + extraVariance) * conf95;
-
-			if (!Double.isFinite(y)) {
-				continue loop;
-			}
-
-			valuesY[index] = y;
-			containsValidPoint = true;
-		}
-
-		if (!containsValidPoint) {
-			valuesY = null;
+			valuesY[index] = Math.sqrt(variance + extraVariance) * conf95;
 		}
 
 		errorDiffResults.put(function, valuesY);

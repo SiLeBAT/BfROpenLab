@@ -50,6 +50,7 @@ import org.nfunk.jep.ParseException;
 import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.chart.NamedShape;
 import de.bund.bfr.math.InterpolationFactory;
+import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.Transform;
 
 public class ChartCreator extends JPanel {
@@ -170,14 +171,14 @@ public class ChartCreator extends JPanel {
 			}
 
 			if (plotable.isParamType()) {
-				Double minArg = transformX.to(plotable.getMinValues().get(varX));
-				Double maxArg = transformX.to(plotable.getMaxValues().get(varX));
+				double minArg = transformX.to(MathUtils.nullToNan(plotable.getMinValues().get(varX)));
+				double maxArg = transformX.to(MathUtils.nullToNan(plotable.getMaxValues().get(varX)));
 
-				if (minArg != null) {
+				if (Double.isFinite(minArg)) {
 					usedMinX = Math.min(usedMinX, minArg);
 				}
 
-				if (maxArg != null) {
+				if (Double.isFinite(maxArg)) {
 					usedMaxX = Math.max(usedMaxX, maxArg);
 				}
 			}

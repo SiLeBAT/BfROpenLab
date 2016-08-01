@@ -45,6 +45,10 @@ public class MathUtils {
 	private MathUtils() {
 	}
 
+	public static double nullToNan(Double d) {
+		return d != null ? d : Double.NaN;
+	}
+
 	public static String replaceVariable(String formula, String var, String newVar) {
 		if (var.equals(newVar)) {
 			return formula;
