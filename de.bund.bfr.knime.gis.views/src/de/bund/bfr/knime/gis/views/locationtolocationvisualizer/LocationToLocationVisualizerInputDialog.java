@@ -36,7 +36,7 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
@@ -69,19 +69,18 @@ public class LocationToLocationVisualizerInputDialog extends KnimeDialog {
 		gisBox = new JComboBox<>(shapeSpec != null ? GisType.values() : GisType.valuesWithoutShapefile());
 		gisBox.setSelectedItem(set.getGisSettings().getGisType());
 		gisBox.addActionListener(e -> shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE));
-		shapeBox = new ColumnComboBox(false,
-				shapeSpec != null ? KnimeUtils.getColumns(shapeSpec, ShapeBlobCell.TYPE) : null);
+		shapeBox = new ColumnComboBox(false, shapeSpec != null ? IO.getColumns(shapeSpec, ShapeBlobCell.TYPE) : null);
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE);
-		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE, IntCell.TYPE));
+		nodeIdBox = new ColumnComboBox(false, IO.getColumns(nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeIdBox.setSelectedColumnName(set.getGraphSettings().getNodeIdColumn());
-		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
+		nodeLatitudeBox = new ColumnComboBox(false, IO.getColumns(nodeSpec, DoubleCell.TYPE));
 		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLatitudeColumn());
-		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
+		nodeLongitudeBox = new ColumnComboBox(false, IO.getColumns(nodeSpec, DoubleCell.TYPE));
 		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLongitudeColumn());
-		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
+		edgeFromBox = new ColumnComboBox(false, IO.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeFromBox.setSelectedColumnName(set.getGraphSettings().getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
+		edgeToBox = new ColumnComboBox(false, IO.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeToBox.setSelectedColumnName(set.getGraphSettings().getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

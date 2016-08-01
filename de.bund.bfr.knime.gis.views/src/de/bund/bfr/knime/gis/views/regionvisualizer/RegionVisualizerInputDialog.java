@@ -35,7 +35,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
@@ -64,11 +64,11 @@ public class RegionVisualizerInputDialog extends KnimeDialog {
 
 		gisBox = new JComboBox<>(GisType.values());
 		gisBox.setSelectedItem(set.getGisSettings().getGisType());
-		shapeBox = new ColumnComboBox(false, KnimeUtils.getColumns(shapeSpec, ShapeBlobCell.TYPE));
+		shapeBox = new ColumnComboBox(false, IO.getColumns(shapeSpec, ShapeBlobCell.TYPE));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
-		shapeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(shapeSpec, StringCell.TYPE, IntCell.TYPE));
+		shapeRegionBox = new ColumnComboBox(false, IO.getColumns(shapeSpec, StringCell.TYPE, IntCell.TYPE));
 		shapeRegionBox.setSelectedColumnName(set.getGisSettings().getShapeRegionColumn());
-		nodeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE, IntCell.TYPE));
+		nodeRegionBox = new ColumnComboBox(false, IO.getColumns(nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeRegionBox.setSelectedColumnName(set.getGisSettings().getNodeRegionColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

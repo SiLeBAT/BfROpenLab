@@ -34,7 +34,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DoubleCell;
 
-import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
@@ -64,13 +64,12 @@ public class LocationVisualizerInputDialog extends KnimeDialog {
 		gisBox = new JComboBox<>(shapeSpec != null ? GisType.values() : GisType.valuesWithoutShapefile());
 		gisBox.setSelectedItem(set.getGisSettings().getGisType());
 		gisBox.addActionListener(e -> shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE));
-		shapeBox = new ColumnComboBox(false,
-				shapeSpec != null ? KnimeUtils.getColumns(shapeSpec, ShapeBlobCell.TYPE) : null);
+		shapeBox = new ColumnComboBox(false, shapeSpec != null ? IO.getColumns(shapeSpec, ShapeBlobCell.TYPE) : null);
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE);
-		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
+		nodeLatitudeBox = new ColumnComboBox(false, IO.getColumns(nodeSpec, DoubleCell.TYPE));
 		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLatitudeColumn());
-		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
+		nodeLongitudeBox = new ColumnComboBox(false, IO.getColumns(nodeSpec, DoubleCell.TYPE));
 		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLongitudeColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

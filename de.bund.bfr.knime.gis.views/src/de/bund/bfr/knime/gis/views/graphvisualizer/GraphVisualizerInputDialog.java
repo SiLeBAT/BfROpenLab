@@ -34,7 +34,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 import de.bund.bfr.knime.ui.Dialogs;
@@ -58,11 +58,11 @@ public class GraphVisualizerInputDialog extends KnimeDialog {
 		this.set = set;
 		approved = false;
 
-		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE, IntCell.TYPE));
+		nodeIdBox = new ColumnComboBox(false, IO.getColumns(nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeIdBox.setSelectedColumnName(set.getGraphSettings().getNodeIdColumn());
-		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
+		edgeFromBox = new ColumnComboBox(false, IO.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeFromBox.setSelectedColumnName(set.getGraphSettings().getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
+		edgeToBox = new ColumnComboBox(false, IO.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeToBox.setSelectedColumnName(set.getGraphSettings().getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

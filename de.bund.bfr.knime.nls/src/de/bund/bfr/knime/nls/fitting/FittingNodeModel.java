@@ -60,7 +60,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -218,20 +217,16 @@ public class FittingNodeModel extends NodeModel {
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		Function function = ((FunctionPortObjectSpec) inSpecs[0]).getFunction();
 		DataTableSpec dataSpec = (DataTableSpec) inSpecs[1];
-		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec, StringCell.TYPE));
-		List<String> dataDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec, DoubleValue.class));
+		List<String> dataDoubleColumns = IO.getColumnNames(dataSpec, DoubleValue.class);
 
-		if (!dataStringColumns.contains(NlsUtils.ID_COLUMN)) {
+		if (!IO.getColumnNames(dataSpec, StringCell.TYPE).contains(NlsUtils.ID_COLUMN)) {
 			throw new InvalidSettingsException(
 					"Data Table must contain String Column named \"" + NlsUtils.ID_COLUMN + "\"");
 		}
 
 		if (isDiff) {
 			DataTableSpec conditionSpec = (DataTableSpec) inSpecs[2];
-			List<String> conditionStringColumns = KnimeUtils
-					.getColumnNames(KnimeUtils.getColumns(conditionSpec, StringCell.TYPE));
-			List<String> conditionDoubleColumns = KnimeUtils
-					.getColumnNames(KnimeUtils.getColumns(conditionSpec, DoubleValue.class));
+			List<String> conditionDoubleColumns = IO.getColumnNames(conditionSpec, DoubleValue.class);
 
 			if (!dataDoubleColumns.contains(function.getTimeVariable())) {
 				throw new InvalidSettingsException(
@@ -243,7 +238,7 @@ public class FittingNodeModel extends NodeModel {
 						"Data Table must contain Double Column named \"" + function.getDependentVariable() + "\"");
 			}
 
-			if (!conditionStringColumns.contains(NlsUtils.ID_COLUMN)) {
+			if (!IO.getColumnNames(conditionSpec, StringCell.TYPE).contains(NlsUtils.ID_COLUMN)) {
 				throw new InvalidSettingsException(
 						"Condition Table must contain String Column named \"" + NlsUtils.ID_COLUMN + "\"");
 			}

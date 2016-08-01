@@ -19,9 +19,17 @@
  *******************************************************************************/
 package de.bund.bfr.knime;
 
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.knime.core.data.BooleanValue;
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
@@ -37,6 +45,28 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class IO {
 
 	private IO() {
+	}
+
+	public static List<DataColumnSpec> getColumns(DataTableSpec spec, DataType... types) {
+		Predicate<DataColumnSpec> isCompatible = c -> Stream.of(types).anyMatch(t -> t.equals(c.getType()));
+
+		return KnimeUtils.streamOf(spec).filter(isCompatible).collect(Collectors.toList());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<DataColumnSpec> getColumns(DataTableSpec spec, Class<? extends DataValue>... types) {
+		Predicate<DataColumnSpec> isCompatible = c -> Stream.of(types).anyMatch(t -> c.getType().isCompatible(t));
+
+		return KnimeUtils.streamOf(spec).filter(isCompatible).collect(Collectors.toList());
+	}
+
+	public static List<String> getColumnNames(DataTableSpec spec, DataType... types) {
+		return getColumns(spec, types).stream().map(c -> c.getName()).collect(Collectors.toList());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<String> getColumnNames(DataTableSpec spec, Class<? extends DataValue>... types) {
+		return getColumns(spec, types).stream().map(c -> c.getName()).collect(Collectors.toList());
 	}
 
 	public static DataCell createCell(String s) {

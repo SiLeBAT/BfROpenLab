@@ -40,7 +40,7 @@ import org.knime.core.node.NotConfigurableException;
 
 import com.google.common.collect.Lists;
 
-import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
@@ -87,7 +87,7 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		addressBox.removeAllColumns();
 		countryCodeBox.removeAllColumns();
 
-		for (DataColumnSpec column : KnimeUtils.getColumns(specs[0], StringCell.TYPE)) {
+		for (DataColumnSpec column : IO.getColumns(specs[0], StringCell.TYPE)) {
 			addressBox.addColumn(column);
 			countryCodeBox.addColumn(column);
 		}

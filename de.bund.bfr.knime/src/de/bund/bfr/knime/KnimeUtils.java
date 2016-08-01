@@ -31,18 +31,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.swing.SwingUtilities;
 
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
-import org.knime.core.data.DataValue;
-import org.knime.core.node.NotConfigurableException;
 import org.knime.core.util.FileUtil;
 
 import com.google.common.collect.Ordering;
@@ -74,23 +67,6 @@ public class KnimeUtils {
 
 	public static File getFile(String fileName) throws InvalidPathException, MalformedURLException {
 		return FileUtil.getFileFromURL(FileUtil.toURL(fileName));
-	}
-
-	public static List<DataColumnSpec> getColumns(DataTableSpec spec, DataType... types) {
-		Predicate<DataColumnSpec> isCompatible = c -> Stream.of(types).anyMatch(t -> t.equals(c.getType()));
-
-		return KnimeUtils.streamOf(spec).filter(isCompatible).collect(Collectors.toList());
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<DataColumnSpec> getColumns(DataTableSpec spec, Class<? extends DataValue>... types) {
-		Predicate<DataColumnSpec> isCompatible = c -> Stream.of(types).anyMatch(t -> c.getType().isCompatible(t));
-
-		return KnimeUtils.streamOf(spec).filter(isCompatible).collect(Collectors.toList());
-	}
-
-	public static List<String> getColumnNames(List<DataColumnSpec> columns) {
-		return columns.stream().map(c -> c.getName()).collect(Collectors.toList());
 	}
 
 	public static String createNewValue(String value, Collection<String> values) {
@@ -136,19 +112,6 @@ public class KnimeUtils {
 				}
 			}
 		}).start();
-	}
-
-	public static void assertColumnNotMissing(DataTableSpec spec, String columnName) throws NotConfigurableException {
-		assertColumnNotMissing(spec, columnName, null);
-	}
-
-	public static void assertColumnNotMissing(DataTableSpec spec, String columnName, String tableName)
-			throws NotConfigurableException {
-		if (!spec.containsName(columnName)) {
-			String prefix = tableName != null ? tableName + ": " : "";
-
-			throw new NotConfigurableException(prefix + "Column \"" + columnName + "\" is missing");
-		}
 	}
 
 	public static <T> Stream<T> streamOf(Iterable<T> iterable) {

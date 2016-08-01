@@ -77,8 +77,8 @@ public class ViewUtils {
 			String nodeRegionColumn) throws NotConfigurableException {
 		DataTableSpec spec = nodeTable.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, nodeIdColumn, "Node Table");
-		KnimeUtils.assertColumnNotMissing(spec, nodeRegionColumn, "Node Table");
+		assertColumnNotMissing(spec, nodeIdColumn, "Node Table");
+		assertColumnNotMissing(spec, nodeRegionColumn, "Node Table");
 
 		Map<String, String> idToRegionMap = new LinkedHashMap<>();
 
@@ -98,8 +98,8 @@ public class ViewUtils {
 			String shapeRegionColumn) throws NotConfigurableException {
 		DataTableSpec spec = shapeTable.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, shapeColumn, "Shape Table");
-		KnimeUtils.assertColumnNotMissing(spec, shapeRegionColumn, "Shape Table");
+		assertColumnNotMissing(spec, shapeColumn, "Shape Table");
+		assertColumnNotMissing(spec, shapeRegionColumn, "Shape Table");
 
 		Map<String, MultiPolygon> polygonMap = new LinkedHashMap<>();
 
@@ -120,12 +120,12 @@ public class ViewUtils {
 			throws NotConfigurableException {
 		DataTableSpec spec = nodeTable.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, nodeIdColumn, "Node Table");
+		assertColumnNotMissing(spec, nodeIdColumn, "Node Table");
 		nodeProperties.put(nodeIdColumn, String.class);
 
 		if (nodeRegionColumn != null) {
 			nodeProperties.put(nodeRegionColumn, String.class);
-			KnimeUtils.assertColumnNotMissing(spec, nodeRegionColumn, "Node Table");
+			assertColumnNotMissing(spec, nodeRegionColumn, "Node Table");
 		}
 
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
@@ -150,7 +150,7 @@ public class ViewUtils {
 
 	public static List<RegionNode> readRegionNodes(BufferedDataTable shapeTable, String shapeColumn)
 			throws NotConfigurableException {
-		KnimeUtils.assertColumnNotMissing(shapeTable.getSpec(), shapeColumn, "Shape Table");
+		assertColumnNotMissing(shapeTable.getSpec(), shapeColumn, "Shape Table");
 
 		List<RegionNode> nodes = new ArrayList<>();
 		int index = 0;
@@ -170,7 +170,7 @@ public class ViewUtils {
 			Map<String, Class<?>> nodeProperties, Map<String, MultiPolygon> polygonMap,
 			Map<String, String> idToRegionMap, String nodeIdColumn, Set<String> nonExistingRegions)
 			throws NotConfigurableException {
-		KnimeUtils.assertColumnNotMissing(nodeTable.getSpec(), nodeIdColumn, "Node Table");
+		assertColumnNotMissing(nodeTable.getSpec(), nodeIdColumn, "Node Table");
 		nodeProperties.put(nodeIdColumn, String.class);
 
 		Map<String, Map<String, Object>> nodeMap = new LinkedHashMap<>();
@@ -226,11 +226,11 @@ public class ViewUtils {
 			throws NotConfigurableException {
 		DataTableSpec spec = nodeTable.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, latitudeColumn, "Node Table");
-		KnimeUtils.assertColumnNotMissing(spec, longitudeColumn, "Node Table");
+		assertColumnNotMissing(spec, latitudeColumn, "Node Table");
+		assertColumnNotMissing(spec, longitudeColumn, "Node Table");
 
 		if (nodeIdColumn != null) {
-			KnimeUtils.assertColumnNotMissing(spec, nodeIdColumn, "Node Table");
+			assertColumnNotMissing(spec, nodeIdColumn, "Node Table");
 		}
 
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
@@ -267,8 +267,8 @@ public class ViewUtils {
 			String edgeFromColumn, String edgeToColumn) throws NotConfigurableException {
 		DataTableSpec spec = edgeTable.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, edgeFromColumn, "Edge Table");
-		KnimeUtils.assertColumnNotMissing(spec, edgeToColumn, "Edge Table");
+		assertColumnNotMissing(spec, edgeFromColumn, "Edge Table");
+		assertColumnNotMissing(spec, edgeToColumn, "Edge Table");
 		edgeProperties.put(edgeFromColumn, String.class);
 		edgeProperties.put(edgeToColumn, String.class);
 
@@ -332,5 +332,12 @@ public class ViewUtils {
 		}
 
 		CanvasUtils.addObjectToMap(map, property, type, obj);
+	}
+
+	private static void assertColumnNotMissing(DataTableSpec spec, String columnName, String tableName)
+			throws NotConfigurableException {
+		if (!spec.containsName(columnName)) {
+			throw new NotConfigurableException(tableName + ": Column \"" + columnName + "\" is missing");
+		}
 	}
 }

@@ -54,7 +54,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -88,9 +87,9 @@ public class DBSCANNodeModel extends NodeModel {
 		BufferedDataTable table = inData[0];
 		DataTableSpec spec = table.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID);
-		KnimeUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LATITUDE_COLUMN);
-		KnimeUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LONGITUDE_COLUMN);
+		TracingUtils.assertColumnNotMissing(spec, TracingColumns.ID, null);
+		TracingUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LATITUDE_COLUMN, null);
+		TracingUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LONGITUDE_COLUMN, null);
 
 		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(table.getSpec()),
 				TracingColumns.ID);

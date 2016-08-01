@@ -47,7 +47,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
@@ -113,7 +112,7 @@ public class TracingUtils {
 
 	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable nodeTable, NodePropertySchema nodeSchema)
 			throws NotConfigurableException {
-		KnimeUtils.assertColumnNotMissing(nodeTable.getSpec(), TracingColumns.ID, "Station Table");
+		assertColumnNotMissing(nodeTable.getSpec(), TracingColumns.ID, "Station Table");
 
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
@@ -150,9 +149,9 @@ public class TracingUtils {
 			throws NotConfigurableException {
 		DataTableSpec spec = nodeTable.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID, "Station Table");
-		KnimeUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LATITUDE_COLUMN, "Station Table");
-		KnimeUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LONGITUDE_COLUMN, "Station Table");
+		assertColumnNotMissing(spec, TracingColumns.ID, "Station Table");
+		assertColumnNotMissing(spec, GeocodingNodeModel.LATITUDE_COLUMN, "Station Table");
+		assertColumnNotMissing(spec, GeocodingNodeModel.LONGITUDE_COLUMN, "Station Table");
 
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
@@ -208,10 +207,10 @@ public class TracingUtils {
 			Map<String, V> nodes, Set<RowKey> skippedRows) throws NotConfigurableException {
 		DataTableSpec spec = edgeTable.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Table");
-		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.FROM, "Delivery Table");
-		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.TO, "Delivery Table");
-		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.DELIVERY_DEPARTURE, "Delivery Table");
+		assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Table");
+		assertColumnNotMissing(spec, TracingColumns.FROM, "Delivery Table");
+		assertColumnNotMissing(spec, TracingColumns.TO, "Delivery Table");
+		assertColumnNotMissing(spec, TracingColumns.DELIVERY_DEPARTURE, "Delivery Table");
 
 		if (spec.getColumnSpec(TracingColumns.DELIVERY_DEPARTURE).getType() != StringCell.TYPE) {
 			throw new NotConfigurableException(
@@ -262,8 +261,8 @@ public class TracingUtils {
 			Collection<Edge<V>> edges, Set<RowKey> skippedRows) throws NotConfigurableException {
 		DataTableSpec spec = tracingTable.getSpec();
 
-		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Relations Table");
-		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.NEXT, "Delivery Relations Table");
+		assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Relations Table");
+		assertColumnNotMissing(spec, TracingColumns.NEXT, "Delivery Relations Table");
 
 		Map<String, Delivery> deliveries = new LinkedHashMap<>();
 
@@ -296,7 +295,7 @@ public class TracingUtils {
 	public static List<RegionNode> readRegions(BufferedDataTable shapeTable, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		List<RegionNode> nodes = new ArrayList<>();
-		List<DataColumnSpec> shapeColumns = KnimeUtils.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE);
+		List<DataColumnSpec> shapeColumns = IO.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE);
 
 		if (shapeColumns.isEmpty()) {
 			throw new NotConfigurableException("Shape Table: Shape Column missing");
@@ -443,6 +442,15 @@ public class TracingUtils {
 			return Integer.parseInt(day);
 		} catch (NumberFormatException | NullPointerException e) {
 			return null;
+		}
+	}
+
+	public static void assertColumnNotMissing(DataTableSpec spec, String columnName, String tableName)
+			throws NotConfigurableException {
+		if (!spec.containsName(columnName)) {
+			String prefix = tableName != null ? tableName + ": " : "";
+
+			throw new NotConfigurableException(prefix + "Column \"" + columnName + "\" is missing");
 		}
 	}
 }
