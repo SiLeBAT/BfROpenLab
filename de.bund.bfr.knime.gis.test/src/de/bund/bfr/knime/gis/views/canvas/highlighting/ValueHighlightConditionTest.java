@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
+import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 
@@ -49,6 +50,7 @@ public class ValueHighlightConditionTest {
 	private static final boolean INVISIBLE = true;
 	private static final boolean USE_THICKNESS = true;
 	private static final String LABEL_PROPERTY = "labelProperty";
+	private static final NamedShape SHAPE = NamedShape.SQUARE;
 
 	private ValueHighlightCondition valueCondition;
 	private ValueHighlightCondition zeroAsMinLogValueCondition;
@@ -58,9 +60,9 @@ public class ValueHighlightConditionTest {
 	@Before
 	public void setUp() throws Exception {
 		valueCondition = new ValueHighlightCondition(PROPERTY, ValueHighlightCondition.Type.VALUE, false, NAME,
-				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 		zeroAsMinLogValueCondition = new ValueHighlightCondition(PROPERTY, ValueHighlightCondition.Type.LOG_VALUE, true,
-				NAME, SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				NAME, SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 		element5 = new GraphNode(null, ImmutableMap.of(PROPERTY, 5.0));
 		element10 = new GraphNode(null, ImmutableMap.of(PROPERTY, 10.0));
 	}
@@ -78,12 +80,13 @@ public class ValueHighlightConditionTest {
 		assertFalse(c.isInvisible());
 		assertFalse(c.isUseThickness());
 		assertNull(c.getLabelProperty());
+		assertNull(c.getShape());
 	}
 
 	@Test
 	public void testValueHighlightConditionStringStringBooleanStringBooleanColorBooleanBooleanString() {
 		ValueHighlightCondition c = new ValueHighlightCondition(PROPERTY, TYPE, ZERO_AS_MINIMUM, NAME, SHOW_IN_LEGEND,
-				COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 
 		assertEquals(PROPERTY, c.getProperty());
 		assertEquals(TYPE, c.getType());
@@ -94,96 +97,7 @@ public class ValueHighlightConditionTest {
 		assertEquals(INVISIBLE, c.isInvisible());
 		assertEquals(USE_THICKNESS, c.isUseThickness());
 		assertEquals(LABEL_PROPERTY, c.getLabelProperty());
-	}
-
-	@Test
-	public void testGetProperty() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetProperty() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetType() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetType() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsZeroAsMinimum() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetZeroAsMinimum() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetName() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetName() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsShowInLegend() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetShowInLegend() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetColor() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetColor() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsInvisible() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetInvisible() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testIsUseThickness() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetUseThickness() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetLabelProperty() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetLabelProperty() {
-		// method automatically generated
+		assertEquals(SHAPE, c.getShape());
 	}
 
 	@Test
@@ -215,15 +129,5 @@ public class ValueHighlightConditionTest {
 		copy.setShowInLegend(!copy.isShowInLegend());
 
 		assertNotEquals(valueCondition, copy);
-	}
-
-	@Test
-	public void testHashCode() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testEqualsObject() {
-		// method automatically generated
 	}
 }

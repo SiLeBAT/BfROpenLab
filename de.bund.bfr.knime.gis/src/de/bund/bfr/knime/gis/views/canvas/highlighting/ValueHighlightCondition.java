@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
@@ -60,13 +61,14 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	private boolean invisible;
 	private boolean useThickness;
 	private String labelProperty;
+	private NamedShape shape;
 
 	public ValueHighlightCondition() {
-		this(null, null, false, null, true, null, false, false, null);
+		this(null, null, false, null, true, null, false, false, null, null);
 	}
 
 	public ValueHighlightCondition(String property, Type type, boolean zeroAsMinimum, String name, boolean showInLegend,
-			Color color, boolean invisible, boolean useThickness, String labelProperty) {
+			Color color, boolean invisible, boolean useThickness, String labelProperty, NamedShape shape) {
 		setProperty(property);
 		setType(type);
 		setZeroAsMinimum(zeroAsMinimum);
@@ -76,6 +78,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		setInvisible(invisible);
 		setUseThickness(useThickness);
 		setLabelProperty(labelProperty);
+		setShape(shape);
 	}
 
 	public String getProperty() {
@@ -157,6 +160,15 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
+	public NamedShape getShape() {
+		return shape;
+	}
+
+	public void setShape(NamedShape shape) {
+		this.shape = shape;
+	}
+
+	@Override
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> values = new LinkedHashMap<>();
 
@@ -206,13 +218,13 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	@Override
 	public ValueHighlightCondition copy() {
 		return new ValueHighlightCondition(property, type, zeroAsMinimum, name, showInLegend, color, invisible,
-				useThickness, labelProperty);
+				useThickness, labelProperty, shape);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(property, type, zeroAsMinimum, name, showInLegend, color, invisible, useThickness,
-				labelProperty);
+				labelProperty, shape);
 	}
 
 	@Override
@@ -230,6 +242,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		return Objects.equals(property, other.property) && type == other.type && zeroAsMinimum == other.zeroAsMinimum
 				&& Objects.equals(name, other.name) && showInLegend == other.showInLegend
 				&& Objects.equals(color, other.color) && invisible == other.invisible
-				&& useThickness == other.useThickness && Objects.equals(labelProperty, other.labelProperty);
+				&& useThickness == other.useThickness && Objects.equals(labelProperty, other.labelProperty)
+				&& shape == other.shape;
 	}
 }

@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
@@ -93,6 +94,11 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	@Override
 	public String getLabelProperty() {
 		return valueCondition.getLabelProperty();
+	}
+
+	@Override
+	public NamedShape getShape() {
+		return valueCondition.getShape();
 	}
 
 	@Override

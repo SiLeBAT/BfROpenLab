@@ -47,6 +47,7 @@ import javax.swing.SwingConstants;
 
 import com.google.common.base.Strings;
 
+import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -108,6 +109,7 @@ public class HighlightDialog extends KnimeDialog {
 	private JCheckBox invisibleBox;
 	private JCheckBox thicknessBox;
 	private JComboBox<String> labelBox;
+	private JComboBox<NamedShape> shapeBox;
 	private JComponent conditionPanel;
 	private JButton okButton;
 	private JButton cancelButton;
@@ -129,6 +131,7 @@ public class HighlightDialog extends KnimeDialog {
 	private boolean allowInvisible;
 	private boolean allowThickness;
 	private boolean allowLabel;
+	private boolean allowShape;
 	private List<HighlightConditionChecker> checkers;
 
 	private PropertySelectorCreator selectorCreator;
@@ -138,20 +141,20 @@ public class HighlightDialog extends KnimeDialog {
 
 	public static HighlightDialog createFilterDialog(Component owner, PropertySchema schema,
 			HighlightCondition condition, PropertySelectorCreator selectorCreator) {
-		return new HighlightDialog(owner, schema, false, false, false, false, false, true, condition, null,
+		return new HighlightDialog(owner, schema, false, false, false, false, false, false, true, condition, null,
 				selectorCreator);
 	}
 
 	public static HighlightDialog createHighlightDialog(Component owner, PropertySchema schema, boolean allowInvisible,
-			boolean allowThickness, HighlightCondition condition, List<HighlightConditionChecker> checkers,
-			PropertySelectorCreator selectorCreator) {
-		return new HighlightDialog(owner, schema, true, true, allowInvisible, allowThickness, true, false, condition,
-				checkers, selectorCreator);
+			boolean allowThickness, boolean allowShape, HighlightCondition condition,
+			List<HighlightConditionChecker> checkers, PropertySelectorCreator selectorCreator) {
+		return new HighlightDialog(owner, schema, true, true, allowInvisible, allowThickness, allowShape, true, false,
+				condition, checkers, selectorCreator);
 	}
 
 	private HighlightDialog(Component owner, PropertySchema schema, boolean allowName, boolean allowColor,
-			boolean allowInvisible, boolean allowThickness, boolean allowLabel, boolean onlyAllowLogical,
-			HighlightCondition condition, List<HighlightConditionChecker> checkers,
+			boolean allowInvisible, boolean allowThickness, boolean allowShape, boolean allowLabel,
+			boolean onlyAllowLogical, HighlightCondition condition, List<HighlightConditionChecker> checkers,
 			PropertySelectorCreator selectorCreator) {
 		super(owner, "Highlight Condition", DEFAULT_MODALITY_TYPE);
 		this.schema = schema;
@@ -160,6 +163,7 @@ public class HighlightDialog extends KnimeDialog {
 		this.allowInvisible = allowInvisible;
 		this.allowThickness = allowThickness;
 		this.allowLabel = allowLabel;
+		this.allowShape = allowShape;
 		this.checkers = checkers;
 		this.selectorCreator = selectorCreator;
 		this.condition = null;
@@ -167,10 +171,8 @@ public class HighlightDialog extends KnimeDialog {
 		lastColor = Color.RED;
 
 		if (condition == null) {
-			condition = new AndOrHighlightCondition(
-					new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
-							LogicalHighlightCondition.Type.EQUAL, ""),
-					null, true, lastColor, false, false, null);
+			condition = new AndOrHighlightCondition(createLogicalCondition(), null, true, lastColor, false, false, null,
+					null);
 		}
 
 		if (condition instanceof AndOrHighlightCondition) {
@@ -195,7 +197,7 @@ public class HighlightDialog extends KnimeDialog {
 		conditionTypeBox.setSelectedItem(type);
 		conditionTypeBox.addItemListener(UI.newItemSelectListener(e -> conditionTypeChanged()));
 		nameField = new JTextField(20);
-		nameField.setText(condition.getName() != null ? condition.getName() : "");
+		nameField.setText(Strings.nullToEmpty(condition.getName()));
 		nameField.getDocument().addDocumentListener(UI.newDocumentActionListener(e -> updateOptionsPanel()));
 		legendBox = new JCheckBox("Show In Legend");
 		legendBox.setSelected(condition.isShowInLegend());
@@ -212,8 +214,11 @@ public class HighlightDialog extends KnimeDialog {
 		thicknessBox = new JCheckBox("Adjust Thickness");
 		thicknessBox.setSelected(condition.isUseThickness());
 		labelBox = new JComboBox<>(schema.getMap().keySet().toArray(new String[0]));
-		labelBox.insertItemAt("", 0);
-		labelBox.setSelectedItem(condition.getLabelProperty() != null ? condition.getLabelProperty() : "");
+		labelBox.insertItemAt(null, 0);
+		labelBox.setSelectedItem(condition.getLabelProperty());
+		shapeBox = new JComboBox<>(NamedShape.values());
+		shapeBox.insertItemAt(null, 0);
+		shapeBox.setSelectedItem(condition.getShape());
 
 		setNewColor(condition.getColor());
 
@@ -257,6 +262,12 @@ public class HighlightDialog extends KnimeDialog {
 			optionsPanel.add(Box.createHorizontalStrut(5));
 			optionsPanel.add(new JLabel("Label:"));
 			optionsPanel.add(labelBox);
+		}
+
+		if (allowShape) {
+			optionsPanel.add(Box.createHorizontalStrut(5));
+			optionsPanel.add(new JLabel("Shape:"));
+			optionsPanel.add(shapeBox);
 		}
 
 		okButton = new JButton("OK");
@@ -312,6 +323,7 @@ public class HighlightDialog extends KnimeDialog {
 		colorBox.setEnabled(!invisible);
 		thicknessBox.setEnabled(!invisible);
 		labelBox.setEnabled(!invisible);
+		shapeBox.setEnabled(!invisible);
 
 		if (allowColor && colorBox.isEnabled() && colorBox.isSelected()) {
 			setNewColor(lastColor);
@@ -326,10 +338,8 @@ public class HighlightDialog extends KnimeDialog {
 
 	private JComponent createLogicalPanel(AndOrHighlightCondition condition) {
 		if (condition == null) {
-			condition = new AndOrHighlightCondition(
-					new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
-							LogicalHighlightCondition.Type.EQUAL, ""),
-					null, false, null, false, false, null);
+			condition = new AndOrHighlightCondition(createLogicalCondition(), null, false, null, false, false, null,
+					null);
 		}
 
 		logicalAndOrBoxes = new ArrayList<>();
@@ -474,37 +484,30 @@ public class HighlightDialog extends KnimeDialog {
 
 	private HighlightCondition createCondition() {
 		boolean invisible = allowInvisible && invisibleBox.isSelected();
-		boolean useThickness = allowThickness && thicknessBox.isSelected();
+		boolean useThickness = allowThickness && thicknessBox.isEnabled() && thicknessBox.isSelected();
 		String name = allowName ? Strings.emptyToNull(nameField.getText().trim()) : null;
 		boolean showInLegend = allowColor && legendBox.isEnabled() && legendBox.isSelected();
-		Color color = null;
-		String labelProperty = null;
-
-		if (allowColor && colorBox.isEnabled() && colorBox.isSelected()) {
-			color = this.color;
-		}
-
-		if (allowLabel && !labelBox.getSelectedItem().equals("")) {
-			labelProperty = (String) labelBox.getSelectedItem();
-		}
+		Color color = allowColor && colorBox.isEnabled() && colorBox.isSelected() ? this.color : null;
+		String labelProperty = allowLabel && labelBox.isEnabled() ? (String) labelBox.getSelectedItem() : null;
+		NamedShape shape = allowShape && shapeBox.isEnabled() ? (NamedShape) shapeBox.getSelectedItem() : null;
 
 		switch (type) {
 		case LOGICAL_CONDITION:
 		case APPLY_TO_ALL:
-			return createLogicalCondition(name, showInLegend, color, invisible, useThickness, labelProperty);
+			return createLogicalCondition(name, showInLegend, color, invisible, useThickness, labelProperty, shape);
 		case VALUE_CONDITION:
-			return createValueCondition(name, showInLegend, color, invisible, useThickness, labelProperty);
+			return createValueCondition(name, showInLegend, color, invisible, useThickness, labelProperty, shape);
 		case LOGICAL_VALUE_CONDITION:
 			return new LogicalValueHighlightCondition(
-					createValueCondition(name, showInLegend, color, invisible, useThickness, labelProperty),
-					createLogicalCondition(name, showInLegend, color, invisible, useThickness, labelProperty));
+					createValueCondition(name, showInLegend, color, invisible, useThickness, labelProperty, shape),
+					createLogicalCondition(name, showInLegend, color, invisible, useThickness, labelProperty, shape));
 		}
 
 		return null;
 	}
 
 	private AndOrHighlightCondition createLogicalCondition(String name, boolean showInLegend, Color color,
-			boolean invisible, boolean useThickness, String labelProperty) {
+			boolean invisible, boolean useThickness, String labelProperty, NamedShape shape) {
 		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 		List<LogicalHighlightCondition> andList = new ArrayList<>();
 
@@ -529,14 +532,14 @@ public class HighlightDialog extends KnimeDialog {
 		conditions.add(andList);
 
 		return new AndOrHighlightCondition(conditions, name, showInLegend, color, invisible, useThickness,
-				labelProperty);
+				labelProperty, shape);
 	}
 
 	private ValueHighlightCondition createValueCondition(String name, boolean showInLegend, Color color,
-			boolean invisible, boolean useThickness, String labelProperty) {
+			boolean invisible, boolean useThickness, String labelProperty, NamedShape shape) {
 		return new ValueHighlightCondition((String) valuePropertyBox.getSelectedItem(),
 				(ValueHighlightCondition.Type) valueTypeBox.getSelectedItem(), zeroAsMinimumBox.isSelected(), name,
-				showInLegend, color, invisible, useThickness, labelProperty);
+				showInLegend, color, invisible, useThickness, labelProperty, shape);
 	}
 
 	private void okButtonPressed() {
@@ -585,8 +588,7 @@ public class HighlightDialog extends KnimeDialog {
 		}
 
 		List<List<LogicalHighlightCondition>> conditions = logicalCondition.getConditions();
-		LogicalHighlightCondition newCond = new LogicalHighlightCondition(
-				schema.getMap().keySet().stream().findFirst().get(), LogicalHighlightCondition.Type.EQUAL, "");
+		LogicalHighlightCondition newCond = createLogicalCondition();
 		LogicalHighlightCondition lastCond = null;
 		boolean done = false;
 		int count = 0;
@@ -641,11 +643,11 @@ public class HighlightDialog extends KnimeDialog {
 
 		if (condition instanceof AndOrHighlightCondition) {
 			conditionPanel = createLogicalPanel(
-					new AndOrHighlightCondition(conditions, null, false, null, false, false, null));
+					new AndOrHighlightCondition(conditions, null, false, null, false, false, null, null));
 		} else if (condition instanceof LogicalValueHighlightCondition) {
 			conditionPanel = createLogicalValuePanel(
 					new LogicalValueHighlightCondition(((LogicalValueHighlightCondition) condition).getValueCondition(),
-							new AndOrHighlightCondition(conditions, null, false, null, false, false, null)));
+							new AndOrHighlightCondition(conditions, null, false, null, false, false, null, null)));
 		}
 
 		add(conditionPanel, BorderLayout.CENTER);
@@ -717,5 +719,10 @@ public class HighlightDialog extends KnimeDialog {
 		} else {
 			colorButton.setBackground(BUTTON_BACKGROUND);
 		}
+	}
+
+	private LogicalHighlightCondition createLogicalCondition() {
+		return new LogicalHighlightCondition(schema.getMap().keySet().stream().findFirst().get(),
+				LogicalHighlightCondition.Type.EQUAL, "");
 	}
 }

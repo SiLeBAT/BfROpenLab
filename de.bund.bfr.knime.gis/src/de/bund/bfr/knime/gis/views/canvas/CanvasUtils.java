@@ -70,6 +70,7 @@ import com.google.common.collect.Sets;
 import de.bund.bfr.jung.BetterDirectedSparseMultigraph;
 import de.bund.bfr.jung.BetterVisualizationViewer;
 import de.bund.bfr.jung.JungUtils;
+import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -154,7 +155,7 @@ public class CanvasUtils {
 					LogicalHighlightCondition.Type.EQUAL, category.toString());
 
 			conditions.add(new AndOrHighlightCondition(condition, property + " = " + category, true, color, false,
-					false, null));
+					false, null, null));
 		}
 
 		return conditions;
@@ -336,7 +337,7 @@ public class CanvasUtils {
 			conditions.add(Arrays.asList(c));
 		}
 
-		return new AndOrHighlightCondition(conditions, null, false, Color.RED, false, false, null);
+		return new AndOrHighlightCondition(conditions, null, false, Color.RED, false, false, null, null);
 	}
 
 	public static Set<String> getUsedProperties(HighlightCondition condition) {
@@ -374,7 +375,7 @@ public class CanvasUtils {
 				.collect(Collectors.toCollection(LinkedHashSet::new));
 
 		renderContext.setVertexShapeTransformer(
-				JungUtils.newNodeShapeTransformer(nodeSize, nodeMaxSize, result.thicknessValues));
+				JungUtils.newNodeShapeTransformer(nodeSize, nodeMaxSize, result.thicknessValues, result.shapes));
 		renderContext.setVertexFillPaintTransformer(JungUtils.newNodeFillTransformer(renderContext, result.colors));
 		renderContext.setVertexLabelTransformer(node -> result.labels.get(node));
 		renderContext.setVertexStrokeTransformer(JungUtils.newNodeStrokeTransformer(renderContext, metaNodes));
@@ -578,6 +579,7 @@ public class CanvasUtils {
 		ListMultimap<E, Double> alphaValues = ArrayListMultimap.create();
 		Map<E, Double> thicknessValues = new LinkedHashMap<>();
 		SetMultimap<E, String> labelLists = LinkedHashMultimap.create();
+		Map<E, NamedShape> shapes = new LinkedHashMap<>();
 
 		elements.forEach(e -> thicknessValues.put(e, 0.0));
 
@@ -616,6 +618,14 @@ public class CanvasUtils {
 					}
 				}
 			}
+
+			if (condition.getShape() != null) {
+				for (E e : elements) {
+					if (values.get(e) != 0.0 && !shapes.containsKey(e)) {
+						shapes.put(e, condition.getShape());
+					}
+				}
+			}
 		}
 
 		Map<E, Paint> colors = new LinkedHashMap<>();
@@ -630,6 +640,7 @@ public class CanvasUtils {
 		result.colors = colors;
 		result.thicknessValues = thicknessValues;
 		result.labels = labels;
+		result.shapes = shapes;
 
 		return result;
 	}
@@ -639,5 +650,6 @@ public class CanvasUtils {
 		private Map<E, Paint> colors;
 		private Map<E, Double> thicknessValues;
 		private Map<E, String> labels;
+		private Map<E, NamedShape> shapes;
 	}
 }

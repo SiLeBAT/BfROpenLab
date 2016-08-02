@@ -53,6 +53,7 @@ public class HighlightListDialog extends KnimeDialog {
 
 	private static final boolean DEFAULT_ALLOW_INVISIBLE = true;
 	private static final boolean DEFAULT_ALLOW_THICKNESS = true;
+	private static final boolean DEFAULT_ALLOW_SHAPE = false;
 
 	private JList<HighlightCondition> list;
 	private JButton addButton;
@@ -67,6 +68,7 @@ public class HighlightListDialog extends KnimeDialog {
 	private PropertySchema schema;
 	private boolean allowInvisible;
 	private boolean allowThickness;
+	private boolean allowShape;
 	private List<HighlightConditionChecker> checkers;
 	private HighlightCondition autoAddCondition;
 
@@ -92,6 +94,7 @@ public class HighlightListDialog extends KnimeDialog {
 				highlightConditions.isPrioritizeColors());
 		allowInvisible = DEFAULT_ALLOW_INVISIBLE;
 		allowThickness = DEFAULT_ALLOW_THICKNESS;
+		allowShape = DEFAULT_ALLOW_SHAPE;
 		checkers = new ArrayList<>();
 		autoAddCondition = null;
 		approved = false;
@@ -196,6 +199,14 @@ public class HighlightListDialog extends KnimeDialog {
 		this.allowThickness = allowThickness;
 	}
 
+	public boolean isAllowShape() {
+		return allowShape;
+	}
+
+	public void setAllowShape(boolean allowShape) {
+		this.allowShape = allowShape;
+	}
+
 	public void addChecker(HighlightConditionChecker checker) {
 		checkers.add(checker);
 	}
@@ -229,7 +240,7 @@ public class HighlightListDialog extends KnimeDialog {
 
 		if (e.getClickCount() == 2 && i != -1) {
 			HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema, allowInvisible, allowThickness,
-					highlightConditions.getConditions().get(i), checkers, selectorCreator);
+					allowShape, highlightConditions.getConditions().get(i), checkers, selectorCreator);
 
 			dialog.setVisible(true);
 
@@ -271,7 +282,7 @@ public class HighlightListDialog extends KnimeDialog {
 
 	private void addCondition(HighlightCondition condition) {
 		HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema, allowInvisible, allowThickness,
-				condition, checkers, selectorCreator);
+				allowShape, condition, checkers, selectorCreator);
 
 		dialog.setVisible(true);
 

@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public class AndOrHighlightCondition implements HighlightCondition, Serializable {
@@ -44,19 +45,20 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	private boolean invisible;
 	private boolean useThickness;
 	private String labelProperty;
+	private NamedShape shape;
 
 	public AndOrHighlightCondition() {
-		this(new LogicalHighlightCondition(), null, true, null, false, false, null);
+		this(new LogicalHighlightCondition(), null, true, null, false, false, null, null);
 	}
 
 	public AndOrHighlightCondition(LogicalHighlightCondition condition, String name, boolean showInLegend, Color color,
-			boolean invisible, boolean useThickness, String labelProperty) {
+			boolean invisible, boolean useThickness, String labelProperty, NamedShape shape) {
 		this(new ArrayList<>(Arrays.asList(new ArrayList<>(Arrays.asList(condition)))), name, showInLegend, color,
-				invisible, useThickness, labelProperty);
+				invisible, useThickness, labelProperty, shape);
 	}
 
 	public AndOrHighlightCondition(List<List<LogicalHighlightCondition>> conditions, String name, boolean showInLegend,
-			Color color, boolean invisible, boolean useThickness, String labelProperty) {
+			Color color, boolean invisible, boolean useThickness, String labelProperty, NamedShape shape) {
 		setConditions(conditions);
 		setName(name);
 		setShowInLegend(showInLegend);
@@ -64,6 +66,7 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		setInvisible(invisible);
 		setUseThickness(useThickness);
 		setLabelProperty(labelProperty);
+		setShape(shape);
 	}
 
 	public List<List<LogicalHighlightCondition>> getConditions() {
@@ -128,6 +131,15 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		this.labelProperty = labelProperty;
 	}
 
+	@Override
+	public NamedShape getShape() {
+		return shape;
+	}
+
+	public void setShape(NamedShape shape) {
+		this.shape = shape;
+	}
+
 	public int getConditionCount() {
 		return conditions.stream().mapToInt(c -> c.size()).sum();
 	}
@@ -175,12 +187,12 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		}
 
 		return new AndOrHighlightCondition(conditionsCopy, name, showInLegend, color, invisible, useThickness,
-				labelProperty);
+				labelProperty, shape);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(conditions, name, showInLegend, color, invisible, useThickness, labelProperty);
+		return Objects.hash(conditions, name, showInLegend, color, invisible, useThickness, labelProperty, shape);
 	}
 
 	@Override
@@ -198,6 +210,6 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		return Objects.equals(conditions, other.conditions) && Objects.equals(name, other.name)
 				&& showInLegend == other.showInLegend && Objects.equals(color, other.color)
 				&& invisible == other.invisible && useThickness == other.useThickness
-				&& Objects.equals(labelProperty, other.labelProperty);
+				&& Objects.equals(labelProperty, other.labelProperty) && shape == other.shape;
 	}
 }

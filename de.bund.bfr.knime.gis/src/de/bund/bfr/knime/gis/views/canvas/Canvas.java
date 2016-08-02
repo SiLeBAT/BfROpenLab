@@ -1216,6 +1216,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		HighlightListDialog dialog = new HighlightListDialog(this, nodeSchema, nodeHighlightConditions);
 
+		dialog.setAllowShape(true);
 		dialog.setSelectorCreator(createPropertySelectorCreator());
 
 		return dialog;

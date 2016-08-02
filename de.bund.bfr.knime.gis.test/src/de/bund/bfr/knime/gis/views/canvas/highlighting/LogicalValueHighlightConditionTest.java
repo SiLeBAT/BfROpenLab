@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
+import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 
@@ -43,6 +44,7 @@ public class LogicalValueHighlightConditionTest {
 	private static final boolean INVISIBLE = true;
 	private static final boolean USE_THICKNESS = true;
 	private static final String LABEL_PROPERTY = "labelProperty";
+	private static final NamedShape SHAPE = NamedShape.SQUARE;
 
 	private static final String VALUE_PROPERTY = "valueProperty";
 	private static final String PROPERTY = "property";
@@ -60,9 +62,9 @@ public class LogicalValueHighlightConditionTest {
 	public void setUp() throws Exception {
 		equal1Condition = new AndOrHighlightCondition(
 				new LogicalHighlightCondition(PROPERTY, LogicalHighlightCondition.Type.EQUAL, VALUE_1), NAME,
-				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 		valueCondition = new ValueHighlightCondition(VALUE_PROPERTY, ValueHighlightCondition.Type.VALUE, true, NAME,
-				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 		element1withValue1 = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE_1, VALUE_PROPERTY, 1));
 		element1withValue2 = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE_1, VALUE_PROPERTY, 2));
 		element2withValue3 = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE_2, VALUE_PROPERTY, 3));

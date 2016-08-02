@@ -17,35 +17,36 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.highlighting;
+package de.bund.bfr.jung;
 
-import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.util.Collection;
-import java.util.Map;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
+import java.util.function.Function;
 
-import de.bund.bfr.jung.NamedShape;
-import de.bund.bfr.knime.gis.views.canvas.element.Element;
+public enum NamedShape {
+	CIRCLE("Circle", s -> new Ellipse2D.Double(-s / 2, -s / 2, s, s)),
 
-public interface HighlightCondition {
+	SQUARE("Square", s -> new Rectangle2D.Double(-s / 2, -s / 2, s, s));
 
-	String getName();
+	private String name;
+	private Function<Double, Shape> shapeFunction;
 
-	boolean isShowInLegend();
+	private NamedShape(String name, Function<Double, Shape> shapeFunction) {
+		this.name = name;
+		this.shapeFunction = shapeFunction;
+	}
 
-	Color getColor();
+	public String getName() {
+		return name;
+	}
 
-	boolean isInvisible();
+	public Shape getShape(double size) {
+		return shapeFunction.apply(size);
+	}
 
-	boolean isUseThickness();
-
-	String getLabelProperty();
-
-	NamedShape getShape();
-
-	<T extends Element> Map<T, Double> getValues(Collection<? extends T> elements);
-
-	Point2D getValueRange(Collection<? extends Element> elements);
-
-	HighlightCondition copy();
+	@Override
+	public String toString() {
+		return name;
+	}
 }

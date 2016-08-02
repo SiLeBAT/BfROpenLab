@@ -56,36 +56,6 @@ public class LogicalHighlightConditionTest {
 	}
 
 	@Test
-	public void testGetProperty() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetProperty() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetType() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetType() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testGetValue() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testSetValue() {
-		// method automatically generated
-	}
-
-	@Test
 	public void testGetValues() {
 		final String PROPERTY = "property";
 		final String VALUE_1 = "value1";
@@ -139,15 +109,5 @@ public class LogicalHighlightConditionTest {
 		assertEquals(0.0, regexCaseValues.get(value2Element), 0.0);
 		assertEquals(1.0, regexNoCaseValues.get(value1Element), 0.0);
 		assertEquals(1.0, regexNoCaseValues.get(value2Element), 0.0);
-	}
-
-	@Test
-	public void testHashCode() {
-		// method automatically generated
-	}
-
-	@Test
-	public void testEqualsObject() {
-		// method automatically generated
 	}
 }

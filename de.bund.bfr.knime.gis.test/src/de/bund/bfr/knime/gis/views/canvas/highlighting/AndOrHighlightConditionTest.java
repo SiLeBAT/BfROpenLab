@@ -36,6 +36,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
+import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 
@@ -47,6 +48,7 @@ public class AndOrHighlightConditionTest {
 	private static final boolean INVISIBLE = true;
 	private static final boolean USE_THICKNESS = true;
 	private static final String LABEL_PROPERTY = "labelProperty";
+	private static final NamedShape SHAPE = NamedShape.SQUARE;
 
 	private static final String PROPERTY_1 = "property1";
 	private static final String PROPERTY_2 = "property2";
@@ -85,12 +87,13 @@ public class AndOrHighlightConditionTest {
 		assertFalse(c.isInvisible());
 		assertFalse(c.isUseThickness());
 		assertNull(c.getLabelProperty());
+		assertNull(c.getShape());
 	}
 
 	@Test
 	public void testAndOrHighlightConditionLogicalHighlightConditionStringBooleanColorBooleanBooleanString() {
 		AndOrHighlightCondition c = new AndOrHighlightCondition(equal11Condition, NAME, SHOW_IN_LEGEND, COLOR,
-				INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 
 		assertEquals(Arrays.asList(Arrays.asList(equal11Condition)), c.getConditions());
 		assertEquals(NAME, c.getName());
@@ -99,6 +102,7 @@ public class AndOrHighlightConditionTest {
 		assertEquals(INVISIBLE, c.isInvisible());
 		assertEquals(USE_THICKNESS, c.isUseThickness());
 		assertEquals(LABEL_PROPERTY, c.getLabelProperty());
+		assertEquals(SHAPE, c.getShape());
 	}
 
 	@Test
@@ -106,7 +110,7 @@ public class AndOrHighlightConditionTest {
 		List<List<LogicalHighlightCondition>> conditions = Arrays.asList(
 				Arrays.asList(equal11Condition, equal21Condition), Arrays.asList(equal12Condition, equal22Condition));
 		AndOrHighlightCondition c = new AndOrHighlightCondition(conditions, NAME, SHOW_IN_LEGEND, COLOR, INVISIBLE,
-				USE_THICKNESS, LABEL_PROPERTY);
+				USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 
 		assertEquals(conditions, c.getConditions());
 		assertEquals(NAME, c.getName());
@@ -115,13 +119,14 @@ public class AndOrHighlightConditionTest {
 		assertEquals(INVISIBLE, c.isInvisible());
 		assertEquals(USE_THICKNESS, c.isUseThickness());
 		assertEquals(LABEL_PROPERTY, c.getLabelProperty());
+		assertEquals(SHAPE, c.getShape());
 	}
 
 	@Test
 	public void testGetConditionCount() {
 		AndOrHighlightCondition c = new AndOrHighlightCondition(
 				Arrays.asList(Arrays.asList(equal11Condition, equal21Condition), Arrays.asList(equal12Condition)), NAME,
-				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 
 		assertEquals(3, c.getConditionCount());
 	}
@@ -131,7 +136,7 @@ public class AndOrHighlightConditionTest {
 		AndOrHighlightCondition c11or22 = new AndOrHighlightCondition(
 				Arrays.asList(Arrays.asList(equal11Condition, equal21Condition),
 						Arrays.asList(equal12Condition, equal22Condition)),
-				NAME, SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				NAME, SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 		Map<Element, Double> values = c11or22.getValues(Arrays.asList(element11, element12, element21, element22));
 
 		assertEquals(1.0, values.get(element11), 0.0);
@@ -148,7 +153,7 @@ public class AndOrHighlightConditionTest {
 	@Test
 	public void testCopy() {
 		AndOrHighlightCondition c = new AndOrHighlightCondition(equal11Condition, NAME, SHOW_IN_LEGEND, COLOR,
-				INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
+				INVISIBLE, USE_THICKNESS, LABEL_PROPERTY, SHAPE);
 		AndOrHighlightCondition copy = c.copy();
 
 		assertEquals(c, copy);

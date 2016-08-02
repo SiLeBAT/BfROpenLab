@@ -27,7 +27,6 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
@@ -75,15 +74,16 @@ public class JungUtils {
 	}
 
 	public static <V> Transformer<V, Shape> newNodeShapeTransformer(int size, Integer maxSize,
-			Map<V, Double> thicknessValues) {
+			Map<V, Double> thicknessValues, Map<V, NamedShape> shapes) {
 		double denom = getDenominator(thicknessValues);
 		int max = maxSize != null ? maxSize : size * 2;
 
 		return node -> {
 			Double factor = thicknessValues != null ? thicknessValues.get(node) : null;
+			NamedShape shape = shapes != null ? shapes.get(node) : null;
 			double s = factor != null ? size + (max - size) * factor / denom : size;
 
-			return new Ellipse2D.Double(-s / 2, -s / 2, s, s);
+			return shape != null ? shape.getShape(s) : NamedShape.CIRCLE.getShape(s);
 		};
 	}
 

@@ -92,13 +92,13 @@ public class BackwardUtils {
 		}
 
 		return new AndOrHighlightCondition(newConditions, c.getName(), c.isShowInLegend(), c.getColor(),
-				c.isInvisible(), c.isUseThickness(), (renameColumn(c.getLabelProperty(), columns)));
+				c.isInvisible(), c.isUseThickness(), (renameColumn(c.getLabelProperty(), columns)), c.getShape());
 	}
 
 	private static ValueHighlightCondition renameColumn(ValueHighlightCondition c, Set<String> columns) {
 		return new ValueHighlightCondition(renameColumn(c.getProperty(), columns), c.getType(), c.isZeroAsMinimum(),
 				c.getName(), c.isShowInLegend(), c.getColor(), c.isInvisible(), c.isUseThickness(),
-				renameColumn(c.getLabelProperty(), columns));
+				renameColumn(c.getLabelProperty(), columns), c.getShape());
 	}
 
 	private static String renameColumn(String column, Set<String> columns) {

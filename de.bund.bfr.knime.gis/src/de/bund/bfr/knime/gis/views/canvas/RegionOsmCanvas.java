@@ -67,7 +67,7 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode> {
 			flushImage();
 			viewer.repaint();
 		});
-		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(2, null, null));
+		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(2, null, null, null));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderContext().setVertexFillPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
@@ -134,6 +134,7 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode> {
 
 		dialog.setAllowInvisible(false);
 		dialog.setAllowThickness(false);
+		dialog.setAllowShape(false);
 
 		return dialog;
 	}
