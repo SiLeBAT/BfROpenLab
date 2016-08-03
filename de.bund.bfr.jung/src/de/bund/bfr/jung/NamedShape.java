@@ -30,6 +30,12 @@ public enum NamedShape {
 
 	SQUARE("Square", s -> new Rectangle2D.Double(-s / 2, -s / 2, s, s)),
 
+	TRIANGLE("Triangle", s -> {
+		double r = s / 2;
+		return new Polygon(new int[] { 0, (int) (0.866 * r), (int) (-0.866 * r) },
+				new int[] { (int) -r, (int) (0.5 * r), (int) (0.5 * r) }, 3);
+	}),
+
 	STAR("Star", s -> {
 		double r = s / 2;
 		return new Polygon(
