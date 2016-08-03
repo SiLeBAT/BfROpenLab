@@ -219,6 +219,7 @@ public class HighlightDialog extends KnimeDialog {
 		shapeBox = new JComboBox<>(NamedShape.values());
 		shapeBox.insertItemAt(null, 0);
 		shapeBox.setSelectedItem(condition.getShape());
+		shapeBox.addActionListener(e -> updateOptionsPanel());
 
 		setNewColor(condition.getColor());
 
@@ -325,15 +326,12 @@ public class HighlightDialog extends KnimeDialog {
 		labelBox.setEnabled(!invisible);
 		shapeBox.setEnabled(!invisible);
 
-		if (allowColor && colorBox.isEnabled() && colorBox.isSelected()) {
-			setNewColor(lastColor);
-			colorButton.setEnabled(true);
-			legendBox.setEnabled(!nameField.getText().isEmpty());
-		} else {
-			setNewColor(null);
-			colorButton.setEnabled(false);
-			legendBox.setEnabled(false);
-		}
+		boolean colorSelected = allowColor && colorBox.isEnabled() && colorBox.isSelected();
+		boolean shapeSelected = allowShape && shapeBox.isEnabled() && shapeBox.getSelectedItem() != null;
+
+		setNewColor(colorSelected ? lastColor : null);
+		colorButton.setEnabled(colorSelected);
+		legendBox.setEnabled(!nameField.getText().isEmpty() && (colorSelected || shapeSelected));
 	}
 
 	private JComponent createLogicalPanel(AndOrHighlightCondition condition) {
@@ -486,7 +484,7 @@ public class HighlightDialog extends KnimeDialog {
 		boolean invisible = allowInvisible && invisibleBox.isSelected();
 		boolean useThickness = allowThickness && thicknessBox.isEnabled() && thicknessBox.isSelected();
 		String name = allowName ? Strings.emptyToNull(nameField.getText().trim()) : null;
-		boolean showInLegend = allowColor && legendBox.isEnabled() && legendBox.isSelected();
+		boolean showInLegend = (allowColor || allowShape) && legendBox.isEnabled() && legendBox.isSelected();
 		Color color = allowColor && colorBox.isEnabled() && colorBox.isSelected() ? this.color : null;
 		String labelProperty = allowLabel && labelBox.isEnabled() ? (String) labelBox.getSelectedItem() : null;
 		NamedShape shape = allowShape && shapeBox.isEnabled() ? (NamedShape) shapeBox.getSelectedItem() : null;
