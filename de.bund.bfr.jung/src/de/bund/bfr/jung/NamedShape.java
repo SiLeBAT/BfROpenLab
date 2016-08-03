@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.jung;
 
+import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
@@ -27,7 +28,24 @@ import java.util.function.Function;
 public enum NamedShape {
 	CIRCLE("Circle", s -> new Ellipse2D.Double(-s / 2, -s / 2, s, s)),
 
-	SQUARE("Square", s -> new Rectangle2D.Double(-s / 2, -s / 2, s, s));
+	SQUARE("Square", s -> new Rectangle2D.Double(-s / 2, -s / 2, s, s)),
+
+	STAR("Star", s -> {
+		double r = s / 2;
+		return new Polygon(
+				new int[] { 0, (int) (0.3 * r), (int) (0.782 * r), (int) (0.675 * r), (int) (0.975 * r),
+						(int) (0.541 * r), (int) (0.434 * r), 0, (int) (-0.434 * r), (int) (-0.541 * r),
+						(int) (-0.975 * r), (int) (-0.675 * r), (int) (-0.782 * r), (int) (-0.3 * r) },
+				new int[] { (int) -r, (int) (-0.623 * r), (int) (-0.623 * r), (int) (-0.154 * r), (int) (0.223 * r),
+						(int) (0.431 * r), (int) (0.901 * r), (int) (0.692 * r), (int) (0.901 * r), (int) (0.431 * r),
+						(int) (0.223 * r), (int) (-0.154 * r), (int) (-0.623 * r), (int) (-0.623 * r) },
+				14);
+	}),
+
+	DIAMOND("Diamond", s -> {
+		int r = (int) (s / 2);
+		return new Polygon(new int[] { 0, r, 0, -r }, new int[] { -r, 0, r, 0 }, 4);
+	});
 
 	private String name;
 	private Function<Double, Shape> shapeFunction;
