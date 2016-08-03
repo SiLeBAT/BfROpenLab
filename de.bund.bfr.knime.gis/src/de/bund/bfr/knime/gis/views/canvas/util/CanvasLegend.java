@@ -204,7 +204,8 @@ public class CanvasLegend<V extends Node> {
 			AffineTransform currentTransform = g.getTransform();
 			Shape s = shape.getShape(size);
 
-			g.setPaint(color != null ? color : new GradientPaint(-size / 2, 0, fromColor, size / 2, 0, toColor));
+			g.setPaint(color != null ? color
+					: new GradientPaint(-size / 2.0f, 0.0f, fromColor, size / 2.0f, 0.0f, toColor));
 			g.translate(x + size / 2, y + size / 2);
 			g.fill(s);
 			g.setColor(Color.BLACK);
