@@ -19,9 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.jung;
 
-import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.function.Function;
 
@@ -30,28 +30,19 @@ public enum NamedShape {
 
 	SQUARE("Square", s -> new Rectangle2D.Double(-s / 2, -s / 2, s, s)),
 
-	TRIANGLE("Triangle", s -> {
-		double r = s / 2;
-		return new Polygon(new int[] { 0, (int) (0.866 * r), (int) (-0.866 * r) },
-				new int[] { (int) -r, (int) (0.5 * r), (int) (0.5 * r) }, 3);
-	}),
+	TRIANGLE("Triangle", r -> createPolygon(new double[] { 0, 0.433 * r, -0.433 * r },
+			new double[] { -0.5 * r, 0.25 * r, 0.25 * r }, 3)),
 
-	STAR("Star", s -> {
-		double r = s / 2;
-		return new Polygon(
-				new int[] { 0, (int) (0.3 * r), (int) (0.782 * r), (int) (0.675 * r), (int) (0.975 * r),
-						(int) (0.541 * r), (int) (0.434 * r), 0, (int) (-0.434 * r), (int) (-0.541 * r),
-						(int) (-0.975 * r), (int) (-0.675 * r), (int) (-0.782 * r), (int) (-0.3 * r) },
-				new int[] { (int) -r, (int) (-0.623 * r), (int) (-0.623 * r), (int) (-0.154 * r), (int) (0.223 * r),
-						(int) (0.431 * r), (int) (0.901 * r), (int) (0.692 * r), (int) (0.901 * r), (int) (0.431 * r),
-						(int) (0.223 * r), (int) (-0.154 * r), (int) (-0.623 * r), (int) (-0.623 * r) },
-				14);
-	}),
+	STAR("Star",
+			r -> createPolygon(
+					new double[] { 0, 0.150 * r, 0.391 * r, 0.337 * r, 0.487 * r, 0.271 * r, 0.217 * r, 0, -0.217 * r,
+							-0.271 * r, -0.487 * r, -0.337 * r, -0.391 * r, -0.150 * r },
+					new double[] { -0.5 * r, -0.312 * r, -0.312 * r, -0.077 * r, 0.111 * r, 0.216 * r, 0.450 * r,
+							0.346 * r, 0.450 * r, 0.216 * r, 0.111 * r, -0.077 * r, -0.312 * r, -0.312 * r },
+					14)),
 
-	DIAMOND("Diamond", s -> {
-		int r = (int) (s / 2);
-		return new Polygon(new int[] { 0, r, 0, -r }, new int[] { -r, 0, r, 0 }, 4);
-	});
+	DIAMOND("Diamond",
+			s -> createPolygon(new double[] { 0, s / 2, 0, -s / 2 }, new double[] { -s / 2, 0, s / 2, 0 }, 4));
 
 	private String name;
 	private Function<Double, Shape> shapeFunction;
@@ -72,5 +63,19 @@ public enum NamedShape {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	private static Shape createPolygon(double[] x, double[] y, int n) {
+		Path2D path = new Path2D.Double();
+
+		path.moveTo(x[0], y[0]);
+
+		for (int i = 1; i < n; i++) {
+			path.lineTo(x[i], y[i]);
+		}
+
+		path.closePath();
+
+		return path;
 	}
 }

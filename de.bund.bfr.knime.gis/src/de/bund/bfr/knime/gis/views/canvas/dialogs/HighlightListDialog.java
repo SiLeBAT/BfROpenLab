@@ -117,8 +117,8 @@ public class HighlightListDialog extends KnimeDialog {
 		removeButton = new JButton("Remove");
 		removeButton.addActionListener(e -> removePressed());
 		prioritizeBox = new JCheckBox("Prioritize Colors");
-		prioritizeBox.setSelected(highlightConditions.isPrioritizeColors());
-		prioritizeBox.addActionListener(e -> highlightConditions.setPrioritizeColors(prioritizeBox.isSelected()));
+		prioritizeBox.setSelected(this.highlightConditions.isPrioritizeColors());
+		prioritizeBox.addActionListener(e -> this.highlightConditions.setPrioritizeColors(prioritizeBox.isSelected()));
 		upButton = new JButton("Up");
 		upButton.addActionListener(e -> upPressed());
 		downButton = new JButton("Down");
