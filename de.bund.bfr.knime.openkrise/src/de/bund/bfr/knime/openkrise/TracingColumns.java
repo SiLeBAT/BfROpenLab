@@ -55,6 +55,7 @@ public interface TracingColumns {
 	public static final String DELIVERY_ARRIVAL = "Date Delivery Arrival";
 
 	public static final String STATION_ID = "Station ID";
+	public static final String STATION_NAME = "Station Name";
 	public static final String STATION_STREET = "Street";
 	public static final String STATION_HOUSENO = "HouseNumber";
 	public static final String STATION_ZIP = "ZIP";

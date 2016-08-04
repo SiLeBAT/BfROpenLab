@@ -210,10 +210,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
 
 		addSpecIf(set.isLotBased(), columns, TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE);
+		addSpecIf(set.isLotBased(), columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.STATION_ID, StringCell.TYPE);
 		addSpecIf(!useSerialAsId, columns, BackwardUtils.STATION_SERIAL, StringCell.TYPE);
+		addSpecIf(!set.isLotBased(), columns, TracingColumns.NAME, StringCell.TYPE);
+		addSpecIf(set.isLotBased(), columns, TracingColumns.STATION_NAME, StringCell.TYPE);
 
-		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_STREET, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_HOUSENO, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_ZIP, StringCell.TYPE);
@@ -340,7 +342,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				fillCell(spec, cells, TracingColumns.DELIVERY_LOTNUM, createCell(r.getValue(CHARGEN.CHARGENNR)));
 			fillCell(spec, cells, TracingColumns.STATION_ID, createCell(stationId));
 			fillCell(spec, cells, BackwardUtils.STATION_NODE, createCell(company));
-			fillCell(spec, cells, TracingColumns.NAME, createCell(company));
+			fillCell(spec, cells, TracingColumns.NAME,
+					!set.isLotBased() ? createCell(company) : createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
+			fillCell(spec, cells, TracingColumns.STATION_NAME, createCell(company));
 			fillCell(spec, cells, TracingColumns.STATION_STREET,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.STRASSE)));
 			fillCell(spec, cells, TracingColumns.STATION_HOUSENO,
