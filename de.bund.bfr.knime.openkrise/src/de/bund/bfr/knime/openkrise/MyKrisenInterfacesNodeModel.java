@@ -213,7 +213,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		addSpecIf(set.isLotBased(), columns, TracingColumns.STATION_ID, StringCell.TYPE);
 		addSpecIf(!useSerialAsId, columns, BackwardUtils.STATION_SERIAL, StringCell.TYPE);
 
-		addSpec(columns, TracingColumns.STATION_NAME, StringCell.TYPE);
+		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_STREET, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_HOUSENO, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_ZIP, StringCell.TYPE);
@@ -255,7 +255,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		addSpec(columns, TracingColumns.FROM, StringCell.TYPE);
 		addSpec(columns, TracingColumns.TO, StringCell.TYPE);
-		addSpec(columns, TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE);
+		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_ARRIVAL, StringCell.TYPE);
@@ -340,7 +340,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				fillCell(spec, cells, TracingColumns.DELIVERY_LOTNUM, createCell(r.getValue(CHARGEN.CHARGENNR)));
 			fillCell(spec, cells, TracingColumns.STATION_ID, createCell(stationId));
 			fillCell(spec, cells, BackwardUtils.STATION_NODE, createCell(company));
-			fillCell(spec, cells, TracingColumns.STATION_NAME, createCell(company));
+			fillCell(spec, cells, TracingColumns.NAME, createCell(company));
 			fillCell(spec, cells, TracingColumns.STATION_STREET,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.STRASSE)));
 			fillCell(spec, cells, TracingColumns.STATION_HOUSENO,
@@ -431,7 +431,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, TracingColumns.FROM, createCell(fromId));
 			fillCell(spec, cells, TracingColumns.TO, createCell(toId));
 			fillCell(spec, cells, TracingColumns.DELIVERY_ID, createCell(deliveryId));
-			fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNAME, createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
+			fillCell(spec, cells, TracingColumns.NAME, createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
 			fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNUM, set.isAnonymize() ? DataType.getMissingCell()
 					: createCell(r.getValue(PRODUKTKATALOG.ARTIKELNUMMER)));
 			fillCell(spec, cells, TracingColumns.DELIVERY_DEPARTURE,

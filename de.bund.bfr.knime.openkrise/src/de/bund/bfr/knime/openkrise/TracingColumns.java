@@ -31,6 +31,7 @@ import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 public interface TracingColumns {
 
 	public static final String ID = "ID";
+	public static final String NAME = "Name";
 	public static final String FROM = "from";
 	public static final String TO = "to";
 	public static final String NEXT = "Next";
@@ -54,7 +55,6 @@ public interface TracingColumns {
 	public static final String DELIVERY_ARRIVAL = "Date Delivery Arrival";
 
 	public static final String STATION_ID = "Station ID";
-	public static final String STATION_NAME = "Name";
 	public static final String STATION_STREET = "Street";
 	public static final String STATION_HOUSENO = "HouseNumber";
 	public static final String STATION_ZIP = "ZIP";
@@ -69,18 +69,17 @@ public interface TracingColumns {
 
 	public static final String DELIVERY_ID = "Delivery ID";
 	public static final String DELIVERY_ITEMNUM = "Item Number";
-	public static final String DELIVERY_ITEMNAME = "Name";
 	public static final String DELIVERY_AMOUNT = "Amount [kg]";
 	public static final String DELIVERY_NUM_PU = "Amount";
 	public static final String DELIVERY_TYPE_PU = "Amount Unit";
 	public static final String DELIVERY_SERIAL = "Serial";
 	public static final String DELIVERY_LOTNUM = "Lot Number";
 
-	public static final ImmutableList<String> STATION_COLUMNS = ImmutableList.of(ID, BackwardUtils.STATION_SERIAL,
-			STATION_NAME, BackwardUtils.STATION_NODE, STATION_TOB, STATION_SIMPLESUPPLIER, STATION_DEADSTART,
-			STATION_DEADEND, FILESOURCES);
+	public static final ImmutableList<String> STATION_COLUMNS = ImmutableList.of(ID, BackwardUtils.STATION_SERIAL, NAME,
+			BackwardUtils.STATION_NODE, STATION_TOB, STATION_SIMPLESUPPLIER, STATION_DEADSTART, STATION_DEADEND,
+			FILESOURCES);
 	public static final ImmutableList<String> DELIVERY_COLUMNS = ImmutableList.of(ID, DELIVERY_SERIAL, FROM, TO,
-			DELIVERY_ITEMNUM, DELIVERY_ITEMNAME, DELIVERY_LOTNUM, DELIVERY_AMOUNT, DELIVERY_NUM_PU, DELIVERY_TYPE_PU,
+			DELIVERY_ITEMNUM, NAME, DELIVERY_LOTNUM, DELIVERY_AMOUNT, DELIVERY_NUM_PU, DELIVERY_TYPE_PU,
 			DELIVERY_DEPARTURE, DELIVERY_ARRIVAL, FILESOURCES);
 	public static final ImmutableList<String> ADDRESS_COLUMNS = ImmutableList.of(ADDRESS, STATION_STREET,
 			STATION_HOUSENO, STATION_ZIP, STATION_CITY, STATION_DISTRICT, STATION_STATE, STATION_COUNTRY,
