@@ -227,7 +227,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			}
 		});
 
-		createCanvas();
+		createCanvas(false);
 		updateStatusVariables();
 	}
 
@@ -608,7 +608,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		updateCanvas();
 	}
 
-	private String createCanvas() throws NotConfigurableException {
+	private String createCanvas(boolean isUpdate) throws NotConfigurableException {
 		if (canvas != null) {
 			panel.remove(canvas.getComponent());
 		}
@@ -634,15 +634,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 		String warning = warningTable != null ? "Some rows from " + warningTable + " could not be imported."
 				+ " Execute the Tracing View for more information." : null;
+		boolean showLotBasedInfo = creator.isLotBased() && !isUpdate;
 
-		if (warning != null && creator.isLotBased()) {
+		if (warning != null && showLotBasedInfo) {
 			KnimeUtils.runWhenDialogOpens(panel, () -> {
 				Dialogs.showWarningMessage(panel, warning);
 				Dialogs.showInfoMessage(panel, TracingUtils.LOT_BASED_INFO);
 			});
 		} else if (warning != null) {
 			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showWarningMessage(panel, warning));
-		} else if (creator.isLotBased()) {
+		} else if (showLotBasedInfo) {
 			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showInfoMessage(panel, TracingUtils.LOT_BASED_INFO));
 		}
 
@@ -657,7 +658,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		redoButton.setEnabled(false);
 
 		try {
-			createCanvas();
+			createCanvas(true);
 			updateStatusVariables();
 		} catch (NotConfigurableException ex) {
 			ex.printStackTrace();
