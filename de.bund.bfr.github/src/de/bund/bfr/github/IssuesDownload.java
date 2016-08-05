@@ -59,66 +59,65 @@ public class IssuesDownload {
 		String[] repoInfo = repoDetails.split("/");
 		GitHub github = GitHub.connectUsingPassword(user, password);
 		GHRepository repository = github.getUser(repoInfo[0]).getRepository(repoInfo[1]);
-
 		List<String> columns = Arrays.asList("Id", "Title", "Creator", "Assignee", "Milestone", "Label", "Created",
 				"Closed", "State");
-		FileWriter writer = new FileWriter("issues.csv");
-		int index = 1;
 
-		writer.append(Joiner.on("\t").join(columns) + "\n");
+		try (FileWriter writer = new FileWriter("issues.csv")) {
+			int index = 1;
 
-		for (GHIssue issue : Iterables.concat(repository.listIssues(GHIssueState.OPEN),
-				repository.listIssues(GHIssueState.CLOSED))) {
-			List<String> parts = new ArrayList<>();
+			writer.append(Joiner.on("\t").join(columns) + "\n");
 
-			parts.add(String.valueOf(issue.getNumber()));
-			parts.add(issue.getTitle());
-			parts.add(issue.getUser().getLogin());
+			for (GHIssue issue : Iterables.concat(repository.listIssues(GHIssueState.OPEN),
+					repository.listIssues(GHIssueState.CLOSED))) {
+				List<String> parts = new ArrayList<>();
 
-			if (issue.getAssignee() != null) {
-				parts.add(issue.getAssignee().getLogin());
-			} else {
-				parts.add("");
+				parts.add(String.valueOf(issue.getNumber()));
+				parts.add(issue.getTitle());
+				parts.add(issue.getUser().getLogin());
+
+				if (issue.getAssignee() != null) {
+					parts.add(issue.getAssignee().getLogin());
+				} else {
+					parts.add("");
+				}
+
+				if (issue.getMilestone() != null) {
+					parts.add(issue.getMilestone().getTitle());
+				} else {
+					parts.add("");
+				}
+
+				List<String> labels = new ArrayList<>();
+
+				for (GHLabel label : issue.getLabels()) {
+					labels.add(label.getName());
+				}
+
+				parts.add(Joiner.on("+").join(labels));
+
+				if (issue.getCreatedAt() != null) {
+					parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getCreatedAt()));
+				} else {
+					parts.add("");
+				}
+
+				if (issue.getClosedAt() != null) {
+					parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getClosedAt()));
+				} else {
+					parts.add("");
+				}
+
+				parts.add(issue.getState().toString());
+
+				List<String> cleanedParts = new ArrayList<>();
+
+				for (String s : parts) {
+					cleanedParts.add(s.replace("\t", " ").replace("\n", " "));
+				}
+
+				writer.write(Joiner.on("\t").join(cleanedParts) + "\n");
+				System.out.println(index++ + "\tissues processed");
 			}
-
-			if (issue.getMilestone() != null) {
-				parts.add(issue.getMilestone().getTitle());
-			} else {
-				parts.add("");
-			}
-
-			List<String> labels = new ArrayList<>();
-
-			for (GHLabel label : issue.getLabels()) {
-				labels.add(label.getName());
-			}
-
-			parts.add(Joiner.on("+").join(labels));
-
-			if (issue.getCreatedAt() != null) {
-				parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getCreatedAt()));
-			} else {
-				parts.add("");
-			}
-
-			if (issue.getClosedAt() != null) {
-				parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getClosedAt()));
-			} else {
-				parts.add("");
-			}
-
-			parts.add(issue.getState().toString());
-
-			List<String> cleanedParts = new ArrayList<>();
-
-			for (String s : parts) {
-				cleanedParts.add(s.replace("\t", " ").replace("\n", " "));
-			}
-
-			writer.write(Joiner.on("\t").join(cleanedParts) + "\n");
-			System.out.println(index++ + "\tissues processed");
 		}
-
-		writer.close();
 	}
 }
