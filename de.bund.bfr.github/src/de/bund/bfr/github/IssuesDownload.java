@@ -20,9 +20,12 @@
 package de.bund.bfr.github;
 
 import java.io.BufferedReader;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +52,7 @@ public class IssuesDownload {
 	}
 
 	public static void saveIssues(String repoDetails) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 		System.out.println("user:");
 		String user = br.readLine();
 		System.out.println("password:");
@@ -62,7 +65,7 @@ public class IssuesDownload {
 		List<String> columns = Arrays.asList("Id", "Title", "Creator", "Assignee", "Milestone", "Label", "Created",
 				"Closed", "State");
 
-		try (FileWriter writer = new FileWriter("issues.csv")) {
+		try (BufferedWriter writer = Files.newBufferedWriter(new File("issues.csv").toPath(), StandardCharsets.UTF_8)) {
 			int index = 1;
 
 			writer.append(Joiner.on("\t").join(columns) + "\n");

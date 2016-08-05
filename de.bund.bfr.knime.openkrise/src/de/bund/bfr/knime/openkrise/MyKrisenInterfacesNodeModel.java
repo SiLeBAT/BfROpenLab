@@ -86,6 +86,7 @@ import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyDBTablesNew;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * This is the model implementation of MyKrisenInterfaces.
@@ -116,7 +117,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
 		Connection conn = set.isUseExternalDb()
-				? createLocalConnection("SA", "", KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
+				? createLocalConnection(KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
 				: DBKernel.getLocalConn(true);
 		boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.hasUniqueSerials(conn);
 		Map<Integer, String> stationIds = DeliveryUtils.getStationIds(conn, useSerialAsID);
@@ -637,11 +638,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return false;
 	}
 
-	private static Connection createLocalConnection(String dbUsername, String dbPassword, String dbFolder)
+	@SuppressFBWarnings(value = "Dm")
+	private static Connection createLocalConnection(String dbFolder)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		MyDBI db = new MyDBTablesNew();
 
-		db.establishNewConnection(dbUsername, dbPassword, dbFolder + File.separator, false);
+		db.establishNewConnection("SA", "", dbFolder + File.separator, false);
 		db.updateCheck("");
 
 		Connection result = db.getConn();
