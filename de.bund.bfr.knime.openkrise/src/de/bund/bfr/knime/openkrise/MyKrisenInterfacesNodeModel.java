@@ -307,12 +307,19 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		addSpecIf(set.isEnsureBackwardCompatibility(), columns, BackwardUtils.DELIVERY_CHARGENUM, StringCell.TYPE);
 
-		for (Record2<String, String> r : DSL.using(conn, SQLDialect.HSQLDB)
-				.selectDistinct(EXTRAFIELDS.TABLENAME, EXTRAFIELDS.ATTRIBUTE).from(EXTRAFIELDS)
-				.where(EXTRAFIELDS.TABLENAME.equal(PRODUKTKATALOG.getName()))
-				.or(EXTRAFIELDS.TABLENAME.equal(CHARGEN.getName()))
-				.or(EXTRAFIELDS.TABLENAME.equal(LIEFERUNGEN.getName()))) {
-			addSpec(columns, "_" + r.value1() + "." + r.value2(), StringCell.TYPE);
+		if (!set.isLotBased()) {
+			for (Record2<String, String> r : DSL.using(conn, SQLDialect.HSQLDB)
+					.selectDistinct(EXTRAFIELDS.TABLENAME, EXTRAFIELDS.ATTRIBUTE).from(EXTRAFIELDS)
+					.where(EXTRAFIELDS.TABLENAME.equal(LIEFERUNGEN.getName()))
+					.or(EXTRAFIELDS.TABLENAME.equal(CHARGEN.getName()))
+					.or(EXTRAFIELDS.TABLENAME.equal(PRODUKTKATALOG.getName()))) {
+				addSpec(columns, "_" + r.value1() + "." + r.value2(), StringCell.TYPE);
+			}
+		} else {
+			for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).selectDistinct(EXTRAFIELDS.ATTRIBUTE)
+					.from(EXTRAFIELDS).where(EXTRAFIELDS.TABLENAME.equal(LIEFERUNGEN.getName()))) {
+				addSpec(columns, "_" + r.value1(), StringCell.TYPE);
+			}
 		}
 
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
@@ -393,31 +400,29 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			for (String column : spec.getColumnNames()) {
 				if (column.startsWith("_")) {
+					Result<Record1<String>> result;
+
 					if (!set.isLotBased()) {
 						String attribute = column.substring(1);
-						Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
-								.from(EXTRAFIELDS)
+
+						result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE).from(EXTRAFIELDS)
 								.where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()),
 										EXTRAFIELDS.ID.equal(r.getValue(STATION.ID)),
 										EXTRAFIELDS.ATTRIBUTE.equal(attribute))
 								.fetch();
-
-						fillCell(spec, cells, column,
-								!result.isEmpty() ? createCell(result.get(0).value1()) : DataType.getMissingCell());
 					} else {
 						String table = column.substring(1, column.indexOf("."));
 						String attribute = column.substring(column.indexOf(".") + 1);
 
-						Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
-								.from(EXTRAFIELDS)
+						result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE).from(EXTRAFIELDS)
 								.where(EXTRAFIELDS.TABLENAME.equal(table),
 										EXTRAFIELDS.ID.equal(r.getValue(ID_COLUMNS.get(table))),
 										EXTRAFIELDS.ATTRIBUTE.equal(attribute))
 								.fetch();
-
-						fillCell(spec, cells, column,
-								!result.isEmpty() ? createCell(result.get(0).value1()) : DataType.getMissingCell());
 					}
+
+					fillCell(spec, cells, column,
+							!result.isEmpty() ? createCell(result.get(0).value1()) : DataType.getMissingCell());
 				}
 			}
 
@@ -503,15 +508,27 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			for (String column : spec.getColumnNames()) {
 				if (column.startsWith("_")) {
-					String table = column.substring(1, column.indexOf("."));
-					String attribute = column.substring(column.indexOf(".") + 1);
+					Result<Record1<String>> result;
 
-					Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
-							.from(EXTRAFIELDS)
-							.where(EXTRAFIELDS.TABLENAME.equal(table),
-									EXTRAFIELDS.ID.equal(r.getValue(ID_COLUMNS.get(table))),
-									EXTRAFIELDS.ATTRIBUTE.equal(attribute))
-							.fetch();
+					if (!set.isLotBased()) {
+						String table = column.substring(1, column.indexOf("."));
+						String attribute = column.substring(column.indexOf(".") + 1);
+
+						result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE).from(EXTRAFIELDS)
+								.where(EXTRAFIELDS.TABLENAME.equal(table),
+										EXTRAFIELDS.ID.equal(r.getValue(ID_COLUMNS.get(table))),
+										EXTRAFIELDS.ATTRIBUTE.equal(attribute))
+								.fetch();
+
+					} else {
+						String attribute = column.substring(1);
+
+						result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE).from(EXTRAFIELDS)
+								.where(EXTRAFIELDS.TABLENAME.equal(LIEFERUNGEN.getName()),
+										EXTRAFIELDS.ID.equal(r.getValue(LIEFERUNGEN.ID)),
+										EXTRAFIELDS.ATTRIBUTE.equal(attribute))
+								.fetch();
+					}
 
 					fillCell(spec, cells, column,
 							!result.isEmpty() ? createCell(result.get(0).value1()) : DataType.getMissingCell());
