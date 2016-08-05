@@ -72,6 +72,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -93,6 +94,10 @@ import de.bund.bfr.knime.openkrise.db.MyDBTablesNew;
  * @author draaw
  */
 public class MyKrisenInterfacesNodeModel extends NodeModel {
+
+	private static ImmutableMap<String, TableField<?, Integer>> ID_COLUMNS = new ImmutableMap.Builder<String, TableField<?, Integer>>()
+			.put(STATION.getName(), STATION.ID).put(LIEFERUNGEN.getName(), LIEFERUNGEN.ID)
+			.put(CHARGEN.getName(), CHARGEN.ID).put(PRODUKTKATALOG.getName(), PRODUKTKATALOG.ID).build();
 
 	private MyKrisenInterfacesSettings set;
 
@@ -239,10 +244,19 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		addSpecIf(set.isEnsureBackwardCompatibility(), columns, BackwardUtils.STATION_NODE, StringCell.TYPE);
 		addSpecIf(set.isEnsureBackwardCompatibility(), columns, BackwardUtils.STATION_COUNTY, StringCell.TYPE);
 
-		// ExtraFields
-		for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).selectDistinct(EXTRAFIELDS.ATTRIBUTE)
-				.from(EXTRAFIELDS).where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()))) {
-			addSpec(columns, "_" + r.value1(), StringCell.TYPE);
+		if (!set.isLotBased()) {
+			for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).selectDistinct(EXTRAFIELDS.ATTRIBUTE)
+					.from(EXTRAFIELDS).where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()))) {
+				addSpec(columns, "_" + r.value1(), StringCell.TYPE);
+			}
+		} else {
+			for (Record2<String, String> r : DSL.using(conn, SQLDialect.HSQLDB)
+					.selectDistinct(EXTRAFIELDS.TABLENAME, EXTRAFIELDS.ATTRIBUTE).from(EXTRAFIELDS)
+					.where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()))
+					.or(EXTRAFIELDS.TABLENAME.equal(CHARGEN.getName()))
+					.or(EXTRAFIELDS.TABLENAME.equal(PRODUKTKATALOG.getName()))) {
+				addSpec(columns, "_" + r.value1() + "." + r.value2(), StringCell.TYPE);
+			}
 		}
 
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
@@ -292,7 +306,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		addSpecIf(set.isEnsureBackwardCompatibility(), columns, BackwardUtils.DELIVERY_CHARGENUM, StringCell.TYPE);
 
-		// ExtraFields
 		for (Record2<String, String> r : DSL.using(conn, SQLDialect.HSQLDB)
 				.selectDistinct(EXTRAFIELDS.TABLENAME, EXTRAFIELDS.ATTRIBUTE).from(EXTRAFIELDS)
 				.where(EXTRAFIELDS.TABLENAME.equal(PRODUKTKATALOG.getName()))
@@ -377,19 +390,33 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, BackwardUtils.STATION_COUNTY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
 
-			// ExtraFields
 			for (String column : spec.getColumnNames()) {
 				if (column.startsWith("_")) {
-					String attribute = column.substring(1);
-					Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
-							.from(EXTRAFIELDS)
-							.where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()),
-									EXTRAFIELDS.ID.equal(r.getValue(STATION.ID)),
-									EXTRAFIELDS.ATTRIBUTE.equal(attribute))
-							.fetch();
+					if (!set.isLotBased()) {
+						String attribute = column.substring(1);
+						Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
+								.from(EXTRAFIELDS)
+								.where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()),
+										EXTRAFIELDS.ID.equal(r.getValue(STATION.ID)),
+										EXTRAFIELDS.ATTRIBUTE.equal(attribute))
+								.fetch();
 
-					fillCell(spec, cells, column,
-							!result.isEmpty() ? createCell(result.get(0).value1()) : DataType.getMissingCell());
+						fillCell(spec, cells, column,
+								!result.isEmpty() ? createCell(result.get(0).value1()) : DataType.getMissingCell());
+					} else {
+						String table = column.substring(1, column.indexOf("."));
+						String attribute = column.substring(column.indexOf(".") + 1);
+
+						Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
+								.from(EXTRAFIELDS)
+								.where(EXTRAFIELDS.TABLENAME.equal(table),
+										EXTRAFIELDS.ID.equal(r.getValue(ID_COLUMNS.get(table))),
+										EXTRAFIELDS.ATTRIBUTE.equal(attribute))
+								.fetch();
+
+						fillCell(spec, cells, column,
+								!result.isEmpty() ? createCell(result.get(0).value1()) : DataType.getMissingCell());
+					}
 				}
 			}
 
@@ -473,7 +500,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, BackwardUtils.DELIVERY_CHARGENUM,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
 
-			// ExtraFields
 			for (String column : spec.getColumnNames()) {
 				if (column.startsWith("_")) {
 					String table = column.substring(1, column.indexOf("."));
@@ -481,7 +507,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 					Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
 							.from(EXTRAFIELDS)
-							.where(EXTRAFIELDS.TABLENAME.equal(table), EXTRAFIELDS.ID.equal(r.getValue(LIEFERUNGEN.ID)),
+							.where(EXTRAFIELDS.TABLENAME.equal(table),
+									EXTRAFIELDS.ID.equal(r.getValue(ID_COLUMNS.get(table))),
 									EXTRAFIELDS.ATTRIBUTE.equal(attribute))
 							.fetch();
 
