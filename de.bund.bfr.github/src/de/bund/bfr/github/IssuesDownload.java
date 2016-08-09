@@ -52,12 +52,15 @@ public class IssuesDownload {
 	}
 
 	public static void saveIssues(String repoDetails) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-		System.out.println("user:");
-		String user = br.readLine();
-		System.out.println("password:");
-		String password = br.readLine();
-		br.close();
+		String user;
+		String password;
+
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
+			System.out.println("user:");
+			user = br.readLine();
+			System.out.println("password:");
+			password = br.readLine();
+		}
 
 		String[] repoInfo = repoDetails.split("/");
 		GitHub github = GitHub.connectUsingPassword(user, password);
