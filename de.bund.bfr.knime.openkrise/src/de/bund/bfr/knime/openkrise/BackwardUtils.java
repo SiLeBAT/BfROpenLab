@@ -52,6 +52,7 @@ public class BackwardUtils {
 	public static final String DELIVERY_USAGE = "IntendedUse";
 	public static final String DELIVERY_DATEEXP = "Date Expiration";
 	public static final String DELIVERY_DATEMANU = "Date Manufactoring";
+	public static final String DELIVERY_SERIAL = "Serial";
 
 	public static final String OLD_WEIGHT = "CaseWeight";
 	public static final String OLD_OBSERVED = "Filter";

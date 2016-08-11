@@ -215,7 +215,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
 
-		addSpecIf(set.isLotBased(), columns, TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE);
+		addSpecIf(set.isLotBased(), columns, TracingColumns.LOT_NUMBER, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.STATION_ID, StringCell.TYPE);
 		addSpecIf(!useSerialAsId, columns, BackwardUtils.STATION_SERIAL, StringCell.TYPE);
@@ -234,6 +234,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		addSpecIf(!set.isLotBased(), columns, TracingColumns.STATION_DEADSTART, BooleanCell.TYPE);
 		addSpecIf(!set.isLotBased(), columns, TracingColumns.STATION_DEADEND, BooleanCell.TYPE);
 
+		addSpecIf(set.isLotBased() && hasValues(conn, PRODUKTKATALOG.ARTIKELNUMMER), columns,
+				TracingColumns.PRODUCT_NUMBER, StringCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.VATNUMBER), columns, BackwardUtils.STATION_VAT, StringCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.BETRIEBSART), columns, TracingColumns.STATION_TOB, StringCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.ANZAHLFAELLE), columns, BackwardUtils.STATION_NUMCASES, IntCell.TYPE);
@@ -268,17 +270,20 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.DELIVERY_ID, StringCell.TYPE);
-		addSpecIf(!useSerialAsId, columns, TracingColumns.DELIVERY_SERIAL, StringCell.TYPE);
+		addSpecIf(!useSerialAsId, columns, BackwardUtils.DELIVERY_SERIAL, StringCell.TYPE);
 
 		addSpec(columns, TracingColumns.FROM, StringCell.TYPE);
 		addSpec(columns, TracingColumns.TO, StringCell.TYPE);
 		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
-		addSpec(columns, TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE);
+		addSpecIf(set.isEnsureBackwardCompatibility() || !set.isLotBased(), columns, TracingColumns.LOT_NUMBER,
+				StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_ARRIVAL, StringCell.TYPE);
 
-		addSpecIf(hasValues(conn, PRODUKTKATALOG.ARTIKELNUMMER), columns, TracingColumns.DELIVERY_ITEMNUM,
-				StringCell.TYPE);
+		addSpecIf(
+				hasValues(conn, PRODUKTKATALOG.ARTIKELNUMMER)
+						&& (set.isEnsureBackwardCompatibility() || !set.isLotBased()),
+				columns, TracingColumns.PRODUCT_NUMBER, StringCell.TYPE);
 		addSpecIf(hasValues(conn, PRODUKTKATALOG.PROZESSIERUNG), columns, BackwardUtils.DELIVERY_PROCESSING,
 				StringCell.TYPE);
 		addSpecIf(hasValues(conn, PRODUKTKATALOG.INTENDEDUSE), columns, BackwardUtils.DELIVERY_USAGE, StringCell.TYPE);
@@ -359,8 +364,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			fillCell(spec, cells, TracingColumns.ID,
 					!set.isLotBased() ? createCell(stationId) : createCell(String.valueOf(r.getValue(CHARGEN.ID))));
-			if (set.isLotBased())
-				fillCell(spec, cells, TracingColumns.DELIVERY_LOTNUM, createCell(r.getValue(CHARGEN.CHARGENNR)));
 			fillCell(spec, cells, TracingColumns.STATION_ID, createCell(stationId));
 			fillCell(spec, cells, BackwardUtils.STATION_NODE, createCell(company));
 			fillCell(spec, cells, TracingColumns.NAME,
@@ -397,6 +400,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
 			fillCell(spec, cells, BackwardUtils.STATION_COUNTY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
+
+			if (set.isLotBased()) {
+				fillCell(spec, cells, TracingColumns.LOT_NUMBER, createCell(r.getValue(CHARGEN.CHARGENNR)));
+				fillCell(spec, cells, TracingColumns.PRODUCT_NUMBER,
+						createCell(r.getValue(PRODUKTKATALOG.ARTIKELNUMMER)));
+			}
 
 			for (String column : spec.getColumnNames()) {
 				if (column.startsWith("_")) {
@@ -469,7 +478,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, TracingColumns.TO, createCell(toId));
 			fillCell(spec, cells, TracingColumns.DELIVERY_ID, createCell(deliveryId));
 			fillCell(spec, cells, TracingColumns.NAME, createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
-			fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNUM, set.isAnonymize() ? DataType.getMissingCell()
+			fillCell(spec, cells, TracingColumns.PRODUCT_NUMBER, set.isAnonymize() ? DataType.getMissingCell()
 					: createCell(r.getValue(PRODUKTKATALOG.ARTIKELNUMMER)));
 			fillCell(spec, cells, TracingColumns.DELIVERY_DEPARTURE,
 					createCell(DeliveryUtils.formatDate(r.getValue(LIEFERUNGEN.DD_DAY),
@@ -477,11 +486,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, TracingColumns.DELIVERY_ARRIVAL,
 					createCell(DeliveryUtils.formatDate(r.getValue(LIEFERUNGEN.AD_DAY),
 							r.getValue(LIEFERUNGEN.AD_MONTH), r.getValue(LIEFERUNGEN.AD_YEAR))));
-			fillCell(spec, cells, TracingColumns.DELIVERY_SERIAL, createCell(r.getValue(LIEFERUNGEN.SERIAL)));
+			fillCell(spec, cells, BackwardUtils.DELIVERY_SERIAL, createCell(r.getValue(LIEFERUNGEN.SERIAL)));
 			fillCell(spec, cells, BackwardUtils.DELIVERY_PROCESSING,
 					createCell(r.getValue(PRODUKTKATALOG.PROZESSIERUNG)));
 			fillCell(spec, cells, BackwardUtils.DELIVERY_USAGE, createCell(r.getValue(PRODUKTKATALOG.INTENDEDUSE)));
-			fillCell(spec, cells, TracingColumns.DELIVERY_LOTNUM,
+			fillCell(spec, cells, TracingColumns.LOT_NUMBER,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
 			fillCell(spec, cells, BackwardUtils.DELIVERY_DATEEXP,
 					createCell(DeliveryUtils.formatDate(r.getValue(CHARGEN.MHD_DAY), r.getValue(CHARGEN.MHD_MONTH),

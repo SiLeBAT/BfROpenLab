@@ -72,7 +72,7 @@ public class TracingUtils {
 
 	public static final String LOT_BASED_INFO = "FoodChain-Lab assumes, that your network is lot-based (and not station-based),\n"
 			+ "since the first input table contains the columns \"" + TracingColumns.STATION_ID + "\" and \""
-			+ TracingColumns.DELIVERY_LOTNUM + "\"\nand the second input table contains the column \""
+			+ TracingColumns.LOT_NUMBER + "\"\nand the second input table contains the column \""
 			+ TracingColumns.DELIVERY_ID + "\".";
 
 	private TracingUtils() {
@@ -80,7 +80,7 @@ public class TracingUtils {
 
 	public static boolean isLotBased(NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema) {
 		return nodeSchema.getMap().containsKey(TracingColumns.STATION_ID)
-				&& nodeSchema.getMap().containsKey(TracingColumns.DELIVERY_LOTNUM)
+				&& nodeSchema.getMap().containsKey(TracingColumns.LOT_NUMBER)
 				&& edgeSchema.getMap().containsKey(TracingColumns.DELIVERY_ID);
 	}
 

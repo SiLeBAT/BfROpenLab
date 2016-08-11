@@ -69,18 +69,18 @@ public interface TracingColumns {
 	public static final String STATION_DEADEND = "DeadEnd";
 
 	public static final String DELIVERY_ID = "Delivery ID";
-	public static final String DELIVERY_ITEMNUM = "Item Number";
 	public static final String DELIVERY_AMOUNT = "Amount [kg]";
 	public static final String DELIVERY_NUM_PU = "Amount";
 	public static final String DELIVERY_TYPE_PU = "Amount Unit";
-	public static final String DELIVERY_SERIAL = "Serial";
-	public static final String DELIVERY_LOTNUM = "Lot Number";
+
+	public static final String PRODUCT_NUMBER = "Item Number";
+	public static final String LOT_NUMBER = "Lot Number";
 
 	public static final ImmutableList<String> STATION_COLUMNS = ImmutableList.of(ID, BackwardUtils.STATION_SERIAL, NAME,
 			BackwardUtils.STATION_NODE, STATION_TOB, STATION_SIMPLESUPPLIER, STATION_DEADSTART, STATION_DEADEND,
 			FILESOURCES);
-	public static final ImmutableList<String> DELIVERY_COLUMNS = ImmutableList.of(ID, DELIVERY_SERIAL, FROM, TO,
-			DELIVERY_ITEMNUM, NAME, DELIVERY_LOTNUM, DELIVERY_AMOUNT, DELIVERY_NUM_PU, DELIVERY_TYPE_PU,
+	public static final ImmutableList<String> DELIVERY_COLUMNS = ImmutableList.of(ID, BackwardUtils.DELIVERY_SERIAL,
+			FROM, TO, PRODUCT_NUMBER, NAME, LOT_NUMBER, DELIVERY_AMOUNT, DELIVERY_NUM_PU, DELIVERY_TYPE_PU,
 			DELIVERY_DEPARTURE, DELIVERY_ARRIVAL, FILESOURCES);
 	public static final ImmutableList<String> ADDRESS_COLUMNS = ImmutableList.of(ADDRESS, STATION_STREET,
 			STATION_HOUSENO, STATION_ZIP, STATION_CITY, STATION_DISTRICT, STATION_STATE, STATION_COUNTRY,
