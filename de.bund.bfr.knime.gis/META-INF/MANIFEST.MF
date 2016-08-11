@@ -6,15 +6,13 @@ Bundle-Version: 1.1.6.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.gis.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
-Require-Bundle: org.knime.base;bundle-version="3.0.0",
- org.eclipse.ui,
+Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
+ de.bund.bfr.jung;visibility:=reexport,
+ org.openstreetmap.josm;visibility:=reexport,
+ org.geotools;visibility:=reexport,
  org.knime.ext.svg,
  com.jayway.jsonpath.json-path,
- net.minidev.json-smart,
- org.geotools;visibility:=reexport,
- org.openstreetmap.josm;visibility:=reexport,
- de.bund.bfr.knime;visibility:=reexport,
- de.bund.bfr.jung;visibility:=reexport
+ net.minidev.json-smart
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis,
  de.bund.bfr.knime.gis.geocode,

@@ -6,9 +6,7 @@ Bundle-Version: 1.1.6.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.gis.views.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
-Require-Bundle: org.knime.base;bundle-version="3.0.0",
- de.bund.bfr.knime.gis,
- de.bund.bfr.knime.gis.util
+Require-Bundle: de.bund.bfr.knime.gis
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

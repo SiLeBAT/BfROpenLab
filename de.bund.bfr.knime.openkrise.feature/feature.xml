@@ -29,17 +29,16 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
    </license>
 
    <requires>
-      <import plugin="org.knime.base" version="3.0.0" match="greaterOrEqual"/>
-      <import plugin="org.knime.ext.poi"/>
-      <import plugin="org.eclipse.ui"/>
       <import plugin="org.knime.ext.svg"/>
+      <import plugin="com.jayway.jsonpath.json-path"/>
+      <import plugin="net.minidev.json-smart"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.knime.base" version="3.1.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.apache.commons.math3"/>
       <import plugin="org.knime.network.core"/>
       <import plugin="org.knime.network.base"/>
       <import plugin="org.eclipse.core.resources"/>
-      <import plugin="com.jayway.jsonpath.json-path"/>
-      <import plugin="net.minidev.json-smart"/>
    </requires>
 
    <plugin

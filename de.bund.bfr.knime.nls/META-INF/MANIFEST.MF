@@ -6,8 +6,7 @@ Bundle-Version: 1.1.6.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.nls.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
-Require-Bundle: org.knime.base;bundle-version="3.0.0",
- de.bund.bfr.knime,
+Require-Bundle: de.bund.bfr.knime,
  de.bund.bfr.math,
  de.bund.bfr.knime.chart
 Bundle-ActivationPolicy: lazy
