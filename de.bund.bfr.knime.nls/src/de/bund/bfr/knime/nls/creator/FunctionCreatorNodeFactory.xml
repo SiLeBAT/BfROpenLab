@@ -4,24 +4,26 @@
 	<name>Function Creator</name>
 
 	<shortDescription>
+		Allows the user to create a scalar function.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Insert long description here...
+			Allows the user to create a scalar function. This function can be fitted to data with the
+			"Function Fitting" and "Interactive Function Fitting" nodes.
 		</intro>
 
-		<option name="short name of first option (like in the dialog)">
-			description of first option
+		<option name="Equation">
+			The dependent variable and the function expression.
 		</option>
-		<option name="short name of second option (like in the dialog)">
-			description of second option
+		<option name="Independent Variables">
+			One or more independent variables.
 		</option>
 	</fullDescription>
 
-	<ports>		
+	<ports>
 		<outPort index="0" name="Out-Port name">
-			0
-		</outPort>		
+			The generated function.
+		</outPort>
 	</ports>
 </knimeNode>

@@ -126,9 +126,9 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane {
 		JPanel editPanel = new JPanel();
 
 		editPanel.setLayout(new GridBagLayout());
-		editPanel.add(new JLabel("Term:"), UI.westConstraints(0, 0));
+		editPanel.add(new JLabel("Equation:"), UI.westConstraints(0, 0));
 		editPanel.add(createFormulaPanel(), UI.westConstraints(1, 0));
-		editPanel.add(new JLabel("Independent Variable:"), UI.westConstraints(0, 1));
+		editPanel.add(new JLabel("Independent Variables:"), UI.westConstraints(0, 1));
 		editPanel.add(createIndepBoxPanel(), UI.westConstraints(1, 1));
 
 		JPanel panel = new JPanel();
