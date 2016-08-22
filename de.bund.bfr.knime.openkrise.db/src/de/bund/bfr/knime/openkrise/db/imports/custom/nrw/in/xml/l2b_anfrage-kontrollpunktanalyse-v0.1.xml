@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<anfrageKontrollpunktanalyse>
+	<meldung>
+		<meldendeBehoerde scope="BUND" verz="ADV" katalog="001" version="1.28" code="123456">Amt für ....</meldendeBehoerde>
+		<nummer>2016-123</nummer>
+		<status>GUELTIG</status> <!-- Alternativ: UNGUELTIG -->
+		<fallNummer>2016-111</fallNummer>
+		<fallBezeichnung>Schwermetalle in Delphinflossen</fallBezeichnung>
+		<meldungVom>2016-05-03</meldungVom>
+	</meldung>
+</anfrageKontrollpunktanalyse>
