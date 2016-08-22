@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./Location.png" type="Visualizer">
+<knimeNode icon="./Location.png" type="Visualizer" xmlns="http://knime.org/node/v2.10"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
 	<name>Location View</name>
 
 	<shortDescription>
@@ -68,7 +68,7 @@
 			</option>
 			<option name="Save As ...">
 				The image as can be saved as a PNG- or SVG-file.
-			</option>			
+			</option>
 			<option name="Node Selection -> Show Properties">
 				Shows the properties of all selected nodes.
 			</option>
@@ -77,7 +77,7 @@
 			</option>
 			<option name="Node Selection -> Highlight Selected">
 				Opens a dialog to help the user highlight all selected nodes.
-			</option>			
+			</option>
 			<option name="Node Selection -> Collapse To Meta Node">
 				Collapses all selected nodes into one new Meta Node.
 			</option>
@@ -87,7 +87,7 @@
 			<option name="Node Selection -> Show Uncollapsed Properties">
 				Shows the properties of all nodes that were collapsed to the selected meta
 				nodes and all selected nodes that are not meta nodes.
-			</option>			
+			</option>
 			<option name="Node Highlighting -> Edit">
 				Opens a dialog to add, remove and edit Highlight Conditions for nodes.
 			</option>
@@ -101,10 +101,10 @@
 			<option name="Node Highlighting -> Add Category Highlighting">
 				Automatically creates Node Highlight Conditions for all categories of
 				parameter.
-			</option>			
+			</option>
 			<option name="Set Selected Nodes">
 				Opens a dialog to select nodes based on a logical condition.
-			</option>			
+			</option>
 			<option name="Collapse by Property">
 				Opens a dialog to collapse all nodes (visible and invisible) to meta nodes
 				based on a certain property. That means all nodes with the same property value will be collapsed

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./RegionToRegionView.png" type="Visualizer">
+<knimeNode icon="./RegionToRegionView.png" type="Visualizer" xmlns="http://knime.org/node/v2.10"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
 	<name>Region To Region View</name>
 
 	<shortDescription>
@@ -120,7 +120,7 @@
 			</option>
 			<option name="Node Selection -> Select Outgoing">
 				Selects all edges, whose source nodes are already selected.
-			</option>					
+			</option>
 			<option name="Edge Selection -> Show Properties">
 				Shows the properties of all selected edges.
 			</option>
@@ -167,7 +167,7 @@
 			</option>
 			<option name="Set Selected Edges">
 				Opens a dialog to select edges based on a logical condition.
-			</option>			
+			</option>
 		</tab>
 		<tab name="Highlight Condition List Dialog">
 			<option name="">
