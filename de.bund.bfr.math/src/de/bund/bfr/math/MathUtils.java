@@ -33,6 +33,8 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.distribution.TDistribution;
+import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionContext;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
 
@@ -197,7 +199,8 @@ public class MathUtils {
 	}
 
 	public static List<StartValues> createStartValuesList(ParamRange[] ranges, int n,
-			ToDoubleFunction<double[]> errorFunction, DoubleConsumer progessListener) {
+			ToDoubleFunction<double[]> errorFunction, DoubleConsumer progessListener, ExecutionContext exec)
+			throws CanceledExecutionException {
 		List<StartValues> valuesList = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
@@ -250,6 +253,10 @@ public class MathUtils {
 				} else {
 					break;
 				}
+			}
+
+			if (exec != null) {
+				exec.checkCanceled();
 			}
 
 			progessListener.accept((double) ++count / (double) allStepSize);

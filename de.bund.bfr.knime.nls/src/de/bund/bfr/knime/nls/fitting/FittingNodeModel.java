@@ -114,15 +114,16 @@ public class FittingNodeModel extends NodeModel {
 		if (isDiff) {
 			if (set.isFitAllAtOnce()) {
 				results = doMultiDiffFitting(function, (BufferedDataTable) inObjects[1],
-						(BufferedDataTable) inObjects[2]);
+						(BufferedDataTable) inObjects[2], exec);
 			} else {
-				results = doDiffFitting(function, (BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2]);
+				results = doDiffFitting(function, (BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2],
+						exec);
 			}
 
 			outSpec = configure(
 					new PortObjectSpec[] { inObjects[0].getSpec(), inObjects[1].getSpec(), inObjects[2].getSpec() });
 		} else {
-			results = doFitting(function, (BufferedDataTable) inObjects[1]);
+			results = doFitting(function, (BufferedDataTable) inObjects[1], exec);
 			outSpec = configure(new PortObjectSpec[] { inObjects[0].getSpec(), inObjects[1].getSpec() });
 		}
 
@@ -321,7 +322,8 @@ public class FittingNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private Map<String, OptimizationResult> doFitting(Function f, BufferedDataTable table) throws ParseException {
+	private Map<String, OptimizationResult> doFitting(Function f, BufferedDataTable table, ExecutionContext exec)
+			throws ParseException, CanceledExecutionException {
 		if (f.getTimeVariable() != null) {
 			return new LinkedHashMap<>();
 		}
@@ -393,12 +395,12 @@ public class FittingNodeModel extends NodeModel {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 								set.getStartValues(), new LinkedHashMap<>(0), set.getMaxLevenbergIterations(),
-								progressListener));
+								progressListener, exec));
 			} else {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations(),
-								progressListener));
+								progressListener, exec));
 			}
 
 			currentFitting++;
@@ -408,7 +410,7 @@ public class FittingNodeModel extends NodeModel {
 	}
 
 	private Map<String, OptimizationResult> doDiffFitting(Function f, BufferedDataTable dataTable,
-			BufferedDataTable conditionTable) throws ParseException {
+			BufferedDataTable conditionTable, ExecutionContext exec) throws ParseException, CanceledExecutionException {
 		if (f.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
@@ -459,12 +461,12 @@ public class FittingNodeModel extends NodeModel {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 								set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations(),
-								progressListener));
+								progressListener, exec));
 			} else {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations(),
-								progressListener));
+								progressListener, exec));
 			}
 
 			currentFitting++;
@@ -474,7 +476,7 @@ public class FittingNodeModel extends NodeModel {
 	}
 
 	private Map<String, OptimizationResult> doMultiDiffFitting(Function f, BufferedDataTable dataTable,
-			BufferedDataTable conditionTable) throws ParseException {
+			BufferedDataTable conditionTable, ExecutionContext exec) throws ParseException, CanceledExecutionException {
 		if (f.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
@@ -558,11 +560,12 @@ public class FittingNodeModel extends NodeModel {
 
 		if (!set.getStartValues().isEmpty()) {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations(), progressListener);
+					set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations(), progressListener,
+					exec);
 		} else {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations(),
-					progressListener);
+					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations(), progressListener,
+					exec);
 		}
 
 		Map<String, OptimizationResult> results = new LinkedHashMap<>();

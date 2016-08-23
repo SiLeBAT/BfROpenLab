@@ -41,6 +41,8 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionContext;
 import org.nfunk.jep.ParseException;
 
 import com.google.common.collect.ObjectArrays;
@@ -80,7 +82,11 @@ public class MultivariateOptimization implements Optimization {
 	@Override
 	public Result optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
 			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations,
-			DoubleConsumer progessListener) {
+			DoubleConsumer progessListener, ExecutionContext exec) throws CanceledExecutionException {
+		if (exec != null) {
+			exec.checkCanceled();
+		}
+
 		progessListener.accept(0.0);
 
 		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
@@ -90,7 +96,7 @@ public class MultivariateOptimization implements Optimization {
 		}
 
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
-				values -> optimizerFunction.value(values), progress -> progessListener.accept(0.5 * progress));
+				values -> optimizerFunction.value(values), progress -> progessListener.accept(0.5 * progress), exec);
 		Result result = getResults();
 		AtomicInteger currentIteration = new AtomicInteger();
 		SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleValueChecker(1e-10, 1e-10) {
@@ -107,6 +113,10 @@ public class MultivariateOptimization implements Optimization {
 		int count = 0;
 
 		for (StartValues startValues : startValuesList) {
+			if (exec != null) {
+				exec.checkCanceled();
+			}
+
 			progessListener.accept(0.5 * count++ / startValuesList.size() + 0.5);
 
 			try {

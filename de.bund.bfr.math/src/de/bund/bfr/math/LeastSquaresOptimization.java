@@ -36,6 +36,8 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
 import org.apache.commons.math3.util.Pair;
+import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionContext;
 import org.nfunk.jep.ParseException;
 
 import com.google.common.primitives.Doubles;
@@ -99,19 +101,27 @@ public class LeastSquaresOptimization implements Optimization {
 	@Override
 	public Result optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
 			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations,
-			DoubleConsumer progressListener) {
+			DoubleConsumer progressListener, ExecutionContext exec) throws CanceledExecutionException {
+		if (exec != null) {
+			exec.checkCanceled();
+		}
+
 		progressListener.accept(0.0);
 
 		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
 		RealVector targetVector = new ArrayRealVector(targetValues);
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
 				values -> targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values))),
-				progress -> progressListener.accept(0.5 * progress));
+				progress -> progressListener.accept(0.5 * progress), exec);
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		Result result = getResults();
 		AtomicInteger count = new AtomicInteger(0);
 
 		for (StartValues startValues : startValuesList) {
+			if (exec != null) {
+				exec.checkCanceled();
+			}
+
 			progressListener.accept(0.5 * count.get() / startValuesList.size() + 0.5);
 
 			try {
@@ -120,11 +130,24 @@ public class LeastSquaresOptimization implements Optimization {
 				builder.checker((iteration, previous, current) -> {
 					double currentProgress = (double) iteration / (double) maxIterations;
 
+					if (exec != null) {
+						try {
+							exec.checkCanceled();
+						} catch (CanceledExecutionException e) {
+							return true;
+						}
+					}
+
 					progressListener.accept(0.5 * (count.get() + currentProgress) / startValuesList.size() + 0.5);
 					return iteration == maxIterations;
 				});
 
 				LeastSquaresOptimizer.Optimum optimizerResults = optimizer.optimize(builder.build());
+
+				if (exec != null) {
+					exec.checkCanceled();
+				}
+
 				double cost = optimizerResults.getCost();
 
 				if (result.sse == null || cost * cost < result.sse) {

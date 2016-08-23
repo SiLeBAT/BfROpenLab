@@ -22,9 +22,12 @@ package de.bund.bfr.math;
 import java.util.Map;
 import java.util.function.DoubleConsumer;
 
+import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionContext;
+
 public interface Optimization {
 
 	OptimizationResult optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
 			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations,
-			DoubleConsumer progessListener);
+			DoubleConsumer progessListener, ExecutionContext exec) throws CanceledExecutionException;
 }
