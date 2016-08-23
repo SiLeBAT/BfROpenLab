@@ -4,24 +4,32 @@
 	<name>Differential Function Creator</name>
 
 	<shortDescription>
+		Allows the user to create a scalar function consisting of first order differential equations.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Insert long description here...
+			Allows the user to create a scalar function consisting of first order differential
+			equations. This function can be fitted to data with the "Differential Function Fitting" and
+			"Interactive Differential Function Fitting" nodes.
 		</intro>
 
-		<option name="short name of first option (like in the dialog)">
-			description of first option
+		<option name="Equation x">
+			Multiple differential equations with or without initial values can be
+			specified here. Equation 1 is the differential equation for the dependent variable.
 		</option>
-		<option name="short name of second option (like in the dialog)">
-			description of second option
+		<option name="Differential Variable">
+			Name of the differential variable.
+		</option>
+		<option name="Independent Variables">
+			One or more independent variables. All symbols that are not checked are used
+			as function parameters.
 		</option>
 	</fullDescription>
 
 	<ports>
-		<outPort index="0" name="Out-Port name">
-			0
+		<outPort index="0" name="Differential Function">
+			The generated differential function.
 		</outPort>
 	</ports>
 </knimeNode>

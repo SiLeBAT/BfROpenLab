@@ -17,12 +17,13 @@
 			The dependent variable and the function expression.
 		</option>
 		<option name="Independent Variables">
-			One or more independent variables.
+			One or more independent variables. All symbols that are not checked are used
+			as function parameters.
 		</option>
 	</fullDescription>
 
 	<ports>
-		<outPort index="0" name="Out-Port name">
+		<outPort index="0" name="Function">
 			The generated function.
 		</outPort>
 	</ports>

@@ -202,7 +202,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane {
 			editPanel.add(createFormulaPanel(i), UI.westConstraints(1, i));
 		}
 
-		editPanel.add(new JLabel("Diff Variable:"), UI.westConstraints(0, n));
+		editPanel.add(new JLabel("Differential Variable:"), UI.westConstraints(0, n));
 		editPanel.add(createDiffVarPanel(), UI.westConstraints(1, n));
 		editPanel.add(new JLabel("Independent Variables:"), UI.westConstraints(0, n + 1));
 		editPanel.add(createIndepBoxPanel(), UI.westConstraints(1, n + 1));
