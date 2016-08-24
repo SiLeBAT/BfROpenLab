@@ -96,9 +96,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public class MyKrisenInterfacesNodeModel extends NodeModel {
 
-	private static ImmutableMap<String, TableField<?, Integer>> ID_COLUMNS = new ImmutableMap.Builder<String, TableField<?, Integer>>()
-			.put(STATION.getName(), STATION.ID).put(LIEFERUNGEN.getName(), LIEFERUNGEN.ID)
-			.put(CHARGEN.getName(), CHARGEN.ID).put(PRODUKTKATALOG.getName(), PRODUKTKATALOG.ID).build();
+	private static final ImmutableMap<String, TableField<?, Integer>> ID_COLUMNS = ImmutableMap.of(STATION.getName(),
+			STATION.ID, LIEFERUNGEN.getName(), LIEFERUNGEN.ID, CHARGEN.getName(), CHARGEN.ID, PRODUKTKATALOG.getName(),
+			PRODUKTKATALOG.ID);
 
 	private MyKrisenInterfacesSettings set;
 

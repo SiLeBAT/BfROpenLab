@@ -84,6 +84,12 @@ public class TestFlows {
 	}
 
 	@Test
+	public void testSupplyChainReaderLotBasedWithExtrafields() throws IOException, InvalidSettingsException,
+			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
+		runner.runTestWorkflow(new File("workflows/SupplyChainReader_Test_LotBased_With_Extrafields"));
+	}
+
+	@Test
 	public void testSupplyChainReaderWithoutSerials() throws IOException, InvalidSettingsException,
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
 		runner.runTestWorkflow(new File("workflows/SupplyChainReader_Test_Without_Serials"));
