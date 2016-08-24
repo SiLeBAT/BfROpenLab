@@ -31,6 +31,24 @@ public abstract class TypedTextField extends JTextField implements TextInput {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final Color INVALID_COLOR = Color.RED;
+	private static final Color BACKGROUND_COLOR;
+	private static final Color FOREGROUND_COLOR;
+	private static final Color NOT_ENABLED_BACKGROUND_COLOR;
+	private static final Color NOT_ENABLED_FOREGROUND_COLOR;
+
+	static {
+		JTextField field = new JTextField();
+
+		BACKGROUND_COLOR = field.getBackground();
+		FOREGROUND_COLOR = field.getForeground();
+
+		field.setEnabled(false);
+
+		NOT_ENABLED_BACKGROUND_COLOR = field.getBackground();
+		NOT_ENABLED_FOREGROUND_COLOR = field.getForeground();
+	}
+
 	private DocumentListener documentListener;
 	private boolean optional;
 	protected boolean valueValid;
@@ -68,20 +86,22 @@ public abstract class TypedTextField extends JTextField implements TextInput {
 
 	@Override
 	public Color getForeground() {
-		if (!valueValid && isEnabled()) {
-			return Color.RED;
+		if (isEnabled()) {
+			return !valueValid ? INVALID_COLOR : FOREGROUND_COLOR;
+		} else {
+			return NOT_ENABLED_FOREGROUND_COLOR;
 		}
-
-		return super.getForeground();
 	}
 
 	@Override
 	public Color getBackground() {
-		if (!valueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
-			return Color.RED;
-		}
+		if (isEnabled()) {
+			boolean hasText = getDocument() != null && !getText().trim().isEmpty();
 
-		return super.getBackground();
+			return !valueValid && !hasText ? INVALID_COLOR : BACKGROUND_COLOR;
+		} else {
+			return NOT_ENABLED_BACKGROUND_COLOR;
+		}
 	}
 
 	protected void textChanged() {

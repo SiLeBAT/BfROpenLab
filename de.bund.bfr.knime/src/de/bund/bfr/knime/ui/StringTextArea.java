@@ -34,6 +34,24 @@ public class StringTextArea extends JTextArea implements TextInput {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final Color INVALID_COLOR = Color.RED;
+	private static final Color BACKGROUND_COLOR;
+	private static final Color FOREGROUND_COLOR;
+	private static final Color NOT_ENABLED_BACKGROUND_COLOR;
+	private static final Color NOT_ENABLED_FOREGROUND_COLOR;
+
+	static {
+		JTextArea area = new JTextArea();
+
+		BACKGROUND_COLOR = area.getBackground();
+		FOREGROUND_COLOR = area.getForeground();
+
+		area.setEnabled(false);
+
+		NOT_ENABLED_BACKGROUND_COLOR = area.getBackground();
+		NOT_ENABLED_FOREGROUND_COLOR = area.getForeground();
+	}
+
 	private DocumentListener documentListener;
 	private boolean optional;
 	private boolean valueValid;
@@ -82,20 +100,22 @@ public class StringTextArea extends JTextArea implements TextInput {
 
 	@Override
 	public Color getForeground() {
-		if (!valueValid && isEnabled()) {
-			return Color.RED;
+		if (isEnabled()) {
+			return !valueValid ? INVALID_COLOR : FOREGROUND_COLOR;
+		} else {
+			return NOT_ENABLED_FOREGROUND_COLOR;
 		}
-
-		return super.getForeground();
 	}
 
 	@Override
 	public Color getBackground() {
-		if (!valueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
-			return Color.RED;
-		}
+		if (isEnabled()) {
+			boolean hasText = getDocument() != null && !getText().trim().isEmpty();
 
-		return super.getBackground();
+			return !valueValid && !hasText ? INVALID_COLOR : BACKGROUND_COLOR;
+		} else {
+			return NOT_ENABLED_BACKGROUND_COLOR;
+		}
 	}
 
 	private void textChanged() {

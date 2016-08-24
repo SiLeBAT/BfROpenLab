@@ -4,17 +4,36 @@
 	<name>Function Fitting</name>
 
 	<shortDescription>
+		Fits data to a simple scalar function.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Insert long description here...
+			Fits data to a simple scalar function.
 		</intro>
 
-		<option name="short name of first option (like in the dialog)">
+		<option name="Level of Detection">
 			description of first option
 		</option>
-		<option name="short name of second option (like in the dialog)">
+		<option name="Expert Settings">
+			description of second option
+		</option>
+		<option name="Maximum Evaluations to Find Start Values">
+			description of second option
+		</option>
+		<option name="Maximum Executions of Optimization Algorithm">
+			description of second option
+		</option>
+		<option name="Stop When Regression Successful">
+			description of second option
+		</option>
+		<option name="Maximum Iterations in each run of Optimization Algorithm">
+			description of second option
+		</option>
+		<option name="Specific Start Values for Fitting Procedure">
+			description of second option
+		</option>
+		<option name="Enforce start values as limits">
 			description of second option
 		</option>
 	</fullDescription>

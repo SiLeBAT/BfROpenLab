@@ -72,6 +72,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 	private JPanel mainPanel;
 	private JPanel expertPanel;
 
+	private JCheckBox lodBox;
 	private DoubleTextField lodField;
 	private JCheckBox fitAllAtOnceBox;
 	private Map<String, JCheckBox> useDifferentInitValuesBoxes;
@@ -107,9 +108,15 @@ public class FittingNodeDialog extends NodeDialogPane {
 
 		set.loadSettings(settings);
 
-		lodField = new DoubleTextField(true, 8);
+		lodBox = new JCheckBox("Enable");
+		lodBox.setSelected(set.getLevelOfDetection() != null);
+		lodBox.addActionListener(e -> {
+			lodField.setEnabled(lodBox.isSelected());
+			limitsBox.setEnabled(lodBox.isSelected());
+		});
+		lodField = new DoubleTextField(false, 8);
+		lodField.setEnabled(lodBox.isSelected());
 		lodField.setValue(set.getLevelOfDetection());
-		lodField.addTextListener(e -> limitsBox.setEnabled(lodField.getValue() == null));
 		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
 		fitAllAtOnceBox.addActionListener(
@@ -141,17 +148,33 @@ public class FittingNodeDialog extends NodeDialogPane {
 			p = UI.createOptionsPanel(null, boxes, Collections.nCopies(boxes.size(), new JLabel()));
 		} else {
 			p = UI.createOptionsPanel(null, Arrays.asList(new JLabel("Level of Detection"), expertBox),
-					Arrays.asList(lodField, new JLabel()));
+					Arrays.asList(UI.createHorizontalPanel(lodBox, lodField), new JLabel()));
 		}
 
-		mainPanel.add(p, BorderLayout.NORTH);
+		expertPanel = new JPanel();
+		expertPanel.setLayout(new BoxLayout(expertPanel, BoxLayout.Y_AXIS));
+		expertPanel.add(createRegressionPanel());
+		expertPanel.add(createRangePanel(f));
 
-		updateExpertPanel(f);
+		mainPanel.removeAll();
+		mainPanel.add(p, BorderLayout.NORTH);
+		mainPanel.add(expertPanel, BorderLayout.CENTER);
+		mainPanel.revalidate();
+
+		Dimension preferredSize = mainPanel.getPreferredSize();
+
+		if (expertBox.isSelected()) {
+			expertPanel.setVisible(true);
+		} else {
+			expertPanel.setVisible(false);
+		}
+
+		mainPanel.setPreferredSize(preferredSize);
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		if (!isDiff && !lodField.isValueValid()) {
+		if (!isDiff && lodBox.isSelected() && !lodField.isValueValid()) {
 			throw new InvalidSettingsException("");
 		}
 
@@ -177,7 +200,8 @@ public class FittingNodeDialog extends NodeDialogPane {
 		minimumFields.forEach((param, field) -> minStartValues.put(param, field.getValue()));
 		maximumFields.forEach((param, field) -> maxStartValues.put(param, field.getValue()));
 
-		set.setLevelOfDetection(lodField.getValue());
+		System.out.println(lodField.getValue());
+		set.setLevelOfDetection(lodBox.isSelected() ? lodField.getValue() : null);
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
 		set.setInitValuesWithDifferentStart(initValuesWithDifferentStart);
 		set.setExpertSettings(expertBox.isSelected());
@@ -192,31 +216,6 @@ public class FittingNodeDialog extends NodeDialogPane {
 		set.setInterpolator((InterpolationFactory.Type) interpolatorBox.getSelectedItem());
 
 		set.saveSettings(settings);
-	}
-
-	private void updateExpertPanel(Function f) {
-		if (expertPanel != null) {
-			mainPanel.remove(expertPanel);
-		}
-
-		expertPanel = new JPanel();
-		expertPanel.setLayout(new BoxLayout(expertPanel, BoxLayout.Y_AXIS));
-		expertPanel.add(createRegressionPanel());
-		expertPanel.add(createRangePanel(f));
-
-		mainPanel.add(expertPanel, BorderLayout.CENTER);
-		mainPanel.revalidate();
-		mainPanel.repaint();
-
-		Dimension preferredSize = mainPanel.getPreferredSize();
-
-		if (expertBox.isSelected()) {
-			expertPanel.setVisible(true);
-		} else {
-			expertPanel.setVisible(false);
-		}
-
-		mainPanel.setPreferredSize(preferredSize);
 	}
 
 	private Component createRegressionPanel() {
@@ -237,9 +236,9 @@ public class FittingNodeDialog extends NodeDialogPane {
 		interpolatorBox = new JComboBox<>(InterpolationFactory.Type.values());
 		interpolatorBox.setSelectedItem(set.getInterpolator());
 
-		List<Component> leftComps = Lists.newArrayList(new JLabel("Maximal Evaluations to Find Start Values"),
-				new JLabel("Maximal Executions of Optimization Algorithm"), stopWhenSuccessBox,
-				new JLabel("Maximal Iterations in each run of Optimization Algorithm"));
+		List<Component> leftComps = Lists.newArrayList(new JLabel("Maximum Evaluations to Find Start Values"),
+				new JLabel("Maximum Executions of Optimization Algorithm"), stopWhenSuccessBox,
+				new JLabel("Maximum Iterations in each run of Optimization Algorithm"));
 		List<Component> rightComps = Lists.newArrayList(nParamSpaceField, nLevenbergField, new JLabel(),
 				maxIterationsField);
 
@@ -255,7 +254,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 
 	private Component createRangePanel(Function function) {
 		limitsBox = new JCheckBox("Enforce start values as limits");
-		limitsBox.setEnabled(lodField.getValue() == null);
+		limitsBox.setEnabled(lodBox.isSelected());
 		limitsBox.setSelected(set.isEnforceLimits());
 		clearButton = new JButton("Clear");
 		clearButton
