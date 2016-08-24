@@ -75,14 +75,13 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog {
 		JPanel bottomPanel = new JPanel();
 
 		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(UI.createHorizontalPanel(new JLabel("Number of Elements: " + elements.size())),
-				BorderLayout.WEST);
-		bottomPanel.add(UI.createHorizontalPanel(okButton), BorderLayout.EAST);
+		bottomPanel.add(UI.createBorderPanel(new JLabel("Number of Elements: " + elements.size())), BorderLayout.WEST);
+		bottomPanel.add(UI.createBorderPanel(okButton), BorderLayout.EAST);
 
 		setLayout(new BorderLayout());
 
 		if (allowViewSelection) {
-			add(UI.createHorizontalPanel(selectButton), BorderLayout.NORTH);
+			add(UI.createBorderPanel(selectButton), BorderLayout.NORTH);
 		}
 
 		add(scrollPane, BorderLayout.CENTER);

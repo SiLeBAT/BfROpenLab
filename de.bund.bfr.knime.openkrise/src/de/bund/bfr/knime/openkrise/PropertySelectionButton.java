@@ -189,7 +189,7 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 
 			setLayout(new BorderLayout());
 			add(mainPanel, BorderLayout.CENTER);
-			add(UI.createEastPanel(UI.createHorizontalPanel(cancelButton)), BorderLayout.SOUTH);
+			add(UI.createEastPanel(UI.createBorderPanel(cancelButton)), BorderLayout.SOUTH);
 
 			pack();
 			UI.adjustDialog(this);

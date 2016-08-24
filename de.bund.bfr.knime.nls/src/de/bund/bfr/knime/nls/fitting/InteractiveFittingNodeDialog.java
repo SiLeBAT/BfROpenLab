@@ -75,6 +75,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	private ChartConfigPanel configPanel;
 	private JCheckBox enforceLimitsBox;
 	private IntTextField maxIterationsField;
+	private JCheckBox lodBox;
 	private DoubleTextField lodField;
 	private JCheckBox fitAllAtOnceBox;
 	private Map<String, JCheckBox> useDifferentInitValuesBoxes;
@@ -113,7 +114,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		if (!isDiff && !lodField.isValueValid()) {
+		if (!isDiff && lodBox.isSelected() && !lodField.isValueValid()) {
 			throw new InvalidSettingsException("");
 		}
 
@@ -129,7 +130,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			throw new InvalidSettingsException("");
 		}
 
-		set.setLevelOfDetection(lodField.getValue());
+		set.setLevelOfDetection(lodBox.isSelected() ? lodField.getValue() : null);
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
 		set.setInitValuesWithDifferentStart(initValuesWithDifferentStart);
 		set.setEnforceLimits(enforceLimitsBox.isSelected());
@@ -143,11 +144,17 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateChartPanel() {
+		lodBox = new JCheckBox("Enable");
+		lodBox.setSelected(set.getLevelOfDetection() != null);
+		lodBox.addActionListener(e -> {
+			lodField.setEnabled(lodBox.isSelected());
+			enforceLimitsBox.setEnabled(lodBox.isSelected());
+		});
 		lodField = new DoubleTextField(true, 8);
+		lodField.setEnabled(lodBox.isSelected());
 		lodField.setValue(set.getLevelOfDetection());
-		lodField.addTextListener(e -> enforceLimitsBox.setEnabled(lodField.getValue() == null));
 		enforceLimitsBox = new JCheckBox("Enforce Limits");
-		enforceLimitsBox.setEnabled(lodField.getValue() == null);
+		enforceLimitsBox.setEnabled(lodBox.isSelected());
 		enforceLimitsBox.setSelected(set.isEnforceLimits());
 		maxIterationsField = new IntTextField(false, 8);
 		maxIterationsField.setMinValue(1);
@@ -199,7 +206,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			rightComponents.add(stepSizeField);
 		} else {
 			leftComponents.add(new JLabel("Level of Detection"));
-			rightComponents.add(lodField);
+			rightComponents.add(UI.createHorizontalPanel(false, lodBox, lodField));
 		}
 
 		JPanel rightPanel = new JPanel();

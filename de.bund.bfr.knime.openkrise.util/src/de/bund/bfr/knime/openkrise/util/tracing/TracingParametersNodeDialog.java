@@ -95,7 +95,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		edgePane.addTab(TracingColumns.KILL_CONTAMINATION, edgeKillPanel);
 		edgePane.addTab(TracingColumns.OBSERVED, edgeFilterPanel);
 
-		addTab("Options", UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
+		addTab("Options", UI.createNorthPanel(UI.createBorderPanel(enforceTempBox)));
 		addTab(createNodeTabTitle(false), nodePane);
 		addTab(createEdgeTabTitle(false), edgePane);
 	}

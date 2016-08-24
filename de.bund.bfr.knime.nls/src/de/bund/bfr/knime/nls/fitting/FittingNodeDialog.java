@@ -22,7 +22,6 @@ package de.bund.bfr.knime.nls.fitting;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +33,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -126,7 +124,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 		expertBox.setSelected(set.isExpertSettings());
 		expertBox.addActionListener(e -> expertPanel.setVisible(expertBox.isSelected()));
 
-		JPanel p;
+		JPanel panel;
 
 		if (isDiff) {
 			List<JCheckBox> boxes = new ArrayList<>();
@@ -145,10 +143,10 @@ public class FittingNodeDialog extends NodeDialogPane {
 			});
 
 			boxes.add(expertBox);
-			p = UI.createOptionsPanel(null, boxes, Collections.nCopies(boxes.size(), new JLabel()));
+			panel = UI.createOptionsPanel(boxes, Collections.nCopies(boxes.size(), new JLabel()));
 		} else {
-			p = UI.createOptionsPanel(null, Arrays.asList(new JLabel("Level of Detection"), expertBox),
-					Arrays.asList(UI.createHorizontalPanel(lodBox, lodField), new JLabel()));
+			panel = UI.createOptionsPanel(Arrays.asList(new JLabel("Level of Detection"), expertBox),
+					Arrays.asList(UI.createHorizontalPanel(false, lodBox, lodField), new JLabel()));
 		}
 
 		expertPanel = new JPanel();
@@ -157,7 +155,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 		expertPanel.add(createRangePanel(f));
 
 		mainPanel.removeAll();
-		mainPanel.add(p, BorderLayout.NORTH);
+		mainPanel.add(panel, BorderLayout.NORTH);
 		mainPanel.add(expertPanel, BorderLayout.CENTER);
 		mainPanel.revalidate();
 
@@ -200,7 +198,6 @@ public class FittingNodeDialog extends NodeDialogPane {
 		minimumFields.forEach((param, field) -> minStartValues.put(param, field.getValue()));
 		maximumFields.forEach((param, field) -> maxStartValues.put(param, field.getValue()));
 
-		System.out.println(lodField.getValue());
 		set.setLevelOfDetection(lodBox.isSelected() ? lodField.getValue() : null);
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
 		set.setInitValuesWithDifferentStart(initValuesWithDifferentStart);
@@ -267,15 +264,10 @@ public class FittingNodeDialog extends NodeDialogPane {
 
 		northRangePanel.setLayout(new BoxLayout(northRangePanel, BoxLayout.Y_AXIS));
 
-		JPanel modelPanel = new JPanel();
-		JPanel leftPanel = new JPanel();
-		JPanel rightPanel = new JPanel();
-		List<String> params = function.getParameters();
+		List<Component> leftComponents = new ArrayList<>();
+		List<Component> rightComponents = new ArrayList<>();
 
-		leftPanel.setLayout(new GridLayout(params.size(), 1));
-		rightPanel.setLayout(new GridLayout(params.size(), 1));
-
-		for (String param : params) {
+		for (String param : function.getParameters()) {
 			DoubleTextField minField = new DoubleTextField(true, 8);
 			DoubleTextField maxField = new DoubleTextField(true, 8);
 
@@ -287,30 +279,17 @@ public class FittingNodeDialog extends NodeDialogPane {
 				maxField.setValue(set.getMaxStartValues().get(param));
 			}
 
-			JPanel minMaxPanel = new JPanel();
-
-			minMaxPanel.setLayout(new BoxLayout(minMaxPanel, BoxLayout.X_AXIS));
-			minMaxPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			minMaxPanel.add(minField);
-			minMaxPanel.add(Box.createHorizontalStrut(5));
-			minMaxPanel.add(new JLabel("to"));
-			minMaxPanel.add(Box.createHorizontalStrut(5));
-			minMaxPanel.add(maxField);
-
 			minimumFields.put(param, minField);
 			maximumFields.put(param, maxField);
-			leftPanel.add(UI.createHorizontalPanel(new JLabel(param)));
-			rightPanel.add(minMaxPanel);
+			leftComponents.add(new JLabel(param));
+			rightComponents
+					.add(UI.createEastPanel(UI.createHorizontalPanel(false, minField, new JLabel("to"), maxField)));
 		}
-
-		modelPanel.setLayout(new BorderLayout());
-		modelPanel.add(leftPanel, BorderLayout.WEST);
-		modelPanel.add(rightPanel, BorderLayout.EAST);
 
 		JPanel rangePanel = new JPanel();
 
 		rangePanel.setLayout(new BorderLayout());
-		rangePanel.add(modelPanel, BorderLayout.NORTH);
+		rangePanel.add(UI.createOptionsPanel(leftComponents, rightComponents), BorderLayout.NORTH);
 
 		JPanel panel = new JPanel();
 

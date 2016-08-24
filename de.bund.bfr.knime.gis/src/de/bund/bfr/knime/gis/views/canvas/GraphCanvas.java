@@ -220,8 +220,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					Dialog.DEFAULT_MODALITY_TYPE);
 			JProgressBar progressBar = new JProgressBar();
 
-			layoutDialog.add(UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")), BorderLayout.NORTH);
-			layoutDialog.add(UI.createHorizontalPanel(progressBar), BorderLayout.CENTER);
+			layoutDialog.add(UI.createBorderPanel(new JLabel("Waiting for Layout Process")), BorderLayout.NORTH);
+			layoutDialog.add(UI.createBorderPanel(progressBar), BorderLayout.CENTER);
 			layoutDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			layoutDialog.pack();
 			layoutDialog.setResizable(false);

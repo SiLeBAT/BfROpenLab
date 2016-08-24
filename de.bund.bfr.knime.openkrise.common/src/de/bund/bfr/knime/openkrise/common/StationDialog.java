@@ -88,7 +88,7 @@ public class StationDialog extends JDialog {
 		setLayout(new BorderLayout());
 		add(UI.createHorizontalPanel(new JLabel("Enter Search Query:"), searchField), BorderLayout.NORTH);
 		add(pane, BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(cancelButton)), BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createBorderPanel(cancelButton)), BorderLayout.SOUTH);
 
 		pack();
 		setLocationRelativeTo(parent);

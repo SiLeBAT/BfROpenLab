@@ -74,7 +74,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createHorizontalPanel(exportAsSvgBox)), BorderLayout.NORTH);
+		panel.add(UI.createWestPanel(UI.createBorderPanel(exportAsSvgBox)), BorderLayout.NORTH);
 
 		addTab("Options", panel, false);
 	}

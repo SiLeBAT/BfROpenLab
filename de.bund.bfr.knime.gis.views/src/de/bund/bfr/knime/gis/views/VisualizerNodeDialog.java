@@ -44,7 +44,7 @@ public abstract class VisualizerNodeDialog extends DataAwareNodeDialogPane imple
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createHorizontalPanel(inputButton)), BorderLayout.NORTH);
+		panel.add(UI.createWestPanel(UI.createBorderPanel(inputButton)), BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
 		addTab("Options", panel, false);

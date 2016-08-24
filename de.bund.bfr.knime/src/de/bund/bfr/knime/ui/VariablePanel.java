@@ -392,9 +392,8 @@ public class VariablePanel extends JPanel {
 			cancelButton.addActionListener(e -> dispose());
 
 			setLayout(new BorderLayout());
-			add(UI.createHorizontalPanel(UI.createOptionsPanel(null,
-					Arrays.asList(new JLabel("Min:"), new JLabel("Max:")), Arrays.asList(minField, maxField))),
-					BorderLayout.CENTER);
+			add(UI.createHorizontalPanel(UI.createOptionsPanel(Arrays.asList(new JLabel("Min:"), new JLabel("Max:")),
+					Arrays.asList(minField, maxField))), BorderLayout.CENTER);
 			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 
 			pack();

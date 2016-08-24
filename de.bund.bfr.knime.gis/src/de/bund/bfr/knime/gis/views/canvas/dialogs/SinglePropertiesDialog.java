@@ -76,7 +76,7 @@ public class SinglePropertiesDialog extends KnimeDialog {
 
 		setLayout(new BorderLayout());
 		add(new JScrollPane(UI.createNorthPanel(centerPanel)), BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)), BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createBorderPanel(okButton)), BorderLayout.SOUTH);
 		pack();
 		UI.adjustDialog(this, 0.5, 0.8);
 		setLocationRelativeTo(parent);

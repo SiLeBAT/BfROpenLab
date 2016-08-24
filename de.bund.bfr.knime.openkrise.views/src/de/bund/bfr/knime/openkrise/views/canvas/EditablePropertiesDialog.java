@@ -170,8 +170,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 		JPanel southPanel = new JPanel();
 
 		southPanel.setLayout(new BorderLayout());
-		southPanel.add(UI.createHorizontalPanel(new JLabel("Number of Elements: " + elements.size())),
-				BorderLayout.WEST);
+		southPanel.add(UI.createBorderPanel(new JLabel("Number of Elements: " + elements.size())), BorderLayout.WEST);
 		southPanel.add(UI.createHorizontalPanel(okButton, cancelButton), BorderLayout.EAST);
 
 		List<JButton> buttons = new ArrayList<>();

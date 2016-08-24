@@ -159,20 +159,42 @@ public class UI {
 		return northPanel;
 	}
 
-	public static JPanel createHorizontalPanel(Component... components) {
-		JPanel buttonPanel = new JPanel();
+	public static JPanel createBorderPanel(Component component) {
+		JPanel panel = new JPanel();
 
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-		buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		panel.setLayout(new BorderLayout());
+		panel.add(component, BorderLayout.CENTER);
 
-		for (Component button : components) {
-			buttonPanel.add(Box.createHorizontalStrut(5));
-			buttonPanel.add(button);
+		return panel;
+	}
+
+	public static JPanel createHorizontalPanel(boolean withBorder, Component... components) {
+		JPanel panel = new JPanel();
+
+		if (withBorder) {
+			panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		}
 
-		buttonPanel.remove(0);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
-		return buttonPanel;
+		for (Component button : components) {
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(button);
+		}
+
+		panel.remove(0);
+
+		return panel;
+	}
+
+	public static JPanel createHorizontalPanel(Component... components) {
+		return createHorizontalPanel(true, components);
+	}
+
+	public static JPanel createOptionsPanel(List<? extends Component> leftComponents,
+			List<? extends Component> rightComponents) {
+		return createOptionsPanel(null, leftComponents, rightComponents);
 	}
 
 	public static JPanel createOptionsPanel(String name, List<? extends Component> leftComponents,

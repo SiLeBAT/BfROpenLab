@@ -555,7 +555,7 @@ public class GeocodingNodeModel extends NodeModel {
 			});
 
 			setLayout(new BorderLayout());
-			add(UI.createHorizontalPanel(new JLabel(searchTerm)), BorderLayout.NORTH);
+			add(UI.createBorderPanel(new JLabel(searchTerm)), BorderLayout.NORTH);
 			add(new JScrollPane(choicesList), BorderLayout.CENTER);
 			add(UI.createEastPanel(UI.createHorizontalPanel(selectButton, skipButton, cancelButton)),
 					BorderLayout.SOUTH);

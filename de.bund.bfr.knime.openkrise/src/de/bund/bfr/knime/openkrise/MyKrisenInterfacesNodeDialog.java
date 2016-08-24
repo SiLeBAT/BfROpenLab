@@ -59,9 +59,9 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		backwardBox = new JCheckBox("Ensure Backward Compatibility");
 		anonymizeBox = new JCheckBox("Anonymize Data");
 		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
-		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(lotBasedBox)));
-		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(backwardBox)));
-		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(anonymizeBox)));
+		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(lotBasedBox)));
+		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(backwardBox)));
+		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(anonymizeBox)));
 
 		JPanel dbPanel = new JPanel();
 
@@ -69,7 +69,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		dbBox.addActionListener(e -> dbField.setEnabled(dbBox.isSelected()));
 		dbField = new FilesHistoryPanel(FILE_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		dbPanel.setLayout(new BoxLayout(dbPanel, BoxLayout.Y_AXIS));
-		dbPanel.add(UI.createWestPanel(UI.createHorizontalPanel(dbBox)));
+		dbPanel.add(UI.createWestPanel(UI.createBorderPanel(dbBox)));
 		dbPanel.add(UI.createTitledPanel(dbField, "Database Path"));
 
 		addTab("Options", UI.createNorthPanel(tracingPanel));
