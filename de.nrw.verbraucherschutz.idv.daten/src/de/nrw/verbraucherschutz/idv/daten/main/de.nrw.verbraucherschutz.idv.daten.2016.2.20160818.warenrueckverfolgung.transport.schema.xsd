@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema
+	xmlns="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport"
+	xmlns:dok="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument"
+        xmlns:wrv="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+	targetNamespace="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport"
+	version="1.0">
+
+	<xs:import namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument"
+                   schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2016.1.20160822.dokument.xsd"/>
+                   
+        <xs:import namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung"
+                   schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2016.2.20160822.warenrueckverfolgung.xsd"/>
+
+	<xs:element name="kontrollpunktmeldung" type="kontrollpunktmeldung"/>
+	<xs:element name="analyseergebnis" type="analyseergebnis"/>
+
+	<xs:complexType name="kontrollpunktmeldung">
+		<xs:sequence>
+			<xs:element name="meldung" type="wrv:meldung"/>
+			<xs:element name="betrieb" type="wrv:betrieb"/>
+			<xs:element nillable="true" name="wareneingaenge" type="wrv:wareneingaenge"/>
+			<xs:element nillable="true" name="produktionen" type="wrv:produktionen"/>
+			<xs:element nillable="true" name="warenausgaenge" type="wrv:warenausgaenge"/>
+			<xs:element nillable="true" name="warenbestaende" type="wrv:warenbestaende"/>
+			<xs:element nillable="true" name="ausloeser" type="wrv:ausloeser"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="analyseergebnis">
+		<xs:sequence>
+			<xs:element name="meldung" type="wrv:meldung"/>
+ 			<xs:element maxOccurs="unbounded" name="dokument" type="dok:dokument"/>
+ 			<xs:element name="bewertung" type="wrv:bewertung"/>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>
+
+
+
