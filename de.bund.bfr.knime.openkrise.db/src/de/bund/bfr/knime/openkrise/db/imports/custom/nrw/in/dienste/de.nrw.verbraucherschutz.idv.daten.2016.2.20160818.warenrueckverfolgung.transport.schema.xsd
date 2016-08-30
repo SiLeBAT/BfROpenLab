@@ -8,10 +8,10 @@
 	version="1.0">
 
 	<xs:import namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument"
-                   schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2016.1.20160818.dokument.xsd"/>
+                   schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2016.1.20160822.dokument.xsd"/>
                    
         <xs:import namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung"
-                   schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2016.2.20160818.warenrueckverfolgung.xsd"/>
+                   schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2016.2.20160822.warenrueckverfolgung.xsd"/>
 
 	<xs:element name="kontrollpunktmeldung" type="kontrollpunktmeldung"/>
 	<xs:element name="analyseergebnis" type="analyseergebnis"/>
@@ -22,7 +22,7 @@
 			<xs:element name="betrieb" type="wrv:betrieb"/>
 			<xs:element nillable="true" name="wareneingaenge" type="wrv:wareneingaenge"/>
 			<xs:element nillable="true" name="produktionen" type="wrv:produktionen"/>
-			<xs:element nillable="true" name="warenausgaenge" type="wrv:warenausgang"/>
+			<xs:element nillable="true" name="warenausgaenge" type="wrv:warenausgaenge"/>
 			<xs:element nillable="true" name="warenbestaende" type="wrv:warenbestaende"/>
 			<xs:element nillable="true" name="ausloeser" type="wrv:ausloeser"/>
 		</xs:sequence>

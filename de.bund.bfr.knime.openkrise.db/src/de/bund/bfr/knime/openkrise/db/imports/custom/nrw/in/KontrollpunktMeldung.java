@@ -84,7 +84,11 @@ public class KontrollpunktMeldung implements MyImporter {
 	        }			
 		}
 		catch (Exception e) {e.printStackTrace();}
-		if (result) System.out.println("xml is valid!!!");
+		
+		if (result) {
+			System.out.println("xml is valid!!!");
+		}
+		
 		return result;
 	}
 
