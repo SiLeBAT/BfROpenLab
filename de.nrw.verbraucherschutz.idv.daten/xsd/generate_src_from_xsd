@@ -1,0 +1,1 @@
+xjc -d ../src -p de.nrw.verbraucherschutz.idv.daten main/de.nrw.verbraucherschutz.idv.daten.2016.2.20160818.warenrueckverfolgung.transport.schema.xsd

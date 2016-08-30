@@ -1,0 +1,386 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<p:kontrollpunktmeldung xmlns:p="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport" xmlns:p1="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung" xmlns:p2="http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem" xmlns:p3="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport de.nrw.verbraucherschutz.idv.daten.2016.2.20160818.warenrueckverfolgung.transport.schema.xsd ">
+	<p:meldung>
+		<meldendeBehoerde scope="BUND" verz="ADV" katalog="001" version="1.28" code="123456">Amt für BfR</meldendeBehoerde>
+		<nummer>2016-123</nummer>
+		<status>UNGUELTIG</status> <!-- Alternativ: GUELTIG -->
+		<fallNummer>2016-111</fallNummer>
+		<fallBezeichnung>Schwermetalle in Delphinflossen</fallBezeichnung>
+		<meldungVom>2016-05-03</meldungVom>
+	</p:meldung>
+	<p:betrieb typ="KONTROLLPUNKT">
+		<betriebsnummer>276050123456789</betriebsnummer>
+		<egZulassungsnummer></egZulassungsnummer>
+		<betriebsname>Betrieb A - Metzgerei Mustermann</betriebsname>
+		<strasse>Musterstraße</strasse>
+		<hausnummer>123</hausnummer>
+		<hausnummerZusatz>b</hausnummerZusatz>
+		<plz>12345</plz>
+		<ort>Musterstadt</ort>
+		<land>DEU</land>
+		<geoPositionLatitude>12345.12</geoPositionLatitude>
+		<geoPositionLongitude>12345.12</geoPositionLongitude>
+		<bemerkung>Infos</bemerkung>
+	</p:betrieb>
+	<p:wareneingaenge>
+		<wareneingang id="123456">
+			<betrieb typ="LIEFERANT">
+				<betriebsnummer>276050123456789</betriebsnummer>
+				<egZulassungsnummer></egZulassungsnummer>
+				<betriebsname>Metzgerei Mustermann</betriebsname>
+				<strasse>Musterstraße</strasse>
+				<hausnummer>123</hausnummer>
+				<hausnummerZusatz>b</hausnummerZusatz>
+				<plz>12345</plz>
+				<ort>Musterstadt</ort>
+				<land>DEU</land>
+				<geoPositionLatitude>12345.12</geoPositionLatitude>
+				<geoPositionLongitude>12345.12</geoPositionLongitude>
+				<bemerkung>Infos</bemerkung>
+			</betrieb>
+			<betrieb typ="ORT_ABHOLUNG">
+				<betriebsnummer>276050123456789</betriebsnummer>
+				<egZulassungsnummer></egZulassungsnummer>
+				<betriebsname>Metzgerei Mustermann</betriebsname>
+				<strasse>Musterstraße</strasse>
+				<hausnummer>123</hausnummer>
+				<hausnummerZusatz>b</hausnummerZusatz>
+				<plz>12345</plz>
+				<ort>Musterstadt</ort>
+				<land>DEU</land>
+				<geoPositionLatitude>12345.12</geoPositionLatitude>
+				<geoPositionLongitude>12345.12</geoPositionLongitude>
+				<bemerkung>Infos</bemerkung>
+			</betrieb>
+			<lieferung>
+				<lieferscheinNummer>LF-1234</lieferscheinNummer>
+				<ausgeliefertAm>2016-12-01</ausgeliefertAm>
+			</lieferung>
+			<warenumfang>
+				<anzahlGebinde>
+					<anzahl>10</anzahl>
+					<gebinde>Glas</gebinde>
+				</anzahlGebinde>
+				<mengeEinheit>
+					<menge>100</menge>
+					<einheit>Gramm</einheit>
+				</mengeEinheit>
+			</warenumfang>
+			<produkt>
+				<losNummer>123456</losNummer>
+				<chargenNummer>123456</chargenNummer>
+				<produktBezeichnung>123456</produktBezeichnung>
+				<handelsname>123456</handelsname>
+				<artikelnummer>Produkt A</artikelnummer>
+				<ean>123456</ean>
+			</produkt>
+			<zusatzparameter>
+				<datum position="1" bezeichnung="MHD" masseinheit="Datum" beschreibung="Mindeshaltbarkeitsdatum" >2015-12-03</datum>
+				<text position="2" bezeichnung="Wetter" beschreibung="Wetter am Tag der Lieferung">543</text>
+				<zahl position="3" bezeichnung="Temperatur" masseinheit="°C" beschreibung="Temperatur am Tag der Lieferung">15.2</zahl>
+			</zusatzparameter>
+		</wareneingang>
+	</p:wareneingaenge>
+	<p:produktionen>
+		<produktion id="87654">
+			<produkt>
+				<losNummer>123456</losNummer>
+				<chargenNummer>123456</chargenNummer>
+				<produktBezeichnung>123456</produktBezeichnung>
+				<handelsname>123456</handelsname>
+				<artikelnummer>Produkt A</artikelnummer>
+				<ean>123456</ean>
+			</produkt>
+			<produktionsumfang>
+				<anzahlGebinde>
+					<anzahl>10</anzahl>
+					<gebinde>Glas</gebinde>
+				</anzahlGebinde>
+				<mengeEinheit>
+					<menge>100</menge>
+					<einheit>Gramm</einheit>
+				</mengeEinheit>
+			</produktionsumfang>
+			<produziertAm>2015-12-03</produziertAm>
+			<wareneingaengeVerwendet>
+				<wareneingangVerwendet wareneingangId="233">
+					<warenumfang>
+						<anzahlGebinde>
+							<anzahl>1</anzahl>
+							<gebinde>Glas</gebinde>
+						</anzahlGebinde>
+						<mengeEinheit>
+							<menge>100</menge>
+							<einheit>Gramm</einheit>
+						</mengeEinheit>
+					</warenumfang>
+				</wareneingangVerwendet>
+			<wareneingangVerwendet wareneingangId="233">
+					<warenumfang>
+						<anzahlGebinde>
+							<anzahl>1</anzahl>
+							<gebinde>Glas</gebinde>
+						</anzahlGebinde>
+						<mengeEinheit>
+							<menge>100</menge>
+							<einheit>Gramm</einheit>
+						</mengeEinheit>
+					</warenumfang>
+				</wareneingangVerwendet>
+			</wareneingaengeVerwendet>
+			<!-- Zusatzparameter für Produktion: Existieren aktuell nicht in COS -->
+			<zusatzparameter>
+				<datum position="1" bezeichnung="MHD" masseinheit="Datum" beschreibung="Mindeshaltbarkeitsdatum" >2015-12-03</datum>
+				<text position="2" bezeichnung="Wetter" beschreibung="Wetter am Tag der Lieferung">5445</text>
+				<zahl position="3" bezeichnung="Temperatur" masseinheit="°C" beschreibung="Temperatur am Tag der Lieferung">15.2</zahl>
+			</zusatzparameter>
+			<!-- Zusatzparameter für Produktion: Existieren aktuell nicht in COS -->
+		</produktion>
+	</p:produktionen>
+	<p:warenausgaenge>
+		<warenausgang id="1122233" produktionId="87654">
+			<betrieb typ="KUNDE">
+				<betriebsnummer>276050123456789</betriebsnummer>
+				<egZulassungsnummer></egZulassungsnummer>
+				<betriebsname>Metzgerei Mustermann</betriebsname>
+				<strasse>Musterstraße</strasse>
+				<hausnummer>123</hausnummer>
+				<hausnummerZusatz>b</hausnummerZusatz>
+				<plz>12345</plz>
+				<ort>Musterstadt</ort>
+				<land>DEU</land>
+				<geoPositionLatitude>12345.12</geoPositionLatitude>
+				<geoPositionLongitude>12345.12</geoPositionLongitude>
+				<bemerkung>Infos</bemerkung>
+			</betrieb>
+			<betrieb typ="ORT_ANLIEFERUNG">
+				<betriebsnummer>276050123456789</betriebsnummer>
+				<egZulassungsnummer></egZulassungsnummer>
+				<betriebsname>Metzgerei Mustermann</betriebsname>
+				<strasse>Musterstraße</strasse>
+				<hausnummer>123</hausnummer>
+				<hausnummerZusatz>b</hausnummerZusatz>
+				<plz>12345</plz>
+				<ort>Musterstadt</ort>
+				<land>DEU</land>
+				<geoPositionLatitude>12345.12</geoPositionLatitude>
+				<geoPositionLongitude>12345.12</geoPositionLongitude>
+				<bemerkung>Infos</bemerkung>
+			</betrieb>
+			<lieferung>
+				<lieferscheinNummer>LF-1234</lieferscheinNummer>
+				<ausgeliefertAm>2016-12-01</ausgeliefertAm>
+			</lieferung>
+			<warenumfang>
+				<anzahlGebinde>
+					<anzahl>10</anzahl>
+					<gebinde>Glas</gebinde>
+				</anzahlGebinde>
+				<mengeEinheit>
+					<menge>100</menge>
+					<einheit>Gramm</einheit>
+				</mengeEinheit>
+			</warenumfang>
+			<produkt>
+				<losNummer>123456</losNummer>
+				<chargenNummer>123456</chargenNummer>
+				<produktBezeichnung>123456</produktBezeichnung>
+				<handelsname>123456</handelsname>
+				<artikelnummer>Produkt A</artikelnummer>
+				<ean>123456</ean>
+			</produkt>
+			<zusatzparameter>
+				<datum position="1" bezeichnung="MHD" masseinheit="Datum" beschreibung="Mindeshaltbarkeitsdatum" >2015-12-03</datum>
+				<text position="2" bezeichnung="Wetter" beschreibung="Wetter am Tag der Lieferung">213</text>
+				<zahl position="3" bezeichnung="Temperatur" masseinheit="°C" beschreibung="Temperatur am Tag der Lieferung">15.2</zahl>
+			</zusatzparameter>
+		</warenausgang>
+		<warenausgang id="1122233" produktionId="87654">
+			<betrieb typ="KUNDE">
+				<betriebsnummer>276050123456789</betriebsnummer>
+				<egZulassungsnummer></egZulassungsnummer>
+				<betriebsname>Metzgerei Mustermann</betriebsname>
+				<strasse>Musterstraße</strasse>
+				<hausnummer>123</hausnummer>
+				<hausnummerZusatz>b</hausnummerZusatz>
+				<plz>12345</plz>
+				<ort>Musterstadt</ort>
+				<land>DEU</land>
+				<geoPositionLatitude>12345.12</geoPositionLatitude>
+				<geoPositionLongitude>12345.12</geoPositionLongitude>
+				<bemerkung>Infos</bemerkung>
+			</betrieb>
+			<betrieb typ="ORT_ANLIEFERUNG">
+				<betriebsnummer>276050123456789</betriebsnummer>
+				<egZulassungsnummer></egZulassungsnummer>
+				<betriebsname>Metzgerei Mustermann</betriebsname>
+				<strasse>Musterstraße</strasse>
+				<hausnummer>123</hausnummer>
+				<hausnummerZusatz>b</hausnummerZusatz>
+				<plz>12345</plz>
+				<ort>Musterstadt</ort>
+				<land>DEU</land>
+				<geoPositionLatitude>12345.12</geoPositionLatitude>
+				<geoPositionLongitude>12345.12</geoPositionLongitude>
+				<bemerkung>Infos</bemerkung>
+			</betrieb>
+			<lieferung>
+				<lieferscheinNummer>LF-1234</lieferscheinNummer>
+				<ausgeliefertAm>2016-12-01</ausgeliefertAm>
+			</lieferung>
+			<warenumfang>
+				<anzahlGebinde>
+					<anzahl>10</anzahl>
+					<gebinde>Glas</gebinde>
+				</anzahlGebinde>
+				<mengeEinheit>
+					<menge>100</menge>
+					<einheit>Gramm</einheit>
+				</mengeEinheit>
+			</warenumfang>
+			<produkt>
+				<losNummer>123456</losNummer>
+				<chargenNummer>123456</chargenNummer>
+				<produktBezeichnung>123456</produktBezeichnung>
+				<handelsname>123456</handelsname>
+				<artikelnummer>Produkt A</artikelnummer>
+				<ean>123456</ean>
+			</produkt>
+			<zusatzparameter>
+				<datum position="1" bezeichnung="MHD" masseinheit="Datum" beschreibung="Mindeshaltbarkeitsdatum" >2015-12-03</datum>
+				<text position="2" bezeichnung="Wetter" beschreibung="Wetter am Tag der Lieferung">213</text>
+				<zahl position="3" bezeichnung="Temperatur" masseinheit="°C" beschreibung="Temperatur am Tag der Lieferung">15.2</zahl>
+			</zusatzparameter>
+		</warenausgang>
+	</p:warenausgaenge>
+	<p:warenbestaende>
+		<warenbestand>
+			<betrieb typ="ORT_LAGERUNG">
+				<betriebsnummer>276050123456789</betriebsnummer>
+				<egZulassungsnummer></egZulassungsnummer>
+				<betriebsname>Metzgerei Mustermann</betriebsname>
+				<strasse>Musterstraße</strasse>
+				<hausnummer>123</hausnummer>
+				<hausnummerZusatz>b</hausnummerZusatz>
+				<plz>12345</plz>
+				<ort>Musterstadt</ort>
+				<land>DEU</land>
+				<geoPositionLatitude>12345.12</geoPositionLatitude>
+				<geoPositionLongitude>12345.12</geoPositionLongitude>
+				<bemerkung>Infos</bemerkung>
+			</betrieb>
+			<warenumfang>
+				<anzahlGebinde>
+					<anzahl>10</anzahl>
+					<gebinde>Glas</gebinde>
+				</anzahlGebinde>
+				<mengeEinheit>
+					<menge>100</menge>
+					<einheit>Gramm</einheit>
+				</mengeEinheit>
+			</warenumfang>
+			<produkt>
+				<losNummer>123456</losNummer>
+				<chargenNummer>123456</chargenNummer>
+				<produktBezeichnung>123456</produktBezeichnung>
+				<handelsname>123456</handelsname>
+				<artikelnummer>Produkt A</artikelnummer>
+				<ean>123456</ean>
+			</produkt>
+		</warenbestand>
+	</p:warenbestaende>
+	<!-- Auslöseinformationen sind in COS vorhanden: Der Benutzer in COS muss dafür die Lieferpositionen bei den Wareneingängen / Warenausgängen auswählen -->
+  <p:ausloeser>
+    <vorgaengerMeldung>2016-222</vorgaengerMeldung>
+    <wareneingaenge>
+      <wareneingang id="" produktionId="">
+        <betrieb typ="">
+          <betriebsnummer>betriebsnummer</betriebsnummer>
+          <egZulassungsnummer>egZulassungsnummer</egZulassungsnummer>
+          <betriebsname>betriebsname</betriebsname>
+          <strasse>strasse</strasse>
+          <hausnummer>0</hausnummer>
+          <hausnummerZusatz>hausnummerZusatz</hausnummerZusatz>
+          <plz>plz</plz>
+          <ort>ort</ort>
+          <land>land</land>
+          <geoPositionLatitude>0.0</geoPositionLatitude>
+          <geoPositionLongitude>0.0</geoPositionLongitude>
+          <bemerkung>bemerkung</bemerkung>
+        </betrieb>
+        <lieferung>
+          <lieferscheinNummer>lieferscheinNummer</lieferscheinNummer>
+          <ausgeliefertAm>2001-01-01</ausgeliefertAm>
+        </lieferung>
+        <warenumfang>
+          <anzahlGebinde>
+            <anzahl>0</anzahl>
+            <gebinde>gebinde</gebinde>
+          </anzahlGebinde>
+          <mengeEinheit>
+            <menge>0.0</menge>
+            <einheit>einheit</einheit>
+          </mengeEinheit>
+        </warenumfang>
+        <produkt>
+          <losNummer>losNummer</losNummer>
+          <chargenNummer>chargenNummer</chargenNummer>
+          <produktBezeichnung>produktBezeichnung</produktBezeichnung>
+          <handelsname>handelsname</handelsname>
+          <artikelnummer>artikelnummer</artikelnummer>
+          <ean>ean</ean>
+        </produkt>
+        <zusatzparameter/>
+      </wareneingang>
+    </wareneingaenge>
+    <warenausgaenge>
+			<warenausgang id="1122233" produktionId="87654">
+				<betrieb typ="KUNDE">
+					<betriebsnummer>276050123456789</betriebsnummer>
+					<egZulassungsnummer></egZulassungsnummer>
+					<betriebsname>Metzgerei Mustermann</betriebsname>
+					<strasse>Musterstraße</strasse>
+					<hausnummer>123</hausnummer>
+					<hausnummerZusatz>b</hausnummerZusatz>
+					<plz>12345</plz>
+					<ort>Musterstadt</ort>
+					<land>DEU</land>
+					<geoPositionLatitude>12345.12</geoPositionLatitude>
+					<geoPositionLongitude>12345.12</geoPositionLongitude>
+					<bemerkung>Infos</bemerkung>
+				</betrieb>
+				<lieferung>
+					<lieferscheinNummer>LF-1234</lieferscheinNummer>
+					<ausgeliefertAm>2016-12-01</ausgeliefertAm>
+				</lieferung>
+				<warenumfang>
+					<anzahlGebinde>
+						<anzahl>10</anzahl>
+						<gebinde>Glas</gebinde>
+					</anzahlGebinde>
+					<mengeEinheit>
+						<menge>100</menge>
+						<einheit>Gramm</einheit>
+					</mengeEinheit>
+				</warenumfang>
+				<produkt>
+					<losNummer>123456</losNummer>
+					<chargenNummer>123456</chargenNummer>
+					<produktBezeichnung>123456</produktBezeichnung>
+					<handelsname>123456</handelsname>
+					<artikelnummer>Produkt A</artikelnummer>
+					<ean>123456</ean>
+				</produkt>
+				<zusatzparameter>
+					<datum position="1" bezeichnung="MHD" masseinheit="Datum" beschreibung="Mindeshaltbarkeitsdatum" >2015-12-03</datum>
+					<text position="2" bezeichnung="Wetter" beschreibung="Wetter am Tag der Lieferung">56</text>
+					<zahl position="3" bezeichnung="Temperatur" masseinheit="°C" beschreibung="Temperatur am Tag der Lieferung">15.2</zahl>
+				</zusatzparameter>
+			</warenausgang>
+    </warenausgaenge>
+  </p:ausloeser>
+  
+	<!-- Auslöseinformationen sind in COS vorhanden -->
+</p:kontrollpunktmeldung>
+
+
