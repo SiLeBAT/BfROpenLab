@@ -32,7 +32,7 @@ class SetVersionNumber {
 		def version = new Scanner(System.in).nextLine()
 
 		for (File d : new File(ROOT).listFiles())
-			if (d.isDirectory() && d.name.startsWith("de.bund.bfr")) {
+			if (d.isDirectory() && (d.name.startsWith("de.bund.bfr") || d.name.startsWith("de.nrw"))) {
 				def manifest = new File("${d.absolutePath}/META-INF/MANIFEST.MF")
 				def feature = new File("${d.absolutePath}/feature.xml")
 				def site = new File("${d.absolutePath}/site.xml")
