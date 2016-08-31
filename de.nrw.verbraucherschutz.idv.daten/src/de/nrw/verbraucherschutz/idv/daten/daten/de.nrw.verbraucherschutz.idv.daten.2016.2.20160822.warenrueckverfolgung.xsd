@@ -33,8 +33,7 @@
 			<xs:element nillable="true" name="ort" type="xs:string"/>
 			<xs:element name="land" type="xs:string"/>
 			<xs:element nillable="true" name="geoPositionLatitude" type="xs:decimal"/>
-			<xs:element nillable="true" name="geoPositionLongitude"
-				type="xs:decimal" />
+			<xs:element nillable="true" name="geoPositionLongitude" type="xs:decimal" />
 			<xs:element nillable="true" name="bemerkung" type="xs:string"/>
 		</xs:sequence>
 		<xs:attribute name="typ" type="xs:string"/>
@@ -61,10 +60,10 @@
 	<xs:complexType name="produktion">
 		<xs:sequence>
 			<xs:element name="produkt" type="produkt"/>
-			<xs:element name="produktionsumfang" type="warenumfang"/>
-			<xs:element name="produziertAm" type="xs:date"/>
-			<xs:element name="wareneingaengeVerwendet" type="wareneingaengeVerwendet"/>
-			<xs:element nillable="true" name="zusatzparameter" type="zusatzparameter"/>
+			<xs:element minOccurs="0" name="produktionsumfang" type="warenumfang"/>
+			<xs:element minOccurs="0" name="produziertAm" type="xs:date"/>
+			<xs:element minOccurs="0" name="wareneingaengeVerwendet" type="wareneingaengeVerwendet"/>
+			<xs:element minOccurs="0" nillable="true" name="zusatzparameter" type="zusatzparameter"/>
 		</xs:sequence>
 		<xs:attribute name="id" type="xs:string"/>
 	</xs:complexType>
@@ -77,7 +76,7 @@
 
 	<xs:complexType name="wareneingangVerwendet">
 		<xs:sequence>
-			<xs:element name="warenumfang" type="warenumfang"/>
+			<xs:element minOccurs="0" name="warenumfang" type="warenumfang"/>
 		</xs:sequence>
 		<xs:attribute name="wareneingangId" type="xs:string"/>
 	</xs:complexType>
@@ -101,7 +100,7 @@
 			<xs:element name="lieferung" type="lieferung"/>
 			<xs:element name="warenumfang" type="warenumfang"/>
 			<xs:element name="produkt" type="produkt"/>
-			<xs:element nillable="true" name="zusatzparameter" type="zusatzparameter"/>
+			<xs:element minOccurs="0" nillable="true" name="zusatzparameter" type="zusatzparameter"/>
 		</xs:sequence>
 		<xs:attribute name="id" type="xs:string"/>
 		<xs:attribute name="produktionId" type="xs:string" use="optional"/>
@@ -123,9 +122,9 @@
 
 	<xs:complexType name="ausloeser">
 		<xs:sequence>
-			<xs:element name="vorgaengerMeldung" type="xs:string"/>
-			<xs:element name="wareneingaenge" type="wareneingaenge"/>
-			<xs:element name="warenausgaenge" type="warenausgaenge"/>
+			<xs:element minOccurs="0" name="vorgaengerMeldung" type="xs:string"/>
+			<xs:element minOccurs="0" name="wareneingaenge" type="wareneingaenge"/>
+			<xs:element minOccurs="0" name="warenausgaenge" type="warenausgaenge"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -138,7 +137,7 @@
 
 	<xs:complexType name="warenumfang">
 		<xs:sequence>
-			<xs:element nillable="true" name="anzahlGebinde" type="anzahlGebinde"/>
+			<xs:element minOccurs="0" nillable="true" name="anzahlGebinde" type="anzahlGebinde"/>
 			<xs:element nillable="true" name="mengeEinheit" type="mengeEinheit"/>
 		</xs:sequence>
 	</xs:complexType>

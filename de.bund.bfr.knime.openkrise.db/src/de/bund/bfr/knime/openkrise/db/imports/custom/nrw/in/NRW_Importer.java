@@ -20,7 +20,7 @@ import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 public class NRW_Importer implements MyImporter {
 	
 	public static void main(String[] args) throws JAXBException {
-		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/", null, true); // /de/nrw/verbraucherschutz/idv/daten/test/kpm_xmls/l2b_kontrollpunktmeldung-v0.2.xml
+		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/bbk/", null, true); // /de/nrw/verbraucherschutz/idv/daten/test/kpm_xmls/l2b_kontrollpunktmeldung-v0.2.xml
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class NRW_Importer implements MyImporter {
 					*/
 							Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(f)).getValue();
 							kpms.put(meldung.getBetrieb().getBetriebsnummer(), meldung);
-							System.out.println(meldung.getBetrieb().getBetriebsname() + "\t" + (meldung.getBetrieb().getGeoPositionLatitude().doubleValue()-2));
+							System.out.println(meldung.getBetrieb().getBetriebsname());
 							
 							// erstmal egal:
 							meldung.getMeldung();
