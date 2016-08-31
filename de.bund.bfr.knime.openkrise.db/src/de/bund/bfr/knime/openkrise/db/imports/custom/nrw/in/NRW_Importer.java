@@ -1,6 +1,12 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in;
 
-// Todo: Länderreistenzen, Bericht Bewerbung, IA-2 finalisieren
+/*
+ Fragen:
+ - sind wareneingangs ids identisch mit warenausgangs ids aus der anderen sicht, d.h. sind diese IDs global gültig oder gelten sie nur innerhalb des betrachteten Kontrollpunktes?
+ - was bedeutet GÜLTIG / UNGÜLTIG in einer Meldung?
+ - wann wird eine xml ungültig? Welche Regeln gibt es da? Z.B. xml wird aus Bushaltestelle gelöscht oder eine neue Meldung desselben Kontrollpunktes wird in die Bushaltestelle gelegt oder der Status der Meldung wird auf UNGÜLTIG gesetzt oder...?
+ - gibt es nur eine meldung pro Betrieb/Kontrollpunkt?
+ */
 import java.io.File;
 import java.util.HashMap;
 
@@ -50,8 +56,30 @@ public class NRW_Importer implements MyImporter {
 											.openStream())).getValue();
 					*/
 							Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(f)).getValue();
-							kpms.put(meldung.getBetrieb().getBetriebsnummer(), meldung);
 							System.out.println(meldung.getBetrieb().getBetriebsname());
+							kpms.put(meldung.getBetrieb().getBetriebsnummer(), meldung);
+							if (meldung.getWareneingaenge() != null) {
+								for (Wareneingang we : meldung.getWareneingaenge().getWareneingang()) {
+									for (Betrieb b : we.getBetrieb()) {
+										if (b.getTyp().equals("LIEFERANT")) {
+											if (!kpms.containsKey(b.getBetriebsnummer())) {
+												kpms.put(b.getBetriebsnummer(), null);
+											}
+										}
+									}
+								}									
+							}
+							if (meldung.getWarenausgaenge() != null) {
+								for (Warenausgang wa : meldung.getWarenausgaenge().getWarenausgang()) {
+									for (Betrieb b : wa.getBetrieb()) {
+										if (b.getTyp().equals("KUNDE")) {
+											if (!kpms.containsKey(b.getBetriebsnummer())) {
+												kpms.put(b.getBetriebsnummer(), null);
+											}
+										}
+									}
+								}									
+							}
 							
 							// erstmal egal:
 							meldung.getMeldung();
@@ -63,8 +91,10 @@ public class NRW_Importer implements MyImporter {
 							meldung.getWareneingaenge();
 							meldung.getProduktionen();
 							meldung.getWarenausgaenge();
+							
 						}
 					}
+					System.out.println("Anzahl Stationen: " + kpms.size());
 				}
 			}
 		} catch (JAXBException e) {
