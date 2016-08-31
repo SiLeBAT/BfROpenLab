@@ -42,7 +42,7 @@
 
 	<xs:complexType name="wareneingaenge">
 		<xs:sequence>
-			<xs:element maxOccurs="unbounded" name="wareneingang"
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="wareneingang"
 				type="wareneingang" />
 		</xs:sequence>
 	</xs:complexType>
@@ -55,7 +55,7 @@
 
 	<xs:complexType name="produktionen">
 		<xs:sequence>
-			<xs:element maxOccurs="unbounded" name="produktion" type="produktion"/>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="produktion" type="produktion"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="produktion">
@@ -85,7 +85,7 @@
 
 	<xs:complexType name="warenausgaenge">
 		<xs:sequence>
-			<xs:element maxOccurs="unbounded" name="warenausgang"
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="warenausgang"
 				type="warenausgang" />
 		</xs:sequence>
 	</xs:complexType>
@@ -109,7 +109,7 @@
 
 	<xs:complexType name="warenbestaende">
 		<xs:sequence>
-			<xs:element maxOccurs="unbounded" name="warenbestand"
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="warenbestand"
 				type="warenbestand" />
 		</xs:sequence>
 	</xs:complexType>
