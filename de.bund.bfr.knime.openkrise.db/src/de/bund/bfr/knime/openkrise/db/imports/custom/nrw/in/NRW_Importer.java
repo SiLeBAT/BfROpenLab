@@ -1,12 +1,5 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in;
 
-/*
- Fragen:
- - sind wareneingangs ids identisch mit warenausgangs ids aus der anderen sicht, d.h. sind diese IDs global gültig oder gelten sie nur innerhalb des betrachteten Kontrollpunktes?
- - was bedeutet GÜLTIG / UNGÜLTIG in einer Meldung?
- - wann wird eine xml ungültig? Welche Regeln gibt es da? Z.B. xml wird aus Bushaltestelle gelöscht oder eine neue Meldung desselben Kontrollpunktes wird in die Bushaltestelle gelegt oder der Status der Meldung wird auf UNGÜLTIG gesetzt oder...?
- - gibt es nur eine meldung pro Betrieb/Kontrollpunkt?
- */
 import java.io.File;
 import java.util.HashMap;
 
@@ -50,12 +43,9 @@ public class NRW_Importer implements MyImporter {
 					for (File f : fs) {
 						if (f.getName().endsWith(".xml")) {
 							System.out.println("----- " + f.getName() + " -----");
-							/*
-							Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(
-									getClass().getResource(f.getAbsolutePath())
-											.openStream())).getValue();
-					*/
+
 							Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(f)).getValue();
+							
 							System.out.println(meldung.getBetrieb().getBetriebsname());
 							kpms.put(meldung.getBetrieb().getBetriebsnummer(), meldung);
 							if (meldung.getWareneingaenge() != null) {
