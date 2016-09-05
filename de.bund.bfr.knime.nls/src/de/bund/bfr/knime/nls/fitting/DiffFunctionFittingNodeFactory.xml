@@ -3,19 +3,64 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
 	<name>Differential Function Fitting</name>
 
-	<shortDescription>
+	<shortDescription>	
+		Fits data to a scalar function consisting of first order differential equations.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Insert long description here...
+			Fits data to a scalar function consisting of first order differential equations. The table
+			from the second input port must contain "time/dependent-variable" pairs. The table from the third
+			input port must contain "time/condition" tuples.
 		</intro>
 
-		<option name="short name of first option (like in the dialog)">
-			description of first option
+		<option name="Fit All At Once">
+			If checked, the same values for differential equation parameters are used for
+			all data sets. Otherwise each data set is fitted separately.
 		</option>
-		<option name="short name of second option (like in the dialog)">
-			description of second option
+		<option name="Use Different Value for *_0">
+			If checked, for each data set a different value for *_0 is computed. That
+			means, that the respective differential equation has a different start value for each data set.
+			Otherwise all data sets use the same start value.
+		</option>
+		<option name="Expert Settings">
+			When checked, all the following options can be set/changed. Otherwise default
+			parameters are used.
+		</option>
+		<option name="Integration Step Size">
+			The Runge–Kutta method is used for integrating the differential equations.
+			This options specifies the step size to use.
+		</option>
+		<option name="Interpolation Function">
+			The condition values are provided to node for specific times. The fitting
+			algorithm must interpolate between these values. This option specifies the interpolation function
+			to use.
+		</option>
+		<option name="Maximum Evaluations to Find Start Values">
+			Before the optimization algorithm is executed, multiple combinations of start
+			values are evaluated to find the combinations with the lowest errors. This option specifies the
+			maximum number of start value combinations, that are evaluated evaluated.
+		</option>
+		<option name="Maximum Executions of Optimization Algorithm">
+			The optimization algorithm is executed with start value combinations, that
+			have the lowest errors. This option specifies the maximum of start value combinations, with which
+			the algorithm is executed.
+		</option>
+		<option name="Stop When Optimization Successful">
+			If checked, the first successful result of the optimization algorithm is used
+			as the result of this node and the execution is stopped. Otherwise the execution continues to
+			find better results.
+		</option>
+		<option name="Maximum Iterations in each run of Optimization Algorithm">
+			This option specifies the maximum of iterations of the optimization algorithm
+			for each start value combination.
+		</option>
+		<option name="Specific Start Values for Fitting Procedure">
+			Here the user can specify boundaries for the start value of each parameter.
+		</option>
+		<option name="Enforce start values as limits">
+			If checked, the optimization algorithm only return results, where the
+			parameter values are in the specified boundaries.
 		</option>
 	</fullDescription>
 
