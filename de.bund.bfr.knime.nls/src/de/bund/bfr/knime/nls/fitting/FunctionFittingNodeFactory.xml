@@ -13,43 +13,55 @@
 		</intro>
 
 		<option name="Level of Detection">
-			description of first option
+			When enabled regression with the independent variable subject to the specified
+			detection limit is performed (NIE, Lei, et al. Linear regression with an independent variable
+			subject to a detection limit. Epidemiology (Cambridge, Mass.), 2010, 21. Jg., Nr. Suppl 4, S.
+			S17).
 		</option>
 		<option name="Expert Settings">
-			description of second option
+			When checked, all the following options can be set/changed. Otherwise default
+			parameters are used.
 		</option>
 		<option name="Maximum Evaluations to Find Start Values">
-			description of second option
+			Before the optimization algorithm is executed, multiple combinations of start
+			values are evaluated to find the combinations with the lowest errors. This option specifies the
+			maximum number of start value combinations, that are evaluated evaluated.
 		</option>
 		<option name="Maximum Executions of Optimization Algorithm">
-			description of second option
+			The optimization algorithm is executed with start value combinations, that
+			have the lowest errors. This option specifies the maximum of start value combinations, with which
+			the algorithm is executed.
 		</option>
-		<option name="Stop When Regression Successful">
-			description of second option
+		<option name="Stop When Optimization Successful">
+			If checked, the first successful result of the optimization algorithm is used
+			as the result of this node and the execution is stopped. Otherwise the execution continues to
+			find better results.
 		</option>
 		<option name="Maximum Iterations in each run of Optimization Algorithm">
-			description of second option
+			This option specifies the maximum of iterations of the optimization algorithm
+			for each start value combination.
 		</option>
 		<option name="Specific Start Values for Fitting Procedure">
-			description of second option
+			Here the user can specify boundaries for the start value of each parameter.
 		</option>
 		<option name="Enforce start values as limits">
-			description of second option
+			If checked, the optimization algorithm only return results, where the
+			parameter values are in the specified boundaries.
 		</option>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="In-Port name">
-			0
+		<inPort index="0" name="Function">
+			Simple scalar function, that is fitted to the data.
 		</inPort>
-		<inPort index="1" name="In-Port name">
-			1
+		<inPort index="1" name="Data">
+			Data, to which the function is fitted.
 		</inPort>
-		<outPort index="0" name="Out-Port name">
-			0
+		<outPort index="0" name="Parameter Values">
+			Parameter value and some quality measures.
 		</outPort>
-		<outPort index="1" name="Out-Port name">
-			1
+		<outPort index="1" name="Covariance Matrix">
+			Covariance matrix of the parameters.
 		</outPort>
 	</ports>
 </knimeNode>

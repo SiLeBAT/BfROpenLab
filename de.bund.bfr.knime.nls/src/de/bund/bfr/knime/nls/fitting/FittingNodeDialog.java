@@ -222,7 +222,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 		nLevenbergField = new IntTextField(false, 8);
 		nLevenbergField.setMinValue(1);
 		nLevenbergField.setValue(set.getnLevenberg());
-		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
+		stopWhenSuccessBox = new JCheckBox("Stop When Optimization Successful");
 		stopWhenSuccessBox.setSelected(set.isStopWhenSuccessful());
 		maxIterationsField = new IntTextField(false, 8);
 		maxIterationsField.setMinValue(1);
