@@ -4,33 +4,104 @@
 	<name>Interactive Function Fitting</name>
 
 	<shortDescription>
+		Fits data to a simple scalar function.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Insert long description here...
+			Fits data to a simple scalar function.
 		</intro>
 
-		<option name="short name of first option (like in the dialog)">
-			description of first option
-		</option>
-		<option name="short name of second option (like in the dialog)">
-			description of second option
-		</option>
+		<tab name="Display Options">
+			<option name="Show Legend">
+				If checked, a legend is shown below the chart.
+			</option>
+			<option name="Draw Lines">
+				If checked, the data points in the chart are connected by lines.
+			</option>
+			<option name="Resolution">
+				Number of points, that are evaluated for each function to draw the graph.
+			</option>
+		</tab>
+		<tab name="Range">
+			<option name="Set Minimum to Zero">
+				If checked, the lower left corner of the chart is set to (0/0).
+			</option>
+			<option name="Set Manual Range">
+				If checked, the ranges of the chart can be manually set via "Min X", "Max X",
+				"Min Y", "Max Y". Otherwise the ranges are set automatically.
+			</option>
+			<option name="Min X">
+				Minimum value of x-Axis.
+			</option>
+			<option name="Max X">
+				Maximum value of x-Axis.
+			</option>
+			<option name="Min Y">
+				Minimum value of y-Axis.
+			</option>
+			<option name="Max Y">
+				Maximum value of y-Axis.
+			</option>
+		</tab>
+		<tab name="Variables">
+			<option name="X">
+				Variable for the x-Axis.
+			</option>
+			<option name="Y">
+				Variable for the y-Axis.
+			</option>
+			<option name="X Transform">
+				Optional transformation of the x-Axis variable.
+			</option>
+			<option name="Y Transform">
+				Optional transformation of the y-Axis variable.
+			</option>
+		</tab>
+		<tab name="Parameter Values">
+			<option name="Value Slider">
+				Slider for setting the parameter's start value used in the optimization
+				algorithm. The slider is only enabled if limits have been set.
+			</option>
+			<option name="Value Field">
+				Field for setting the parameter's start value used in the optimization
+				algorithm.
+			</option>
+			<option name="Set Limits">
+				Limits for the parameter's start value. These limits can be enforced in the
+				optimization algorithm. And when limits are set, the value slider is enabled.
+			</option>
+		</tab>
+		<tab name="Fitting">
+			<option name="Enforce Limits">
+				If checked, the optimization algorithm only return results, where the
+				parameter values are in the specified boundaries.
+			</option>
+			<option name="Maximal Iterations in each run of Optimization Algorithm">
+				This option specifies the maximum of iterations of the optimization algorithm
+				for each start value combination.
+			</option>
+			<option name="Level of Detection">
+				When enabled regression with the independent variable subject to the
+				specified detection limit is performed (NIE, Lei, et al. Linear regression with an independent
+				variable subject to a detection limit. Epidemiology (Cambridge, Mass.), 2010, 21. Jg., Nr. Suppl
+				4, S. S17).
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="In-Port name">
-			0
+		<inPort index="0" name="Function">
+			Simple scalar function, that is fitted to the data.
 		</inPort>
-		<inPort index="1" name="In-Port name">
-			1
+		<inPort index="1" name="Data">
+			Data, to which the function is fitted.
 		</inPort>
-		<outPort index="0" name="Out-Port name">
-			0
+		<outPort index="0" name="Parameter Values">
+			Parameter value and some quality measures.
 		</outPort>
-		<outPort index="1" name="Out-Port name">
-			1
+		<outPort index="1" name="Covariance Matrix">
+			Covariance matrix of the parameters.
 		</outPort>
 	</ports>
 </knimeNode>

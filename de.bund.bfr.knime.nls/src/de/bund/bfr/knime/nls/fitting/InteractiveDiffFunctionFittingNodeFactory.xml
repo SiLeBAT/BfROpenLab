@@ -11,12 +11,49 @@
 			Insert long description here...
 		</intro>
 
-		<option name="short name of first option (like in the dialog)">
-			description of first option
-		</option>
-		<option name="short name of second option (like in the dialog)">
-			description of second option
-		</option>
+		<tab name="Display Options">
+			<option name="Show Legend">
+				If checked, a legend is shown in the chart.
+			</option>
+			<option name="Draw Lines">
+				If checked, the data points in the chart are connected by lines.
+			</option>
+			<option name="Resolution">
+				TEst
+			</option>
+		</tab>
+		<tab name="Range">
+			<option name="short name of first option (like in the dialog)">
+				description of first option
+			</option>
+			<option name="short name of second option (like in the dialog)">
+				description of second option
+			</option>
+		</tab>
+		<tab name="Variables">
+			<option name="short name of first option (like in the dialog)">
+				description of first option
+			</option>
+			<option name="short name of second option (like in the dialog)">
+				description of second option
+			</option>
+		</tab>
+		<tab name="Parameter Values">
+			<option name="short name of first option (like in the dialog)">
+				description of first option
+			</option>
+			<option name="short name of second option (like in the dialog)">
+				description of second option
+			</option>
+		</tab>
+		<tab name="Fitting">
+			<option name="short name of first option (like in the dialog)">
+				description of first option
+			</option>
+			<option name="short name of second option (like in the dialog)">
+				description of second option
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
