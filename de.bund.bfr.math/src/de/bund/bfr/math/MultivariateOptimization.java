@@ -53,12 +53,7 @@ import de.bund.bfr.math.MathUtils.StartValues;
 public class MultivariateOptimization implements Optimization {
 
 	private MultivariateFunction optimizerFunction;
-
 	private String[] parameters;
-
-	private Map<String, Double> minValues;
-	private Map<String, Double> maxValues;
-
 	private String sdParam;
 
 	public MultivariateOptimization(String formula, String[] parameters, double[] targetValues,
@@ -67,16 +62,6 @@ public class MultivariateOptimization implements Optimization {
 		this.parameters = ObjectArrays.concat(parameters, sdParam);
 		optimizerFunction = new LodFunction(formula, this.parameters, variableValues, targetValues, levelOfDetection,
 				sdParam);
-		minValues = new LinkedHashMap<>();
-		maxValues = new LinkedHashMap<>();
-	}
-
-	public Map<String, Double> getMinValues() {
-		return minValues;
-	}
-
-	public Map<String, Double> getMaxValues() {
-		return maxValues;
 	}
 
 	@Override

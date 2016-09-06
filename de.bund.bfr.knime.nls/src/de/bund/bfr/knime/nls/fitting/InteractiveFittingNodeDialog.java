@@ -148,13 +148,13 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		lodBox.setSelected(set.getLevelOfDetection() != null);
 		lodBox.addActionListener(e -> {
 			lodField.setEnabled(lodBox.isSelected());
-			enforceLimitsBox.setEnabled(lodBox.isSelected());
+			enforceLimitsBox.setEnabled(!lodBox.isSelected());
 		});
 		lodField = new DoubleTextField(true, 8);
 		lodField.setEnabled(lodBox.isSelected());
 		lodField.setValue(set.getLevelOfDetection());
 		enforceLimitsBox = new JCheckBox("Enforce Limits");
-		enforceLimitsBox.setEnabled(lodBox.isSelected());
+		enforceLimitsBox.setEnabled(!lodBox.isSelected());
 		enforceLimitsBox.setSelected(set.isEnforceLimits());
 		maxIterationsField = new IntTextField(false, 8);
 		maxIterationsField.setMinValue(1);
@@ -209,18 +209,18 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			rightComponents.add(UI.createHorizontalPanel(false, lodBox, lodField));
 		}
 
-		JPanel rightPanel = new JPanel();
+		JPanel fittingConfigPanel = new JPanel();
 
-		rightPanel.setLayout(new BorderLayout());
-		rightPanel.add(new JScrollPane(configPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+		fittingConfigPanel.setLayout(new BorderLayout());
+		fittingConfigPanel.add(new JScrollPane(configPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
-		rightPanel.add(UI.createOptionsPanel("Regression", leftComponents, rightComponents), BorderLayout.SOUTH);
+		fittingConfigPanel.add(UI.createOptionsPanel("Fitting", leftComponents, rightComponents), BorderLayout.SOUTH);
 
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
 		panel.add(chartCreator, BorderLayout.CENTER);
-		panel.add(rightPanel, BorderLayout.EAST);
+		panel.add(fittingConfigPanel, BorderLayout.EAST);
 
 		mainPanel.removeAll();
 		mainPanel.add(panel);
