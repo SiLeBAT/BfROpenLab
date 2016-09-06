@@ -4,11 +4,14 @@
 	<name>Interactive Differential Function Fitting</name>
 
 	<shortDescription>
+		Fits data to a scalar function consisting of first order differential equations.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Insert long description here...
+			Fits data to a scalar function consisting of first order differential equations. The table
+			from the second input port must contain "time/dependent-variable" pairs. The table from the third
+			input port must contain "time/condition" tuples.
 		</intro>
 
 		<tab name="Display Options">
