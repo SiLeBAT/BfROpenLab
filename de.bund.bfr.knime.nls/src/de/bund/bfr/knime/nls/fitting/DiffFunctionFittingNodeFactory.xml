@@ -32,7 +32,7 @@
 			This options specifies the step size to use.
 		</option>
 		<option name="Interpolation Function">
-			The condition values are provided to node for specific times. The fitting
+			Condition values are just provided for specific times. The integration
 			algorithm must interpolate between these values. This option specifies the interpolation function
 			to use.
 		</option>
@@ -65,20 +65,21 @@
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="In-Port name">
-			0
+		<inPort index="0" name="Function">
+			Scalar function consisting of first order differential equations,
+			that is fitted to the data.
 		</inPort>
-		<inPort index="1" name="In-Port name">
-			1
+		<inPort index="1" name="Data">
+			Dependent Variable Data, to which the function is fitted.
 		</inPort>
-		<inPort index="2" name="In-Port name">
-			2
+		<inPort index="2" name="Conditions">
+			Conditional Variable Data, to which the function is fitted.
 		</inPort>
-		<outPort index="0" name="Out-Port name">
-			0
+		<outPort index="0" name="Parameter Values">
+			Parameter values and some quality measures.
 		</outPort>
-		<outPort index="1" name="Out-Port name">
-			1
+		<outPort index="1" name="Covariance Matrix">
+			Covariance matrix of the parameters.
 		</outPort>
 	</ports>
 </knimeNode>

@@ -58,7 +58,7 @@
 			Data, to which the function is fitted.
 		</inPort>
 		<outPort index="0" name="Parameter Values">
-			Parameter value and some quality measures.
+			Parameter values and some quality measures.
 		</outPort>
 		<outPort index="1" name="Covariance Matrix">
 			Covariance matrix of the parameters.
