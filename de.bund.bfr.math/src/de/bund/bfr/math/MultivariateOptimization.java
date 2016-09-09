@@ -82,7 +82,7 @@ public class MultivariateOptimization implements Optimization {
 
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
 				values -> optimizerFunction.value(values), progress -> progessListener.accept(0.5 * progress), exec);
-		Result result = getResults();
+		Result result = new Result();
 		AtomicInteger currentIteration = new AtomicInteger();
 		SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleValueChecker(1e-10, 1e-10) {
 
@@ -125,18 +125,8 @@ public class MultivariateOptimization implements Optimization {
 		return result;
 	}
 
-	private Result getResults() {
-		Result r = new Result();
-
-		r.parameterValues = new LinkedHashMap<>();
-		r.sdValue = null;
-		r.logLikelihood = null;
-
-		return r;
-	}
-
 	private Result getResults(PointValuePair optimizerResults) {
-		Result r = getResults();
+		Result r = new Result();
 
 		r.logLikelihood = optimizerResults.getValue();
 
@@ -157,6 +147,12 @@ public class MultivariateOptimization implements Optimization {
 		private Double sdValue;
 		private Double logLikelihood;
 
+		public Result() {
+			parameterValues = new LinkedHashMap<>();
+			sdValue = null;
+			logLikelihood = null;
+		}
+
 		@Override
 		public Map<String, Double> getParameterValues() {
 			return parameterValues;
@@ -170,6 +166,7 @@ public class MultivariateOptimization implements Optimization {
 			return logLikelihood;
 		}
 
+		@Override
 		public Result copy() {
 			Result r = new Result();
 

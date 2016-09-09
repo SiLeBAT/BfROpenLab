@@ -33,7 +33,7 @@ import java.util.List;
 class ConvertCharset {
 
 	static main(args) {
-		convert(new File(".."))
+		convert(new File("D:/KNIME/bfropenlab-workspace/Other/MyTestings"))
 	}
 
 	static void convert(File dir) {

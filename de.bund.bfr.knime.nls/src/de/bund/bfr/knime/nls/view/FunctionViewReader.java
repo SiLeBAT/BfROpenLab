@@ -45,10 +45,8 @@ public class FunctionViewReader implements ViewReader {
 			BufferedDataTable varTable, BufferedDataTable covarianceTable, String indep) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
-
-		if (indep == null || !f.getIndependentVariables().contains(indep)) {
-			indep = f.getIndependentVariables().get(0);
-		}
+		String usedIndep = indep != null && f.getIndependentVariables().contains(indep) ? indep
+				: f.getIndependentVariables().get(0);
 
 		ids = new ArrayList<>();
 		depVar = f.getDependentVariable();
@@ -61,7 +59,7 @@ public class FunctionViewReader implements ViewReader {
 		doubleColumns = new LinkedHashMap<>();
 
 		for (String i : f.getIndependentVariables()) {
-			if (!i.equals(indep)) {
+			if (!i.equals(usedIndep)) {
 				doubleColumns.put(i, new ArrayList<>());
 			}
 		}
@@ -71,7 +69,7 @@ public class FunctionViewReader implements ViewReader {
 		}
 
 		for (String id : NlsUtils.getIds(paramTable != null ? paramTable : varTable)) {
-			for (Map<String, Double> fixed : NlsUtils.getFixedVariables(varTable, id, f, indep)) {
+			for (Map<String, Double> fixed : NlsUtils.getFixedVariables(varTable, id, f, usedIndep)) {
 				String newId = fixed.isEmpty() ? id : id + " " + fixed.toString();
 				Map<String, Double> qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
 
@@ -85,7 +83,7 @@ public class FunctionViewReader implements ViewReader {
 				Plotable plotable = new Plotable(Plotable.Type.DATA_FUNCTION);
 				Map<String, Double> variables = new LinkedHashMap<>(fixed);
 
-				variables.put(indep, 0.0);
+				variables.put(usedIndep, 0.0);
 
 				plotable.setFunction(f.getTerms().get(f.getDependentVariable()));
 				plotable.setDependentVariable(f.getDependentVariable());

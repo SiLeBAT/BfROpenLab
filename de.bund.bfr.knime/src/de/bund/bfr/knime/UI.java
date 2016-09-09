@@ -21,7 +21,6 @@ package de.bund.bfr.knime;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -311,17 +310,6 @@ public class UI {
 		panel.add(table, BorderLayout.CENTER);
 
 		return panel;
-	}
-
-	public static void revalidatePanel(Container container) {
-		while (container != null) {
-			if (container instanceof JPanel) {
-				container.revalidate();
-				break;
-			}
-
-			container = container.getParent();
-		}
 	}
 
 	public static void groupButtons(JRadioButton... buttons) {

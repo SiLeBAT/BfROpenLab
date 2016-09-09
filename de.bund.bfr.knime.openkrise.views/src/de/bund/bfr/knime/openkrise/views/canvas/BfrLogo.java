@@ -67,7 +67,7 @@ public class BfrLogo implements Icon {
 
 	}
 
-	private void paintShapeNode_0_0_0(Graphics2D g) {
+	private static void paintShapeNode_0_0_0(Graphics2D g) {
 		GeneralPath shape0 = new GeneralPath();
 		shape0.moveTo(0.52796, 220.93124);
 		shape0.lineTo(424.38037, 220.93124);
@@ -77,7 +77,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape0);
 	}
 
-	private void paintShapeNode_0_0_1(Graphics2D g) {
+	private static void paintShapeNode_0_0_1(Graphics2D g) {
 		GeneralPath shape1 = new GeneralPath();
 		shape1.moveTo(0.05867, 0.0);
 		shape1.lineTo(0.05867, 220.93124);
@@ -89,7 +89,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape1);
 	}
 
-	private void paintShapeNode_0_0_2(Graphics2D g) {
+	private static void paintShapeNode_0_0_2(Graphics2D g) {
 		GeneralPath shape2 = new GeneralPath();
 		shape2.moveTo(424.3804, 0.46933);
 		shape2.curveTo(315.90936, 1.05596, 148.8323, 25.69515, 0.52796, 220.93124);
@@ -98,7 +98,7 @@ public class BfrLogo implements Icon {
 		g.draw(shape2);
 	}
 
-	private void paintShapeNode_0_0_3(Graphics2D g) {
+	private static void paintShapeNode_0_0_3(Graphics2D g) {
 		GeneralPath shape3 = new GeneralPath();
 		shape3.moveTo(0.0, 45.34782);
 		shape3.lineTo(424.3804, 45.34782);
@@ -110,7 +110,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape3);
 	}
 
-	private void paintShapeNode_0_0_4(Graphics2D g) {
+	private static void paintShapeNode_0_0_4(Graphics2D g) {
 		GeneralPath shape4 = new GeneralPath();
 		shape4.moveTo(0.0, 90.98894);
 		shape4.lineTo(424.3804, 90.98894);
@@ -121,7 +121,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape4);
 	}
 
-	private void paintShapeNode_0_0_5(Graphics2D g) {
+	private static void paintShapeNode_0_0_5(Graphics2D g) {
 		GeneralPath shape5 = new GeneralPath();
 		shape5.moveTo(0.0, 136.39545);
 		shape5.lineTo(424.3804, 136.39545);
@@ -132,7 +132,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape5);
 	}
 
-	private void paintShapeNode_0_0_6(Graphics2D g) {
+	private static void paintShapeNode_0_0_6(Graphics2D g) {
 		GeneralPath shape6 = new GeneralPath();
 		shape6.moveTo(0.0, 182.21255);
 		shape6.lineTo(424.3804, 182.21255);
@@ -143,7 +143,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape6);
 	}
 
-	private void paintShapeNode_0_0_7(Graphics2D g) {
+	private static void paintShapeNode_0_0_7(Graphics2D g) {
 		GeneralPath shape7 = new GeneralPath();
 		shape7.moveTo(312.5655, 50.45163);
 		shape7.curveTo(312.5655, 58.13673, 306.28833, 64.35516, 298.6033, 64.35516);
@@ -154,7 +154,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape7);
 	}
 
-	private void paintShapeNode_0_0_8(Graphics2D g) {
+	private static void paintShapeNode_0_0_8(Graphics2D g) {
 		GeneralPath shape8 = new GeneralPath();
 		shape8.moveTo(312.5655, 50.45163);
 		shape8.curveTo(312.5655, 58.13673, 306.28833, 64.35516, 298.6033, 64.35516);
@@ -165,7 +165,7 @@ public class BfrLogo implements Icon {
 		g.draw(shape8);
 	}
 
-	private void paintShapeNode_0_0_9(Graphics2D g) {
+	private static void paintShapeNode_0_0_9(Graphics2D g) {
 		GeneralPath shape9 = new GeneralPath();
 		shape9.moveTo(265.57507, 213.6568);
 		shape9.curveTo(265.63376, 213.5395, 265.6924, 213.48083, 265.75107, 213.36351);
@@ -178,7 +178,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape9);
 	}
 
-	private void paintShapeNode_0_0_10(Graphics2D g) {
+	private static void paintShapeNode_0_0_10(Graphics2D g) {
 		GeneralPath shape10 = new GeneralPath();
 		shape10.moveTo(265.57507, 213.6568);
 		shape10.curveTo(265.63376, 213.5395, 265.6924, 213.48083, 265.75107, 213.36351);
@@ -192,7 +192,7 @@ public class BfrLogo implements Icon {
 		g.draw(shape10);
 	}
 
-	private void paintShapeNode_0_0_11(Graphics2D g) {
+	private static void paintShapeNode_0_0_11(Graphics2D g) {
 		GeneralPath shape11 = new GeneralPath();
 		shape11.moveTo(334.15408, 212.19022);
 		shape11.curveTo(316.43738, 149.5363, 310.3362, 94.97816, 334.56473, 83.83184);
@@ -205,7 +205,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape11);
 	}
 
-	private void paintShapeNode_0_0_12(Graphics2D g) {
+	private static void paintShapeNode_0_0_12(Graphics2D g) {
 		GeneralPath shape12 = new GeneralPath();
 		shape12.moveTo(334.15408, 212.19022);
 		shape12.curveTo(316.43738, 149.5363, 310.3362, 94.97816, 334.56473, 83.83184);
@@ -219,7 +219,7 @@ public class BfrLogo implements Icon {
 		g.draw(shape12);
 	}
 
-	private void paintShapeNode_0_0_13(Graphics2D g) {
+	private static void paintShapeNode_0_0_13(Graphics2D g) {
 		GeneralPath shape13 = new GeneralPath();
 		shape13.moveTo(547.4589, 41.59327);
 		shape13.lineTo(564.4717, 41.59327);
@@ -247,7 +247,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape13);
 	}
 
-	private void paintShapeNode_0_0_14(Graphics2D g) {
+	private static void paintShapeNode_0_0_14(Graphics2D g) {
 		GeneralPath shape14 = new GeneralPath();
 		shape14.moveTo(845.4756, 220.10994);
 		shape14.lineTo(904.0816, 220.10994);
@@ -273,7 +273,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape14);
 	}
 
-	private void paintShapeNode_0_0_15(Graphics2D g) {
+	private static void paintShapeNode_0_0_15(Graphics2D g) {
 		GeneralPath shape15 = new GeneralPath();
 		shape15.moveTo(817.60986, 0.0);
 		shape15.lineTo(817.7859, 41.29994);
@@ -295,7 +295,7 @@ public class BfrLogo implements Icon {
 		g.fill(shape15);
 	}
 
-	private void paintCanvasGraphicsNode_0_0(Graphics2D g) {
+	private static void paintCanvasGraphicsNode_0_0(Graphics2D g) {
 		// _0_0_0
 		AffineTransform trans_0_0_0 = g.getTransform();
 		g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));

@@ -114,7 +114,7 @@ public class LeastSquaresOptimization implements Optimization {
 				values -> targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values))),
 				progress -> progressListener.accept(0.5 * progress), exec);
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
-		Result result = getResults();
+		Result result = new Result();
 		AtomicInteger count = new AtomicInteger(0);
 
 		for (StartValues startValues : startValuesList) {
@@ -201,26 +201,8 @@ public class LeastSquaresOptimization implements Optimization {
 		return builder;
 	}
 
-	private Result getResults() {
-		Result r = new Result();
-
-		r.parameterValues = new LinkedHashMap<>();
-		r.parameterStandardErrors = new LinkedHashMap<>();
-		r.parameterTValues = new LinkedHashMap<>();
-		r.parameterPValues = new LinkedHashMap<>();
-		r.covariances = new LinkedHashMap<>();
-		r.sse = null;
-		r.mse = null;
-		r.rmse = null;
-		r.r2 = null;
-		r.aic = null;
-		r.degreesOfFreedom = null;
-
-		return r;
-	}
-
 	private Result getResults(LeastSquaresOptimizer.Optimum optimizerResults) {
-		Result r = getResults();
+		Result r = new Result();
 		double cost = optimizerResults.getCost();
 
 		r.sse = cost * cost;
@@ -286,6 +268,20 @@ public class LeastSquaresOptimization implements Optimization {
 		private Double aic;
 		private Integer degreesOfFreedom;
 
+		public Result() {
+			parameterValues = new LinkedHashMap<>();
+			parameterStandardErrors = new LinkedHashMap<>();
+			parameterTValues = new LinkedHashMap<>();
+			parameterPValues = new LinkedHashMap<>();
+			covariances = new LinkedHashMap<>();
+			sse = null;
+			mse = null;
+			rmse = null;
+			r2 = null;
+			aic = null;
+			degreesOfFreedom = null;
+		}
+
 		@Override
 		public Map<String, Double> getParameterValues() {
 			return parameterValues;
@@ -331,6 +327,7 @@ public class LeastSquaresOptimization implements Optimization {
 			return degreesOfFreedom;
 		}
 
+		@Override
 		public Result copy() {
 			Result r = new Result();
 

@@ -350,7 +350,7 @@ public class ChartCreator extends JPanel {
 
 	private void plotData(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape) {
 		XYDataset dataSet = createDataDataSet(plotable, id);
-		XYItemRenderer renderer = createDataRenderer(plotable, id, defaultColor, defaultShape);
+		XYItemRenderer renderer = createDataRenderer(id, defaultColor, defaultShape);
 
 		if (dataSet != null && renderer != null) {
 			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
@@ -360,7 +360,7 @@ public class ChartCreator extends JPanel {
 	private void plotFunction(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape,
 			double minX, double maxX) throws ParseException {
 		XYDataset dataSet = createFunctionDataSet(plotable, id, minX, maxX);
-		XYItemRenderer renderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape, dataSet);
+		XYItemRenderer renderer = createFunctionRenderer(id, defaultColor, defaultShape, dataSet);
 
 		if (dataSet != null && renderer != null) {
 			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
@@ -370,10 +370,9 @@ public class ChartCreator extends JPanel {
 	private void plotDataFunction(XYPlot plot, Plotable plotable, String id, Color defaultColor,
 			NamedShape defaultShape, double minX, double maxX) throws ParseException {
 		XYDataset functionDataSet = createFunctionDataSet(plotable, id, minX, maxX);
-		XYItemRenderer functionRenderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape,
-				functionDataSet);
+		XYItemRenderer functionRenderer = createFunctionRenderer(id, defaultColor, defaultShape, functionDataSet);
 		XYDataset dataSet = createDataDataSet(plotable, id);
-		XYItemRenderer renderer = createDataRenderer(plotable, id, defaultColor, defaultShape);
+		XYItemRenderer renderer = createDataRenderer(id, defaultColor, defaultShape);
 
 		if (functionDataSet != null && functionRenderer != null) {
 			if (dataSet != null && renderer != null) {
@@ -391,7 +390,7 @@ public class ChartCreator extends JPanel {
 	private void plotDiff(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape,
 			double minX, double maxX) throws ParseException {
 		XYDataset dataSet = createDiffDataSet(plotable, id, minX, maxX);
-		XYItemRenderer renderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape, dataSet);
+		XYItemRenderer renderer = createFunctionRenderer(id, defaultColor, defaultShape, dataSet);
 
 		if (dataSet != null && renderer != null) {
 			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
@@ -401,9 +400,9 @@ public class ChartCreator extends JPanel {
 	private void plotDataDiff(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape,
 			double minX, double maxX) throws ParseException {
 		XYDataset diffDataSet = createDiffDataSet(plotable, id, minX, maxX);
-		XYItemRenderer diffRenderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape, diffDataSet);
+		XYItemRenderer diffRenderer = createFunctionRenderer(id, defaultColor, defaultShape, diffDataSet);
 		XYDataset dataSet = createDataDataSet(plotable, id);
-		XYItemRenderer renderer = createDataRenderer(plotable, id, defaultColor, defaultShape);
+		XYItemRenderer renderer = createDataRenderer(id, defaultColor, defaultShape);
 
 		if (diffDataSet != null && diffRenderer != null) {
 			if (dataSet != null && renderer != null) {
@@ -432,8 +431,7 @@ public class ChartCreator extends JPanel {
 		return null;
 	}
 
-	private XYItemRenderer createDataRenderer(Plotable plotable, String id, Color defaultColor,
-			NamedShape defaultShape) {
+	private XYItemRenderer createDataRenderer(String id, Color defaultColor, NamedShape defaultShape) {
 		Color color = colors.containsKey(id) ? colors.get(id) : defaultColor;
 		NamedShape shape = shapes.containsKey(id) ? shapes.get(id) : defaultShape;
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(drawLines, true);
@@ -454,8 +452,8 @@ public class ChartCreator extends JPanel {
 		return createDataSet(legend.get(id), points, errors);
 	}
 
-	private XYItemRenderer createFunctionRenderer(Plotable plotable, String id, Color defaultColor,
-			NamedShape defaultShape, XYDataset dataSet) {
+	private XYItemRenderer createFunctionRenderer(String id, Color defaultColor, NamedShape defaultShape,
+			XYDataset dataSet) {
 		Color color = colors.containsKey(id) ? colors.get(id) : defaultColor;
 		NamedShape shape = shapes.containsKey(id) ? shapes.get(id) : defaultShape;
 
@@ -487,7 +485,7 @@ public class ChartCreator extends JPanel {
 		return createDataSet(legend.get(id), points, errors);
 	}
 
-	private XYDataset createDataSet(String key, double[][] points, double[][] errors) {
+	private static XYDataset createDataSet(String key, double[][] points, double[][] errors) {
 		if (points != null) {
 			if (errors != null) {
 				YIntervalSeriesCollection functionDataset = new YIntervalSeriesCollection();

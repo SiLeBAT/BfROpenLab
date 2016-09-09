@@ -94,16 +94,18 @@ public class CanvasLegend<V extends Node> {
 		}
 	}
 
-	public void paint(Graphics2D g, int width, int height, int fontSize, boolean fontBold) {
+	public void paint(Graphics2D g) {
 		if (nodeLegend.isEmpty() && edgeLegend.isEmpty()) {
 			return;
 		}
 
+		int height = owner.getCanvasSize().height;
 		FontRenderContext fontRenderContext = g.getFontRenderContext();
 		int maxNodeWidth = 0;
 		int maxEdgeWidth = 0;
-		Font legendFont = new Font("Default", fontBold ? Font.BOLD : Font.PLAIN, fontSize);
-		Font legendHeadFont = new Font("Default", fontBold ? Font.BOLD | Font.ITALIC : Font.BOLD, fontSize);
+		Font legendFont = new Font("Default", owner.isFontBold() ? Font.BOLD : Font.PLAIN, owner.getFontSize());
+		Font legendHeadFont = new Font("Default", owner.isFontBold() ? Font.BOLD | Font.ITALIC : Font.BOLD,
+				owner.getFontSize());
 
 		for (String name : nodeLegend.keySet()) {
 			maxNodeWidth = Math.max(maxNodeWidth, (int) legendFont.getStringBounds(name, fontRenderContext).getWidth());
@@ -127,8 +129,9 @@ public class CanvasLegend<V extends Node> {
 		int xEdgeEnd = xEdgeName + maxEdgeWidth + LEGEND_DX;
 
 		int xEnd = edgeLegend.isEmpty() ? xNodeEnd : xEdgeEnd;
-		int yStart = height - Math.max(nodeLegend.size(), edgeLegend.size()) * (legendHeight + LEGEND_DY)
-				- legendHeadHeight - 3 * LEGEND_DY;
+		int yStart = owner.getCanvasSize().height
+				- Math.max(nodeLegend.size(), edgeLegend.size()) * (legendHeight + LEGEND_DY) - legendHeadHeight
+				- 3 * LEGEND_DY;
 		int yNode = yStart + LEGEND_DY;
 		int yEdge = yStart + LEGEND_DY;
 		Color currentColor = g.getColor();

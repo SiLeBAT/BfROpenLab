@@ -24,4 +24,6 @@ import java.util.Map;
 public interface OptimizationResult {
 
 	Map<String, Double> getParameterValues();
+
+	OptimizationResult copy();
 }

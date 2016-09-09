@@ -284,13 +284,11 @@ public class VariablePanel extends JPanel {
 		}
 	}
 
-	private int doubleToInt(double d, double min, double max) {
-		int value = (int) ((d - min) / (max - min) * SLIDER_MAX);
-
-		return Math.min(Math.max(value, 0), SLIDER_MAX);
+	private static int doubleToInt(double d, double min, double max) {
+		return Math.min(Math.max((int) ((d - min) / (max - min) * SLIDER_MAX), 0), SLIDER_MAX);
 	}
 
-	private double intToDouble(int i, double min, double max) {
+	private static double intToDouble(int i, double min, double max) {
 		return (double) i / (double) SLIDER_MAX * (max - min) + min;
 	}
 

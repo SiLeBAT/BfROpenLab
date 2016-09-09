@@ -67,7 +67,7 @@ public class FoodChainLabLogo implements Icon {
 
 	}
 
-	private void paintShapeNode_0_0_0(Graphics2D g) {
+	private static void paintShapeNode_0_0_0(Graphics2D g) {
 		GeneralPath shape0 = new GeneralPath();
 		shape0.moveTo(136.92783, 5.9065394);
 		shape0.lineTo(139.65106, 3.7286522);
@@ -83,7 +83,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape0);
 	}
 
-	private void paintShapeNode_0_0_1(Graphics2D g) {
+	private static void paintShapeNode_0_0_1(Graphics2D g) {
 		GeneralPath shape1 = new GeneralPath();
 		shape1.moveTo(98.4309, 53.394676);
 		shape1.lineTo(99.69409, 56.64484);
@@ -97,7 +97,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape1);
 	}
 
-	private void paintShapeNode_0_0_2(Graphics2D g) {
+	private static void paintShapeNode_0_0_2(Graphics2D g) {
 		GeneralPath shape2 = new GeneralPath();
 		shape2.moveTo(97.68401, 54.253216);
 		shape2.lineTo(95.88808, 57.242165);
@@ -111,7 +111,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape2);
 	}
 
-	private void paintShapeNode_0_0_3(Graphics2D g) {
+	private static void paintShapeNode_0_0_3(Graphics2D g) {
 		GeneralPath shape3 = new GeneralPath();
 		shape3.moveTo(92.17194, 60.3726);
 		shape3.lineTo(94.54836, 62.07096);
@@ -412,7 +412,7 @@ public class FoodChainLabLogo implements Icon {
 		g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
 	}
 
-	private void paintShapeNode_0_0_5(Graphics2D g) {
+	private static void paintShapeNode_0_0_5(Graphics2D g) {
 		GeneralPath shape5 = new GeneralPath();
 		shape5.moveTo(199.84685, 365.67957);
 		shape5.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
@@ -427,7 +427,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape5);
 	}
 
-	private void paintShapeNode_0_0_6(Graphics2D g) {
+	private static void paintShapeNode_0_0_6(Graphics2D g) {
 		GeneralPath shape6 = new GeneralPath();
 		shape6.moveTo(199.84685, 365.67957);
 		shape6.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
@@ -441,7 +441,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape6);
 	}
 
-	private void paintShapeNode_0_0_7(Graphics2D g) {
+	private static void paintShapeNode_0_0_7(Graphics2D g) {
 		GeneralPath shape7 = new GeneralPath();
 		shape7.moveTo(199.84685, 365.67957);
 		shape7.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
@@ -455,7 +455,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape7);
 	}
 
-	private void paintShapeNode_0_0_8(Graphics2D g) {
+	private static void paintShapeNode_0_0_8(Graphics2D g) {
 		GeneralPath shape8 = new GeneralPath();
 		shape8.moveTo(199.84685, 365.67957);
 		shape8.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
@@ -469,7 +469,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape8);
 	}
 
-	private void paintShapeNode_0_0_9(Graphics2D g) {
+	private static void paintShapeNode_0_0_9(Graphics2D g) {
 		GeneralPath shape9 = new GeneralPath();
 		shape9.moveTo(199.84685, 365.67957);
 		shape9.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
@@ -483,7 +483,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape9);
 	}
 
-	private void paintShapeNode_0_0_10(Graphics2D g) {
+	private static void paintShapeNode_0_0_10(Graphics2D g) {
 		GeneralPath shape10 = new GeneralPath();
 		shape10.moveTo(199.84685, 365.67957);
 		shape10.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
@@ -497,7 +497,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape10);
 	}
 
-	private void paintShapeNode_0_0_11(Graphics2D g) {
+	private static void paintShapeNode_0_0_11(Graphics2D g) {
 		GeneralPath shape11 = new GeneralPath();
 		shape11.moveTo(101.79908, 52.63894);
 		shape11.lineTo(99.47955, 50.035275);
@@ -512,7 +512,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape11);
 	}
 
-	private void paintShapeNode_0_0_12(Graphics2D g) {
+	private static void paintShapeNode_0_0_12(Graphics2D g) {
 		GeneralPath shape12 = new GeneralPath();
 		shape12.moveTo(101.7846, 60.97994);
 		shape12.lineTo(103.74752, 58.097893);
@@ -526,7 +526,7 @@ public class FoodChainLabLogo implements Icon {
 		g.draw(shape12);
 	}
 
-	private void paintShapeNode_0_0_13(Graphics2D g) {
+	private static void paintShapeNode_0_0_13(Graphics2D g) {
 		GeneralPath shape13 = new GeneralPath();
 		shape13.moveTo(199.84685, 365.67957);
 		shape13.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);

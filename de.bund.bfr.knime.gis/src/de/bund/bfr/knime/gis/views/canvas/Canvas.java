@@ -1286,9 +1286,8 @@ public abstract class Canvas<V extends Node> extends JPanel
 			}
 
 			if (optionsPanel.isShowLegend()) {
-				new CanvasLegend<>(Canvas.this, nodeHighlightConditions, nodes, edgeHighlightConditions, edges).paint(g,
-						getCanvasSize().width, getCanvasSize().height, optionsPanel.getFontSize(),
-						optionsPanel.isFontBold());
+				new CanvasLegend<>(Canvas.this, nodeHighlightConditions, nodes, edgeHighlightConditions, edges)
+						.paint(g);
 			}
 
 			Color currentColor = g.getColor();

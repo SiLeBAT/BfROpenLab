@@ -223,6 +223,7 @@ public class Evaluator {
 
 		List<String> paramList = new ArrayList<>(covariances.keySet());
 		Map<String, double[]> derivValues = new LinkedHashMap<>();
+		Map<String, ParseException> exceptions = new LinkedHashMap<>();
 
 		paramList.parallelStream().forEach(param -> {
 			Map<String, Double> constantsMinus = new LinkedHashMap<>(parserConstants);
@@ -245,12 +246,16 @@ public class Evaluator {
 				for (int i = 0; i < valuesX.length; i++) {
 					deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * MathUtils.DERIV_EPSILON);
 				}
-			} catch (ParseException e) {
-				Arrays.fill(deriv, Double.NaN);
-			}
 
-			derivValues.put(param, deriv);
+				derivValues.put(param, deriv);
+			} catch (ParseException e) {
+				exceptions.put(param, e);
+			}
 		});
+
+		if (!exceptions.isEmpty()) {
+			throw exceptions.values().stream().findAny().get();
+		}
 
 		double[] valuesY = new double[valuesX.length];
 		double conf95 = MathUtils.get95PercentConfidence(degreesOfFreedom);

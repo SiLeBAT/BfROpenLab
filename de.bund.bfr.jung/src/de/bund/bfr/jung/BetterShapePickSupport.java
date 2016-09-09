@@ -50,9 +50,6 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 		Point2D ip = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW,
 				new Point2D.Double(x, y));
 
-		x = ip.getX();
-		y = ip.getY();
-
 		for (V v : layout.getGraph().getVertices()) {
 			if (!vv.getRenderContext().getVertexIncludePredicate()
 					.evaluate(Context.<Graph<V, E>, V>getInstance(layout.getGraph(), v))) {
@@ -68,8 +65,8 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 
 			p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
-			double ox = x - p.getX();
-			double oy = y - p.getY();
+			double ox = ip.getX() - p.getX();
+			double oy = ip.getY() - p.getY();
 
 			if (shape.contains(ox, oy)) {
 				Rectangle2D bounds = shape.getBounds2D();
@@ -90,8 +87,7 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 	@Override
 	public Collection<V> getVertices(Layout<V, E> layout, Shape shape) {
 		Set<V> pickedVertices = new HashSet<>();
-
-		shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
+		Shape iShape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
 
 		for (V v : layout.getGraph().getVertices()) {
 			if (!vv.getRenderContext().getVertexIncludePredicate()
@@ -107,7 +103,7 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 
 			p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
-			if (shape.contains(p)) {
+			if (iShape.contains(p)) {
 				pickedVertices.add(v);
 			}
 		}
@@ -119,10 +115,6 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 	public E getEdge(Layout<V, E> layout, double x, double y) {
 		Point2D ip = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW,
 				new Point2D.Double(x, y));
-
-		x = ip.getX();
-		y = ip.getY();
-
 		E closest = null;
 		float minDistance = Float.POSITIVE_INFINITY;
 
@@ -144,7 +136,7 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 				float newY = seg[1];
 
 				if (!Float.isNaN(lastX)) {
-					float dist = getDistanceToLine(lastX, lastY, newX, newY, (float) x, (float) y);
+					float dist = getDistanceToLine(lastX, lastY, newX, newY, (float) ip.getX(), (float) ip.getY());
 
 					if (dist < minDistance) {
 						minDistance = dist;

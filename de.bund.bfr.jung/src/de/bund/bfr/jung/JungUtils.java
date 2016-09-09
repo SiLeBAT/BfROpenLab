@@ -200,9 +200,9 @@ public class JungUtils {
 					return new Line2D.Float(pp1, pp2);
 				}
 			}
-		}
 
-		return null;
+			return null;
+		}
 	}
 
 	private static Point2D getIntersection(Line2D l1, Line2D l2) {

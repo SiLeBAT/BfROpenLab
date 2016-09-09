@@ -339,23 +339,6 @@ public class Tracing {
 		}
 	}
 
-	private double getWeight(Double weight, ScoreType type) {
-		if (weight == null) {
-			return 0.0;
-		}
-
-		switch (type) {
-		case COMBINED:
-			return weight;
-		case POSITIVE:
-			return weight > 0.0 ? weight : 0.0;
-		case NEGATIVE:
-			return weight < 0.0 ? -weight : 0.0;
-		default:
-			throw new RuntimeException("This should not happen.");
-		}
-	}
-
 	private Set<String> getForwardStations(String stationID) {
 		Set<String> stations = new LinkedHashSet<>();
 
@@ -466,6 +449,23 @@ public class Tracing {
 		}
 
 		return result;
+	}
+
+	private static double getWeight(Double weight, ScoreType type) {
+		if (weight == null) {
+			return 0.0;
+		}
+
+		switch (type) {
+		case COMBINED:
+			return weight;
+		case POSITIVE:
+			return weight > 0.0 ? weight : 0.0;
+		case NEGATIVE:
+			return weight < 0.0 ? -weight : 0.0;
+		default:
+			throw new RuntimeException("This should not happen.");
+		}
 	}
 
 	public static final class Result {

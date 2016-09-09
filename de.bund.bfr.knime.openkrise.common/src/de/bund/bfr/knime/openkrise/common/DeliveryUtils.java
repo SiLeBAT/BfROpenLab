@@ -26,11 +26,11 @@ import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.PRODUKTKAT
 import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.STATION;
 
 import java.sql.Connection;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -152,21 +152,19 @@ public class DeliveryUtils {
 	}
 
 	public static String formatDate(Integer day, Integer month, Integer year) {
-		if (year == null)
+		if (year == null) {
 			return null;
-
-		String thisYear = new SimpleDateFormat("yyyy").format(new Date());
-
-		if (year.toString().length() == 2)
-			year = year > Integer.parseInt(thisYear.substring(2)) ? 1900 : 2000 + year;
-
-		if (month == null) {
-			return year.toString();
-		} else if (day == null) {
-			return year + "-" + new DecimalFormat("00").format(month);
 		}
 
-		return year + "-" + new DecimalFormat("00").format(month) + "-" + new DecimalFormat("00").format(day);
+		Date date = new GregorianCalendar(year, month != null ? month - 1 : 0, day != null ? day : 1).getTime();
+
+		if (month == null) {
+			return new SimpleDateFormat("yyyy").format(date);
+		} else if (day == null) {
+			return new SimpleDateFormat("yyyy-MM").format(date);
+		} else {
+			return new SimpleDateFormat("yyyy-MM-dd").format(date);
+		}
 	}
 
 	public static Map<String, Set<String>> getWarnings(Connection conn) {

@@ -665,8 +665,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	@SuppressFBWarnings(value = "Dm")
-	private static Connection createLocalConnection(String dbFolder)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+	private static Connection createLocalConnection(String dbFolder) throws SQLException {
 		MyDBI db = new MyDBTablesNew();
 
 		db.establishNewConnection("SA", "", dbFolder + File.separator, false);

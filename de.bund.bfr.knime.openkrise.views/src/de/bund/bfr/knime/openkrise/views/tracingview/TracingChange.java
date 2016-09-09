@@ -522,7 +522,7 @@ public class TracingChange implements Serializable {
 	private static <K, V> Set<Pair<K, V>> toSet(Map<K, V> map) {
 		Set<Pair<K, V>> set = new LinkedHashSet<>();
 
-		map.forEach((key, value) -> set.add(new Pair<K, V>(key, value)));
+		map.forEach((key, value) -> set.add(new Pair<>(key, value)));
 
 		return set;
 	}

@@ -170,13 +170,10 @@ public class HighlightDialog extends KnimeDialog {
 		approved = false;
 		lastColor = Color.RED;
 
-		if (condition == null) {
-			condition = new AndOrHighlightCondition(createLogicalCondition(), null, true, lastColor, false, false, null,
-					null);
-		}
+		HighlightCondition initCondition = condition != null ? condition : createAndOrCondition();
 
-		if (condition instanceof AndOrHighlightCondition) {
-			AndOrHighlightCondition c = (AndOrHighlightCondition) condition;
+		if (initCondition instanceof AndOrHighlightCondition) {
+			AndOrHighlightCondition c = (AndOrHighlightCondition) initCondition;
 
 			if (c.getConditionCount() == 0 && !onlyAllowLogical) {
 				type = Type.APPLY_TO_ALL;
@@ -185,43 +182,43 @@ public class HighlightDialog extends KnimeDialog {
 				type = Type.LOGICAL_CONDITION;
 				conditionPanel = createLogicalPanel(c);
 			}
-		} else if (condition instanceof ValueHighlightCondition) {
+		} else if (initCondition instanceof ValueHighlightCondition) {
 			type = Type.VALUE_CONDITION;
-			conditionPanel = createValuePanel((ValueHighlightCondition) condition);
-		} else if (condition instanceof LogicalValueHighlightCondition) {
+			conditionPanel = createValuePanel((ValueHighlightCondition) initCondition);
+		} else if (initCondition instanceof LogicalValueHighlightCondition) {
 			type = Type.LOGICAL_VALUE_CONDITION;
-			conditionPanel = createLogicalValuePanel((LogicalValueHighlightCondition) condition);
+			conditionPanel = createLogicalValuePanel((LogicalValueHighlightCondition) initCondition);
 		}
 
 		conditionTypeBox = new JComboBox<>(onlyAllowLogical ? new Type[] { Type.LOGICAL_CONDITION } : Type.values());
 		conditionTypeBox.setSelectedItem(type);
 		conditionTypeBox.addItemListener(UI.newItemSelectListener(e -> conditionTypeChanged()));
 		nameField = new JTextField(20);
-		nameField.setText(Strings.nullToEmpty(condition.getName()));
+		nameField.setText(Strings.nullToEmpty(initCondition.getName()));
 		nameField.getDocument().addDocumentListener(UI.newDocumentActionListener(e -> updateOptionsPanel()));
 		legendBox = new JCheckBox("Show In Legend");
-		legendBox.setSelected(condition.isShowInLegend());
+		legendBox.setSelected(initCondition.isShowInLegend());
 		colorButton = new JButton("     ");
 		colorButton.setContentAreaFilled(false);
 		colorButton.setOpaque(true);
 		colorButton.addActionListener(e -> colorButtonPressed());
 		colorBox = new JCheckBox("Use Color");
-		colorBox.setSelected(condition.getColor() != null);
+		colorBox.setSelected(initCondition.getColor() != null);
 		colorBox.addActionListener(e -> updateOptionsPanel());
 		invisibleBox = new JCheckBox("Invisible");
-		invisibleBox.setSelected(condition.isInvisible());
+		invisibleBox.setSelected(initCondition.isInvisible());
 		invisibleBox.addActionListener(e -> updateOptionsPanel());
 		thicknessBox = new JCheckBox("Adjust Thickness");
-		thicknessBox.setSelected(condition.isUseThickness());
+		thicknessBox.setSelected(initCondition.isUseThickness());
 		labelBox = new JComboBox<>(schema.getMap().keySet().toArray(new String[0]));
 		labelBox.insertItemAt(null, 0);
-		labelBox.setSelectedItem(condition.getLabelProperty());
+		labelBox.setSelectedItem(initCondition.getLabelProperty());
 		shapeBox = new JComboBox<>(NamedShape.values());
 		shapeBox.insertItemAt(null, 0);
-		shapeBox.setSelectedItem(condition.getShape());
+		shapeBox.setSelectedItem(initCondition.getShape());
 		shapeBox.addActionListener(e -> updateOptionsPanel());
 
-		setNewColor(condition.getColor());
+		setNewColor(initCondition.getColor());
 
 		JPanel optionsPanel = new JPanel();
 
@@ -335,10 +332,7 @@ public class HighlightDialog extends KnimeDialog {
 	}
 
 	private JComponent createLogicalPanel(AndOrHighlightCondition condition) {
-		if (condition == null) {
-			condition = new AndOrHighlightCondition(createLogicalCondition(), null, false, null, false, false, null,
-					null);
-		}
+		AndOrHighlightCondition initCondition = condition != null ? condition : createAndOrCondition();
 
 		logicalAndOrBoxes = new ArrayList<>();
 		logicalPropertyBoxes = new ArrayList<>();
@@ -349,9 +343,8 @@ public class HighlightDialog extends KnimeDialog {
 
 		JPanel logicalPanel = new JPanel();
 		int row = 0;
-		int n = condition.getConditionCount();
 
-		if (n != 0) {
+		if (initCondition.getConditionCount() != 0) {
 			logicalPanel.setLayout(new GridBagLayout());
 			logicalPanel.add(new JLabel("Property"), UI.centerConstraints(1, row));
 			logicalPanel.add(new JLabel("Operation"), UI.centerConstraints(2, row));
@@ -359,7 +352,7 @@ public class HighlightDialog extends KnimeDialog {
 			row++;
 		}
 
-		for (List<LogicalHighlightCondition> conds : condition.getConditions()) {
+		for (List<LogicalHighlightCondition> conds : initCondition.getConditions()) {
 			boolean first = true;
 
 			for (LogicalHighlightCondition cond : conds) {
@@ -722,5 +715,9 @@ public class HighlightDialog extends KnimeDialog {
 	private LogicalHighlightCondition createLogicalCondition() {
 		return new LogicalHighlightCondition(schema.getMap().keySet().stream().findFirst().get(),
 				LogicalHighlightCondition.Type.EQUAL, "");
+	}
+
+	private AndOrHighlightCondition createAndOrCondition() {
+		return new AndOrHighlightCondition(createLogicalCondition(), null, true, Color.RED, false, false, null, null);
 	}
 }
