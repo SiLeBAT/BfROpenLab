@@ -116,32 +116,33 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
-		Connection conn = set.isUseExternalDb()
+		try (Connection conn = set.isUseExternalDb()
 				? createLocalConnection(KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
-				: DBKernel.getLocalConn(true);
-		boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.hasUniqueSerials(conn);
-		Map<Integer, String> stationIds = DeliveryUtils.getStationIds(conn, useSerialAsID);
-		Map<Integer, String> deliveryIds = DeliveryUtils.getDeliveryIds(conn, useSerialAsID);
-		SetMultimap<String, String> warnings = LinkedHashMultimap.create();
+				: DBKernel.getLocalConn(true)) {
+			boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.hasUniqueSerials(conn);
+			Map<Integer, String> stationIds = DeliveryUtils.getStationIds(conn, useSerialAsID);
+			Map<Integer, String> deliveryIds = DeliveryUtils.getDeliveryIds(conn, useSerialAsID);
+			SetMultimap<String, String> warnings = LinkedHashMultimap.create();
 
-		List<Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
-		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID);
-		BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec, useSerialAsID);
-		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, deliveryTable, exec);
+			List<Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
+			BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID);
+			BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec, useSerialAsID);
+			BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, deliveryTable, exec);
 
-		if (!warnings.isEmpty()) {
-			for (Map.Entry<String, Set<String>> entry : Multimaps.asMap(warnings).entrySet()) {
-				setWarningMessage(entry.getKey() + ":");
+			if (!warnings.isEmpty()) {
+				for (Map.Entry<String, Set<String>> entry : Multimaps.asMap(warnings).entrySet()) {
+					setWarningMessage(entry.getKey() + ":");
 
-				for (String w : entry.getValue()) {
-					setWarningMessage("\t" + w);
+					for (String w : entry.getValue()) {
+						setWarningMessage("\t" + w);
+					}
 				}
+
+				setWarningMessage("Look into the console - there are plausibility issues...");
 			}
 
-			setWarningMessage("Look into the console - there are plausibility issues...");
+			return new BufferedDataTable[] { stationTable, deliveryTable, deliveryConnectionsTable };
 		}
-
-		return new BufferedDataTable[] { stationTable, deliveryTable, deliveryConnectionsTable };
 	}
 
 	/**

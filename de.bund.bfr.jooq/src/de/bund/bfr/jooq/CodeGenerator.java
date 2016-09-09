@@ -23,11 +23,7 @@ import org.jooq.util.GenerationTool;
 
 public class CodeGenerator {
 
-	public CodeGenerator() throws Exception {
-		GenerationTool.main(new String[] { getClass().getResource("jooq.xml").getFile() });
-	}
-
 	public static void main(String[] args) throws Exception {
-		new CodeGenerator();
+		GenerationTool.main(new String[] { CodeGenerator.class.getResource("jooq.xml").getFile() });
 	}
 }
