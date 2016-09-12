@@ -29,11 +29,6 @@ public enum Transform {
 		this.name = name;
 	}
 
-	@Override
-	public String toString() {
-		return name;
-	}
-
 	public double to(double value) {
 		switch (this) {
 		case NO_TRANSFORM:
@@ -126,9 +121,13 @@ public enum Transform {
 		return null;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	public String getName(String attr) {
 		if (this != NO_TRANSFORM) {
-			return this + "(" + attr + ")";
+			return name + "(" + attr + ")";
 		}
 
 		return attr;
@@ -142,5 +141,10 @@ public enum Transform {
 		}
 
 		return NO_TRANSFORM;
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 }
