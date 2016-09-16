@@ -65,9 +65,9 @@ public class IntegratorFactory {
 			return new ClassicalRungeKuttaIntegrator(step);
 		case THREE_EIGHTHES:
 			return new ThreeEighthesIntegrator(step);
+		default:
+			return null;
 		}
-
-		return null;
 	}
 
 	@Override

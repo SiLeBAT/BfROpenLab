@@ -236,6 +236,8 @@ public class ChartCreator extends JPanel {
 				plotDataDiff(plot, plotable, id, defaultColors.get(index), defaultShapes.get(index), usedMinX,
 						usedMaxX);
 				break;
+			default:
+				throw new RuntimeException("Unknown type of plotable: " + plotable.getType());
 			}
 
 			index++;

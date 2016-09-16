@@ -43,9 +43,9 @@ public enum LayoutType {
 			return new FRLayout<>(graph, size);
 		case ISOM_LAYOUT:
 			return new ISOMLayout<>(graph, size);
+		default:
+			throw new RuntimeException("Unknown LayoutType: " + this);
 		}
-
-		return null;
 	}
 
 	@Override

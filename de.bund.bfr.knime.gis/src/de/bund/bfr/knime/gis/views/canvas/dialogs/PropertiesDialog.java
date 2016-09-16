@@ -107,8 +107,7 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog {
 
 	@SuppressWarnings("unchecked")
 	private void selectButtonPressed() {
-		switch (type) {
-		case NODE:
+		if (type == Type.NODE) {
 			Set<V> nodes = new LinkedHashSet<>();
 
 			for (Element element : table.getSelectedElements()) {
@@ -116,8 +115,7 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog {
 			}
 
 			parent.setSelectedNodes(nodes);
-			break;
-		case EDGE:
+		} else if (type == Type.EDGE) {
 			Set<Edge<V>> edges = new LinkedHashSet<>();
 
 			for (Element element : table.getSelectedElements()) {
@@ -125,7 +123,6 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog {
 			}
 
 			parent.setSelectedEdges(edges);
-			break;
 		}
 	}
 }

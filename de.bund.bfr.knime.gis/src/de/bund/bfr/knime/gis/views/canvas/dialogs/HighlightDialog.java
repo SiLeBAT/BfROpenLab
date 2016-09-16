@@ -492,9 +492,9 @@ public class HighlightDialog extends KnimeDialog {
 			return new LogicalValueHighlightCondition(
 					createValueCondition(name, showInLegend, color, invisible, useThickness, labelProperty, shape),
 					createLogicalCondition(name, showInLegend, color, invisible, useThickness, labelProperty, shape));
+		default:
+			throw new RuntimeException("Unknown type of HighlightCondition: " + type);
 		}
-
-		return null;
 	}
 
 	private AndOrHighlightCondition createLogicalCondition(String name, boolean showInLegend, Color color,
@@ -686,6 +686,8 @@ public class HighlightDialog extends KnimeDialog {
 			}
 
 			break;
+		default:
+			throw new RuntimeException("Unknown type of HighlightCondition: " + type);
 		}
 
 		type = (Type) conditionTypeBox.getSelectedItem();

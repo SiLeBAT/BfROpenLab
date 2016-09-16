@@ -156,9 +156,9 @@ public class LogicalHighlightCondition implements Serializable {
 			return isEqualRegex(nodeValue, true) ? 1.0 : 0.0;
 		case REGEX_NOT_EQUAL_IGNORE_CASE:
 			return isEqualRegex(nodeValue, true) ? 0.0 : 1.0;
+		default:
+			throw new RuntimeException("Unknown type of LogicalHighlightCondition: " + type);
 		}
-
-		throw new RuntimeException("Should not happen");
 	}
 
 	private boolean isEqual(Object nodeValue) {

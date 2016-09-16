@@ -792,7 +792,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	private void resetPressed(JButton button) {
 		if (Dialogs.showOkCancelDialog(canvas.getComponent(), "This cannot be made undone. Proceed?",
-				button.getText()) == Dialogs.Result.OK) {
+				button.getText()) == Dialogs.OkCancelResult.OK) {
 			updateSettings();
 
 			if (button == resetWeightsButton) {

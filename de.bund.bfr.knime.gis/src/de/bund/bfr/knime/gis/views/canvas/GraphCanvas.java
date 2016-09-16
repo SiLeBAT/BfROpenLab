@@ -140,10 +140,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
 		Set<GraphNode> selectedNodes = getSelectedNodes();
-		Set<GraphNode> nodesForLayout = nodes;
+		Set<GraphNode> nodesForLayout;
 
 		if (!selectedNodes.isEmpty()) {
-			switch (Dialogs.showYesNoDialog(this,
+			switch (Dialogs.showYesNoCancelDialog(this,
 					"Should the layout be applied on the selected " + naming.nodes() + " only?", "Confirm")) {
 			case YES:
 				nodesForLayout = selectedNodes;
@@ -151,9 +151,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			case NO:
 				nodesForLayout = nodes;
 				break;
+			case CANCEL:
 			default:
 				return;
 			}
+		} else {
+			nodesForLayout = nodes;
 		}
 
 		if (nodesForLayout.size() < 2) {

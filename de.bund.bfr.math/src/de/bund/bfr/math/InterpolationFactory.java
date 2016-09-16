@@ -54,9 +54,9 @@ public class InterpolationFactory {
 			return new StepFunction(x, y);
 		case SPLINE:
 			return new SplineInterpolator().interpolate(x, y);
+		default:
+			return null;
 		}
-
-		return null;
 	}
 
 	@Override

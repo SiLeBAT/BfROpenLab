@@ -45,9 +45,9 @@ public enum Transform {
 			return Math.pow(10.0, value);
 		case KELVIN_TO_CELSIUS:
 			return value - 273.15;
+		default:
+			return Double.NaN;
 		}
-
-		return Double.NaN;
 	}
 
 	public double from(double value) {
@@ -66,9 +66,9 @@ public enum Transform {
 			return Math.log10(value);
 		case KELVIN_TO_CELSIUS:
 			return value + 273.15;
+		default:
+			return Double.NaN;
 		}
-
-		return Double.NaN;
 	}
 
 	public String to(String term) {
@@ -91,9 +91,9 @@ public enum Transform {
 			return "10^(" + term + ")";
 		case KELVIN_TO_CELSIUS:
 			return "(" + term + "-273.15)";
+		default:
+			return null;
 		}
-
-		return null;
 	}
 
 	public String from(String term) {
@@ -116,9 +116,9 @@ public enum Transform {
 			return "log10(" + term + ")";
 		case KELVIN_TO_CELSIUS:
 			return "(" + term + "+273.15)";
+		default:
+			return null;
 		}
-
-		return null;
 	}
 
 	public String getName() {

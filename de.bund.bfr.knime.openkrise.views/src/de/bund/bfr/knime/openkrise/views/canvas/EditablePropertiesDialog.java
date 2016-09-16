@@ -96,13 +96,10 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 
 		Set<String> idColumns = new LinkedHashSet<>();
 
-		switch (type) {
-		case NODE:
+		if (type == Type.NODE) {
 			idColumns.add(TracingColumns.ID);
-			break;
-		case EDGE:
+		} else if (type == Type.EDGE) {
 			idColumns.addAll(Arrays.asList(TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO));
-			break;
 		}
 
 		elementList = new ArrayList<>(elements);
@@ -299,8 +296,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 
 	@SuppressWarnings("unchecked")
 	private void selectButtonPressed() {
-		switch (type) {
-		case NODE:
+		if (type == Type.NODE) {
 			Set<V> nodes = new LinkedHashSet<>();
 
 			for (Element element : table.getSelectedElements()) {
@@ -308,8 +304,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 			}
 
 			parent.setSelectedNodes(nodes);
-			break;
-		case EDGE:
+		} else if (type == Type.EDGE) {
 			Set<Edge<V>> edges = new LinkedHashSet<>();
 
 			for (Element element : table.getSelectedElements()) {
@@ -317,7 +312,6 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 			}
 
 			parent.setSelectedEdges(edges);
-			break;
 		}
 	}
 

@@ -45,8 +45,12 @@ import org.eclipse.ui.PlatformUI;
 
 public class Dialogs {
 
-	public static enum Result {
-		YES, NO, OK, CANCEL
+	public static enum YesNoCancelResult {
+		YES, NO, CANCEL
+	}
+
+	public static enum OkCancelResult {
+		OK, CANCEL
 	}
 
 	public static boolean hasKnimeDialogAncestor(Window w) {
@@ -106,28 +110,33 @@ public class Dialogs {
 		enableButtonsAndResetLocale(parent, oldLocale);
 	}
 
-	public static Result showYesNoDialog(Component parent, String message, String title) {
-		return showConfirmDialog(parent, message, title, true);
-	}
-
-	public static Result showOkCancelDialog(Component parent, String message, String title) {
-		return showConfirmDialog(parent, message, title, false);
-	}
-
-	private static Result showConfirmDialog(Component parent, String message, String title, boolean yesNo) {
+	public static YesNoCancelResult showYesNoCancelDialog(Component parent, String message, String title) {
 		Locale oldLocale = disableButtonsAndChangeLocale(parent);
-		int result = JOptionPane.showConfirmDialog(parent, message, title,
-				yesNo ? JOptionPane.YES_NO_CANCEL_OPTION : JOptionPane.OK_CANCEL_OPTION);
+		int result = JOptionPane.showConfirmDialog(parent, message, title, JOptionPane.YES_NO_CANCEL_OPTION);
 
 		enableButtonsAndResetLocale(parent, oldLocale);
 
 		switch (result) {
 		case JOptionPane.YES_OPTION:
-			return yesNo ? Result.YES : Result.OK;
+			return YesNoCancelResult.YES;
 		case JOptionPane.NO_OPTION:
-			return Result.NO;
+			return YesNoCancelResult.NO;
 		default:
-			return Result.CANCEL;
+			return YesNoCancelResult.CANCEL;
+		}
+	}
+
+	public static OkCancelResult showOkCancelDialog(Component parent, String message, String title) {
+		Locale oldLocale = disableButtonsAndChangeLocale(parent);
+		int result = JOptionPane.showConfirmDialog(parent, message, title, JOptionPane.OK_CANCEL_OPTION);
+
+		enableButtonsAndResetLocale(parent, oldLocale);
+
+		switch (result) {
+		case JOptionPane.OK_OPTION:
+			return OkCancelResult.OK;
+		default:
+			return OkCancelResult.CANCEL;
 		}
 	}
 

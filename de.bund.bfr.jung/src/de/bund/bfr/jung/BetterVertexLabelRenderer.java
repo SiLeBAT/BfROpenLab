@@ -103,8 +103,10 @@ public class BetterVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, 
 		case CNTR:
 			return new Point((int) vertexBounds.getCenterX() - labelSize.width / 2,
 					(int) vertexBounds.getCenterY() - labelSize.height / 2);
+		case AUTO:
+			throw new IllegalArgumentException("Position \"" + position + "\" is not supported");
 		default:
-			throw new RuntimeException("Should not happen");
+			throw new RuntimeException("Unknown Position: " + position);
 		}
 	}
 }

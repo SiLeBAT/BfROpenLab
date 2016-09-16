@@ -820,7 +820,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 			String message = "Some of the selected " + naming.nodes() + " are already meta " + naming.nodes()
 					+ ".\nCollapse all contained " + naming.nodes() + " into the new meta " + naming.node() + "?";
 
-			if (Dialogs.showOkCancelDialog(this, message, "Confirm") == Dialogs.Result.CANCEL) {
+			if (Dialogs.showOkCancelDialog(this, message, "Confirm") == Dialogs.OkCancelResult.CANCEL) {
 				return;
 			}
 		}
@@ -878,7 +878,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		Set<String> idsToCollapse;
 
 		if (!selectedIds.isEmpty()) {
-			switch (Dialogs.showYesNoDialog(this, "Use only the selected " + naming.nodes() + " for collapsing?",
+			switch (Dialogs.showYesNoCancelDialog(this, "Use only the selected " + naming.nodes() + " for collapsing?",
 					"Confirm")) {
 			case YES:
 				idsToCollapse = selectedIds;
@@ -886,6 +886,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 			case NO:
 				idsToCollapse = CanvasUtils.getElementIds(getNodes());
 				break;
+			case CANCEL:
 			default:
 				return;
 			}

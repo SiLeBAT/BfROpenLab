@@ -237,13 +237,10 @@ public class TableInputPanel<T> extends JPanel implements RowSorterListener, Cel
 	private JComponent createInputPanel(Collection<? extends Element> elements) {
 		Set<String> idColumns = new LinkedHashSet<>();
 
-		switch (type) {
-		case NODE:
+		if (type == Type.NODE) {
 			idColumns.add(TracingColumns.ID);
-			break;
-		case EDGE:
+		} else if (type == Type.EDGE) {
 			idColumns.addAll(Arrays.asList(TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO));
-			break;
 		}
 
 		table = new PropertiesTable(new ArrayList<>(elements), schema, idColumns);
