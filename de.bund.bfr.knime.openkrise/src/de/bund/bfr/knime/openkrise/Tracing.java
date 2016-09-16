@@ -335,7 +335,7 @@ public class Tracing {
 		case NEGATIVE:
 			return negativeWeightSum;
 		default:
-			throw new RuntimeException("This should not happen.");
+			throw new RuntimeException("Unknown ScoreType: " + type);
 		}
 	}
 
@@ -464,7 +464,7 @@ public class Tracing {
 		case NEGATIVE:
 			return weight < 0.0 ? -weight : 0.0;
 		default:
-			throw new RuntimeException("This should not happen.");
+			throw new RuntimeException("Unknown ScoreType: " + type);
 		}
 	}
 

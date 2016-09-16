@@ -55,7 +55,7 @@ public class InterpolationFactory {
 		case SPLINE:
 			return new SplineInterpolator().interpolate(x, y);
 		default:
-			return null;
+			throw new RuntimeException("Unknown type of InterpolationFactory: " + type);
 		}
 	}
 

@@ -152,7 +152,7 @@ public class GeocodingNodeModel extends NodeModel {
 				result = performBkgGeocoding(address);
 				break;
 			default:
-				throw new RuntimeException("Should not happen");
+				throw new RuntimeException("Unknown service provider");
 			}
 
 			if (result.getLatitude() == null || result.getLongitude() == null) {

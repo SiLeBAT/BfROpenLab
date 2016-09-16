@@ -46,7 +46,7 @@ public enum Transform {
 		case KELVIN_TO_CELSIUS:
 			return value - 273.15;
 		default:
-			return Double.NaN;
+			throw new RuntimeException("Unknown Transform: " + this);
 		}
 	}
 
@@ -67,7 +67,7 @@ public enum Transform {
 		case KELVIN_TO_CELSIUS:
 			return value + 273.15;
 		default:
-			return Double.NaN;
+			throw new RuntimeException("Unknown Transform: " + this);
 		}
 	}
 
@@ -92,7 +92,7 @@ public enum Transform {
 		case KELVIN_TO_CELSIUS:
 			return "(" + term + "-273.15)";
 		default:
-			return null;
+			throw new RuntimeException("Unknown Transform: " + this);
 		}
 	}
 
@@ -117,7 +117,7 @@ public enum Transform {
 		case KELVIN_TO_CELSIUS:
 			return "(" + term + "+273.15)";
 		default:
-			return null;
+			throw new RuntimeException("Unknown Transform: " + this);
 		}
 	}
 

@@ -66,7 +66,7 @@ public class IntegratorFactory {
 		case THREE_EIGHTHES:
 			return new ThreeEighthesIntegrator(step);
 		default:
-			return null;
+			throw new RuntimeException("Unknown type of IntegratorFactory: " + type);
 		}
 	}
 
