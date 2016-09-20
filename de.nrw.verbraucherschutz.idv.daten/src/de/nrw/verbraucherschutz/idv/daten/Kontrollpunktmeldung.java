@@ -1,8 +1,8 @@
 //
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.31 um 01:45:20 PM CEST 
+// Ã„nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
+// Generiert: 2016.09.20 um 02:24:37 PM CEST 
 //
 
 
@@ -15,22 +15,22 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für kontrollpunktmeldung complex type.
+ * <p>Java-Klasse fÃ¼r Kontrollpunktmeldung complex type.
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="kontrollpunktmeldung">
+ * &lt;complexType name="Kontrollpunktmeldung">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="meldung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}meldung"/>
- *         &lt;element name="betrieb" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}betrieb"/>
- *         &lt;element name="wareneingaenge" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}wareneingaenge"/>
- *         &lt;element name="produktionen" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}produktionen"/>
- *         &lt;element name="warenausgaenge" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}warenausgaenge"/>
- *         &lt;element name="warenbestaende" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}warenbestaende"/>
- *         &lt;element name="ausloeser" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}ausloeser"/>
+ *         &lt;element name="meldung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Meldung"/>
+ *         &lt;element name="betrieb" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Betrieb"/>
+ *         &lt;element name="wareneingaenge" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Wareneingaenge"/>
+ *         &lt;element name="produktionen" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Produktionen"/>
+ *         &lt;element name="warenausgaenge" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Warenausgaenge"/>
+ *         &lt;element name="warenbestaende" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Warenbestaende"/>
+ *         &lt;element name="ausloeser" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Ausloeser"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "kontrollpunktmeldung", namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", propOrder = {
+@XmlType(name = "Kontrollpunktmeldung", namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", propOrder = {
     "meldung",
     "betrieb",
     "wareneingaenge",
@@ -51,19 +51,19 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class Kontrollpunktmeldung {
 
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", required = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true)
     protected Meldung meldung;
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", required = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true)
     protected Betrieb betrieb;
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
     protected Wareneingaenge wareneingaenge;
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
     protected Produktionen produktionen;
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
     protected Warenausgaenge warenausgaenge;
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
     protected Warenbestaende warenbestaende;
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true, nillable = true)
     protected Ausloeser ausloeser;
 
     /**

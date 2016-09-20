@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema
+	xmlns="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport"
+	xmlns:dok="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument"
+    xmlns:wrv="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung"
+	xmlns:com="http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+	targetNamespace="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport"
+	version="1.0">
+
+	<!-- 
+		Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW
+		Projekt: IDV
+		Titel: Datenformat für die Übermittlung von Warenrückverfolgungsinformationen
+		Version: 2016.2.20160920
+		Autor: Georg Fleischer (CGI)
+	!-->
+
+	<xs:import namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument"
+    	schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2016.1.dokument.xsd"/>
+	
+    <xs:import namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung"
+    	schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2016.2.warenrueckverfolgung.xsd"/>
+
+	<xs:import namespace="http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation" 
+		schemaLocation="../daten/de.nrw.verbraucherschutz.idv.daten.2010.1.kommunikation.xsd"/>
+
+	<xs:element name="kontrollpunktmeldung" type="Kontrollpunktmeldung"/>
+	<xs:complexType name="Kontrollpunktmeldung">
+		<xs:sequence>
+			<xs:element name="meldung" type="wrv:Meldung"/>
+			<xs:element name="betrieb" type="wrv:Betrieb"/>
+			<xs:element nillable="true" name="wareneingaenge" type="wrv:Wareneingaenge"/>
+			<xs:element nillable="true" name="produktionen" type="wrv:Produktionen"/>
+			<xs:element nillable="true" name="warenausgaenge" type="wrv:Warenausgaenge"/>
+			<xs:element nillable="true" name="warenbestaende" type="wrv:Warenbestaende"/>
+			<xs:element nillable="true" name="ausloeser" type="wrv:Ausloeser"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="analyseergebnis" type="Analyseergebnis"/>
+	<xs:complexType name="Analyseergebnis">
+		<xs:sequence>
+			<xs:element name="meldung" type="wrv:Meldung"/>
+ 			<xs:element maxOccurs="unbounded" name="dokument" type="dok:dokument"/>
+ 			<xs:element name="bewertung" type="wrv:Bewertung"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="CommHeader" type="com:PropertyList"/>
+</xs:schema>
+
+
+

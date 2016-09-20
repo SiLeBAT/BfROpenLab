@@ -1,8 +1,8 @@
 //
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.31 um 01:45:20 PM CEST 
+// Ã„nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
+// Generiert: 2016.09.20 um 02:24:37 PM CEST 
 //
 
 
@@ -12,21 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für produktionen complex type.
+ * <p>Java-Klasse fÃ¼r Produktionen complex type.
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="produktionen">
+ * &lt;complexType name="Produktionen">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="produktion" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}produktion" maxOccurs="unbounded"/>
+ *         &lt;element name="produktion" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Produktion" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -36,12 +35,11 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "produktionen", propOrder = {
+@XmlType(name = "Produktionen", propOrder = {
     "produktion"
 })
 public class Produktionen {
 
-    @XmlElement(required = true)
     protected List<Produktion> produktion;
 
     /**

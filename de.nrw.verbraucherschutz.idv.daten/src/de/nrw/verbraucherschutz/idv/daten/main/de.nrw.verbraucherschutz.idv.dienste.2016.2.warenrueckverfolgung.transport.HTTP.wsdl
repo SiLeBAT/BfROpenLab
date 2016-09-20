@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions
+	xmlns:ns="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport/HTTP"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:trans="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport"
+	xmlns:transHttp="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport/HTTP"
+	name="warenrueckverfolgungTransportServiceHTTP"
+	targetNamespace="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport/HTTP">
+
+	<!-- 
+		Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW
+		Projekt: IDV
+		Titel: HTTP Servicebeschreibung für die Übermittlung von Warenrückverfolgungsinformationen
+		Version: 2016.2.20160920
+		Autor: Georg Fleischer (CGI)
+	!-->
+
+	<wsdl:import
+		namespace="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport"
+		location="de.nrw.verbraucherschutz.idv.dienste.2016.2.warenrueckverfolgung.transport.wsdl" />
+
+	<wsdl:binding name="transportBindingHTTP" type="trans:warenrueckverfolgungPortType">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="KontrollpunktmeldungUebermitteln">
+			<soap:operation soapAction="KontrollpunktmeldungUebermitteln" />
+			<wsdl:input>
+				<soap:header message="trans:CommHeaderMessage" part="header"
+					use="literal" />
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="AnalyseergebnisUebermitteln">
+			<soap:operation soapAction="AnalyseergebnisUebermitteln" />
+			<wsdl:input>
+				<soap:header message="trans:CommHeaderMessage" part="header"
+					use="literal" />
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+	</wsdl:binding>
+
+ 	<wsdl:service name="warenrueckverfolgungTransportServiceHTTP">
+		<wsdl:port binding="transHttp:transportBindingHTTP"
+			name="warenrueckverfolgungTransportPortTypeHTTP">
+			<soap:address location="http://localhost:8000/idv/dienste/2016.2" />
+		</wsdl:port>
+	</wsdl:service>
+
+</wsdl:definitions>

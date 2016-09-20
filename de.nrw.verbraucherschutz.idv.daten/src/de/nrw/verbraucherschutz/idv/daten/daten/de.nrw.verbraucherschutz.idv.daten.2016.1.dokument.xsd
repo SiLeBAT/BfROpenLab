@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	 xmlns:dok="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument"
+	 xmlns="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument"
+	 targetNamespace="http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument"
+	 elementFormDefault="unqualified"
+	 attributeFormDefault="unqualified">
+	 
+	<!-- 
+		Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW
+		Projekt: IDV
+		Titel: Datenformat für die Übermittlung von Dokumenten
+		Version: 2016.1.20160822
+		Autor: Georg Fleischer (CGI)
+	!-->
+	 
+	 
+	<xs:element name="metadaten" type="dok:metadaten"/>
+	<xs:element name="dokument" type="dok:dokument"/>
+	<xs:element name="content" type="dok:content">
+		<xs:annotation>
+			<xs:documentation>Der Content enthält den Inhalt des Dokuments als base64 codierten String.
+Das Attribut contentTyp des Contents enthält den mimeType des Dokuments (z.B. application/pdf)</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:attribute name="contentType">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:minLength value="3"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:complexType name="dokument">
+		<xs:sequence>
+			<xs:element name="metadaten" type="dok:metadaten"/>
+			<xs:element name="content" type="dok:content"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="content">
+		<xs:simpleContent>
+			<xs:extension base="xs:base64Binary">
+				<xs:attribute ref="dok:contentType"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="metadaten">
+		<xs:sequence>
+			<xs:element name="dokId" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Die dokId ist eine DMS weit eindeutig Id. Sie wird vom DMS erzeugt. Somit ist sie beim ersten upload eines Dokuments nicht gefüllt. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="dokumentName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Dateiname des Dokuments inclusive Dateierweiterung</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="autor" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Name des Erstellers. Falls nicht bekannt ist das sendende System einzutragen.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="uploadAm" type="xs:dateTime">
+				<xs:annotation>
+					<xs:documentation>Timestamp an dem das Dokument hochgeladen wurde. uploadAm wird vom DMS gefüllt.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="titel" type="xs:string"/>
+			<xs:element name="kategorie" type="xs:string" minOccurs="0"/>
+			<xs:element name="beschreibung" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Freier Text zur Beschreibung des Dokuments</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="mimeType" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>mimeTyp des Contents</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="organisation" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Organisation des Erstellers</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="lokation" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Location unter der der Dokumentinhalt erreichbar ist. z.B. Url zum Dokument</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="format" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Dateiendung des Dokuments. z.B. pdf. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="publiziertAm" type="xs:dateTime" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Datum, an dem das Dokument erstellt wurde.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="version" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Version des Dokuments</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="referenzen" type="dok:referenz" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Mittels Referenz kann ein Dokument einem oder mehrern Fachobjekten zugeordnet werden.
+Dabei gibt der key der Referenz den Objecttyp (z.B. PROBENR  bei Zuordnung zu einer Probe) an und der value der Referenz enthällt den fachlichen Key des Fachobjects (z.B. 2015-0034567). </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="referenz">
+		<xs:sequence>
+			<xs:element name="key" type="xs:string"/>
+			<xs:element name="value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
+

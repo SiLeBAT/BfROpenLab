@@ -1,8 +1,8 @@
 //
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.31 um 01:45:20 PM CEST 
+// Ã„nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
+// Generiert: 2016.09.20 um 02:24:37 PM CEST 
 //
 
 
@@ -19,20 +19,20 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für warenbewegung complex type.
+ * <p>Java-Klasse fÃ¼r Warenbewegung complex type.
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="warenbewegung">
+ * &lt;complexType name="Warenbewegung">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="betrieb" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}betrieb" maxOccurs="unbounded"/>
- *         &lt;element name="lieferung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}lieferung"/>
- *         &lt;element name="warenumfang" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}warenumfang"/>
- *         &lt;element name="produkt" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}produkt"/>
- *         &lt;element name="zusatzparameter" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}zusatzparameter"/>
+ *         &lt;element name="betrieb" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Betrieb" maxOccurs="unbounded"/>
+ *         &lt;element name="lieferung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Lieferung"/>
+ *         &lt;element name="warenumfang" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Warenumfang"/>
+ *         &lt;element name="produkt" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Produkt"/>
+ *         &lt;element name="zusatzparameter" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Zusatzparameter"/>
  *       &lt;/sequence>
  *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="produktionId" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "warenbewegung", propOrder = {
+@XmlType(name = "Warenbewegung", propOrder = {
     "betrieb",
     "lieferung",
     "warenumfang",
@@ -52,8 +52,8 @@ import javax.xml.bind.annotation.XmlType;
     "zusatzparameter"
 })
 @XmlSeeAlso({
-    Wareneingang.class,
-    Warenausgang.class
+    Warenausgang.class,
+    Wareneingang.class
 })
 public class Warenbewegung {
 

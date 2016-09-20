@@ -1,8 +1,8 @@
 //
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.31 um 01:45:20 PM CEST 
+// Ã„nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
+// Generiert: 2016.09.20 um 02:24:37 PM CEST 
 //
 
 
@@ -22,24 +22,24 @@ import javax.xml.bind.annotation.XmlValue;
  * 				innerhalb eines Katalogverzeichnisses in einem bestimmten Scope.
  * 				Zulaessige Scopes sind: BUND, NRW, LABOR, KOMMUNE. Beispiel:
  * 				
- * 				Ein Katalogwert kann, wenn der dazu gehörige Katalog es vorsieht
- * 				auch als freier Eintrag ohne Code übertragen werden. Beispiel:
+ * 				Ein Katalogwert kann, wenn der dazu gehÃ¶rige Katalog es vorsieht
+ * 				auch als freier Eintrag ohne Code Ã¼bertragen werden. Beispiel:
  * 				
  * 			
  * 
- * <p>Java-Klasse für KatalogWert complex type.
+ * <p>Java-Klasse fÃ¼r KatalogWert complex type.
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="KatalogWert">
  *   &lt;simpleContent>
- *     &lt;extension base="&lt;http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem>langtextEmpty">
- *       &lt;attribute name="scope" use="required" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem}kuerzel" />
- *       &lt;attribute name="verz" use="required" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem}kuerzel" />
- *       &lt;attribute name="katalog" use="required" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem}kuerzel" />
- *       &lt;attribute name="version" use="required" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem}langtextEmpty" />
- *       &lt;attribute name="code" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem}kuerzel" />
+ *     &lt;extension base="&lt;http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem>langtextEmpty">
+ *       &lt;attribute name="scope" use="required" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem}kuerzel" />
+ *       &lt;attribute name="verz" use="required" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem}kuerzel" />
+ *       &lt;attribute name="katalog" use="required" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem}kuerzel" />
+ *       &lt;attribute name="version" use="required" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem}langtextEmpty" />
+ *       &lt;attribute name="code" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem}kuerzel" />
  *     &lt;/extension>
  *   &lt;/simpleContent>
  * &lt;/complexType>
@@ -48,7 +48,7 @@ import javax.xml.bind.annotation.XmlValue;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "KatalogWert", namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem", propOrder = {
+@XmlType(name = "KatalogWert", namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem", propOrder = {
     "value"
 })
 public class KatalogWert {

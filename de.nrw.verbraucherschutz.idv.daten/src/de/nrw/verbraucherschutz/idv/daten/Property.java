@@ -10,24 +10,24 @@ package de.nrw.verbraucherschutz.idv.daten;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für WareneingangVerwendet complex type.
+ * <p>Java-Klasse für Property complex type.
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="WareneingangVerwendet">
+ * &lt;complexType name="Property">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="warenumfang" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Warenumfang"/>
+ *         &lt;element name="key" type="{http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation}PropertyKeys"/>
+ *         &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
- *       &lt;attribute name="wareneingangId" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -36,62 +36,64 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "WareneingangVerwendet", propOrder = {
-    "warenumfang"
+@XmlType(name = "Property", namespace = "http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation", propOrder = {
+    "key",
+    "value"
 })
-public class WareneingangVerwendet {
+public class Property {
 
-    @XmlElement(required = true, nillable = true)
-    protected Warenumfang warenumfang;
-    @XmlAttribute(name = "wareneingangId")
-    protected String wareneingangId;
+    @XmlElement(required = true)
+    @XmlSchemaType(name = "string")
+    protected PropertyKeys key;
+    @XmlElement(required = true)
+    protected String value;
 
     /**
-     * Ruft den Wert der warenumfang-Eigenschaft ab.
+     * Ruft den Wert der key-Eigenschaft ab.
      * 
      * @return
      *     possible object is
-     *     {@link Warenumfang }
+     *     {@link PropertyKeys }
      *     
      */
-    public Warenumfang getWarenumfang() {
-        return warenumfang;
+    public PropertyKeys getKey() {
+        return key;
     }
 
     /**
-     * Legt den Wert der warenumfang-Eigenschaft fest.
+     * Legt den Wert der key-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
-     *     {@link Warenumfang }
+     *     {@link PropertyKeys }
      *     
      */
-    public void setWarenumfang(Warenumfang value) {
-        this.warenumfang = value;
+    public void setKey(PropertyKeys value) {
+        this.key = value;
     }
 
     /**
-     * Ruft den Wert der wareneingangId-Eigenschaft ab.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getWareneingangId() {
-        return wareneingangId;
+    public String getValue() {
+        return value;
     }
 
     /**
-     * Legt den Wert der wareneingangId-Eigenschaft fest.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setWareneingangId(String value) {
-        this.wareneingangId = value;
+    public void setValue(String value) {
+        this.value = value;
     }
 
 }

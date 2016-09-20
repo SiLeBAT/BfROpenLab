@@ -1,8 +1,8 @@
 //
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.31 um 01:45:20 PM CEST 
+// Ã„nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
+// Generiert: 2016.09.20 um 02:24:37 PM CEST 
 //
 
 
@@ -32,18 +32,30 @@ import javax.xml.namespace.QName;
 public class ObjectFactory {
 
     private final static QName _Metadaten_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument", "metadaten");
-    private final static QName _Katalogisiert_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem", "katalogisiert");
+    private final static QName _Property_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation", "Property");
     private final static QName _Content_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument", "content");
-    private final static QName _KatalogWert_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem", "katalogWert");
+    private final static QName _Katalogisiert_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem", "katalogisiert");
     private final static QName _Dokument_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument", "dokument");
-    private final static QName _Kontrollpunktmeldung_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", "kontrollpunktmeldung");
-    private final static QName _Analyseergebnis_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", "analyseergebnis");
+    private final static QName _StatusType_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation", "StatusType");
+    private final static QName _CommHeader_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", "CommHeader");
+    private final static QName _KatalogWert_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem", "katalogWert");
+    private final static QName _Kontrollpunktmeldung_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", "kontrollpunktmeldung");
+    private final static QName _Analyseergebnis_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", "analyseergebnis");
+    private final static QName _PropertyList_QNAME = new QName("http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation", "PropertyList");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: de.nrw.verbraucherschutz.idv.daten
      * 
      */
     public ObjectFactory() {
+    }
+
+    /**
+     * Create an instance of {@link PropertyList }
+     * 
+     */
+    public PropertyList createPropertyList() {
+        return new PropertyList();
     }
 
     /**
@@ -95,139 +107,19 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link ZusatzparameterText }
+     * 
+     */
+    public ZusatzparameterText createZusatzparameterText() {
+        return new ZusatzparameterText();
+    }
+
+    /**
      * Create an instance of {@link Warenbewegung }
      * 
      */
     public Warenbewegung createWarenbewegung() {
         return new Warenbewegung();
-    }
-
-    /**
-     * Create an instance of {@link ZusatzparameterDatum }
-     * 
-     */
-    public ZusatzparameterDatum createZusatzparameterDatum() {
-        return new ZusatzparameterDatum();
-    }
-
-    /**
-     * Create an instance of {@link Kontrollpunktbewertung }
-     * 
-     */
-    public Kontrollpunktbewertung createKontrollpunktbewertung() {
-        return new Kontrollpunktbewertung();
-    }
-
-    /**
-     * Create an instance of {@link Zusatzparameter }
-     * 
-     */
-    public Zusatzparameter createZusatzparameter() {
-        return new Zusatzparameter();
-    }
-
-    /**
-     * Create an instance of {@link Ausloeser }
-     * 
-     */
-    public Ausloeser createAusloeser() {
-        return new Ausloeser();
-    }
-
-    /**
-     * Create an instance of {@link Warenbewegungsbewertung }
-     * 
-     */
-    public Warenbewegungsbewertung createWarenbewegungsbewertung() {
-        return new Warenbewegungsbewertung();
-    }
-
-    /**
-     * Create an instance of {@link Wareneingaenge }
-     * 
-     */
-    public Wareneingaenge createWareneingaenge() {
-        return new Wareneingaenge();
-    }
-
-    /**
-     * Create an instance of {@link AnzahlGebinde }
-     * 
-     */
-    public AnzahlGebinde createAnzahlGebinde() {
-        return new AnzahlGebinde();
-    }
-
-    /**
-     * Create an instance of {@link MengeEinheit }
-     * 
-     */
-    public MengeEinheit createMengeEinheit() {
-        return new MengeEinheit();
-    }
-
-    /**
-     * Create an instance of {@link Wareneingang }
-     * 
-     */
-    public Wareneingang createWareneingang() {
-        return new Wareneingang();
-    }
-
-    /**
-     * Create an instance of {@link Bewertung }
-     * 
-     */
-    public Bewertung createBewertung() {
-        return new Bewertung();
-    }
-
-    /**
-     * Create an instance of {@link Meldung }
-     * 
-     */
-    public Meldung createMeldung() {
-        return new Meldung();
-    }
-
-    /**
-     * Create an instance of {@link Produktionen }
-     * 
-     */
-    public Produktionen createProduktionen() {
-        return new Produktionen();
-    }
-
-    /**
-     * Create an instance of {@link Warenausgaenge }
-     * 
-     */
-    public Warenausgaenge createWarenausgaenge() {
-        return new Warenausgaenge();
-    }
-
-    /**
-     * Create an instance of {@link Lieferung }
-     * 
-     */
-    public Lieferung createLieferung() {
-        return new Lieferung();
-    }
-
-    /**
-     * Create an instance of {@link Warenbestaende }
-     * 
-     */
-    public Warenbestaende createWarenbestaende() {
-        return new Warenbestaende();
-    }
-
-    /**
-     * Create an instance of {@link Warenumfang }
-     * 
-     */
-    public Warenumfang createWarenumfang() {
-        return new Warenumfang();
     }
 
     /**
@@ -239,19 +131,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Produktion }
-     * 
-     */
-    public Produktion createProduktion() {
-        return new Produktion();
-    }
-
-    /**
      * Create an instance of {@link WareneingaengeVerwendet }
      * 
      */
     public WareneingaengeVerwendet createWareneingaengeVerwendet() {
         return new WareneingaengeVerwendet();
+    }
+
+    /**
+     * Create an instance of {@link Meldung }
+     * 
+     */
+    public Meldung createMeldung() {
+        return new Meldung();
     }
 
     /**
@@ -263,6 +155,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Produktionen }
+     * 
+     */
+    public Produktionen createProduktionen() {
+        return new Produktionen();
+    }
+
+    /**
      * Create an instance of {@link ZusatzparameterZahl }
      * 
      */
@@ -271,11 +171,59 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ZusatzparameterText }
+     * Create an instance of {@link Bewertung }
      * 
      */
-    public ZusatzparameterText createZusatzparameterText() {
-        return new ZusatzparameterText();
+    public Bewertung createBewertung() {
+        return new Bewertung();
+    }
+
+    /**
+     * Create an instance of {@link Warenbestaende }
+     * 
+     */
+    public Warenbestaende createWarenbestaende() {
+        return new Warenbestaende();
+    }
+
+    /**
+     * Create an instance of {@link Zusatzparameter }
+     * 
+     */
+    public Zusatzparameter createZusatzparameter() {
+        return new Zusatzparameter();
+    }
+
+    /**
+     * Create an instance of {@link AnzahlGebinde }
+     * 
+     */
+    public AnzahlGebinde createAnzahlGebinde() {
+        return new AnzahlGebinde();
+    }
+
+    /**
+     * Create an instance of {@link Warenbewegungsbewertung }
+     * 
+     */
+    public Warenbewegungsbewertung createWarenbewegungsbewertung() {
+        return new Warenbewegungsbewertung();
+    }
+
+    /**
+     * Create an instance of {@link Warenumfang }
+     * 
+     */
+    public Warenumfang createWarenumfang() {
+        return new Warenumfang();
+    }
+
+    /**
+     * Create an instance of {@link Produktion }
+     * 
+     */
+    public Produktion createProduktion() {
+        return new Produktion();
     }
 
     /**
@@ -292,6 +240,70 @@ public class ObjectFactory {
      */
     public Warenausgang createWarenausgang() {
         return new Warenausgang();
+    }
+
+    /**
+     * Create an instance of {@link Wareneingaenge }
+     * 
+     */
+    public Wareneingaenge createWareneingaenge() {
+        return new Wareneingaenge();
+    }
+
+    /**
+     * Create an instance of {@link Kontrollpunktbewertung }
+     * 
+     */
+    public Kontrollpunktbewertung createKontrollpunktbewertung() {
+        return new Kontrollpunktbewertung();
+    }
+
+    /**
+     * Create an instance of {@link MengeEinheit }
+     * 
+     */
+    public MengeEinheit createMengeEinheit() {
+        return new MengeEinheit();
+    }
+
+    /**
+     * Create an instance of {@link ZusatzparameterDatum }
+     * 
+     */
+    public ZusatzparameterDatum createZusatzparameterDatum() {
+        return new ZusatzparameterDatum();
+    }
+
+    /**
+     * Create an instance of {@link Ausloeser }
+     * 
+     */
+    public Ausloeser createAusloeser() {
+        return new Ausloeser();
+    }
+
+    /**
+     * Create an instance of {@link Wareneingang }
+     * 
+     */
+    public Wareneingang createWareneingang() {
+        return new Wareneingang();
+    }
+
+    /**
+     * Create an instance of {@link Lieferung }
+     * 
+     */
+    public Lieferung createLieferung() {
+        return new Lieferung();
+    }
+
+    /**
+     * Create an instance of {@link Warenausgaenge }
+     * 
+     */
+    public Warenausgaenge createWarenausgaenge() {
+        return new Warenausgaenge();
     }
 
     /**
@@ -319,6 +331,22 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link StatusType }
+     * 
+     */
+    public StatusType createStatusType() {
+        return new StatusType();
+    }
+
+    /**
+     * Create an instance of {@link Property }
+     * 
+     */
+    public Property createProperty() {
+        return new Property();
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Metadaten }{@code >}}
      * 
      */
@@ -328,12 +356,12 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Katalogisiert }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link Property }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem", name = "katalogisiert")
-    public JAXBElement<Katalogisiert> createKatalogisiert(Katalogisiert value) {
-        return new JAXBElement<Katalogisiert>(_Katalogisiert_QNAME, Katalogisiert.class, null, value);
+    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation", name = "Property")
+    public JAXBElement<Property> createProperty(Property value) {
+        return new JAXBElement<Property>(_Property_QNAME, Property.class, null, value);
     }
 
     /**
@@ -346,12 +374,12 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link KatalogWert }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link Katalogisiert }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.1/katalogsystem", name = "katalogWert")
-    public JAXBElement<KatalogWert> createKatalogWert(KatalogWert value) {
-        return new JAXBElement<KatalogWert>(_KatalogWert_QNAME, KatalogWert.class, null, value);
+    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem", name = "katalogisiert")
+    public JAXBElement<Katalogisiert> createKatalogisiert(Katalogisiert value) {
+        return new JAXBElement<Katalogisiert>(_Katalogisiert_QNAME, Katalogisiert.class, null, value);
     }
 
     /**
@@ -364,10 +392,37 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link StatusType }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation", name = "StatusType")
+    public JAXBElement<StatusType> createStatusType(StatusType value) {
+        return new JAXBElement<StatusType>(_StatusType_QNAME, StatusType.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link PropertyList }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", name = "CommHeader")
+    public JAXBElement<PropertyList> createCommHeader(PropertyList value) {
+        return new JAXBElement<PropertyList>(_CommHeader_QNAME, PropertyList.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link KatalogWert }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem", name = "katalogWert")
+    public JAXBElement<KatalogWert> createKatalogWert(KatalogWert value) {
+        return new JAXBElement<KatalogWert>(_KatalogWert_QNAME, KatalogWert.class, null, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Kontrollpunktmeldung }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", name = "kontrollpunktmeldung")
+    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", name = "kontrollpunktmeldung")
     public JAXBElement<Kontrollpunktmeldung> createKontrollpunktmeldung(Kontrollpunktmeldung value) {
         return new JAXBElement<Kontrollpunktmeldung>(_Kontrollpunktmeldung_QNAME, Kontrollpunktmeldung.class, null, value);
     }
@@ -376,9 +431,18 @@ public class ObjectFactory {
      * Create an instance of {@link JAXBElement }{@code <}{@link Analyseergebnis }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung/transport", name = "analyseergebnis")
+    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", name = "analyseergebnis")
     public JAXBElement<Analyseergebnis> createAnalyseergebnis(Analyseergebnis value) {
         return new JAXBElement<Analyseergebnis>(_Analyseergebnis_QNAME, Analyseergebnis.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link PropertyList }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation", name = "PropertyList")
+    public JAXBElement<PropertyList> createPropertyList(PropertyList value) {
+        return new JAXBElement<PropertyList>(_PropertyList_QNAME, PropertyList.class, null, value);
     }
 
 }
