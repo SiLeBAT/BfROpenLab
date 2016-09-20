@@ -376,8 +376,8 @@ public class FittingNodeModel extends NodeModel {
 			Optimization optimizer;
 
 			if (set.getLevelOfDetection() != null) {
-				optimizer = new MultivariateOptimization(f.getTerms().get(f.getDependentVariable()), f.getParameters(),
-						targetValues.get(id), argumentLists, set.getLevelOfDetection());
+				optimizer = MultivariateOptimization.createLodOptimizer(f.getTerms().get(f.getDependentVariable()),
+						f.getParameters(), targetValues.get(id), argumentLists, set.getLevelOfDetection());
 			} else {
 				optimizer = LeastSquaresOptimization.createVectorOptimizer(f.getTerms().get(f.getDependentVariable()),
 						f.getParameters(), targetValues.get(id), argumentLists);
@@ -491,9 +491,9 @@ public class FittingNodeModel extends NodeModel {
 			initValues.add(f.getInitValues().get(var));
 		}
 
-		List<List<Double>> timeArrays = new ArrayList<>();
-		List<List<Double>> targetArrays = new ArrayList<>();
-		Map<String, List<List<Double>>> variableArrays = new LinkedHashMap<>();
+		List<List<Double>> timeLists = new ArrayList<>();
+		List<List<Double>> targetLists = new ArrayList<>();
+		Map<String, List<List<Double>>> variableLists = new LinkedHashMap<>();
 		List<String> parameters = new ArrayList<>(f.getParameters());
 		List<List<String>> initParameters = new ArrayList<>();
 
@@ -504,17 +504,17 @@ public class FittingNodeModel extends NodeModel {
 		}
 
 		for (String var : f.getIndependentVariables()) {
-			variableArrays.put(var, new ArrayList<>());
+			variableLists.put(var, new ArrayList<>());
 		}
 
 		for (int i = 0; i < ids.size(); i++) {
 			String id = ids.get(i);
 
-			timeArrays.add(timeValues.get(id));
-			targetArrays.add(targetValues.get(id));
+			timeLists.add(timeValues.get(id));
+			targetLists.add(targetValues.get(id));
 
 			for (String var : f.getIndependentVariables()) {
-				variableArrays.get(var).add(argumentValues.get(var).get(id));
+				variableLists.get(var).add(argumentValues.get(var).get(id));
 			}
 
 			for (String var : set.getInitValuesWithDifferentStart()) {
@@ -537,8 +537,8 @@ public class FittingNodeModel extends NodeModel {
 		}
 
 		LeastSquaresOptimization optimizer = LeastSquaresOptimization.createMultiVectorDiffOptimizer(terms,
-				valueVariables, initValues, initParameters, parameters, timeArrays, targetArrays,
-				f.getDependentVariable(), f.getTimeVariable(), variableArrays,
+				valueVariables, initValues, initParameters, parameters, timeLists, targetLists,
+				f.getDependentVariable(), f.getTimeVariable(), variableLists,
 				new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()),
 				new InterpolationFactory(set.getInterpolator()));
 

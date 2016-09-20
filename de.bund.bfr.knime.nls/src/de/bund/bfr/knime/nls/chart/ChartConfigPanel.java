@@ -25,6 +25,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -44,7 +45,6 @@ import javax.swing.JSlider;
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.VariablePanel;
@@ -432,8 +432,10 @@ public class ChartConfigPanel extends JPanel {
 
 		if (outerParameterPanel != null) {
 			outerParameterPanel.removeAll();
-			parameterPanel = new VariablePanel(Maps.asMap(new LinkedHashSet<>(KnimeUtils.nullToEmpty(parameters)),
-					Functions.constant(new ArrayList<>())), null, null, false, true, true);
+			parameterPanel = new VariablePanel(
+					Maps.asMap(new LinkedHashSet<>(parameters != null ? parameters : Collections.emptySet()),
+							Functions.constant(new ArrayList<>())),
+					null, null, false, true, true);
 			parameterPanel.addValueListener(e -> fireConfigChanged());
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 
@@ -451,8 +453,10 @@ public class ChartConfigPanel extends JPanel {
 
 		if (outerVariablePanel != null) {
 			outerVariablePanel.removeAll();
-			variablePanel = new VariablePanel(Maps.asMap(new LinkedHashSet<>(KnimeUtils.nullToEmpty(variablesX)),
-					Functions.constant(new ArrayList<>())), null, null, false, true, true);
+			variablePanel = new VariablePanel(
+					Maps.asMap(new LinkedHashSet<>(variablesX != null ? variablesX : Collections.emptySet()),
+							Functions.constant(new ArrayList<>())),
+					null, null, false, true, true);
 			variablePanel.setEnabled(getVarX(), false);
 			variablePanel.addValueListener(e -> fireConfigChanged());
 			outerVariablePanel.add(variablePanel, BorderLayout.WEST);

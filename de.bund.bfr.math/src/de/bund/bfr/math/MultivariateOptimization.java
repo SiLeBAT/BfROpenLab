@@ -19,13 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleConsumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
@@ -53,13 +53,20 @@ public class MultivariateOptimization implements Optimization {
 	private List<String> parameters;
 	private String sdParam;
 
-	public MultivariateOptimization(String formula, List<String> parameters, List<Double> targetValues,
-			Map<String, List<Double>> variableValues, double levelOfDetection) throws ParseException {
-		sdParam = parameters.stream().collect(Collectors.joining());
-		this.parameters = new ArrayList<>(parameters);
-		this.parameters.add(sdParam);
-		optimizerFunction = new LodFunction(formula, this.parameters, variableValues, targetValues, levelOfDetection,
-				sdParam);
+	private MultivariateOptimization(List<String> parameters, String sdParam, MultivariateFunction optimizerFunction) {
+		this.parameters = parameters;
+		this.sdParam = sdParam;
+		this.optimizerFunction = optimizerFunction;
+	}
+
+	public static MultivariateOptimization createLodOptimizer(String formula, List<String> parameters,
+			List<Double> targetValues, Map<String, List<Double>> variableValues, double levelOfDetection)
+			throws ParseException {
+		String sdParam = parameters.stream().collect(Collectors.joining());
+		List<String> params = Stream.concat(parameters.stream(), Stream.of(sdParam)).collect(Collectors.toList());
+
+		return new MultivariateOptimization(params, sdParam,
+				new LodFunction(formula, params, variableValues, targetValues, levelOfDetection, sdParam));
 	}
 
 	@Override

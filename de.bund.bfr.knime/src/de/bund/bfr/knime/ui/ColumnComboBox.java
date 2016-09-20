@@ -21,6 +21,7 @@ package de.bund.bfr.knime.ui;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -30,8 +31,6 @@ import javax.swing.JPanel;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.node.util.DataColumnSpecListCellRenderer;
-
-import de.bund.bfr.knime.KnimeUtils;
 
 public class ColumnComboBox extends JPanel {
 
@@ -45,7 +44,7 @@ public class ColumnComboBox extends JPanel {
 
 	public ColumnComboBox(boolean optional, List<DataColumnSpec> columns) {
 		this.optional = optional;
-		this.columns = new ArrayList<>(KnimeUtils.nullToEmpty(columns));
+		this.columns = new ArrayList<>(columns != null ? columns : Collections.emptyList());
 
 		selectionBox = new JComboBox<>(new Vector<>(this.columns));
 		selectionBox.setRenderer(new DataColumnSpecListCellRenderer());

@@ -52,7 +52,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.chart.NamedShape;
@@ -260,8 +259,8 @@ public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 		public SelectTableModel(List<String> ids, Map<String, List<String>> stringColumns,
 				Map<String, List<Double>> doubleColumns, List<Color> colors, List<NamedShape> shapes) {
 			this.ids = ids;
-			this.stringColumns = KnimeUtils.nullToEmpty(stringColumns);
-			this.doubleColumns = KnimeUtils.nullToEmpty(doubleColumns);
+			this.stringColumns = stringColumns != null ? stringColumns : Collections.emptyMap();
+			this.doubleColumns = doubleColumns != null ? doubleColumns : Collections.emptyMap();
 			this.colors = colors;
 			this.shapes = shapes;
 

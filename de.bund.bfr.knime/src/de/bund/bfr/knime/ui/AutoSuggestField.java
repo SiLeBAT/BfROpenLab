@@ -35,8 +35,6 @@ import javax.swing.JTextField;
 
 import com.google.common.collect.Ordering;
 
-import de.bund.bfr.knime.KnimeUtils;
-
 public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
@@ -62,7 +60,7 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 	public void setPossibleValues(Set<String> possibleValues) {
 		String selected = (String) getSelectedItem();
 
-		this.list = Ordering.natural().sortedCopy(KnimeUtils.nullToEmpty(possibleValues));
+		this.list = Ordering.natural().sortedCopy(possibleValues != null ? possibleValues : Collections.emptySet());
 		removeAllItems();
 
 		for (String s : list) {

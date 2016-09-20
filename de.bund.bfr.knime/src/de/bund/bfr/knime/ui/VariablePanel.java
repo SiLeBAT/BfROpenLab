@@ -45,7 +45,6 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 
 public class VariablePanel extends JPanel {
@@ -65,9 +64,9 @@ public class VariablePanel extends JPanel {
 
 	public VariablePanel(Map<String, List<Double>> variables, Map<String, Double> minValues,
 			Map<String, Double> maxValues, boolean multiSelection, boolean allowSetRanges, boolean instantSliders) {
-		this.variables = KnimeUtils.nullToEmpty(variables);
-		this.minValues = new LinkedHashMap<>(KnimeUtils.nullToEmpty(minValues));
-		this.maxValues = new LinkedHashMap<>(KnimeUtils.nullToEmpty(maxValues));
+		this.variables = variables != null ? variables : Collections.emptyMap();
+		this.minValues = new LinkedHashMap<>(minValues != null ? minValues : Collections.emptyMap());
+		this.maxValues = new LinkedHashMap<>(maxValues != null ? maxValues : Collections.emptyMap());
 		selectedValues = new LinkedHashMap<>();
 		valueFields = new LinkedHashMap<>();
 		rangeButtons = new LinkedHashMap<>();

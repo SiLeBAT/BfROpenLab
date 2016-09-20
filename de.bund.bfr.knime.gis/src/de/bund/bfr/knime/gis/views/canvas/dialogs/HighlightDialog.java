@@ -48,7 +48,6 @@ import javax.swing.SwingConstants;
 import com.google.common.base.Strings;
 
 import de.bund.bfr.jung.NamedShape;
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -536,8 +535,9 @@ public class HighlightDialog extends KnimeDialog {
 	private void okButtonPressed() {
 		condition = createCondition();
 
-		Optional<String> error = KnimeUtils.nullToEmpty(checkers).stream().map(c -> c.findError(condition))
-				.filter(Objects::nonNull).findFirst();
+		Optional<String> error = checkers != null
+				? checkers.stream().map(c -> c.findError(condition)).filter(Objects::nonNull).findFirst()
+				: Optional.empty();
 
 		if (error.isPresent()) {
 			Dialogs.showErrorMessage(okButton, error.get());

@@ -24,13 +24,7 @@ import java.awt.Window;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -81,18 +75,6 @@ public class KnimeUtils {
 				return newValue;
 			}
 		}
-	}
-
-	public static <T> List<T> nullToEmpty(List<T> list) {
-		return list != null ? list : new ArrayList<>(0);
-	}
-
-	public static <T> Set<T> nullToEmpty(Set<T> set) {
-		return set != null ? set : new LinkedHashSet<>(0);
-	}
-
-	public static <V, K> Map<V, K> nullToEmpty(Map<V, K> map) {
-		return map != null ? map : new LinkedHashMap<>(0);
 	}
 
 	public static void runWhenDialogOpens(Component c, Runnable doRun) {
