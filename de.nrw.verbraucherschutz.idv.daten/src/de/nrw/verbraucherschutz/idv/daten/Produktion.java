@@ -1,8 +1,8 @@
 //
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.31 um 01:45:20 PM CEST 
+// Ã„nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
+// Generiert: 2016.09.20 um 02:24:37 PM CEST 
 //
 
 
@@ -18,20 +18,20 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java-Klasse für produktion complex type.
+ * <p>Java-Klasse fÃ¼r Produktion complex type.
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
- * &lt;complexType name="produktion">
+ * &lt;complexType name="Produktion">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="produkt" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}produkt"/>
- *         &lt;element name="produktionsumfang" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}warenumfang"/>
+ *         &lt;element name="produkt" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Produkt"/>
+ *         &lt;element name="produktionsumfang" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Warenumfang"/>
  *         &lt;element name="produziertAm" type="{http://www.w3.org/2001/XMLSchema}date"/>
- *         &lt;element name="wareneingaengeVerwendet" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}wareneingaengeVerwendet"/>
- *         &lt;element name="zusatzparameter" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}zusatzparameter"/>
+ *         &lt;element name="wareneingaengeVerwendet" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}WareneingaengeVerwendet"/>
+ *         &lt;element name="zusatzparameter" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Zusatzparameter"/>
  *       &lt;/sequence>
  *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
@@ -42,7 +42,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "produktion", propOrder = {
+@XmlType(name = "Produktion", propOrder = {
     "produkt",
     "produktionsumfang",
     "produziertAm",
@@ -51,11 +51,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 })
 public class Produktion {
 
-    @XmlElement(required = true)
+    @XmlElement(required = true, nillable = true)
     protected Produkt produkt;
-    @XmlElement(required = true)
+    @XmlElement(required = true, nillable = true)
     protected Warenumfang produktionsumfang;
-    @XmlElement(required = true)
+    @XmlElement(required = true, nillable = true)
     @XmlSchemaType(name = "date")
     protected XMLGregorianCalendar produziertAm;
     @XmlElement(required = true)

@@ -33,7 +33,7 @@ public class NRW_Importer implements MyImporter {
 
 			reader.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
 					.newSchema(Kontrollpunktmeldung.class.getResource(
-							"/de/nrw/verbraucherschutz/idv/daten/main/de.nrw.verbraucherschutz.idv.daten.2016.2.20160818.warenrueckverfolgung.transport.schema.xsd")));
+							"/de/nrw/verbraucherschutz/idv/daten/main/de.nrw.verbraucherschutz.idv.dienste.2016.2.warenrueckverfolgung.transport.schema.xsd")));
 	
 			File folder = new File(foldername);
 			if (folder.exists() && folder.isDirectory()) {
