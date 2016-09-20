@@ -442,7 +442,7 @@ public class Plotable {
 				.allMatch(v -> v != null && Double.isFinite(v));
 		boolean dataPlotable = !valueLists.isEmpty() && IntStream
 				.range(0, valueLists.values().stream().findAny().get().size()).anyMatch(containsDataAtIndex);
-		boolean paramPlotable = parameters.values().contains(null);
+		boolean paramPlotable = !parameters.values().contains(null);
 
 		if (isDataType() && isParamType()) {
 			return dataPlotable && paramPlotable;
