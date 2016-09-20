@@ -21,6 +21,7 @@ package de.bund.bfr.math;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,8 +32,8 @@ import org.nfunk.jep.ParseException;
 
 public class VectorFunction implements ValueAndJacobianFunction {
 
-	private String[] parameters;
-	private Map<String, double[]> variableValues;
+	private List<String> parameters;
+	private Map<String, List<Double>> variableValues;
 
 	private int nParams;
 	private int nValues;
@@ -40,14 +41,14 @@ public class VectorFunction implements ValueAndJacobianFunction {
 	private Node function;
 	private Map<String, Node> derivatives;
 
-	public VectorFunction(String formula, String[] parameters, Map<String, double[]> variableValues)
+	public VectorFunction(String formula, List<String> parameters, Map<String, List<Double>> variableValues)
 			throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		nParams = parameters.length;
-		nValues = variableValues.values().stream().findAny().get().length;
-		parser = new Parser(Stream.concat(Stream.of(parameters), variableValues.keySet().stream())
+		nParams = parameters.size();
+		nValues = variableValues.values().stream().findAny().get().size();
+		parser = new Parser(Stream.concat(parameters.stream(), variableValues.keySet().stream())
 				.collect(Collectors.toCollection(LinkedHashSet::new)));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
@@ -62,12 +63,12 @@ public class VectorFunction implements ValueAndJacobianFunction {
 		double[] retValue = new double[nValues];
 
 		for (int ip = 0; ip < nParams; ip++) {
-			parser.setVarValue(parameters[ip], point[ip]);
+			parser.setVarValue(parameters.get(ip), point[ip]);
 		}
 
 		for (int iv = 0; iv < nValues; iv++) {
-			for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
-				parser.setVarValue(entry.getKey(), entry.getValue()[iv]);
+			for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
+				parser.setVarValue(entry.getKey(), entry.getValue().get(iv));
 			}
 
 			try {
@@ -89,28 +90,28 @@ public class VectorFunction implements ValueAndJacobianFunction {
 			double[][] retValue = new double[nValues][nParams];
 
 			for (int ip = 0; ip < nParams; ip++) {
-				parser.setVarValue(parameters[ip], point[ip]);
+				parser.setVarValue(parameters.get(ip), point[ip]);
 			}
 
 			for (int iv = 0; iv < nValues; iv++) {
-				for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
-					parser.setVarValue(entry.getKey(), entry.getValue()[iv]);
+				for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
+					parser.setVarValue(entry.getKey(), entry.getValue().get(iv));
 				}
 
 				for (int ip = 0; ip < nParams; ip++) {
 					try {
-						double value = parser.evaluate(derivatives.get(parameters[ip]));
+						double value = parser.evaluate(derivatives.get(parameters.get(ip)));
 
 						if (!Double.isFinite(value)) {
-							parser.setVarValue(parameters[ip], point[ip] - MathUtils.DERIV_EPSILON);
+							parser.setVarValue(parameters.get(ip), point[ip] - MathUtils.DERIV_EPSILON);
 
 							double value1 = parser.evaluate(function);
 
-							parser.setVarValue(parameters[ip], point[ip] + MathUtils.DERIV_EPSILON);
+							parser.setVarValue(parameters.get(ip), point[ip] + MathUtils.DERIV_EPSILON);
 
 							double value2 = parser.evaluate(function);
 
-							parser.setVarValue(parameters[ip], point[ip]);
+							parser.setVarValue(parameters.get(ip), point[ip]);
 
 							value = (value2 - value1) / (2 * MathUtils.DERIV_EPSILON);
 						}

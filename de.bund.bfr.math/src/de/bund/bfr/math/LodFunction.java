@@ -20,6 +20,7 @@
 package de.bund.bfr.math;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,9 +32,9 @@ import org.nfunk.jep.ParseException;
 
 public class LodFunction implements MultivariateFunction {
 
-	private String[] parameters;
-	private Map<String, double[]> variableValues;
-	private double[] targetValues;
+	private List<String> parameters;
+	private Map<String, List<Double>> variableValues;
+	private List<Double> targetValues;
 	private double levelOfDetection;
 	private String sdParam;
 
@@ -42,17 +43,17 @@ public class LodFunction implements MultivariateFunction {
 	private Parser parser;
 	private Node function;
 
-	public LodFunction(String formula, String[] parameters, Map<String, double[]> variableValues, double[] targetValues,
-			double levelOfDetection, String sdParam) throws ParseException {
+	public LodFunction(String formula, List<String> parameters, Map<String, List<Double>> variableValues,
+			List<Double> targetValues, double levelOfDetection, String sdParam) throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.targetValues = targetValues;
 		this.levelOfDetection = levelOfDetection;
 		this.sdParam = sdParam;
 
-		nParams = parameters.length;
-		nValues = targetValues.length;
-		parser = new Parser(Stream.concat(Stream.of(parameters), variableValues.keySet().stream())
+		nParams = parameters.size();
+		nValues = targetValues.size();
+		parser = new Parser(Stream.concat(parameters.stream(), variableValues.keySet().stream())
 				.collect(Collectors.toCollection(LinkedHashSet::new)));
 		function = parser.parse(formula);
 	}
@@ -62,10 +63,10 @@ public class LodFunction implements MultivariateFunction {
 		double sd = Double.NaN;
 
 		for (int ip = 0; ip < nParams; ip++) {
-			if (parameters[ip].equals(sdParam)) {
+			if (parameters.get(ip).equals(sdParam)) {
 				sd = Math.abs(point[ip]);
 			} else {
-				parser.setVarValue(parameters[ip], point[ip]);
+				parser.setVarValue(parameters.get(ip), point[ip]);
 			}
 		}
 
@@ -76,8 +77,8 @@ public class LodFunction implements MultivariateFunction {
 		double logLikelihood = 0.0;
 
 		for (int iv = 0; iv < nValues; iv++) {
-			for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
-				parser.setVarValue(entry.getKey(), entry.getValue()[iv]);
+			for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
+				parser.setVarValue(entry.getKey(), entry.getValue().get(iv));
 			}
 
 			try {
@@ -89,11 +90,9 @@ public class LodFunction implements MultivariateFunction {
 
 				NormalDistribution normDist = new NormalDistribution(value, sd);
 
-				if (targetValues[iv] > levelOfDetection) {
-					logLikelihood += Math.log(normDist.density(targetValues[iv]));
-				} else {
-					logLikelihood += Math.log(normDist.cumulativeProbability(levelOfDetection));
-				}
+				logLikelihood += targetValues.get(iv) > levelOfDetection
+						? Math.log(normDist.density(targetValues.get(iv)))
+						: Math.log(normDist.cumulativeProbability(levelOfDetection));
 			} catch (ParseException e) {
 				e.printStackTrace();
 				return Double.NaN;

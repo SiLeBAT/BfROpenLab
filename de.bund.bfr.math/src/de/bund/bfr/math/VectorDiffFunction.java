@@ -19,8 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,14 +33,14 @@ import org.nfunk.jep.ParseException;
 
 public class VectorDiffFunction implements ValueAndJacobianFunction {
 
-	private String[] formulas;
-	private String[] dependentVariables;
-	private double[] initValues;
-	private String[] initParameters;
-	private String[] parameters;
-	private Map<String, double[]> variableValues;
+	private List<String> formulas;
+	private List<String> dependentVariables;
+	private List<Double> initValues;
+	private List<String> initParameters;
+	private List<String> parameters;
+	private Map<String, List<Double>> variableValues;
 	private String dependentVariable;
-	private double[] timeValues;
+	private List<Double> timeValues;
 	private String timeVariable;
 	private IntegratorFactory integrator;
 	private InterpolationFactory interpolator;
@@ -49,11 +50,11 @@ public class VectorDiffFunction implements ValueAndJacobianFunction {
 	private int nTerms;
 	private int dependentIndex;
 	private Parser parser;
-	private Node[] functions;
+	private List<Node> functions;
 
-	public VectorDiffFunction(String[] formulas, String[] dependentVariables, double[] initValues,
-			String[] initParameters, String[] parameters, Map<String, double[]> variableValues, double[] timeValues,
-			String dependentVariable, String timeVariable, IntegratorFactory integrator,
+	public VectorDiffFunction(List<String> formulas, List<String> dependentVariables, List<Double> initValues,
+			List<String> initParameters, List<String> parameters, Map<String, List<Double>> variableValues,
+			List<Double> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator,
 			InterpolationFactory interpolator) throws ParseException {
 		this.formulas = formulas;
 		this.dependentVariables = dependentVariables;
@@ -67,35 +68,32 @@ public class VectorDiffFunction implements ValueAndJacobianFunction {
 		this.integrator = integrator;
 		this.interpolator = interpolator;
 
-		nParams = parameters.length;
-		nValues = timeValues.length;
-		nTerms = formulas.length;
-		dependentIndex = Arrays.asList(dependentVariables).indexOf(dependentVariable);
-		parser = new Parser(Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
+		nParams = parameters.size();
+		nValues = timeValues.size();
+		nTerms = formulas.size();
+		dependentIndex = dependentVariables.indexOf(dependentVariable);
+		parser = new Parser(Stream.concat(Stream.concat(dependentVariables.stream(), parameters.stream()),
 				variableValues.keySet().stream()).collect(Collectors.toCollection(LinkedHashSet::new)));
-		functions = new Node[nTerms];
+		functions = new ArrayList<>();
 
-		for (int it = 0; it < nTerms; it++) {
-			functions[it] = parser.parse(formulas[it]);
+		for (String f : formulas) {
+			functions.add(parser.parse(f));
 		}
 	}
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
 		for (int ip = 0; ip < nParams; ip++) {
-			if (!Arrays.asList(initParameters).contains(parameters[ip])) {
-				parser.setVarValue(parameters[ip], point[ip]);
+			if (!initParameters.contains(parameters.get(ip))) {
+				parser.setVarValue(parameters.get(ip), point[ip]);
 			}
 		}
 
 		double[] values = new double[nTerms];
 
 		for (int it = 0; it < nTerms; it++) {
-			if (Double.isFinite(initValues[it])) {
-				values[it] = initValues[it];
-			} else {
-				values[it] = point[Arrays.asList(parameters).indexOf(initParameters[it])];
-			}
+			values[it] = initValues.get(it) != null ? initValues.get(it)
+					: point[parameters.indexOf(initParameters.get(it))];
 		}
 
 		DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues, timeVariable,
@@ -106,7 +104,7 @@ public class VectorDiffFunction implements ValueAndJacobianFunction {
 		result[0] = values[dependentIndex];
 
 		for (int iv = 1; iv < nValues; iv++) {
-			integratorInstance.integrate(f, timeValues[iv - 1], values, timeValues[iv], values);
+			integratorInstance.integrate(f, timeValues.get(iv - 1), values, timeValues.get(iv), values);
 			result[iv] = values[dependentIndex];
 		}
 

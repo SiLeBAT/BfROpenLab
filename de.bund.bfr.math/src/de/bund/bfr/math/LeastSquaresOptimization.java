@@ -51,43 +51,47 @@ public class LeastSquaresOptimization implements Optimization {
 
 	private ValueAndJacobianFunction optimizerFunction;
 
-	private String[] parameters;
-	private double[] targetValues;
+	private List<String> parameters;
+	private List<Double> targetValues;
 
 	private Map<String, Double> minValues;
 	private Map<String, Double> maxValues;
 
-	private LeastSquaresOptimization(String[] parameters, double[] targetValues) {
+	private LeastSquaresOptimization(List<String> parameters, List<Double> targetValues,
+			ValueAndJacobianFunction optimizerFunction) {
 		this.parameters = parameters;
 		this.targetValues = targetValues;
+		this.optimizerFunction = optimizerFunction;
 
 		minValues = new LinkedHashMap<>();
 		maxValues = new LinkedHashMap<>();
 	}
 
-	public LeastSquaresOptimization(String formula, String[] parameters, double[] targetValues,
-			Map<String, double[]> variableValues) throws ParseException {
-		this(parameters, targetValues);
-		optimizerFunction = new VectorFunction(formula, parameters, variableValues);
+	public static LeastSquaresOptimization createVectorOptimizer(String formula, List<String> parameters,
+			List<Double> targetValues, Map<String, List<Double>> variableValues) throws ParseException {
+		return new LeastSquaresOptimization(parameters, targetValues,
+				new VectorFunction(formula, parameters, variableValues));
 	}
 
-	public LeastSquaresOptimization(String[] formulas, String[] dependentVariables, double[] initValues,
-			String[] initParameters, String[] parameters, double[] timeValues, double[] targetValues,
-			String dependentVariable, String timeVariable, Map<String, double[]> variableValues,
-			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
-		this(parameters, targetValues);
-		optimizerFunction = new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters, parameters,
-				variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
+	public static LeastSquaresOptimization createVectorDiffOptimizer(List<String> formulas,
+			List<String> dependentVariables, List<Double> initValues, List<String> initParameters,
+			List<String> parameters, List<Double> timeValues, List<Double> targetValues, String dependentVariable,
+			String timeVariable, Map<String, List<Double>> variableValues, IntegratorFactory integrator,
+			InterpolationFactory interpolator) throws ParseException {
+		return new LeastSquaresOptimization(parameters, targetValues,
+				new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters, parameters,
+						variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator));
 	}
 
-	public LeastSquaresOptimization(String[] formulas, String[] dependentVariables, double[] initValues,
-			List<String[]> initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
-			String dependentVariable, String timeVariable, Map<String, List<double[]>> variableValues,
+	public static LeastSquaresOptimization createMultiVectorDiffOptimizer(List<String> formulas,
+			List<String> dependentVariables, List<Double> initValues, List<List<String>> initParameters,
+			List<String> parameters, List<List<Double>> timeValues, List<List<Double>> targetValues,
+			String dependentVariable, String timeVariable, Map<String, List<List<Double>>> variableValues,
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
-		this(parameters, Doubles.toArray(
-				targetValues.stream().map(v -> Doubles.asList(v)).flatMap(List::stream).collect(Collectors.toList())));
-		optimizerFunction = new MultiVectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
-				parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
+		return new LeastSquaresOptimization(parameters,
+				targetValues.stream().flatMap(List::stream).collect(Collectors.toList()),
+				new MultiVectorDiffFunction(formulas, dependentVariables, initValues, initParameters, parameters,
+						variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator));
 	}
 
 	public Map<String, Double> getMinValues() {
@@ -109,7 +113,7 @@ public class LeastSquaresOptimization implements Optimization {
 		progressListener.accept(0.0);
 
 		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
-		RealVector targetVector = new ArrayRealVector(targetValues);
+		RealVector targetVector = new ArrayRealVector(Doubles.toArray(targetValues));
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
 				values -> targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values))),
 				progress -> progressListener.accept(0.5 * progress), exec);
@@ -173,15 +177,15 @@ public class LeastSquaresOptimization implements Optimization {
 	private LeastSquaresBuilder createLeastSquaresBuilder(double[] startValues, int maxIterations) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder()
 				.model(optimizerFunction, optimizerFunction.createJacobian()).maxEvaluations(Integer.MAX_VALUE)
-				.maxIterations(maxIterations).target(targetValues).start(startValues);
+				.maxIterations(maxIterations).target(Doubles.toArray(targetValues)).start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 			builder.parameterValidator(params -> {
 
-				for (int i = 0; i < parameters.length; i++) {
+				for (int i = 0; i < parameters.size(); i++) {
 					double value = params.getEntry(i);
-					Double min = minValues.get(parameters[i]);
-					Double max = maxValues.get(parameters[i]);
+					Double min = minValues.get(parameters.get(i));
+					Double max = maxValues.get(parameters.get(i));
 
 					if (min != null && value < min) {
 						value = min;
@@ -206,12 +210,12 @@ public class LeastSquaresOptimization implements Optimization {
 		double cost = optimizerResults.getCost();
 
 		r.sse = cost * cost;
-		r.degreesOfFreedom = targetValues.length - parameters.length;
+		r.degreesOfFreedom = targetValues.size() - parameters.size();
 		r.r2 = MathUtils.getR2(r.sse, targetValues);
-		r.aic = MathUtils.getAic(parameters.length, targetValues.length, r.sse);
+		r.aic = MathUtils.getAic(parameters.size(), targetValues.size(), r.sse);
 
-		for (int i = 0; i < parameters.length; i++) {
-			r.parameterValues.put(parameters[i], optimizerResults.getPoint().getEntry(i));
+		for (int i = 0; i < parameters.size(); i++) {
+			r.parameterValues.put(parameters.get(i), optimizerResults.getPoint().getEntry(i));
 		}
 
 		if (r.degreesOfFreedom <= 0) {
@@ -234,20 +238,20 @@ public class LeastSquaresOptimization implements Optimization {
 		r.parameterPValues = new LinkedHashMap<>();
 		r.covariances = new LinkedHashMap<>();
 
-		for (int i = 0; i < parameters.length; i++) {
+		for (int i = 0; i < parameters.size(); i++) {
 			double error = Math.sqrt(r.mse * covMatrix[i][i]);
 
-			r.parameterStandardErrors.put(parameters[i], error);
+			r.parameterStandardErrors.put(parameters.get(i), error);
 
 			double tValue = optimizerResults.getPoint().getEntry(i) / error;
 
-			r.parameterTValues.put(parameters[i], tValue);
-			r.parameterPValues.put(parameters[i], MathUtils.getPValue(tValue, r.degreesOfFreedom));
+			r.parameterTValues.put(parameters.get(i), tValue);
+			r.parameterPValues.put(parameters.get(i), MathUtils.getPValue(tValue, r.degreesOfFreedom));
 		}
 
-		for (int i = 0; i < parameters.length; i++) {
-			for (int j = 0; j < parameters.length; j++) {
-				r.covariances.put(new Pair<>(parameters[i], parameters[j]), r.mse * covMatrix[i][j]);
+		for (int i = 0; i < parameters.size(); i++) {
+			for (int j = 0; j < parameters.size(); j++) {
+				r.covariances.put(new Pair<>(parameters.get(i), parameters.get(j)), r.mse * covMatrix[i][j]);
 			}
 		}
 

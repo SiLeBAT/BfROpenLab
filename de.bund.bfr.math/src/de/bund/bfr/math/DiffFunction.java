@@ -20,6 +20,7 @@
 package de.bund.bfr.math;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -29,17 +30,21 @@ import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.primitives.Doubles;
+
 public class DiffFunction implements FirstOrderDifferentialEquations {
 
 	private Parser parser;
-	private Node[] functions;
-	private String[] dependentVariables;
+	private List<Node> functions;
+	private List<String> dependentVariables;
 	private String timeVariable;
 
 	private Map<String, UnivariateFunction> variableFunctions;
 
-	public DiffFunction(Parser parser, Node[] functions, String[] dependentVariables,
-			Map<String, double[]> variableValues, String timeVariable, InterpolationFactory interpolator) {
+	private int nFunctions;
+
+	public DiffFunction(Parser parser, List<Node> functions, List<String> dependentVariables,
+			Map<String, List<Double>> variableValues, String timeVariable, InterpolationFactory interpolator) {
 		this.parser = parser;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
@@ -48,10 +53,12 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 		variableFunctions = new LinkedHashMap<>();
 		variableValues.forEach((var, values) -> {
 			if (!var.equals(timeVariable)) {
-				variableFunctions.put(var,
-						interpolator.createInterpolationFunction(variableValues.get(timeVariable), values));
+				variableFunctions.put(var, interpolator.createInterpolationFunction(
+						Doubles.toArray(variableValues.get(timeVariable)), Doubles.toArray(values)));
 			}
 		});
+
+		nFunctions = functions.size();
 	}
 
 	@Override
@@ -60,13 +67,13 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 		parser.setVarValue(timeVariable, t);
 		variableFunctions.forEach((var, function) -> parser.setVarValue(var, function.value(t)));
 
-		for (int i = 0; i < y.length; i++) {
-			parser.setVarValue(dependentVariables[i], y[i]);
+		for (int i = 0; i < nFunctions; i++) {
+			parser.setVarValue(dependentVariables.get(i), y[i]);
 		}
 
-		for (int i = 0; i < y.length; i++) {
+		for (int i = 0; i < nFunctions; i++) {
 			try {
-				double value = parser.evaluate(functions[i]);
+				double value = parser.evaluate(functions.get(i));
 
 				yDot[i] = Double.isFinite(value) ? value : Double.NaN;
 			} catch (ParseException e) {
@@ -78,6 +85,6 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 
 	@Override
 	public int getDimension() {
-		return functions.length;
+		return nFunctions;
 	}
 }

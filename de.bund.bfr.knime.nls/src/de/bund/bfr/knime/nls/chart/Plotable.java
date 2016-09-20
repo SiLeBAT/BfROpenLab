@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntPredicate;
+import java.util.stream.IntStream;
 
 import org.nfunk.jep.ParseException;
 
@@ -61,8 +63,8 @@ public class Plotable {
 	private int functionSteps;
 	private InterpolationFactory.Type interpolator;
 
-	private Map<String, double[]> valueLists;
-	private Map<String, double[]> conditionLists;
+	private Map<String, List<Double>> valueLists;
+	private Map<String, List<Double>> conditionLists;
 
 	private String function;
 	private Map<String, Double> constants;
@@ -127,11 +129,11 @@ public class Plotable {
 		this.interpolator = interpolator;
 	}
 
-	public Map<String, double[]> getValueLists() {
+	public Map<String, List<Double>> getValueLists() {
 		return valueLists;
 	}
 
-	public Map<String, double[]> getConditionLists() {
+	public Map<String, List<Double>> getConditionLists() {
 		return conditionLists;
 	}
 
@@ -212,18 +214,18 @@ public class Plotable {
 	}
 
 	public double[][] getDataPoints(String paramX, String paramY, Transform transformX, Transform transformY) {
-		double[] xList = valueLists.get(paramX);
-		double[] yList = valueLists.get(paramY);
+		List<Double> xList = valueLists.get(paramX);
+		List<Double> yList = valueLists.get(paramY);
 
 		if (xList == null || yList == null) {
 			return null;
 		}
 
-		List<Point2D.Double> points = new ArrayList<>(xList.length);
+		List<Point2D.Double> points = new ArrayList<>(xList.size());
 
-		for (int i = 0; i < xList.length; i++) {
-			double x = transformX.to(xList[i]);
-			double y = transformY.to(yList[i]);
+		for (int i = 0; i < xList.size(); i++) {
+			double x = transformX.to(xList.get(i));
+			double y = transformY.to(yList.get(i));
 
 			if (Double.isFinite(x) && Double.isFinite(y)) {
 				points.add(new Point2D.Double(x, y));
@@ -436,40 +438,21 @@ public class Plotable {
 	}
 
 	private boolean isPlotable() {
-		if (isParamType() && parameters.values().contains(null)) {
-			return false;
+		IntPredicate containsDataAtIndex = i -> valueLists.values().stream().map(list -> list.get(i))
+				.allMatch(v -> v != null && Double.isFinite(v));
+		boolean dataPlotable = !valueLists.isEmpty() && IntStream
+				.range(0, valueLists.values().stream().findAny().get().size()).anyMatch(containsDataAtIndex);
+		boolean paramPlotable = parameters.values().contains(null);
+
+		if (isDataType() && isParamType()) {
+			return dataPlotable && paramPlotable;
+		} else if (isDataType()) {
+			return dataPlotable;
+		} else if (isParamType()) {
+			return paramPlotable;
+		} else {
+			return true;
 		}
-
-		if (isDataType()) {
-			if (valueLists.isEmpty()) {
-				return false;
-			}
-
-			int n = valueLists.get(new ArrayList<>(valueLists.keySet()).get(0)).length;
-			boolean containsData = false;
-
-			for (int i = 0; i < n; i++) {
-				boolean containsNull = false;
-
-				for (double[] list : valueLists.values()) {
-					if (!Double.isFinite(list[i])) {
-						containsNull = true;
-						break;
-					}
-				}
-
-				if (!containsNull) {
-					containsData = true;
-					break;
-				}
-			}
-
-			if (!containsData) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	private boolean covarianceMatrixMissing() {

@@ -19,7 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,13 +34,13 @@ import org.nfunk.jep.ParseException;
 
 public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 
-	private String[] formulas;
-	private String[] dependentVariables;
-	private double[] initValues;
-	private List<String[]> initParameters;
-	private String[] parameters;
-	private Map<String, List<double[]>> variableValues;
-	private List<double[]> timeValues;
+	private List<String> formulas;
+	private List<String> dependentVariables;
+	private List<Double> initValues;
+	private List<List<String>> initParameters;
+	private List<String> parameters;
+	private Map<String, List<List<Double>>> variableValues;
+	private List<List<Double>> timeValues;
 	private String dependentVariable;
 	private String timeVariable;
 	private IntegratorFactory integrator;
@@ -51,11 +51,11 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 	private int nTerms;
 	private int dependentIndex;
 	private Parser parser;
-	private Node[] functions;
+	private List<Node> functions;
 
-	public MultiVectorDiffFunction(String[] formulas, String[] dependentVariables, double[] initValues,
-			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
-			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator,
+	public MultiVectorDiffFunction(List<String> formulas, List<String> dependentVariables, List<Double> initValues,
+			List<List<String>> initParameters, List<String> parameters, Map<String, List<List<Double>>> variableValues,
+			List<List<Double>> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator,
 			InterpolationFactory interpolator) throws ParseException {
 		this.formulas = formulas;
 		this.dependentVariables = dependentVariables;
@@ -69,24 +69,24 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 		this.integrator = integrator;
 		this.interpolator = interpolator;
 
-		nParams = parameters.length;
-		nValues = timeValues.stream().mapToInt(t -> t.length).sum();
-		nTerms = formulas.length;
-		dependentIndex = Arrays.asList(dependentVariables).indexOf(dependentVariable);
-		parser = new Parser(Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
+		nParams = parameters.size();
+		nValues = timeValues.stream().mapToInt(t -> t.size()).sum();
+		nTerms = formulas.size();
+		dependentIndex = dependentVariables.indexOf(dependentVariable);
+		parser = new Parser(Stream.concat(Stream.concat(dependentVariables.stream(), parameters.stream()),
 				variableValues.keySet().stream()).collect(Collectors.toCollection(LinkedHashSet::new)));
-		functions = new Node[nTerms];
+		functions = new ArrayList<>();
 
-		for (int it = 0; it < nTerms; it++) {
-			functions[it] = parser.parse(formulas[it]);
+		for (String f : formulas) {
+			functions.add(parser.parse(f));
 		}
 	}
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
 		for (int ip = 0; ip < nParams; ip++) {
-			if (!Arrays.asList(initParameters).contains(parameters[ip])) {
-				parser.setVarValue(parameters[ip], point[ip]);
+			if (!initParameters.contains(parameters.get(ip))) {
+				parser.setVarValue(parameters.get(ip), point[ip]);
 			}
 		}
 
@@ -95,9 +95,9 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 		int index = 0;
 
 		for (int i = 0; i < timeValues.size(); i++) {
-			Map<String, double[]> vv = new LinkedHashMap<>();
+			Map<String, List<Double>> vv = new LinkedHashMap<>();
 
-			for (Map.Entry<String, List<double[]>> entry : variableValues.entrySet()) {
+			for (Map.Entry<String, List<List<Double>>> entry : variableValues.entrySet()) {
 				vv.put(entry.getKey(), entry.getValue().get(i));
 			}
 
@@ -105,17 +105,14 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 			double[] values = new double[nTerms];
 
 			for (int it = 0; it < nTerms; it++) {
-				if (Double.isFinite(initValues[it])) {
-					values[it] = initValues[it];
-				} else {
-					values[it] = point[Arrays.asList(parameters).indexOf(initParameters.get(i)[it])];
-				}
+				values[it] = initValues.get(it) != null ? initValues.get(it)
+						: point[parameters.indexOf(initParameters.get(i).get(it))];
 			}
 
 			result[index++] = values[dependentIndex];
 
-			for (int j = 1; j < timeValues.get(i).length; j++) {
-				integratorInstance.integrate(f, timeValues.get(i)[j - 1], values, timeValues.get(i)[j], values);
+			for (int j = 1; j < timeValues.get(i).size(); j++) {
+				integratorInstance.integrate(f, timeValues.get(i).get(j - 1), values, timeValues.get(i).get(j), values);
 				result[index++] = values[dependentIndex];
 			}
 		}

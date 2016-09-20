@@ -42,7 +42,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
-import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
@@ -156,7 +155,7 @@ public class NlsUtils {
 		return covariances;
 	}
 
-	public static Map<String, double[]> getConditionValues(BufferedDataTable table, String id, Function f) {
+	public static Map<String, List<Double>> getConditionValues(BufferedDataTable table, String id, Function f) {
 		ListMultimap<String, Double> values = ArrayListMultimap.create();
 
 		for (DataRow row : getRowsById(table, id)) {
@@ -171,7 +170,7 @@ public class NlsUtils {
 			}
 		}
 
-		return convert(values);
+		return Multimaps.asMap(values);
 	}
 
 	public static List<Map<String, Double>> getFixedVariables(BufferedDataTable table, String id, Function f,
@@ -194,7 +193,7 @@ public class NlsUtils {
 		return values;
 	}
 
-	public static Map<String, double[]> getVariableValues(BufferedDataTable table, String id, Function f,
+	public static Map<String, List<Double>> getVariableValues(BufferedDataTable table, String id, Function f,
 			Map<String, Double> fixed) {
 		ListMultimap<String, Double> values = ArrayListMultimap.create();
 
@@ -211,10 +210,10 @@ public class NlsUtils {
 			}
 		}
 
-		return convert(values);
+		return Multimaps.asMap(values);
 	}
 
-	public static Map<String, double[]> getDiffVariableValues(BufferedDataTable table, String id, Function f) {
+	public static Map<String, List<Double>> getDiffVariableValues(BufferedDataTable table, String id, Function f) {
 		ListMultimap<String, Double> values = ArrayListMultimap.create();
 
 		for (DataRow row : getRowsById(table, id)) {
@@ -228,7 +227,7 @@ public class NlsUtils {
 
 		}
 
-		return convert(values);
+		return Multimaps.asMap(values);
 	}
 
 	public static Set<String> getVariables(Collection<Plotable> plotables) {
@@ -268,14 +267,5 @@ public class NlsUtils {
 		}
 
 		return Iterables.filter(table, row -> id.equals(IO.getString(row.getCell(idColumn))));
-
-	}
-
-	private static Map<String, double[]> convert(ListMultimap<String, Double> map) {
-		Map<String, double[]> converted = new LinkedHashMap<>();
-
-		Multimaps.asMap(map).forEach((var, list) -> converted.put(var, Doubles.toArray(list)));
-
-		return converted;
 	}
 }

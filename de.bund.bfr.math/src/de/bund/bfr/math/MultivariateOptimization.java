@@ -19,14 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleConsumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
@@ -45,21 +44,20 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.nfunk.jep.ParseException;
 
-import com.google.common.collect.ObjectArrays;
-
 import de.bund.bfr.math.MathUtils.ParamRange;
 import de.bund.bfr.math.MathUtils.StartValues;
 
 public class MultivariateOptimization implements Optimization {
 
 	private MultivariateFunction optimizerFunction;
-	private String[] parameters;
+	private List<String> parameters;
 	private String sdParam;
 
-	public MultivariateOptimization(String formula, String[] parameters, double[] targetValues,
-			Map<String, double[]> variableValues, double levelOfDetection) throws ParseException {
-		sdParam = Stream.of(parameters).collect(Collectors.joining());
-		this.parameters = ObjectArrays.concat(parameters, sdParam);
+	public MultivariateOptimization(String formula, List<String> parameters, List<Double> targetValues,
+			Map<String, List<Double>> variableValues, double levelOfDetection) throws ParseException {
+		sdParam = parameters.stream().collect(Collectors.joining());
+		this.parameters = new ArrayList<>(parameters);
+		this.parameters.add(sdParam);
 		optimizerFunction = new LodFunction(formula, this.parameters, variableValues, targetValues, levelOfDetection,
 				sdParam);
 	}
@@ -76,9 +74,7 @@ public class MultivariateOptimization implements Optimization {
 
 		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
 
-		if (Arrays.asList(parameters).contains(sdParam)) {
-			ranges[Arrays.asList(parameters).indexOf(sdParam)] = new ParamRange(1.0, 1, 1.0);
-		}
+		ranges[parameters.indexOf(sdParam)] = new ParamRange(1.0, 1, 1.0);
 
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
 				values -> optimizerFunction.value(values), progress -> progessListener.accept(0.5 * progress), exec);
@@ -108,7 +104,7 @@ public class MultivariateOptimization implements Optimization {
 				PointValuePair optimizerResults = optimizer.optimize(new MaxEval(Integer.MAX_VALUE),
 						new MaxIter(maxIterations), new InitialGuess(startValues.getValues()),
 						new ObjectiveFunction(optimizerFunction), GoalType.MAXIMIZE,
-						new NelderMeadSimplex(parameters.length));
+						new NelderMeadSimplex(parameters.size()));
 				double logLikelihood = optimizerResults.getValue() != null ? optimizerResults.getValue() : Double.NaN;
 
 				if (result.logLikelihood == null || logLikelihood > result.logLikelihood) {
@@ -130,11 +126,11 @@ public class MultivariateOptimization implements Optimization {
 
 		r.logLikelihood = optimizerResults.getValue();
 
-		for (int i = 0; i < parameters.length; i++) {
-			if (parameters[i].equals(sdParam)) {
+		for (int i = 0; i < parameters.size(); i++) {
+			if (parameters.get(i).equals(sdParam)) {
 				r.sdValue = optimizerResults.getPoint()[i];
 			} else {
-				r.parameterValues.put(parameters[i], optimizerResults.getPoint()[i]);
+				r.parameterValues.put(parameters.get(i), optimizerResults.getPoint()[i]);
 			}
 		}
 

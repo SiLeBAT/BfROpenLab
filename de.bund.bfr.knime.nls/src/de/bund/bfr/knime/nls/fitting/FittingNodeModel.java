@@ -57,7 +57,6 @@ import org.nfunk.jep.ParseException;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.Function;
@@ -368,22 +367,20 @@ public class FittingNodeModel extends NodeModel {
 		currentFitting = 0;
 
 		for (String id : ids) {
-			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
+			Map<String, List<Double>> argumentLists = new LinkedHashMap<>();
 
 			for (String indep : f.getIndependentVariables()) {
-				argumentArrays.put(indep, Doubles.toArray(argumentValues.get(indep).get(id)));
+				argumentLists.put(indep, argumentValues.get(indep).get(id));
 			}
 
 			Optimization optimizer;
 
 			if (set.getLevelOfDetection() != null) {
-				optimizer = new MultivariateOptimization(f.getTerms().get(f.getDependentVariable()),
-						f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays,
-						set.getLevelOfDetection());
+				optimizer = new MultivariateOptimization(f.getTerms().get(f.getDependentVariable()), f.getParameters(),
+						targetValues.get(id), argumentLists, set.getLevelOfDetection());
 			} else {
-				optimizer = new LeastSquaresOptimization(f.getTerms().get(f.getDependentVariable()),
-						f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)),
-						argumentArrays);
+				optimizer = LeastSquaresOptimization.createVectorOptimizer(f.getTerms().get(f.getDependentVariable()),
+						f.getParameters(), targetValues.get(id), argumentLists);
 
 				if (set.isEnforceLimits()) {
 					((LeastSquaresOptimization) optimizer).getMinValues().putAll(set.getMinStartValues());
@@ -427,10 +424,10 @@ public class FittingNodeModel extends NodeModel {
 		currentFitting = 0;
 
 		for (String id : ids) {
-			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
+			Map<String, List<Double>> argumentLists = new LinkedHashMap<>();
 
 			for (String indep : f.getIndependentVariables()) {
-				argumentArrays.put(indep, Doubles.toArray(argumentValues.get(indep).get(id)));
+				argumentLists.put(indep, argumentValues.get(indep).get(id));
 			}
 
 			List<String> valueVariables = new ArrayList<>(f.getTerms().keySet());
@@ -440,15 +437,13 @@ public class FittingNodeModel extends NodeModel {
 
 			for (String var : valueVariables) {
 				terms.add(f.getTerms().get(var));
-				initValues.add(f.getInitValues().containsKey(var) ? f.getInitValues().get(var) : Double.NaN);
+				initValues.add(f.getInitValues().get(var));
 				initParameters.add(f.getInitParameters().get(var));
 			}
 
-			LeastSquaresOptimization optimizer = new LeastSquaresOptimization(terms.toArray(new String[0]),
-					valueVariables.toArray(new String[0]), Doubles.toArray(initValues),
-					initParameters.toArray(new String[0]), f.getParameters().toArray(new String[0]),
-					Doubles.toArray(timeValues.get(id)), Doubles.toArray(targetValues.get(id)),
-					f.getDependentVariable(), f.getTimeVariable(), argumentArrays,
+			LeastSquaresOptimization optimizer = LeastSquaresOptimization.createVectorDiffOptimizer(terms,
+					valueVariables, initValues, initParameters, f.getParameters(), timeValues.get(id),
+					targetValues.get(id), f.getDependentVariable(), f.getTimeVariable(), argumentLists,
 					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()),
 					new InterpolationFactory(set.getInterpolator()));
 
@@ -493,14 +488,14 @@ public class FittingNodeModel extends NodeModel {
 
 		for (String var : valueVariables) {
 			terms.add(f.getTerms().get(var));
-			initValues.add(f.getInitValues().containsKey(var) ? f.getInitValues().get(var) : Double.NaN);
+			initValues.add(f.getInitValues().get(var));
 		}
 
-		List<double[]> timeArrays = new ArrayList<>();
-		List<double[]> targetArrays = new ArrayList<>();
-		Map<String, List<double[]>> variableArrays = new LinkedHashMap<>();
+		List<List<Double>> timeArrays = new ArrayList<>();
+		List<List<Double>> targetArrays = new ArrayList<>();
+		Map<String, List<List<Double>>> variableArrays = new LinkedHashMap<>();
 		List<String> parameters = new ArrayList<>(f.getParameters());
-		List<String[]> initParameters = new ArrayList<>();
+		List<List<String>> initParameters = new ArrayList<>();
 
 		for (String var : set.getInitValuesWithDifferentStart()) {
 			if (f.getInitValues().get(var) == null) {
@@ -515,11 +510,11 @@ public class FittingNodeModel extends NodeModel {
 		for (int i = 0; i < ids.size(); i++) {
 			String id = ids.get(i);
 
-			timeArrays.add(Doubles.toArray(timeValues.get(id)));
-			targetArrays.add(Doubles.toArray(targetValues.get(id)));
+			timeArrays.add(timeValues.get(id));
+			targetArrays.add(targetValues.get(id));
 
 			for (String var : f.getIndependentVariables()) {
-				variableArrays.get(var).add(Doubles.toArray(argumentValues.get(var).get(id)));
+				variableArrays.get(var).add(argumentValues.get(var).get(id));
 			}
 
 			for (String var : set.getInitValuesWithDifferentStart()) {
@@ -538,13 +533,12 @@ public class FittingNodeModel extends NodeModel {
 				}
 			}
 
-			initParameters.add(initParams.toArray(new String[0]));
+			initParameters.add(initParams);
 		}
 
-		LeastSquaresOptimization optimizer = new LeastSquaresOptimization(terms.toArray(new String[0]),
-				valueVariables.toArray(new String[0]), Doubles.toArray(initValues), initParameters,
-				parameters.toArray(new String[0]), timeArrays, targetArrays, f.getDependentVariable(),
-				f.getTimeVariable(), variableArrays,
+		LeastSquaresOptimization optimizer = LeastSquaresOptimization.createMultiVectorDiffOptimizer(terms,
+				valueVariables, initValues, initParameters, parameters, timeArrays, targetArrays,
+				f.getDependentVariable(), f.getTimeVariable(), variableArrays,
 				new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()),
 				new InterpolationFactory(set.getInterpolator()));
 

@@ -102,18 +102,13 @@ public class MathUtils {
 		}
 	}
 
-	public static Double getR2(double sse, double[] targetValues) {
-		if (targetValues.length < 2) {
+	public static Double getR2(double sse, List<Double> targetValues) {
+		if (targetValues.size() < 2) {
 			return null;
 		}
 
 		double targetMean = DoubleMath.mean(targetValues);
-		double targetTotalSumOfSquares = 0.0;
-
-		for (int i = 0; i < targetValues.length; i++) {
-			targetTotalSumOfSquares += Math.pow(targetValues[i] - targetMean, 2.0);
-		}
-
+		double targetTotalSumOfSquares = targetValues.stream().mapToDouble(v -> Math.pow(v - targetMean, 2.0)).sum();
 		double rSquared = 1 - sse / targetTotalSumOfSquares;
 
 		return Math.max(rSquared, 0.0);
@@ -163,7 +158,7 @@ public class MathUtils {
 		return result;
 	}
 
-	public static ParamRange[] getParamRanges(String[] parameters, Map<String, Double> minStartValues,
+	public static ParamRange[] getParamRanges(List<String> parameters, Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues, int n) {
 		final double EPSILON = DERIV_EPSILON * 10.0;
 		List<ParamRange> paramRanges = new ArrayList<>();
