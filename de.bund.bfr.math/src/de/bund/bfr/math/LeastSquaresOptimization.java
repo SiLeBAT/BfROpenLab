@@ -112,10 +112,11 @@ public class LeastSquaresOptimization implements Optimization {
 
 		progressListener.accept(0.0);
 
-		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
+		List<ParamRange> ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
 		RealVector targetVector = new ArrayRealVector(Doubles.toArray(targetValues));
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
-				values -> targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values))),
+				values -> targetVector
+						.getDistance(new ArrayRealVector(optimizerFunction.value(Doubles.toArray(values)))),
 				progress -> progressListener.accept(0.5 * progress), exec);
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		Result result = new Result();
@@ -174,10 +175,10 @@ public class LeastSquaresOptimization implements Optimization {
 		return result;
 	}
 
-	private LeastSquaresBuilder createLeastSquaresBuilder(double[] startValues, int maxIterations) {
+	private LeastSquaresBuilder createLeastSquaresBuilder(List<Double> startValues, int maxIterations) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder()
 				.model(optimizerFunction, optimizerFunction.createJacobian()).maxEvaluations(Integer.MAX_VALUE)
-				.maxIterations(maxIterations).target(Doubles.toArray(targetValues)).start(startValues);
+				.maxIterations(maxIterations).target(Doubles.toArray(targetValues)).start(Doubles.toArray(startValues));
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 			builder.parameterValidator(params -> {

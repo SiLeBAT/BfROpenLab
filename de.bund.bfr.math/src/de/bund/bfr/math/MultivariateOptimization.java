@@ -44,6 +44,8 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.primitives.Doubles;
+
 import de.bund.bfr.math.MathUtils.ParamRange;
 import de.bund.bfr.math.MathUtils.StartValues;
 
@@ -79,12 +81,13 @@ public class MultivariateOptimization implements Optimization {
 
 		progessListener.accept(0.0);
 
-		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
+		List<ParamRange> ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
 
-		ranges[parameters.indexOf(sdParam)] = new ParamRange(1.0, 1, 1.0);
+		ranges.set(parameters.indexOf(sdParam), new ParamRange(1.0, 1, 1.0));
 
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
-				values -> optimizerFunction.value(values), progress -> progessListener.accept(0.5 * progress), exec);
+				values -> optimizerFunction.value(Doubles.toArray(values)),
+				progress -> progessListener.accept(0.5 * progress), exec);
 		Result result = new Result();
 		AtomicInteger currentIteration = new AtomicInteger();
 		SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleValueChecker(1e-10, 1e-10) {
@@ -109,7 +112,7 @@ public class MultivariateOptimization implements Optimization {
 
 			try {
 				PointValuePair optimizerResults = optimizer.optimize(new MaxEval(Integer.MAX_VALUE),
-						new MaxIter(maxIterations), new InitialGuess(startValues.getValues()),
+						new MaxIter(maxIterations), new InitialGuess(Doubles.toArray(startValues.getValues())),
 						new ObjectiveFunction(optimizerFunction), GoalType.MAXIMIZE,
 						new NelderMeadSimplex(parameters.size()));
 				double logLikelihood = optimizerResults.getValue() != null ? optimizerResults.getValue() : Double.NaN;

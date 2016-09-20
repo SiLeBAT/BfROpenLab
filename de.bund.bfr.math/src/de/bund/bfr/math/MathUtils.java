@@ -20,8 +20,8 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +158,7 @@ public class MathUtils {
 		return result;
 	}
 
-	public static ParamRange[] getParamRanges(List<String> parameters, Map<String, Double> minStartValues,
+	public static List<ParamRange> getParamRanges(List<String> parameters, Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues, int n) {
 		final double EPSILON = DERIV_EPSILON * 10.0;
 		List<ParamRange> paramRanges = new ArrayList<>();
@@ -190,22 +190,19 @@ public class MathUtils {
 			}
 		}
 
-		return paramRanges.toArray(new ParamRange[0]);
+		return paramRanges;
 	}
 
-	public static List<StartValues> createStartValuesList(ParamRange[] ranges, int n,
-			ToDoubleFunction<double[]> errorFunction, DoubleConsumer progessListener, ExecutionContext exec)
+	public static List<StartValues> createStartValuesList(List<ParamRange> ranges, int n,
+			ToDoubleFunction<List<Double>> errorFunction, DoubleConsumer progessListener, ExecutionContext exec)
 			throws CanceledExecutionException {
 		List<StartValues> valuesList = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			double[] values = new double[ranges.length];
-
-			Arrays.fill(values, i + 1.0);
-			valuesList.add(new StartValues(values, Double.POSITIVE_INFINITY));
+			valuesList.add(new StartValues(Collections.nCopies(ranges.size(), i + 1.0), Double.POSITIVE_INFINITY));
 		}
 
-		int[] paramStepIndex = new int[ranges.length];
+		List<Integer> paramStepIndex = new ArrayList<>(Collections.nCopies(ranges.size(), 0));
 		boolean done = false;
 		int allStepSize = 1;
 		int count = 0;
@@ -214,13 +211,11 @@ public class MathUtils {
 			allStepSize *= range.getStepCount();
 		}
 
-		Arrays.fill(paramStepIndex, 0);
-
 		while (!done) {
-			double[] values = new double[ranges.length];
+			List<Double> values = new ArrayList<>();
 
-			for (int i = 0; i < ranges.length; i++) {
-				values[i] = ranges[i].getMin() + paramStepIndex[i] * ranges[i].getStepSize();
+			for (int i = 0; i < ranges.size(); i++) {
+				values.add(ranges.get(i).getMin() + paramStepIndex.get(i) * ranges.get(i).getStepSize());
 			}
 
 			double error = errorFunction.applyAsDouble(values);
@@ -236,15 +231,15 @@ public class MathUtils {
 			}
 
 			for (int i = 0;; i++) {
-				if (i >= ranges.length) {
+				if (i >= ranges.size()) {
 					done = true;
 					break;
 				}
 
-				paramStepIndex[i]++;
+				paramStepIndex.set(i, paramStepIndex.get(i) + 1);
 
-				if (paramStepIndex[i] >= ranges[i].getStepCount()) {
-					paramStepIndex[i] = 0;
+				if (paramStepIndex.get(i) >= ranges.get(i).getStepCount()) {
+					paramStepIndex.set(i, 0);
 				} else {
 					break;
 				}
@@ -287,15 +282,15 @@ public class MathUtils {
 
 	public static class StartValues {
 
-		private double[] values;
+		private List<Double> values;
 		private double error;
 
-		public StartValues(double[] values, double error) {
+		public StartValues(List<Double> values, double error) {
 			this.values = values;
 			this.error = error;
 		}
 
-		public double[] getValues() {
+		public List<Double> getValues() {
 			return values;
 		}
 

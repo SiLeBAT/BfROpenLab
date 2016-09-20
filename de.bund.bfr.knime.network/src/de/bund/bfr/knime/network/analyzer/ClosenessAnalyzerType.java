@@ -47,8 +47,6 @@ public class ClosenessAnalyzerType extends NumericAnalyzer<PersistentObject> imp
 
 	private static final String ID = "Closeness";
 	private static final String NAME = "Closeness Centrality (BfR)";
-	private static final String[] COLUMN_NAMES = new String[] { "Closeness" };
-	private static final DataType[] COLUMN_TYPES = new DataType[] { DoubleCell.TYPE };
 
 	private int numberOfNodes;
 	private int numberOfEdges;
@@ -57,7 +55,7 @@ public class ClosenessAnalyzerType extends NumericAnalyzer<PersistentObject> imp
 	private Map<String, Collection<String>> outgoingEdges;
 
 	public ClosenessAnalyzerType() {
-		super(COLUMN_NAMES);
+		super(new String[] { ID });
 		numberOfNodes = 0;
 		numberOfEdges = 0;
 		edgeWeights = new HashMap<>();
@@ -210,12 +208,12 @@ public class ClosenessAnalyzerType extends NumericAnalyzer<PersistentObject> imp
 
 	@Override
 	public String[] getColumnNames() {
-		return COLUMN_NAMES;
+		return new String[] { ID };
 	}
 
 	@Override
 	public DataType[] getDataTypes() {
-		return COLUMN_TYPES;
+		return new DataType[] { DoubleCell.TYPE };
 	}
 
 	@Override
