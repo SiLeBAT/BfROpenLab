@@ -43,14 +43,15 @@ import de.bund.bfr.knime.UI;
 public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
 	private static final String FILE_HISTORY_ID = "SupplyChainReaderFileHistory";
+	private static final String XML_HISTORY_ID = "SupplyChainReaderXmlHistory";
 
 	private MyKrisenInterfacesSettings set;
 
 	private JCheckBox lotBasedBox;
 	private JCheckBox backwardBox;
 	private JCheckBox anonymizeBox;
-	private JCheckBox dbBox;
-	private FilesHistoryPanel dbField;
+	private JCheckBox dbBox, xmlBox;
+	private FilesHistoryPanel dbField, xmlField;
 
 	protected MyKrisenInterfacesNodeDialog() {
 		JPanel tracingPanel = new JPanel();
@@ -68,9 +69,14 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		dbBox = new JCheckBox("Use External Database");
 		dbBox.addActionListener(e -> dbField.setEnabled(dbBox.isSelected()));
 		dbField = new FilesHistoryPanel(FILE_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
+		xmlBox = new JCheckBox("Use Xml folder");
+		xmlBox.addActionListener(e -> xmlField.setEnabled(xmlBox.isSelected()));
+		xmlField = new FilesHistoryPanel(XML_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		dbPanel.setLayout(new BoxLayout(dbPanel, BoxLayout.Y_AXIS));
 		dbPanel.add(UI.createWestPanel(UI.createBorderPanel(dbBox)));
 		dbPanel.add(UI.createTitledPanel(dbField, "Database Path"));
+		dbPanel.add(UI.createWestPanel(UI.createBorderPanel(xmlBox)));
+		dbPanel.add(UI.createTitledPanel(xmlField, "Xml Path"));
 
 		addTab("Options", UI.createNorthPanel(tracingPanel));
 		addTab("Database Connection", UI.createNorthPanel(dbPanel));
@@ -86,6 +92,9 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		anonymizeBox.setSelected(set.isAnonymize());
 		dbBox.setSelected(set.isUseExternalDb());
 		dbField.setEnabled(dbBox.isSelected());
+		xmlBox.setSelected(set.isUseXml());
+		xmlField.setEnabled(xmlBox.isSelected());
+		xmlField.setSelectedFile(set.getXmlPath());
 
 		try {
 			dbField.setSelectedFile(MyKrisenInterfacesNodeModel.removeNameOfDB(set.getDbPath()));
@@ -101,6 +110,8 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		set.setAnonymize(anonymizeBox.isSelected());
 		set.setUseExternalDb(dbBox.isSelected());
 		set.setDbPath(dbField.getSelectedFile());
+		set.setUseXml(xmlBox.isSelected());
+		set.setXmlPath(xmlField.getSelectedFile());
 		set.saveSettings(settings);
 	}
 }

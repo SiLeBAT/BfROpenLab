@@ -18,6 +18,9 @@ import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 
 public class NRW_Importer implements MyImporter {
 	
+	private HashMap<String, Kontrollpunktmeldung> kpms = null;
+	private HashMap<String, Betrieb> betriebe = null;
+	
 	public static void main(String[] args) throws JAXBException {
 		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/bbk/", null, true); // /de/nrw/verbraucherschutz/idv/daten/test/kpm_xmls/l2b_kontrollpunktmeldung-v0.2.xml
 	}
@@ -39,7 +42,8 @@ public class NRW_Importer implements MyImporter {
 			if (folder.exists() && folder.isDirectory()) {
 				File[] fs = folder.listFiles();
 				if (fs != null && fs.length > 0) {
-					HashMap<String, Kontrollpunktmeldung> kpms = new HashMap<>();
+					kpms = new HashMap<>();
+					betriebe = new HashMap<>();
 					for (File f : fs) {
 						if (f.getName().endsWith(".xml")) {
 							System.out.println("----- " + f.getName() + " -----");
@@ -47,13 +51,16 @@ public class NRW_Importer implements MyImporter {
 							Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(f)).getValue();
 							
 							System.out.println(meldung.getBetrieb().getBetriebsname());
+							if (!betriebe.containsKey(meldung.getBetrieb().getBetriebsnummer())) {
+								betriebe.put(meldung.getBetrieb().getBetriebsnummer(), meldung.getBetrieb());
+							}
 							kpms.put(meldung.getBetrieb().getBetriebsnummer(), meldung);
 							if (meldung.getWareneingaenge() != null) {
 								for (Wareneingang we : meldung.getWareneingaenge().getWareneingang()) {
 									for (Betrieb b : we.getBetrieb()) {
 										if (b.getTyp().equals("LIEFERANT")) {
-											if (!kpms.containsKey(b.getBetriebsnummer())) {
-												kpms.put(b.getBetriebsnummer(), null);
+											if (!betriebe.containsKey(b.getBetriebsnummer())) {
+												betriebe.put(b.getBetriebsnummer(), b);
 											}
 										}
 									}
@@ -63,8 +70,8 @@ public class NRW_Importer implements MyImporter {
 								for (Warenausgang wa : meldung.getWarenausgaenge().getWarenausgang()) {
 									for (Betrieb b : wa.getBetrieb()) {
 										if (b.getTyp().equals("KUNDE")) {
-											if (!kpms.containsKey(b.getBetriebsnummer())) {
-												kpms.put(b.getBetriebsnummer(), null);
+											if (!betriebe.containsKey(b.getBetriebsnummer())) {
+												betriebe.put(b.getBetriebsnummer(), b);
 											}
 										}
 									}
@@ -84,7 +91,7 @@ public class NRW_Importer implements MyImporter {
 							
 						}
 					}
-					System.out.println("Anzahl Stationen: " + kpms.size());
+					System.out.println("Anzahl Stationen: " + betriebe.size());
 				}
 			}
 		} catch (JAXBException e) {
@@ -95,5 +102,12 @@ public class NRW_Importer implements MyImporter {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	
+	public HashMap<String, Kontrollpunktmeldung> getKontrollpunktmeldungen() {
+		return kpms;
+	}
+	public HashMap<String, Betrieb> getBetriebe() {
+		return betriebe;
 	}
 }
