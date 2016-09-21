@@ -135,23 +135,23 @@ public class MathUtils {
 		return dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
 	}
 
-	public static double[][] aproxJacobianParallel(MultivariateVectorFunction[] functions, double[] point, int nPoint,
+	public static double[][] aproxJacobianParallel(List<? extends MultivariateVectorFunction> functions, double[] point,
 			int nResult) {
-		double[][] result = new double[nResult][nPoint];
+		double[][] result = new double[nResult][functions.size()];
 
-		IntStream.range(0, nPoint).parallel().forEach(ip -> {
+		IntStream.range(0, functions.size()).parallel().forEach(i -> {
 			double[] p = point.clone();
 
-			p[ip] = point[ip] - DERIV_EPSILON;
+			p[i] = point[i] - DERIV_EPSILON;
 
-			double[] result1 = functions[ip].value(p);
+			double[] result1 = functions.get(i).value(p);
 
-			p[ip] = point[ip] + DERIV_EPSILON;
+			p[i] = point[i] + DERIV_EPSILON;
 
-			double[] result2 = functions[ip].value(p);
+			double[] result2 = functions.get(i).value(p);
 
-			for (int ir = 0; ir < nResult; ir++) {
-				result[ir][ip] = (result2[ir] - result1[ir]) / (2 * DERIV_EPSILON);
+			for (int j = 0; j < nResult; j++) {
+				result[j][i] = (result2[j] - result1[j]) / (2 * DERIV_EPSILON);
 			}
 		});
 

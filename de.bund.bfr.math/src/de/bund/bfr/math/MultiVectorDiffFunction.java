@@ -20,7 +20,6 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,8 @@ import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.primitives.Doubles;
+
 public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 
 	private List<String> formulas;
@@ -39,22 +40,19 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 	private List<Double> initValues;
 	private List<List<String>> initParameters;
 	private List<String> parameters;
-	private Map<String, List<List<Double>>> variableValues;
+	private List<Map<String, List<Double>>> variableValues;
 	private List<List<Double>> timeValues;
 	private String dependentVariable;
 	private String timeVariable;
 	private IntegratorFactory integrator;
 	private InterpolationFactory interpolator;
 
-	private int nParams;
-	private int nValues;
-	private int nTerms;
 	private int dependentIndex;
 	private Parser parser;
 	private List<Node> functions;
 
 	public MultiVectorDiffFunction(List<String> formulas, List<String> dependentVariables, List<Double> initValues,
-			List<List<String>> initParameters, List<String> parameters, Map<String, List<List<Double>>> variableValues,
+			List<List<String>> initParameters, List<String> parameters, List<Map<String, List<Double>>> variableValues,
 			List<List<Double>> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator,
 			InterpolationFactory interpolator) throws ParseException {
 		this.formulas = formulas;
@@ -69,12 +67,11 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 		this.integrator = integrator;
 		this.interpolator = interpolator;
 
-		nParams = parameters.size();
-		nValues = timeValues.stream().mapToInt(t -> t.size()).sum();
-		nTerms = formulas.size();
 		dependentIndex = dependentVariables.indexOf(dependentVariable);
-		parser = new Parser(Stream.concat(Stream.concat(dependentVariables.stream(), parameters.stream()),
-				variableValues.keySet().stream()).collect(Collectors.toCollection(LinkedHashSet::new)));
+		parser = new Parser(Stream
+				.concat(Stream.concat(dependentVariables.stream(), parameters.stream()),
+						variableValues.stream().findAny().get().keySet().stream())
+				.collect(Collectors.toCollection(LinkedHashSet::new)));
 		functions = new ArrayList<>();
 
 		for (String f : formulas) {
@@ -84,56 +81,50 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		for (int ip = 0; ip < nParams; ip++) {
-			if (!initParameters.contains(parameters.get(ip))) {
-				parser.setVarValue(parameters.get(ip), point[ip]);
+		for (int i = 0; i < parameters.size(); i++) {
+			if (!initParameters.contains(parameters.get(i))) {
+				parser.setVarValue(parameters.get(i), point[i]);
 			}
 		}
 
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
-		double[] result = new double[nValues];
-		int index = 0;
+		List<Double> result = new ArrayList<>();
 
 		for (int i = 0; i < timeValues.size(); i++) {
-			Map<String, List<Double>> vv = new LinkedHashMap<>();
+			DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues.get(i),
+					timeVariable, interpolator);
+			double[] values = new double[formulas.size()];
 
-			for (Map.Entry<String, List<List<Double>>> entry : variableValues.entrySet()) {
-				vv.put(entry.getKey(), entry.getValue().get(i));
+			for (int j = 0; j < formulas.size(); j++) {
+				values[j] = initValues.get(j) != null ? initValues.get(j)
+						: point[parameters.indexOf(initParameters.get(i).get(j))];
 			}
 
-			DiffFunction f = new DiffFunction(parser, functions, dependentVariables, vv, timeVariable, interpolator);
-			double[] values = new double[nTerms];
-
-			for (int it = 0; it < nTerms; it++) {
-				values[it] = initValues.get(it) != null ? initValues.get(it)
-						: point[parameters.indexOf(initParameters.get(i).get(it))];
-			}
-
-			result[index++] = values[dependentIndex];
+			result.add(values[dependentIndex]);
 
 			for (int j = 1; j < timeValues.get(i).size(); j++) {
 				integratorInstance.integrate(f, timeValues.get(i).get(j - 1), values, timeValues.get(i).get(j), values);
-				result[index++] = values[dependentIndex];
+				result.add(values[dependentIndex]);
 			}
 		}
 
-		return result;
+		return Doubles.toArray(result);
 	}
 
 	@Override
 	public MultivariateMatrixFunction createJacobian() {
-		MultiVectorDiffFunction[] diffFunctions = new MultiVectorDiffFunction[nParams];
+		List<MultiVectorDiffFunction> diffFunctions = new ArrayList<>();
 
-		for (int ip = 0; ip < nParams; ip++) {
+		for (int i = 0; i < parameters.size(); i++) {
 			try {
-				diffFunctions[ip] = new MultiVectorDiffFunction(formulas, dependentVariables, initValues,
-						initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable,
-						integrator, interpolator);
+				diffFunctions.add(new MultiVectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
+						parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator,
+						interpolator));
 			} catch (ParseException e) {
-				e.printStackTrace();
 			}
 		}
 
-		return point -> MathUtils.aproxJacobianParallel(diffFunctions, point, nParams, nValues);
+		return point -> MathUtils.aproxJacobianParallel(diffFunctions, point,
+				timeValues.stream().mapToInt(t -> t.size()).sum());
 	}
 }

@@ -86,7 +86,7 @@ public class LeastSquaresOptimization implements Optimization {
 	public static LeastSquaresOptimization createMultiVectorDiffOptimizer(List<String> formulas,
 			List<String> dependentVariables, List<Double> initValues, List<List<String>> initParameters,
 			List<String> parameters, List<List<Double>> timeValues, List<List<Double>> targetValues,
-			String dependentVariable, String timeVariable, Map<String, List<List<Double>>> variableValues,
+			String dependentVariable, String timeVariable, List<Map<String, List<Double>>> variableValues,
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
 		return new LeastSquaresOptimization(parameters,
 				targetValues.stream().flatMap(List::stream).collect(Collectors.toList()),

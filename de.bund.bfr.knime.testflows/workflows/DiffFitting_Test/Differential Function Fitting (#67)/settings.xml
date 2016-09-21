@@ -10,13 +10,13 @@
 <entry key="FitAllAtOnce" type="xboolean" value="false"/>
 <entry key="InitValuesWithDifferentStart" type="xstring" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;%%00010&lt;java version=&quot;1.8.0_66&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;%%00010 &lt;object class=&quot;java.util.LinkedHashSet&quot;/&gt;%%00010&lt;/java&gt;%%00010"/>
 <entry key="ExpertSettings" type="xboolean" value="true"/>
-<entry key="NParameterSpace" type="xint" value="100"/>
+<entry key="NParameterSpace" type="xint" value="16"/>
 <entry key="NLevenberg" type="xint" value="1"/>
 <entry key="StopWhenSuccessful" type="xboolean" value="true"/>
 <entry key="MaxLevenbergIterations" type="xint" value="100"/>
 <entry key="EnforceLimits" type="xboolean" value="false"/>
-<entry key="MinStartValues" type="xstring" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;%%00010&lt;java version=&quot;1.8.0_66&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;%%00010 &lt;object class=&quot;java.util.LinkedHashMap&quot;&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;Dref&lt;/string&gt;%%00010   &lt;double&gt;50.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;Tref&lt;/string&gt;%%00010   &lt;double&gt;20.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;y_0&lt;/string&gt;%%00010   &lt;double&gt;11.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;z&lt;/string&gt;%%00010   &lt;double&gt;12.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010 &lt;/object&gt;%%00010&lt;/java&gt;%%00010"/>
-<entry key="MaxStartValues" type="xstring" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;%%00010&lt;java version=&quot;1.8.0_66&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;%%00010 &lt;object class=&quot;java.util.LinkedHashMap&quot;/&gt;%%00010&lt;/java&gt;%%00010"/>
+<entry key="MinStartValues" type="xstring" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;%%00010&lt;java version=&quot;1.8.0_66&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;%%00010 &lt;object class=&quot;java.util.LinkedHashMap&quot;&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;Dref&lt;/string&gt;%%00010   &lt;double&gt;100.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;Tref&lt;/string&gt;%%00010   &lt;double&gt;-10.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;y_0&lt;/string&gt;%%00010   &lt;double&gt;10.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;z&lt;/string&gt;%%00010   &lt;double&gt;10.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010 &lt;/object&gt;%%00010&lt;/java&gt;%%00010"/>
+<entry key="MaxStartValues" type="xstring" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;%%00010&lt;java version=&quot;1.8.0_66&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;%%00010 &lt;object class=&quot;java.util.LinkedHashMap&quot;&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;Dref&lt;/string&gt;%%00010   &lt;double&gt;200.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;Tref&lt;/string&gt;%%00010   &lt;double&gt;10.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;y_0&lt;/string&gt;%%00010   &lt;double&gt;12.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010  &lt;void method=&quot;put&quot;&gt;%%00010   &lt;string&gt;z&lt;/string&gt;%%00010   &lt;double&gt;20.0&lt;/double&gt;%%00010  &lt;/void&gt;%%00010 &lt;/object&gt;%%00010&lt;/java&gt;%%00010"/>
 <entry key="StartValues" type="xstring" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;%%00010&lt;java version=&quot;1.8.0_66&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;%%00010 &lt;object class=&quot;java.util.LinkedHashMap&quot;/&gt;%%00010&lt;/java&gt;%%00010"/>
 <entry key="StepSize" type="xdouble" value="0.01"/>
 <entry key="Interpolator" type="xstring" value="STEP"/>
@@ -24,7 +24,7 @@
 <config key="nodeAnnotation">
 <entry key="text" type="xstring" value=""/>
 <entry key="bgcolor" type="xint" value="16777215"/>
-<entry key="x-coordinate" type="xint" value="587"/>
+<entry key="x-coordinate" type="xint" value="167"/>
 <entry key="y-coordinate" type="xint" value="119"/>
 <entry key="width" type="xint" value="106"/>
 <entry key="height" type="xint" value="15"/>
@@ -41,8 +41,8 @@
 <entry key="node-name" type="xstring" value="Differential Function Fitting"/>
 <entry key="node-bundle-name" type="xstring" value="Nonlinear Regression Nodes"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="de.bund.bfr.knime.nls"/>
-<entry key="node-bundle-vendor" type="xstring" value="Federal Institute for Risk Assessment (BfR)"/>
-<entry key="node-bundle-version" type="xstring" value="1.1.0.qualifier"/>
+<entry key="node-bundle-vendor" type="xstring" value="German Federal Institute for Risk Assessment (BfR)"/>
+<entry key="node-bundle-version" type="xstring" value="1.1.7.qualifier"/>
 <entry key="node-feature-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-symbolic-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-vendor" type="xstring" isnull="true" value=""/>

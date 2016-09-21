@@ -493,7 +493,7 @@ public class FittingNodeModel extends NodeModel {
 
 		List<List<Double>> timeLists = new ArrayList<>();
 		List<List<Double>> targetLists = new ArrayList<>();
-		Map<String, List<List<Double>>> variableLists = new LinkedHashMap<>();
+		List<Map<String, List<Double>>> variableLists = new ArrayList<>();
 		List<String> parameters = new ArrayList<>(f.getParameters());
 		List<List<String>> initParameters = new ArrayList<>();
 
@@ -503,19 +503,19 @@ public class FittingNodeModel extends NodeModel {
 			}
 		}
 
-		for (String var : f.getIndependentVariables()) {
-			variableLists.put(var, new ArrayList<>());
-		}
-
 		for (int i = 0; i < ids.size(); i++) {
 			String id = ids.get(i);
 
 			timeLists.add(timeValues.get(id));
 			targetLists.add(targetValues.get(id));
 
+			Map<String, List<Double>> currentVariableValues = new LinkedHashMap<>();
+
 			for (String var : f.getIndependentVariables()) {
-				variableLists.get(var).add(argumentValues.get(var).get(id));
+				currentVariableValues.put(var, argumentValues.get(var).get(id));
 			}
+
+			variableLists.add(currentVariableValues);
 
 			for (String var : set.getInitValuesWithDifferentStart()) {
 				if (f.getInitValues().get(var) == null) {

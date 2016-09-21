@@ -31,6 +31,8 @@ import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.primitives.Doubles;
+
 public class VectorDiffFunction implements ValueAndJacobianFunction {
 
 	private List<String> formulas;
@@ -45,9 +47,6 @@ public class VectorDiffFunction implements ValueAndJacobianFunction {
 	private IntegratorFactory integrator;
 	private InterpolationFactory interpolator;
 
-	private int nParams;
-	private int nValues;
-	private int nTerms;
 	private int dependentIndex;
 	private Parser parser;
 	private List<Node> functions;
@@ -68,9 +67,6 @@ public class VectorDiffFunction implements ValueAndJacobianFunction {
 		this.integrator = integrator;
 		this.interpolator = interpolator;
 
-		nParams = parameters.size();
-		nValues = timeValues.size();
-		nTerms = formulas.size();
 		dependentIndex = dependentVariables.indexOf(dependentVariable);
 		parser = new Parser(Stream.concat(Stream.concat(dependentVariables.stream(), parameters.stream()),
 				variableValues.keySet().stream()).collect(Collectors.toCollection(LinkedHashSet::new)));
@@ -83,48 +79,47 @@ public class VectorDiffFunction implements ValueAndJacobianFunction {
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		for (int ip = 0; ip < nParams; ip++) {
-			if (!initParameters.contains(parameters.get(ip))) {
-				parser.setVarValue(parameters.get(ip), point[ip]);
+		for (int i = 0; i < parameters.size(); i++) {
+			if (!initParameters.contains(parameters.get(i))) {
+				parser.setVarValue(parameters.get(i), point[i]);
 			}
 		}
 
-		double[] values = new double[nTerms];
+		double[] values = new double[formulas.size()];
 
-		for (int it = 0; it < nTerms; it++) {
-			values[it] = initValues.get(it) != null ? initValues.get(it)
-					: point[parameters.indexOf(initParameters.get(it))];
+		for (int i = 0; i < formulas.size(); i++) {
+			values[i] = initValues.get(i) != null ? initValues.get(i)
+					: point[parameters.indexOf(initParameters.get(i))];
 		}
 
 		DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues, timeVariable,
 				interpolator);
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
-		double[] result = new double[nValues];
+		List<Double> result = new ArrayList<>();
 
-		result[0] = values[dependentIndex];
+		result.add(values[dependentIndex]);
 
-		for (int iv = 1; iv < nValues; iv++) {
-			integratorInstance.integrate(f, timeValues.get(iv - 1), values, timeValues.get(iv), values);
-			result[iv] = values[dependentIndex];
+		for (int i = 1; i < timeValues.size(); i++) {
+			integratorInstance.integrate(f, timeValues.get(i - 1), values, timeValues.get(i), values);
+			result.add(values[dependentIndex]);
 		}
 
-		return result;
+		return Doubles.toArray(result);
 	}
 
 	@Override
 	public MultivariateMatrixFunction createJacobian() {
-		VectorDiffFunction[] diffFunctions = new VectorDiffFunction[nParams];
+		List<VectorDiffFunction> diffFunctions = new ArrayList<>();
 
-		for (int ip = 0; ip < nParams; ip++) {
+		for (int i = 0; i < parameters.size(); i++) {
 			try {
-				diffFunctions[ip] = new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
-						parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator,
-						interpolator);
+				diffFunctions.add(
+						new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters, parameters,
+								variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator));
 			} catch (ParseException e) {
-				e.printStackTrace();
 			}
 		}
 
-		return point -> MathUtils.aproxJacobianParallel(diffFunctions, point, nParams, nValues);
+		return point -> MathUtils.aproxJacobianParallel(diffFunctions, point, timeValues.size());
 	}
 }
