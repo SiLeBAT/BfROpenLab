@@ -54,6 +54,8 @@ public class Parser {
 			parser.addDiffRule(new MacroDiffRules(parser, "log", "1/x"));
 			parser.addFunction("log10", new MacroFunction("log10", 1, "ln(x)/ln(10)", parser));
 			parser.addDiffRule(new MacroDiffRules(parser, "log10", "1/(x*ln(10))"));
+			parser.addFunction("log10", new MacroFunction("log2", 1, "ln(x)/ln(2)", parser));
+			parser.addDiffRule(new MacroDiffRules(parser, "log2", "1/(x*ln(2))"));
 
 			parser.addDiffRule(new ZeroDiffRule("<"));
 			parser.addDiffRule(new ZeroDiffRule(">"));

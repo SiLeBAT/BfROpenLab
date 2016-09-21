@@ -22,6 +22,7 @@ package de.bund.bfr.math;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.distribution.TDistribution;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -39,6 +41,7 @@ import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
 
 import com.google.common.math.DoubleMath;
+import com.google.common.primitives.Doubles;
 
 public class MathUtils {
 
@@ -253,6 +256,20 @@ public class MathUtils {
 		}
 
 		return valuesList;
+	}
+
+	public static Map<String, UnivariateFunction> createInterpolationFunctions(Map<String, List<Double>> variableValues,
+			String timeVariable, InterpolationFactory interpolator) {
+		Map<String, UnivariateFunction> variableFunctions = new LinkedHashMap<>();
+
+		variableValues.forEach((var, values) -> {
+			if (!var.equals(timeVariable)) {
+				variableFunctions.put(var, interpolator.createInterpolationFunction(
+						Doubles.toArray(variableValues.get(timeVariable)), Doubles.toArray(values)));
+			}
+		});
+
+		return variableFunctions;
 	}
 
 	public static class ParamRange {

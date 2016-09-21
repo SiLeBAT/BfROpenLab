@@ -27,6 +27,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
@@ -91,8 +95,38 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 		List<Double> result = new ArrayList<>();
 
 		for (int i = 0; i < timeValues.size(); i++) {
-			DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues.get(i),
-					timeVariable, interpolator);
+			Map<String, UnivariateFunction> variableFunctions = MathUtils
+					.createInterpolationFunctions(variableValues.get(i), timeVariable, interpolator);
+			FirstOrderDifferentialEquations f = new FirstOrderDifferentialEquations() {
+
+				@Override
+				public int getDimension() {
+					return functions.size();
+				}
+
+				@Override
+				public void computeDerivatives(double t, double[] y, double[] yDot)
+						throws MaxCountExceededException, DimensionMismatchException {
+					parser.setVarValue(timeVariable, t);
+					variableFunctions.forEach((var, function) -> parser.setVarValue(var, function.value(t)));
+
+					for (int i = 0; i < functions.size(); i++) {
+						parser.setVarValue(dependentVariables.get(i), y[i]);
+					}
+
+					for (int i = 0; i < functions.size(); i++) {
+						try {
+							double value = parser.evaluate(functions.get(i));
+
+							yDot[i] = Double.isFinite(value) ? value : Double.NaN;
+						} catch (ParseException e) {
+							e.printStackTrace();
+							yDot[i] = Double.NaN;
+						}
+					}
+				}
+			};
+
 			double[] values = new double[formulas.size()];
 
 			for (int j = 0; j < formulas.size(); j++) {

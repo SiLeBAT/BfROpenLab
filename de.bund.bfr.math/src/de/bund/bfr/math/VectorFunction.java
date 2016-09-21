@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,13 +31,13 @@ import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.primitives.Doubles;
+
 public class VectorFunction implements ValueAndJacobianFunction {
 
 	private List<String> parameters;
 	private Map<String, List<Double>> variableValues;
 
-	private int nParams;
-	private int nValues;
 	private Parser parser;
 	private Node function;
 	private Map<String, Node> derivatives;
@@ -46,8 +47,6 @@ public class VectorFunction implements ValueAndJacobianFunction {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		nParams = parameters.size();
-		nValues = variableValues.values().stream().findAny().get().size();
 		parser = new Parser(Stream.concat(parameters.stream(), variableValues.keySet().stream())
 				.collect(Collectors.toCollection(LinkedHashSet::new)));
 		function = parser.parse(formula);
@@ -60,71 +59,73 @@ public class VectorFunction implements ValueAndJacobianFunction {
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		double[] retValue = new double[nValues];
+		List<Double> result = new ArrayList<>();
 
-		for (int ip = 0; ip < nParams; ip++) {
-			parser.setVarValue(parameters.get(ip), point[ip]);
+		for (int i = 0; i < parameters.size(); i++) {
+			parser.setVarValue(parameters.get(i), point[i]);
 		}
 
-		for (int iv = 0; iv < nValues; iv++) {
+		int n = variableValues.values().stream().findAny().get().size();
+
+		for (int i = 0; i < n; i++) {
 			for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
-				parser.setVarValue(entry.getKey(), entry.getValue().get(iv));
+				parser.setVarValue(entry.getKey(), entry.getValue().get(i));
 			}
 
 			try {
 				double value = parser.evaluate(function);
 
-				retValue[iv] = Double.isFinite(value) ? value : Double.NaN;
+				result.add(Double.isFinite(value) ? value : Double.NaN);
 			} catch (ParseException e) {
 				e.printStackTrace();
-				retValue[iv] = Double.NaN;
+				result.add(Double.NaN);
 			}
 		}
 
-		return retValue;
+		return Doubles.toArray(result);
 	}
 
 	@Override
 	public MultivariateMatrixFunction createJacobian() {
 		return point -> {
-			double[][] retValue = new double[nValues][nParams];
+			double[][] result = new double[variableValues.values().stream().findAny().get().size()][parameters.size()];
 
-			for (int ip = 0; ip < nParams; ip++) {
+			for (int ip = 0; ip < parameters.size(); ip++) {
 				parser.setVarValue(parameters.get(ip), point[ip]);
 			}
 
-			for (int iv = 0; iv < nValues; iv++) {
+			for (int i = 0; i < result.length; i++) {
 				for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
-					parser.setVarValue(entry.getKey(), entry.getValue().get(iv));
+					parser.setVarValue(entry.getKey(), entry.getValue().get(i));
 				}
 
-				for (int ip = 0; ip < nParams; ip++) {
+				for (int j = 0; j < parameters.size(); j++) {
 					try {
-						double value = parser.evaluate(derivatives.get(parameters.get(ip)));
+						double value = parser.evaluate(derivatives.get(parameters.get(j)));
 
 						if (!Double.isFinite(value)) {
-							parser.setVarValue(parameters.get(ip), point[ip] - MathUtils.DERIV_EPSILON);
+							parser.setVarValue(parameters.get(j), point[j] - MathUtils.DERIV_EPSILON);
 
 							double value1 = parser.evaluate(function);
 
-							parser.setVarValue(parameters.get(ip), point[ip] + MathUtils.DERIV_EPSILON);
+							parser.setVarValue(parameters.get(j), point[j] + MathUtils.DERIV_EPSILON);
 
 							double value2 = parser.evaluate(function);
 
-							parser.setVarValue(parameters.get(ip), point[ip]);
+							parser.setVarValue(parameters.get(j), point[j]);
 
 							value = (value2 - value1) / (2 * MathUtils.DERIV_EPSILON);
 						}
 
-						retValue[iv][ip] = Double.isFinite(value) ? value : Double.NaN;
+						result[i][j] = Double.isFinite(value) ? value : Double.NaN;
 					} catch (ParseException e) {
 						e.printStackTrace();
-						retValue[iv][ip] = Double.NaN;
+						result[i][j] = Double.NaN;
 					}
 				}
 			}
 
-			return retValue;
+			return result;
 		};
 	}
 }
