@@ -9,6 +9,11 @@
 	<extension point="org.knime.workbench.repository.nodes">
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"
 			id="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory" />
+  <node
+        category-path="/foodchain"
+        factory-class="de.bund.bfr.knime.openkrise.MyKrisenInterfacesXmlNodeFactory"
+        id="de.bund.bfr.knime.openkrise.MyKrisenInterfacesXmlNodeFactory">
+  </node>
 	</extension>
 
 </plugin>

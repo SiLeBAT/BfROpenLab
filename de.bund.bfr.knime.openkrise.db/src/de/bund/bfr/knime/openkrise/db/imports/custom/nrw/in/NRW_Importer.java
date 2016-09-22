@@ -48,47 +48,51 @@ public class NRW_Importer implements MyImporter {
 						if (f.getName().endsWith(".xml")) {
 							System.out.println("----- " + f.getName() + " -----");
 
-							Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(f)).getValue();
-							
-							System.out.println(meldung.getBetrieb().getBetriebsname());
-							if (!betriebe.containsKey(meldung.getBetrieb().getBetriebsnummer())) {
-								betriebe.put(meldung.getBetrieb().getBetriebsnummer(), meldung.getBetrieb());
-							}
-							kpms.put(meldung.getBetrieb().getBetriebsnummer(), meldung);
-							if (meldung.getWareneingaenge() != null) {
-								for (Wareneingang we : meldung.getWareneingaenge().getWareneingang()) {
-									for (Betrieb b : we.getBetrieb()) {
-										if (b.getTyp().equals("LIEFERANT")) {
-											if (!betriebe.containsKey(b.getBetriebsnummer())) {
-												betriebe.put(b.getBetriebsnummer(), b);
+							try {
+								Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(f)).getValue();
+								
+								System.out.println(meldung.getBetrieb().getBetriebsname());
+								if (!betriebe.containsKey(meldung.getBetrieb().getBetriebsnummer())) {
+									betriebe.put(meldung.getBetrieb().getBetriebsnummer(), meldung.getBetrieb());
+								}
+								kpms.put(meldung.getBetrieb().getBetriebsnummer(), meldung);
+								if (meldung.getWareneingaenge() != null) {
+									for (Wareneingang we : meldung.getWareneingaenge().getWareneingang()) {
+										for (Betrieb b : we.getBetrieb()) {
+											if (b.getTyp().equals("LIEFERANT")) {
+												if (!betriebe.containsKey(b.getBetriebsnummer())) {
+													betriebe.put(b.getBetriebsnummer(), b);
+												}
 											}
 										}
-									}
-								}									
-							}
-							if (meldung.getWarenausgaenge() != null) {
-								for (Warenausgang wa : meldung.getWarenausgaenge().getWarenausgang()) {
-									for (Betrieb b : wa.getBetrieb()) {
-										if (b.getTyp().equals("KUNDE")) {
-											if (!betriebe.containsKey(b.getBetriebsnummer())) {
-												betriebe.put(b.getBetriebsnummer(), b);
+									}									
+								}
+								if (meldung.getWarenausgaenge() != null) {
+									for (Warenausgang wa : meldung.getWarenausgaenge().getWarenausgang()) {
+										for (Betrieb b : wa.getBetrieb()) {
+											if (b.getTyp().equals("KUNDE")) {
+												if (!betriebe.containsKey(b.getBetriebsnummer())) {
+													betriebe.put(b.getBetriebsnummer(), b);
+												}
 											}
 										}
-									}
-								}									
+									}									
+								}
+								/*
+								// erstmal egal:
+								meldung.getMeldung();
+								meldung.getAusloeser();
+								meldung.getWarenbestaende();
+								
+								// erstmal wichtig:
+								meldung.getBetrieb();
+								meldung.getWareneingaenge();
+								meldung.getProduktionen();
+								meldung.getWarenausgaenge();
+								*/
 							}
-							
-							// erstmal egal:
-							meldung.getMeldung();
-							meldung.getAusloeser();
-							meldung.getWarenbestaende();
-							
-							// erstmal wichtig:
-							meldung.getBetrieb();
-							meldung.getWareneingaenge();
-							meldung.getProduktionen();
-							meldung.getWarenausgaenge();
-							
+							catch (Exception e) {}
+														
 						}
 					}
 					System.out.println("Anzahl Stationen: " + betriebe.size());

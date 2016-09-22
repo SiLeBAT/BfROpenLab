@@ -19,9 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-import java.net.MalformedURLException;
-import java.nio.file.InvalidPathException;
-
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -40,67 +37,41 @@ import de.bund.bfr.knime.UI;
  * 
  * @author draaw
  */
-public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
+public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 
-	private static final String FILE_HISTORY_ID = "SupplyChainReaderFileHistory";
+	private static final String XML_HISTORY_ID = "SupplyChainReaderXmlHistory";
 
-	private MyKrisenInterfacesSettings set;
+	private MyKrisenInterfacesXmlSettings set;
 
-	private JCheckBox lotBasedBox;
-	private JCheckBox backwardBox;
 	private JCheckBox anonymizeBox;
-	private JCheckBox dbBox;
-	private FilesHistoryPanel dbField;
+	private FilesHistoryPanel xmlField;
 
-	protected MyKrisenInterfacesNodeDialog() {
+	protected MyKrisenInterfacesXmlNodeDialog() {
 		JPanel tracingPanel = new JPanel();
 
-		lotBasedBox = new JCheckBox("Read Lot-Based Network");
-		backwardBox = new JCheckBox("Ensure Backward Compatibility");
+		xmlField = new FilesHistoryPanel(XML_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		anonymizeBox = new JCheckBox("Anonymize Data");
 		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
-		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(lotBasedBox)));
-		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(backwardBox)));
+		tracingPanel.add(UI.createTitledPanel(xmlField, "Xml Path"));
 		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(anonymizeBox)));
 
-		JPanel dbPanel = new JPanel();
-
-		dbBox = new JCheckBox("Use External Database");
-		dbBox.addActionListener(e -> dbField.setEnabled(dbBox.isSelected()));
-		dbField = new FilesHistoryPanel(FILE_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
-		dbPanel.setLayout(new BoxLayout(dbPanel, BoxLayout.Y_AXIS));
-		dbPanel.add(UI.createWestPanel(UI.createBorderPanel(dbBox)));
-		dbPanel.add(UI.createTitledPanel(dbField, "Database Path"));
-
 		addTab("Options", UI.createNorthPanel(tracingPanel));
-		addTab("Database Connection", UI.createNorthPanel(dbPanel));
 
-		set = new MyKrisenInterfacesSettings();
+		set = new MyKrisenInterfacesXmlSettings();
 	}
 
 	@Override
 	protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs) {
 		set.loadSettings(settings);
-		lotBasedBox.setSelected(set.isLotBased());
-		backwardBox.setSelected(set.isEnsureBackwardCompatibility());
 		anonymizeBox.setSelected(set.isAnonymize());
-		dbBox.setSelected(set.isUseExternalDb());
-		dbField.setEnabled(dbBox.isSelected());
+		xmlField.setSelectedFile(set.getXmlPath());
 
-		try {
-			dbField.setSelectedFile(MyKrisenInterfacesNodeModel.removeNameOfDB(set.getDbPath()));
-		} catch (InvalidPathException | MalformedURLException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
-		set.setLotBased(lotBasedBox.isSelected());
-		set.setEnsureBackwardCompatibility(backwardBox.isSelected());
 		set.setAnonymize(anonymizeBox.isSelected());
-		set.setUseExternalDb(dbBox.isSelected());
-		set.setDbPath(dbField.getSelectedFile());
+		set.setXmlPath(xmlField.getSelectedFile());
 		set.saveSettings(settings);
 	}
 }
