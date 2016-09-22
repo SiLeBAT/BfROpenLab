@@ -9,6 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
  com.google.guava.new;visibility:=reexport,
  org.apache.commons.math3;visibility:=reexport,
- org.knime.ext.jep;visibility:=reexport
+ org.knime.ext.jep;visibility:=reexport,
+ de.bund.bfr.pmfml
 Export-Package: de.bund.bfr.math
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
