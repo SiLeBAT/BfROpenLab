@@ -32,12 +32,14 @@ public class MyKrisenInterfacesSettings extends NodeSettings {
 	private static final String CFG_ANONYMIZE = "anonymize";
 	private static final String CFG_USE_EXTERNAL_DB = "override";
 	private static final String CFG_DB_PATH = "filename";
+	private static final String CFG_USE_XML = "xmlUsed";
+	private static final String CFG_XML_PATH = "xmlPath";
 
 	private boolean lotBased;
 	private boolean ensureBackwardCompatibility;
 	private boolean anonymize;
-	private boolean useExternalDb;
-	private String dbPath;
+	private boolean useExternalDb, useXml;
+	private String dbPath, xmlPath;
 
 	public MyKrisenInterfacesSettings() {
 		lotBased = false;
@@ -70,6 +72,16 @@ public class MyKrisenInterfacesSettings extends NodeSettings {
 		}
 
 		try {
+			useXml = settings.getBoolean(CFG_USE_XML);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			xmlPath = settings.getString(CFG_XML_PATH);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			dbPath = settings.getString(CFG_DB_PATH);
 		} catch (InvalidSettingsException e) {
 		}
@@ -82,6 +94,8 @@ public class MyKrisenInterfacesSettings extends NodeSettings {
 		settings.addBoolean(CFG_ANONYMIZE, anonymize);
 		settings.addBoolean(CFG_USE_EXTERNAL_DB, useExternalDb);
 		settings.addString(CFG_DB_PATH, dbPath);
+		settings.addBoolean(CFG_USE_XML, useXml);
+		settings.addString(CFG_XML_PATH, xmlPath);
 	}
 
 	public boolean isLotBased() {
@@ -122,5 +136,21 @@ public class MyKrisenInterfacesSettings extends NodeSettings {
 
 	public void setDbPath(String dbPath) {
 		this.dbPath = dbPath;
+	}
+
+	public boolean isUseXml() {
+		return useXml;
+	}
+
+	public void setUseXml(boolean useXml) {
+		this.useXml = useXml;
+	}
+
+	public String getXmlPath() {
+		return xmlPath;
+	}
+
+	public void setXmlPath(String xmlPath) {
+		this.xmlPath = xmlPath;
 	}
 }
