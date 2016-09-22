@@ -37,8 +37,8 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.distribution.TDistribution;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.nfunk.jep.ParseException;
-import org.nfunk.jep.TokenMgrError;
+import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.text.parser.ParseException;
 
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
@@ -94,15 +94,22 @@ public class MathUtils {
 	}
 
 	public static Set<String> getSymbols(String formula) {
+		Set<String> symbols = new LinkedHashSet<>();
+
 		try {
-			Parser parser = new Parser();
-
-			parser.parse(formula);
-
-			return parser.getSymbols();
-		} catch (ParseException | NullPointerException | TokenMgrError e) {
-			return new LinkedHashSet<>();
+			getSymbols(ASTNode.parseFormula(formula), symbols);
+		} catch (ParseException | NullPointerException e) {
 		}
+
+		return symbols;
+	}
+
+	private static void getSymbols(ASTNode math, Set<String> symbols) {
+		if (math.isName()) {
+			symbols.add(math.getName());
+		}
+
+		math.getChildren().forEach(c -> getSymbols(c, symbols));
 	}
 
 	public static Double getR2(double sse, List<Double> targetValues) {

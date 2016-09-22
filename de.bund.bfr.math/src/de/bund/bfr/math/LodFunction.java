@@ -19,16 +19,12 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.nfunk.jep.Node;
-import org.nfunk.jep.ParseException;
+import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.text.parser.ParseException;
 
 public class LodFunction implements MultivariateFunction {
 
@@ -41,7 +37,7 @@ public class LodFunction implements MultivariateFunction {
 	private int nParams;
 	private int nValues;
 	private Parser parser;
-	private Node function;
+	private ASTNode function;
 
 	public LodFunction(String formula, List<String> parameters, Map<String, List<Double>> variableValues,
 			List<Double> targetValues, double levelOfDetection, String sdParam) throws ParseException {
@@ -53,8 +49,7 @@ public class LodFunction implements MultivariateFunction {
 
 		nParams = parameters.size();
 		nValues = targetValues.size();
-		parser = new Parser(Stream.concat(parameters.stream(), variableValues.keySet().stream())
-				.collect(Collectors.toCollection(LinkedHashSet::new)));
+		parser = new Parser();
 		function = parser.parse(formula);
 	}
 

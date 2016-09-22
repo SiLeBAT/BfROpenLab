@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="workflow.knime">
-<entry key="created_by" type="xstring" value="3.1.1.v201601291159"/>
+<entry key="created_by" type="xstring" value="3.2.2.v201609201941"/>
 <entry key="version" type="xstring" value="3.1.0"/>
 <entry key="name" type="xstring" isnull="true" value=""/>
 <config key="authorInformation">
 <entry key="authored-by" type="xstring" value="thoens"/>
 <entry key="authored-when" type="xstring" value="2016-03-09 18:26:34 +0100"/>
 <entry key="lastEdited-by" type="xstring" value="thoens"/>
-<entry key="lastEdited-when" type="xstring" value="2016-03-10 11:45:57 +0100"/>
+<entry key="lastEdited-when" type="xstring" value="2016-09-22 18:09:03 +0200"/>
 </config>
 <entry key="customDescription" type="xstring" isnull="true" value=""/>
 <entry key="state" type="xstring" value="CONFIGURED"/>
@@ -265,14 +265,14 @@
 </config>
 <config key="connection_4">
 <entry key="sourceID" type="xint" value="14"/>
-<entry key="destID" type="xint" value="25"/>
-<entry key="sourcePort" type="xint" value="1"/>
+<entry key="destID" type="xint" value="26"/>
+<entry key="sourcePort" type="xint" value="2"/>
 <entry key="destPort" type="xint" value="1"/>
 </config>
 <config key="connection_5">
 <entry key="sourceID" type="xint" value="14"/>
-<entry key="destID" type="xint" value="26"/>
-<entry key="sourcePort" type="xint" value="2"/>
+<entry key="destID" type="xint" value="25"/>
+<entry key="sourcePort" type="xint" value="1"/>
 <entry key="destPort" type="xint" value="1"/>
 </config>
 <config key="connection_6">

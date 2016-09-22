@@ -20,41 +20,32 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
-import org.nfunk.jep.Node;
-import org.nfunk.jep.ParseException;
+import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.text.parser.ParseException;
 
 import com.google.common.primitives.Doubles;
 
 public class VectorFunction implements ValueAndJacobianFunction {
 
+	private String formula;
 	private List<String> parameters;
 	private Map<String, List<Double>> variableValues;
 
 	private Parser parser;
-	private Node function;
-	private Map<String, Node> derivatives;
+	private ASTNode function;
 
 	public VectorFunction(String formula, List<String> parameters, Map<String, List<Double>> variableValues)
 			throws ParseException {
+		this.formula = formula;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		parser = new Parser(Stream.concat(parameters.stream(), variableValues.keySet().stream())
-				.collect(Collectors.toCollection(LinkedHashSet::new)));
+		parser = new Parser();
 		function = parser.parse(formula);
-		derivatives = new LinkedHashMap<>();
-
-		for (String param : parameters) {
-			derivatives.put(param, parser.differentiate(function, param));
-		}
 	}
 
 	@Override
@@ -87,45 +78,16 @@ public class VectorFunction implements ValueAndJacobianFunction {
 
 	@Override
 	public MultivariateMatrixFunction createJacobian() {
-		return point -> {
-			double[][] result = new double[variableValues.values().stream().findAny().get().size()][parameters.size()];
+		List<VectorFunction> diffFunctions = new ArrayList<>();
 
-			for (int ip = 0; ip < parameters.size(); ip++) {
-				parser.setVarValue(parameters.get(ip), point[ip]);
+		for (int i = 0; i < parameters.size(); i++) {
+			try {
+				diffFunctions.add(new VectorFunction(formula, parameters, variableValues));
+			} catch (ParseException e) {
 			}
+		}
 
-			for (int i = 0; i < result.length; i++) {
-				for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
-					parser.setVarValue(entry.getKey(), entry.getValue().get(i));
-				}
-
-				for (int j = 0; j < parameters.size(); j++) {
-					try {
-						double value = parser.evaluate(derivatives.get(parameters.get(j)));
-
-						if (!Double.isFinite(value)) {
-							parser.setVarValue(parameters.get(j), point[j] - MathUtils.DERIV_EPSILON);
-
-							double value1 = parser.evaluate(function);
-
-							parser.setVarValue(parameters.get(j), point[j] + MathUtils.DERIV_EPSILON);
-
-							double value2 = parser.evaluate(function);
-
-							parser.setVarValue(parameters.get(j), point[j]);
-
-							value = (value2 - value1) / (2 * MathUtils.DERIV_EPSILON);
-						}
-
-						result[i][j] = Double.isFinite(value) ? value : Double.NaN;
-					} catch (ParseException e) {
-						e.printStackTrace();
-						result[i][j] = Double.NaN;
-					}
-				}
-			}
-
-			return result;
-		};
+		return point -> MathUtils.aproxJacobianParallel(diffFunctions, point,
+				variableValues.values().stream().findAny().get().size());
 	}
 }

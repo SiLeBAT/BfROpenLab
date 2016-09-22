@@ -32,8 +32,8 @@ import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
-import org.nfunk.jep.Node;
-import org.nfunk.jep.ParseException;
+import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.text.parser.ParseException;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -61,10 +61,9 @@ public class Evaluator {
 
 		Parser parser = new Parser();
 
-		parserConstants.forEach((constant, value) -> parser.addConstant(constant, value));
-		parser.addVariable(varX);
+		parserConstants.forEach((constant, value) -> parser.setVarValue(constant, value));
 
-		Node f = parser.parse(formula);
+		ASTNode f = parser.parse(formula);
 		double[] valuesY = new double[valuesX.length];
 
 		Arrays.fill(valuesY, Double.NaN);
@@ -90,17 +89,36 @@ public class Evaluator {
 			return result;
 		}
 
-		Parser parser = new Parser();
-
-		parserConstants.forEach((constant, value) -> parser.addConstant(constant, value));
-		parser.addVariable(varX);
-
 		List<String> paramList = new ArrayList<>(covariances.keySet());
-		Node f = parser.parse(formula);
-		Map<String, Node> derivatives = new LinkedHashMap<>();
+		Map<String, double[]> derivValues = new LinkedHashMap<>();
+		Map<String, ParseException> exceptions = new LinkedHashMap<>();
 
-		for (String param : paramList) {
-			derivatives.put(param, parser.differentiate(f, param));
+		paramList.parallelStream().forEach(param -> {
+			Map<String, Double> constantsMinus = new LinkedHashMap<>(parserConstants);
+			Map<String, Double> constantsPlus = new LinkedHashMap<>(parserConstants);
+			double value = parserConstants.get(param);
+
+			constantsMinus.put(param, value - MathUtils.DERIV_EPSILON);
+			constantsPlus.put(param, value + MathUtils.DERIV_EPSILON);
+
+			double[] deriv = new double[valuesX.length];
+
+			try {
+				double[] valuesMinus = getFunctionPoints(constantsMinus, formula, varX, valuesX);
+				double[] valuesPlus = getFunctionPoints(constantsPlus, formula, varX, valuesX);
+
+				for (int i = 0; i < valuesX.length; i++) {
+					deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * MathUtils.DERIV_EPSILON);
+				}
+
+				derivValues.put(param, deriv);
+			} catch (ParseException e) {
+				exceptions.put(param, e);
+			}
+		});
+
+		if (!exceptions.isEmpty()) {
+			throw exceptions.values().stream().findAny().get();
 		}
 
 		double[] valuesY = new double[valuesX.length];
@@ -109,17 +127,14 @@ public class Evaluator {
 		Arrays.fill(valuesY, Double.NaN);
 
 		loop: for (int index = 0; index < valuesX.length; index++) {
-			parser.setVarValue(varX, valuesX[index]);
-
 			double variance = 0.0;
 			int n = paramList.size();
-			double[] derivValues = new double[n];
 
 			for (int i = 0; i < n; i++) {
 				String param = paramList.get(i);
+				double value = derivValues.get(param)[index];
 
-				derivValues[i] = parser.evaluate(derivatives.get(param));
-				variance += derivValues[i] * derivValues[i] * covariances.get(param).get(param);
+				variance += value * value * covariances.get(param).get(param);
 
 				if (!Double.isFinite(variance)) {
 					continue loop;
@@ -128,8 +143,11 @@ public class Evaluator {
 
 			for (int i = 0; i < n - 1; i++) {
 				for (int j = i + 1; j < n; j++) {
-					variance += 2.0 * derivValues[i] * derivValues[j]
-							* covariances.get(paramList.get(i)).get(paramList.get(j));
+					String param1 = paramList.get(i);
+					String param2 = paramList.get(j);
+
+					variance += 2.0 * derivValues.get(param1)[index] * derivValues.get(param2)[index]
+							* covariances.get(param1).get(param2);
 
 					if (!Double.isFinite(variance)) {
 						continue loop;
@@ -158,14 +176,12 @@ public class Evaluator {
 			return result;
 		}
 
-		List<Node> fs = new ArrayList<>();
+		List<ASTNode> fs = new ArrayList<>();
 		List<String> valueVariables = new ArrayList<>();
 		double[] values = new double[functions.size()];
 		Parser parser = new Parser();
 
-		parserConstants.forEach((constant, value) -> parser.addConstant(constant, value));
-		parser.addVariable(dependentVariable);
-		independentVariables.keySet().forEach(var -> parser.addVariable(var));
+		parserConstants.forEach((constant, value) -> parser.setVarValue(constant, value));
 
 		int index = 0;
 

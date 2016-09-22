@@ -38,7 +38,7 @@ import org.apache.commons.math3.linear.SingularMatrixException;
 import org.apache.commons.math3.util.Pair;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.nfunk.jep.ParseException;
+import org.sbml.jsbml.text.parser.ParseException;
 
 import com.google.common.primitives.Doubles;
 

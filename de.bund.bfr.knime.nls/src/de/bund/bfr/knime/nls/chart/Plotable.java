@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
-import org.nfunk.jep.ParseException;
+import org.sbml.jsbml.text.parser.ParseException;
 
 import de.bund.bfr.math.Evaluator;
 import de.bund.bfr.math.IntegratorFactory;

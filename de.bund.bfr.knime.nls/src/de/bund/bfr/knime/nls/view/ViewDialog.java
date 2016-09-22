@@ -29,7 +29,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
-import org.nfunk.jep.ParseException;
+import org.sbml.jsbml.text.parser.ParseException;
 
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;

@@ -20,11 +20,8 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -32,8 +29,8 @@ import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
-import org.nfunk.jep.Node;
-import org.nfunk.jep.ParseException;
+import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.text.parser.ParseException;
 
 import com.google.common.primitives.Doubles;
 
@@ -53,7 +50,7 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 
 	private int dependentIndex;
 	private Parser parser;
-	private List<Node> functions;
+	private List<ASTNode> functions;
 
 	public MultiVectorDiffFunction(List<String> formulas, List<String> dependentVariables, List<Double> initValues,
 			List<List<String>> initParameters, List<String> parameters, List<Map<String, List<Double>>> variableValues,
@@ -72,10 +69,7 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 		this.interpolator = interpolator;
 
 		dependentIndex = dependentVariables.indexOf(dependentVariable);
-		parser = new Parser(Stream
-				.concat(Stream.concat(dependentVariables.stream(), parameters.stream()),
-						variableValues.stream().findAny().get().keySet().stream())
-				.collect(Collectors.toCollection(LinkedHashSet::new)));
+		parser = new Parser();
 		functions = new ArrayList<>();
 
 		for (String f : formulas) {
