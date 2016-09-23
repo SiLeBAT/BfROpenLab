@@ -19,11 +19,6 @@ public class NRW_Exporter {
 			JAXBContext context = JAXBContext.newInstance(Analyseergebnis.class);
 			writer = context.createMarshaller();
 			writer.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-			/*
-			writer.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-					.newSchema(Analyseergebnis.class.getResource(
-							"/de/nrw/verbraucherschutz/idv/daten/main/de.nrw.verbraucherschutz.idv.dienste.2016.2.warenrueckverfolgung.transport.schema.xsd")));
-			*/
 			writer.marshal(ae, System.out);
 		} catch (JAXBException e) {
 			e.printStackTrace();
