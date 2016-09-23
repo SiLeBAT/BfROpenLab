@@ -48,9 +48,13 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in.NRW_Importer;
+import de.nrw.verbraucherschutz.idv.daten.Analyseergebnis;
 import de.nrw.verbraucherschutz.idv.daten.Betrieb;
+import de.nrw.verbraucherschutz.idv.daten.Bewertung;
+import de.nrw.verbraucherschutz.idv.daten.Dokument;
 import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktmeldung;
 import de.nrw.verbraucherschutz.idv.daten.Lieferung;
+import de.nrw.verbraucherschutz.idv.daten.Meldung;
 import de.nrw.verbraucherschutz.idv.daten.Produkt;
 import de.nrw.verbraucherschutz.idv.daten.Produktion;
 import de.nrw.verbraucherschutz.idv.daten.Warenausgang;
@@ -363,5 +367,12 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, "Lieferscheinnummer", createCell(l == null ? null : l.getLieferscheinNummer()));
 		
 		return from + ";;;" + to + ";;;" + los + ";;;" + ld;
+	}
+	
+	private void generateAnalyseErgebnis(Meldung meldung, Dokument doc, Bewertung b) {
+		Analyseergebnis ae = new Analyseergebnis();
+		ae.setMeldung(meldung);
+		ae.getDokument().add(doc);
+		ae.setBewertung(b);
 	}
 }
