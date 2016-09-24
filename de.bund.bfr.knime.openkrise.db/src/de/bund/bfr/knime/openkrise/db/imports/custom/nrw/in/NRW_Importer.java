@@ -22,7 +22,8 @@ public class NRW_Importer implements MyImporter {
 	private HashMap<String, Betrieb> betriebe = null;
 	
 	public static void main(String[] args) throws JAXBException {
-		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/bbk/", null, true); // /de/nrw/verbraucherschutz/idv/daten/test/kpm_xmls/l2b_kontrollpunktmeldung-v0.2.xml
+		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/bbk/", null, true);
+		//new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/", null, true);
 	}
 	
 	@Override

@@ -21,7 +21,6 @@ package de.bund.bfr.knime.openkrise;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -49,20 +48,12 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in.NRW_Importer;
-import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out.NRW_Exporter;
-import de.nrw.verbraucherschutz.idv.daten.Analyseergebnis;
 import de.nrw.verbraucherschutz.idv.daten.Betrieb;
-import de.nrw.verbraucherschutz.idv.daten.Bewertung;
-import de.nrw.verbraucherschutz.idv.daten.Content;
-import de.nrw.verbraucherschutz.idv.daten.Dokument;
-import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktbewertung;
 import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktmeldung;
 import de.nrw.verbraucherschutz.idv.daten.Lieferung;
-import de.nrw.verbraucherschutz.idv.daten.Meldung;
 import de.nrw.verbraucherschutz.idv.daten.Produkt;
 import de.nrw.verbraucherschutz.idv.daten.Produktion;
 import de.nrw.verbraucherschutz.idv.daten.Warenausgang;
-import de.nrw.verbraucherschutz.idv.daten.Warenbewegungsbewertung;
 import de.nrw.verbraucherschutz.idv.daten.Wareneingang;
 import de.nrw.verbraucherschutz.idv.daten.WareneingangVerwendet;
 import de.nrw.verbraucherschutz.idv.daten.Warenumfang;
@@ -372,27 +363,5 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, "Lieferscheinnummer", createCell(l == null ? null : l.getLieferscheinNummer()));
 		
 		return from + ";;;" + to + ";;;" + los + ";;;" + ld;
-	}
-	
-	private void generateAnalyseErgebnis(Meldung meldung) {
-		Analyseergebnis ae = new Analyseergebnis();
-		ae.setMeldung(meldung);
-		// Report hierrein
-		Dokument doc = new Dokument();
-		Content content = new Content();
-		content.setContentType("");
-		content.setValue(null);
-		doc.setContent(content);
-		ae.getDokument().add(doc);
-		// Scores hierrein
-		Bewertung b = new Bewertung();
-		ae.setBewertung(b);
-		Kontrollpunktbewertung kpb = new Kontrollpunktbewertung(); 
-		Warenbewegungsbewertung wbb = new Warenbewegungsbewertung();
-		wbb.setValue(new BigDecimal(1.0));
-		kpb.getWarenbewegungsbewertung().add(wbb);
-		b.setKontrollpunktbewertung(kpb);
-		NRW_Exporter e = new NRW_Exporter();
-		e.doExport(ae);
-	}
+	}	
 }

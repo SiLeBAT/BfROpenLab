@@ -38,7 +38,6 @@ import javax.xml.bind.annotation.XmlType;
  * 
  * 
  */
-@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Analyseergebnis", namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", propOrder = {
     "meldung",
