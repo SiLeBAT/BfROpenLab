@@ -85,82 +85,19 @@ public class Evaluator {
 				extraVariance, degreesOfFreedom);
 		double[] result = errorResults.getIfPresent(function);
 
-		if (result != null) {
-			return result;
+		if (result == null) {
+			result = getErrors(valuesX, parserConstants, covariances, extraVariance, degreesOfFreedom,
+					new ParameterFunction() {
+
+						@Override
+						public double[] getValuesY(Map<String, Double> parameterValues) throws ParseException {
+							return getFunctionPoints(parameterValues, formula, varX, valuesX);
+						}
+					});
+			errorResults.put(function, result);
 		}
 
-		List<String> paramList = new ArrayList<>(covariances.keySet());
-		Map<String, double[]> derivValues = new LinkedHashMap<>();
-		Map<String, ParseException> exceptions = new LinkedHashMap<>();
-
-		paramList.parallelStream().forEach(param -> {
-			Map<String, Double> constantsMinus = new LinkedHashMap<>(parserConstants);
-			Map<String, Double> constantsPlus = new LinkedHashMap<>(parserConstants);
-			double value = parserConstants.get(param);
-
-			constantsMinus.put(param, value - MathUtils.DERIV_EPSILON);
-			constantsPlus.put(param, value + MathUtils.DERIV_EPSILON);
-
-			double[] deriv = new double[valuesX.length];
-
-			try {
-				double[] valuesMinus = getFunctionPoints(constantsMinus, formula, varX, valuesX);
-				double[] valuesPlus = getFunctionPoints(constantsPlus, formula, varX, valuesX);
-
-				for (int i = 0; i < valuesX.length; i++) {
-					deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * MathUtils.DERIV_EPSILON);
-				}
-
-				derivValues.put(param, deriv);
-			} catch (ParseException e) {
-				exceptions.put(param, e);
-			}
-		});
-
-		if (!exceptions.isEmpty()) {
-			throw exceptions.values().stream().findAny().get();
-		}
-
-		double[] valuesY = new double[valuesX.length];
-		double conf95 = MathUtils.get95PercentConfidence(degreesOfFreedom);
-
-		Arrays.fill(valuesY, Double.NaN);
-
-		loop: for (int index = 0; index < valuesX.length; index++) {
-			double variance = 0.0;
-			int n = paramList.size();
-
-			for (int i = 0; i < n; i++) {
-				String param = paramList.get(i);
-				double value = derivValues.get(param)[index];
-
-				variance += value * value * covariances.get(param).get(param);
-
-				if (!Double.isFinite(variance)) {
-					continue loop;
-				}
-			}
-
-			for (int i = 0; i < n - 1; i++) {
-				for (int j = i + 1; j < n; j++) {
-					String param1 = paramList.get(i);
-					String param2 = paramList.get(j);
-
-					variance += 2.0 * derivValues.get(param1)[index] * derivValues.get(param2)[index]
-							* covariances.get(param1).get(param2);
-
-					if (!Double.isFinite(variance)) {
-						continue loop;
-					}
-				}
-			}
-
-			valuesY[index] = Math.sqrt(variance + extraVariance) * conf95;
-		}
-
-		errorResults.put(function, valuesY);
-
-		return valuesY;
+		return result;
 	}
 
 	public static double[] getDiffPoints(Map<String, Double> parserConstants, Map<String, String> functions,
@@ -259,10 +196,25 @@ public class Evaluator {
 				interpolator, covariances, extraVariance, degreesOfFreedom);
 		double[] result = errorDiffResults.getIfPresent(function);
 
-		if (result != null) {
-			return result;
+		if (result == null) {
+			result = getErrors(valuesX, parserConstants, covariances, extraVariance, degreesOfFreedom,
+					new ParameterFunction() {
+
+						@Override
+						public double[] getValuesY(Map<String, Double> parameterValues) throws ParseException {
+							return getDiffPoints(parameterValues, functions, initValues, initParameters, conditionLists,
+									dependentVariable, independentVariables, varX, valuesX, integrator, interpolator);
+						}
+					});
+			errorDiffResults.put(function, result);
 		}
 
+		return result;
+	}
+
+	private static double[] getErrors(double[] valuesX, Map<String, Double> parserConstants,
+			Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom,
+			ParameterFunction f) throws ParseException {
 		List<String> paramList = new ArrayList<>(covariances.keySet());
 		Map<String, double[]> derivValues = new LinkedHashMap<>();
 		Map<String, ParseException> exceptions = new LinkedHashMap<>();
@@ -278,12 +230,8 @@ public class Evaluator {
 			double[] deriv = new double[valuesX.length];
 
 			try {
-				double[] valuesMinus = getDiffPoints(constantsMinus, functions, initValues, initParameters,
-						conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
-						interpolator);
-				double[] valuesPlus = getDiffPoints(constantsPlus, functions, initValues, initParameters,
-						conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
-						interpolator);
+				double[] valuesMinus = f.getValuesY(constantsMinus);
+				double[] valuesPlus = f.getValuesY(constantsPlus);
 
 				for (int i = 0; i < valuesX.length; i++) {
 					deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * MathUtils.DERIV_EPSILON);
@@ -335,8 +283,6 @@ public class Evaluator {
 
 			valuesY[index] = Math.sqrt(variance + extraVariance) * conf95;
 		}
-
-		errorDiffResults.put(function, valuesY);
 
 		return valuesY;
 	}
@@ -513,5 +459,10 @@ public class Evaluator {
 			return super.equals(other) && Objects.equals(covariances, other.covariances)
 					&& extraVariance == other.extraVariance && degreesOfFreedom == other.degreesOfFreedom;
 		}
+	}
+
+	private interface ParameterFunction {
+
+		double[] getValuesY(Map<String, Double> parameterValues) throws ParseException;
 	}
 }
