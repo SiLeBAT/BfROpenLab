@@ -28,8 +28,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.exception.DimensionMismatchException;
-import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.sbml.jsbml.ASTNode;
@@ -133,36 +131,8 @@ public class Evaluator {
 
 		Map<String, UnivariateFunction> variableFunctions = MathUtils.createInterpolationFunctions(conditionLists, varX,
 				interpolator);
-		FirstOrderDifferentialEquations f = new FirstOrderDifferentialEquations() {
-
-			@Override
-			public int getDimension() {
-				return functions.size();
-			}
-
-			@Override
-			public void computeDerivatives(double t, double[] y, double[] yDot)
-					throws MaxCountExceededException, DimensionMismatchException {
-				parser.setVarValue(varX, t);
-				variableFunctions.forEach((var, function) -> parser.setVarValue(var, function.value(t)));
-
-				for (int i = 0; i < functions.size(); i++) {
-					parser.setVarValue(valueVariables.get(i), y[i]);
-				}
-
-				for (int i = 0; i < functions.size(); i++) {
-					try {
-						double value = parser.evaluate(fs.get(i));
-
-						yDot[i] = Double.isFinite(value) ? value : Double.NaN;
-					} catch (ParseException e) {
-						e.printStackTrace();
-						yDot[i] = Double.NaN;
-					}
-				}
-			}
-		};
-
+		FirstOrderDifferentialEquations f = MathUtils.createDiffEquations(parser, fs, valueVariables, varX,
+				variableFunctions);
 		FirstOrderIntegrator instance = integrator.createIntegrator();
 		double diffValue = conditionLists.get(varX).get(0);
 		int depIndex = valueVariables.indexOf(dependentVariable);

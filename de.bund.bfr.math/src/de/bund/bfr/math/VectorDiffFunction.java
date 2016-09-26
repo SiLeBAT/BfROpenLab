@@ -22,10 +22,9 @@ package de.bund.bfr.math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.exception.DimensionMismatchException;
-import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.sbml.jsbml.ASTNode;
@@ -93,36 +92,8 @@ public class VectorDiffFunction implements ValueAndJacobianFunction {
 					: point[parameters.indexOf(initParameters.get(i))];
 		}
 
-		FirstOrderDifferentialEquations f = new FirstOrderDifferentialEquations() {
-
-			@Override
-			public int getDimension() {
-				return functions.size();
-			}
-
-			@Override
-			public void computeDerivatives(double t, double[] y, double[] yDot)
-					throws MaxCountExceededException, DimensionMismatchException {
-				parser.setVarValue(timeVariable, t);
-				variableFunctions.forEach((var, function) -> parser.setVarValue(var, function.value(t)));
-
-				for (int i = 0; i < functions.size(); i++) {
-					parser.setVarValue(dependentVariables.get(i), y[i]);
-				}
-
-				for (int i = 0; i < functions.size(); i++) {
-					try {
-						double value = parser.evaluate(functions.get(i));
-
-						yDot[i] = Double.isFinite(value) ? value : Double.NaN;
-					} catch (ParseException e) {
-						e.printStackTrace();
-						yDot[i] = Double.NaN;
-					}
-				}
-			}
-		};
-
+		FirstOrderDifferentialEquations f = MathUtils.createDiffEquations(parser, functions, dependentVariables,
+				timeVariable, variableFunctions);
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
 		List<Double> result = new ArrayList<>();
 

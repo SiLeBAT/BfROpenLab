@@ -35,6 +35,9 @@ import java.util.stream.IntStream;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.distribution.TDistribution;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.ASTNode;
@@ -263,6 +266,39 @@ public class MathUtils {
 		}
 
 		return valuesList;
+	}
+
+	public static FirstOrderDifferentialEquations createDiffEquations(Parser parser, List<ASTNode> functions,
+			List<String> dependentVariables, String timeVariable, Map<String, UnivariateFunction> variableFunctions) {
+		return new FirstOrderDifferentialEquations() {
+
+			@Override
+			public int getDimension() {
+				return functions.size();
+			}
+
+			@Override
+			public void computeDerivatives(double t, double[] y, double[] yDot)
+					throws MaxCountExceededException, DimensionMismatchException {
+				parser.setVarValue(timeVariable, t);
+				variableFunctions.forEach((var, function) -> parser.setVarValue(var, function.value(t)));
+
+				for (int i = 0; i < functions.size(); i++) {
+					parser.setVarValue(dependentVariables.get(i), y[i]);
+				}
+
+				for (int i = 0; i < functions.size(); i++) {
+					try {
+						double value = parser.evaluate(functions.get(i));
+
+						yDot[i] = Double.isFinite(value) ? value : Double.NaN;
+					} catch (ParseException e) {
+						e.printStackTrace();
+						yDot[i] = Double.NaN;
+					}
+				}
+			}
+		};
 	}
 
 	public static Map<String, UnivariateFunction> createInterpolationFunctions(Map<String, List<Double>> variableValues,
