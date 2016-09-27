@@ -22,8 +22,8 @@ public class NRW_Importer implements MyImporter {
 	private HashMap<String, Betrieb> betriebe = null;
 	
 	public static void main(String[] args) throws JAXBException {
-		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/bbk/", null, true);
-		//new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/", null, true);
+		//new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/bbk/", null, true);
+		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/tst/", null, true);
 	}
 	
 	@Override
