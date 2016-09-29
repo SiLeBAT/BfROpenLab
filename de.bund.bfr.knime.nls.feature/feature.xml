@@ -34,6 +34,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.apache.commons.math3"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.svg"/>
+      <import plugin="org.eclipse.jdt.annotation" version="2.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
