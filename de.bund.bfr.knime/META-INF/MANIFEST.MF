@@ -6,7 +6,7 @@ Bundle-Version: 1.1.7.qualifier
 Bundle-Activator: de.bund.bfr.knime.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.eclipse.ui;visibility:=reexport,
- org.knime.base;bundle-version="3.1.0";visibility:=reexport,
+ org.knime.base;bundle-version="3.2.0";visibility:=reexport,
  edu.umd.cs.findbugs.annotations;visibility:=reexport,
  com.google.guava.new;visibility:=reexport,
  org.eclipse.jdt.annotation;bundle-version="2.0.0";visibility:=reexport

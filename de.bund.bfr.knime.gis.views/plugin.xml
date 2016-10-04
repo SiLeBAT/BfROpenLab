@@ -3,18 +3,11 @@
 <plugin>
 
 	<extension point="org.knime.workbench.repository.nodes">
-		<node category-path="/gisnodes"
-			factory-class="de.bund.bfr.knime.gis.views.regionvisualizer.RegionVisualizerNodeFactory" id="de.bund.bfr.knime.gis.views.regionvisualizer.RegionVisualizerNodeFactory" />
-		<node category-path="/gisnodes"
-			factory-class="de.bund.bfr.knime.gis.views.regiontoregionvisualizer.RegionToRegionVisualizerNodeFactory"
-			id="de.bund.bfr.knime.gis.views.regiontoregionvisualizer.RegionToRegionVisualizerNodeFactory" />
-		<node category-path="/gisnodes"
-			factory-class="de.bund.bfr.knime.gis.views.locationvisualizer.LocationVisualizerNodeFactory" id="de.bund.bfr.knime.gis.views.locationvisualizer.LocationVisualizerNodeFactory" />
-		<node category-path="/gisnodes"
-			factory-class="de.bund.bfr.knime.gis.views.locationtolocationvisualizer.LocationToLocationVisualizerNodeFactory"
-			id="de.bund.bfr.knime.gis.views.locationtolocationvisualizer.LocationToLocationVisualizerNodeFactory" />
-		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.views.graphvisualizer.GraphVisualizerNodeFactory"
-			id="de.bund.bfr.knime.gis.views.graphvisualizer.GraphVisualizerNodeFactory" />
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.views.regionvisualizer.RegionVisualizerNodeFactory"/>
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.views.regiontoregionvisualizer.RegionToRegionVisualizerNodeFactory"/>
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.views.locationvisualizer.LocationVisualizerNodeFactory"/>
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.views.locationtolocationvisualizer.LocationToLocationVisualizerNodeFactory"/>
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.views.graphvisualizer.GraphVisualizerNodeFactory"/>
 	</extension>
 
 </plugin>

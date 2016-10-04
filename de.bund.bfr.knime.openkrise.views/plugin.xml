@@ -3,8 +3,7 @@
 <plugin>
 
 	<extension point="org.knime.workbench.repository.nodes">
-		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory"
-			id="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory" />
+		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory"/>
 	</extension>
 
 </plugin>

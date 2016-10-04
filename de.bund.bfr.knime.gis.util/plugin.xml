@@ -3,14 +3,12 @@
 <plugin>
 
 	<extension point="org.knime.workbench.repository.categories">
-		<category icon="icons/gis.png" level-id="gisnodes" name="GIS Nodes" path="/" />
+		<category icon="icons/gis.png" level-id="gisnodes" name="GIS Nodes" path="/"/>
 	</extension>
 
 	<extension point="org.knime.workbench.repository.nodes">
-		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.geocode.GeocodingNodeFactory"
-			id="de.bund.bfr.knime.gis.util.geocoding.GeocodingNodeFactory" />
-		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory"
-			id="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory" />
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.geocode.GeocodingNodeFactory"/>
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory"/>
 	</extension>
 
 </plugin>
