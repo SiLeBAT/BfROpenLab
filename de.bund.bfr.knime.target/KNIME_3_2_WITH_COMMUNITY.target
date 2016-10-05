@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.2 TP With Community" sequenceNumber="8">
+<?pde version="3.8"?><target name="KNIME 3.2 TP With Community" sequenceNumber="9">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -21,6 +21,10 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="de.bund.bfr.knime.esri.feature.feature.group" version="1.4.0.v201605041233"/>
 <repository location="http://tech.knime.org/update/community-contributions/trusted/3.2"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="nl.esciencecenter.e3dchem.knime.testing.plugin" version="1.0.0"/>
+<repository location="https://3d-e-chem.github.io/updates"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
