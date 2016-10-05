@@ -5,15 +5,15 @@ import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
 
 public class MyNamespaceMapper extends NamespacePrefixMapper {
 
-	  private static final String NS1_PREFIX = "p";
+	  private static final String NS1_PREFIX = "tran";
 	  private static final String NS1_URI = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport";
-	  private static final String NS2_PREFIX = "p1";
+	  private static final String NS2_PREFIX = "wrv";
 	  private static final String NS2_URI = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung";
-	  private static final String NS3_PREFIX = "p2";
+	  private static final String NS3_PREFIX = "kat";
 	  private static final String NS3_URI = "http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem";
-	  private static final String NS4_PREFIX = "p3";
+	  private static final String NS4_PREFIX = "dok";
 	  private static final String NS4_URI = "http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument";
-	  private static final String NS5_PREFIX = "p4";
+	  private static final String NS5_PREFIX = "kom";
 	  private static final String NS5_URI = "http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation";
 
   @Override
