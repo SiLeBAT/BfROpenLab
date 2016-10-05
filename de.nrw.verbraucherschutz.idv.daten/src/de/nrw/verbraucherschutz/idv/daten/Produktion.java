@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.09.20 um 02:24:37 PM CEST 
+// Generiert: 2016.10.05 um 10:29:10 PM CEST 
 //
 
 
@@ -31,7 +31,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *         &lt;element name="produktionsumfang" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Warenumfang"/>
  *         &lt;element name="produziertAm" type="{http://www.w3.org/2001/XMLSchema}date"/>
  *         &lt;element name="wareneingaengeVerwendet" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}WareneingaengeVerwendet"/>
- *         &lt;element name="zusatzparameter" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Zusatzparameter"/>
  *       &lt;/sequence>
  *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
@@ -46,8 +45,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "produkt",
     "produktionsumfang",
     "produziertAm",
-    "wareneingaengeVerwendet",
-    "zusatzparameter"
+    "wareneingaengeVerwendet"
 })
 public class Produktion {
 
@@ -60,8 +58,6 @@ public class Produktion {
     protected XMLGregorianCalendar produziertAm;
     @XmlElement(required = true)
     protected WareneingaengeVerwendet wareneingaengeVerwendet;
-    @XmlElement(required = true, nillable = true)
-    protected Zusatzparameter zusatzparameter;
     @XmlAttribute(name = "id")
     protected String id;
 
@@ -159,30 +155,6 @@ public class Produktion {
      */
     public void setWareneingaengeVerwendet(WareneingaengeVerwendet value) {
         this.wareneingaengeVerwendet = value;
-    }
-
-    /**
-     * Ruft den Wert der zusatzparameter-Eigenschaft ab.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Zusatzparameter }
-     *     
-     */
-    public Zusatzparameter getZusatzparameter() {
-        return zusatzparameter;
-    }
-
-    /**
-     * Legt den Wert der zusatzparameter-Eigenschaft fest.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Zusatzparameter }
-     *     
-     */
-    public void setZusatzparameter(Zusatzparameter value) {
-        this.zusatzparameter = value;
     }
 
     /**

@@ -12,7 +12,7 @@
 		Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW
 		Projekt: IDV
 		Titel: Datenformat für die Übermittlung von Warenrückverfolgungsinformationen
-		Version: 2016.2.20160920
+		Version: 2016.2.20161004
 		Autor: Georg Fleischer (CGI)
 	!-->
 
@@ -42,8 +42,8 @@
 	<xs:complexType name="Analyseergebnis">
 		<xs:sequence>
 			<xs:element name="meldung" type="wrv:Meldung"/>
- 			<xs:element maxOccurs="unbounded" name="dokument" type="dok:dokument"/>
- 			<xs:element name="bewertung" type="wrv:Bewertung"/>
+ 			<xs:element minOccurs="0" maxOccurs="unbounded" name="dokument" type="dok:dokument"/>
+ 			<xs:element minOccurs="0" name="bewertung" type="wrv:Bewertung"/>
 		</xs:sequence>
 	</xs:complexType>
 

@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.09.20 um 02:24:37 PM CEST 
+// Generiert: 2016.10.05 um 10:29:10 PM CEST 
 //
 
 
@@ -13,7 +13,6 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -28,8 +27,8 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="meldung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Meldung"/>
- *         &lt;element name="dokument" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument}dokument" maxOccurs="unbounded"/>
- *         &lt;element name="bewertung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Bewertung"/>
+ *         &lt;element name="dokument" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument}dokument" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="bewertung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Bewertung" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -48,9 +47,9 @@ public class Analyseergebnis {
 
     @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true)
     protected Meldung meldung;
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport")
     protected List<Dokument> dokument;
-    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport", required = true)
+    @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport")
     protected Bewertung bewertung;
 
     /**

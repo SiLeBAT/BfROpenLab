@@ -8,7 +8,7 @@
 
 	<!-- Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW 
 		Projekt: IDV Titel: Datenformat für die Übermittlung von Warenrückverfolgungsinformationen 
-		Version: 2016.2.20160920 Autor: Georg Fleischer (CGI) ! -->
+		Version: 2016.2.20161004 Autor: Georg Fleischer (CGI) ! -->
 
 	<xs:import
 		namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem"
@@ -72,7 +72,6 @@
 			<xs:element nillable="true" name="produktionsumfang" type="Warenumfang" />
 			<xs:element nillable="true" name="produziertAm" type="xs:date" />
 			<xs:element name="wareneingaengeVerwendet" type="WareneingaengeVerwendet" />
-			<xs:element nillable="true" name="zusatzparameter" type="Zusatzparameter" />
 		</xs:sequence>
 		<xs:attribute name="id" type="xs:string" />
 	</xs:complexType>
@@ -125,17 +124,18 @@
 	
 	<xs:complexType name="Warenbestand">
 		<xs:sequence>
-			<xs:element name="betrieb" type="Betrieb" />
+			<xs:element maxOccurs="unbounded" name="betrieb" type="Betrieb" />
 			<xs:element name="warenumfang" type="Warenumfang" />
 			<xs:element name="produkt" type="Produkt" />
 		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" />
 	</xs:complexType>
 
 	<xs:complexType name="Ausloeser">
 		<xs:sequence>
-			<xs:element name="vorgaengerMeldung" type="xs:string" minOccurs="0" />
-			<xs:element name="wareneingaenge" type="Wareneingaenge" minOccurs="0" />
-			<xs:element name="warenausgaenge" type="Warenausgaenge" minOccurs="0" />
+			<xs:element name="vorgaengerMeldung" type="xs:string" minOccurs="0"/>
+			<xs:element name="wareneingaenge" type="Wareneingaenge" minOccurs="0"/>
+			<xs:element name="warenausgaenge" type="Warenausgaenge" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 

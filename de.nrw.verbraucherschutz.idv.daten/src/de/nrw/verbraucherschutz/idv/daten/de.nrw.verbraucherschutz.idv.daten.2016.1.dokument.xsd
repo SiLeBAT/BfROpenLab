@@ -11,7 +11,7 @@
 		Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW
 		Projekt: IDV
 		Titel: Datenformat für die Übermittlung von Dokumenten
-		Version: 2016.1.20160822
+		Version: 2016.2.20161004
 		Autor: Georg Fleischer (CGI)
 	!-->
 	 
@@ -46,7 +46,7 @@ Das Attribut contentTyp des Contents enthält den mimeType des Dokuments (z.B. a
 	</xs:complexType>
 	<xs:complexType name="metadaten">
 		<xs:sequence>
-			<xs:element name="dokId" type="xs:string">
+			<xs:element nillable="true" name="dokId" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>Die dokId ist eine DMS weit eindeutig Id. Sie wird vom DMS erzeugt. Somit ist sie beim ersten upload eines Dokuments nicht gefüllt. </xs:documentation>
 				</xs:annotation>

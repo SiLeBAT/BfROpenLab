@@ -64,7 +64,7 @@ public class NRW_Exporter {
 	        DocumentBuilder db = dbf.newDocumentBuilder();
 	        Document document = db.newDocument();
 			writer.marshal(jaxbWrappedHeader, document);
-
+// minOccurs="0"
 			MessageFactory factory = MessageFactory.newInstance();
 	        SOAPMessage soapMsg = factory.createMessage();
 			SOAPPart part = soapMsg.getSOAPPart();
