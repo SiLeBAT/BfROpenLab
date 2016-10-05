@@ -26,7 +26,7 @@ public class Test {
 
 		reader.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
 				.newSchema(Kontrollpunktmeldung.class.getResource(
-						"/de/nrw/verbraucherschutz/idv/daten/main/de.nrw.verbraucherschutz.idv.dienste.2016.2.warenrueckverfolgung.transport.schema.xsd")));
+						"/de/nrw/verbraucherschutz/idv/dienste/de.nrw.verbraucherschutz.idv.dienste.2016.2.warenrueckverfolgung.transport.schema.xsd")));
 
 		Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(
 				getClass().getResource("/de/nrw/verbraucherschutz/idv/daten/test/l2b_kontrollpunktmeldung-v0.2.xml")
