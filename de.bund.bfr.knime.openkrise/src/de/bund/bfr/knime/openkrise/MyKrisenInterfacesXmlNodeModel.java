@@ -61,6 +61,8 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import com.google.common.io.Files;
+
 import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in.NRW_Importer;
 import de.nrw.verbraucherschutz.idv.daten.Betrieb;
 import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktmeldung;
@@ -199,15 +201,16 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    client.register(HttpAuthenticationFeature.basic("bfr_admin", "Ifupofetu843"));
 		    WebTarget service = client.target(UriBuilder.fromUri("https://foodrisklabs.bfr.bund.de/de.bund.bfr.busstopp/").build());
 		    InputStream stream = service.path("rest").path("items").path("files").request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
-	        FileOutputStream fileStream = new FileOutputStream("/Users/arminweiser/Desktop/t.zip");
+		    File tempFileIn = File.createTempFile("temp", ".zip");
+	        FileOutputStream fileStream = new FileOutputStream(tempFileIn);
 	        IOUtils.copy(stream, fileStream);
 	        fileStream.flush();
 	        fileStream.close();
 	        
-		    tempDir = File.createTempFile("temp", Long.toString(System.nanoTime()));
+		    tempDir = Files.createTempDir();
 	        UnzipUtility unzipper = new UnzipUtility();
 	        try {
-	            unzipper.unzip((ZipInputStream) stream, tempDir.getAbsolutePath());
+	            unzipper.unzip(tempFileIn, tempDir.getAbsolutePath());
 	            xmlFolder = tempDir.getAbsolutePath();
 	        } catch (Exception ex) {
 	            // some errors occurred
@@ -243,26 +246,28 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		BufferedDataContainer stationContainer = exec.createDataContainer(specS);
 		DataCell[] cells = new DataCell[specS.getNumColumns()];
 		
-		// Station fill cells
-		long index = 0;
-		for (Betrieb b : betriebe.values()) {
-			if (b != null) {
-				fillCell(specS, cells, TracingColumns.ID, createCell(b.getBetriebsnummer()));
-				fillCell(specS, cells, TracingColumns.STATION_ID, createCell(b.getBetriebsnummer()));
-				fillCell(specS, cells, TracingColumns.STATION_NAME, createCell(b.getBetriebsname()));
-				fillCell(specS, cells, TracingColumns.STATION_STREET, createCell(b.getStrasse()));
-				fillCell(specS, cells, TracingColumns.STATION_HOUSENO, createCell(b.getHausnummer()));
-				fillCell(specS, cells, TracingColumns.STATION_ZIP, createCell(b.getPlz()));
-				fillCell(specS, cells, TracingColumns.STATION_CITY, createCell(b.getOrt()));
-				fillCell(specS, cells, TracingColumns.STATION_COUNTRY, createCell(b.getLand()));
-				//fillCell(specS, cells, TracingColumns.STATION_COUNTRY, createCell("DE"));
-				
-				fillCell(specS, cells, "Bemerkung", createCell(b.getBemerkung()));
-				fillCell(specS, cells, "EgZulassungsnummer", createCell(b.getEgZulassungsnummer()));
-				fillCell(specS, cells, "Lat", createCell(b.getGeoPositionLatitude() == null ? null : b.getGeoPositionLatitude().doubleValue()));
-				fillCell(specS, cells, "Lon", createCell(b.getGeoPositionLongitude() == null ? null : b.getGeoPositionLongitude().doubleValue()));
-				
-				stationContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index++), cells));				
+		if (betriebe != null) {
+			// Station fill cells
+			long index = 0;
+			for (Betrieb b : betriebe.values()) {
+				if (b != null) {
+					fillCell(specS, cells, TracingColumns.ID, createCell(b.getBetriebsnummer()));
+					fillCell(specS, cells, TracingColumns.STATION_ID, createCell(b.getBetriebsnummer()));
+					fillCell(specS, cells, TracingColumns.STATION_NAME, createCell(b.getBetriebsname()));
+					fillCell(specS, cells, TracingColumns.STATION_STREET, createCell(b.getStrasse()));
+					fillCell(specS, cells, TracingColumns.STATION_HOUSENO, createCell(b.getHausnummer()));
+					fillCell(specS, cells, TracingColumns.STATION_ZIP, createCell(b.getPlz()));
+					fillCell(specS, cells, TracingColumns.STATION_CITY, createCell(b.getOrt()));
+					fillCell(specS, cells, TracingColumns.STATION_COUNTRY, createCell(b.getLand()));
+					//fillCell(specS, cells, TracingColumns.STATION_COUNTRY, createCell("DE"));
+					
+					fillCell(specS, cells, "Bemerkung", createCell(b.getBemerkung()));
+					fillCell(specS, cells, "EgZulassungsnummer", createCell(b.getEgZulassungsnummer()));
+					fillCell(specS, cells, "Lat", createCell(b.getGeoPositionLatitude() == null ? null : b.getGeoPositionLatitude().doubleValue()));
+					fillCell(specS, cells, "Lon", createCell(b.getGeoPositionLongitude() == null ? null : b.getGeoPositionLongitude().doubleValue()));
+					
+					stationContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index++), cells));				
+				}
 			}
 		}
 		exec.checkCanceled();
@@ -291,69 +296,71 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		BufferedDataContainer deliveryContainer = exec.createDataContainer(specD);
 		cells = new DataCell[specD.getNumColumns()];
 		
-		// Delivery fill cells
-		index = 0;
 		HashMap<String, List<String>> identicalLieferungen = new HashMap<>();
 		List<String[]> linkList = new ArrayList<>();
-		HashMap<String, String> weIDs = new HashMap<>();
-		for (Kontrollpunktmeldung meldung : kpms.values()) {
-			if (meldung.getWareneingaenge() != null) {
-				for (Wareneingang we : meldung.getWareneingaenge().getWareneingang()) {
-					for (Betrieb b : we.getBetrieb()) {
-						if (b.getTyp().equals("LIEFERANT") && b.getBetriebsnummer() != null && meldung.getBetrieb().getBetriebsnummer() != null) {							
-							String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), meldung.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung());
-							if (!identicalLieferungen.containsKey(deliveryKey)) {
-								List<String> l = new ArrayList<String>();
-								l.add("D" + index);								
-								identicalLieferungen.put(deliveryKey, l);
-								deliveryContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index), cells));
+		if (kpms != null) {
+			// Delivery fill cells
+			long index = 0;
+			HashMap<String, String> weIDs = new HashMap<>();
+			for (Kontrollpunktmeldung meldung : kpms.values()) {
+				if (meldung.getWareneingaenge() != null) {
+					for (Wareneingang we : meldung.getWareneingaenge().getWareneingang()) {
+						for (Betrieb b : we.getBetrieb()) {
+							if (b.getTyp().equals("LIEFERANT") && b.getBetriebsnummer() != null && meldung.getBetrieb().getBetriebsnummer() != null) {							
+								String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), meldung.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung());
+								if (!identicalLieferungen.containsKey(deliveryKey)) {
+									List<String> l = new ArrayList<String>();
+									l.add("D" + index);								
+									identicalLieferungen.put(deliveryKey, l);
+									deliveryContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index), cells));
+								}
+								else {
+									List<String> l = identicalLieferungen.get(deliveryKey);
+									l.add("D" + index);								
+								}
+								weIDs.put(we.getId(), "D" + index);
+								index++;
 							}
-							else {
-								List<String> l = identicalLieferungen.get(deliveryKey);
-								l.add("D" + index);								
-							}
-							weIDs.put(we.getId(), "D" + index);
-							index++;
 						}
-					}
-				}									
-			}
-			HashMap<String, Produktion> prods = new HashMap<>();
-			if (meldung.getProduktionen() != null) {
-				for (Produktion p : meldung.getProduktionen().getProduktion()) {
-					if (p.getWareneingaengeVerwendet() != null) prods.put(p.getId(), p);
+					}									
 				}
-			}
-			if (meldung.getWarenausgaenge() != null) {
-				for (Warenausgang wa : meldung.getWarenausgaenge().getWarenausgang()) {
-					for (Betrieb b : wa.getBetrieb()) {
-						if (b.getTyp().equals("KUNDE") && b.getBetriebsnummer() != null && meldung.getBetrieb().getBetriebsnummer() != null) {
-							String deliveryKey = fillDeliveries(specD, cells, "D" + index, meldung.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung());
-							if (!identicalLieferungen.containsKey(deliveryKey)) {
-								List<String> l = new ArrayList<String>();
-								l.add("D" + index);								
-								identicalLieferungen.put(deliveryKey, l);
-								deliveryContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index), cells));
-							}
-							else {
-								List<String> l = identicalLieferungen.get(deliveryKey);
-								l.add("D" + index);								
-							}
-							if (prods.containsKey(wa.getProduktionId())) {
-								Produktion p = prods.get(wa.getProduktionId());
-								for (WareneingangVerwendet wev : p.getWareneingaengeVerwendet().getWareneingangVerwendet()) {
-									if (weIDs.containsKey(wev.getWareneingangId())) {
-										String[] link = new String[2];
-										link[0] = weIDs.get(wev.getWareneingangId());
-										link[1] = "D" + index;
-										linkList.add(link);
+				HashMap<String, Produktion> prods = new HashMap<>();
+				if (meldung.getProduktionen() != null) {
+					for (Produktion p : meldung.getProduktionen().getProduktion()) {
+						if (p.getWareneingaengeVerwendet() != null) prods.put(p.getId(), p);
+					}
+				}
+				if (meldung.getWarenausgaenge() != null) {
+					for (Warenausgang wa : meldung.getWarenausgaenge().getWarenausgang()) {
+						for (Betrieb b : wa.getBetrieb()) {
+							if (b.getTyp().equals("KUNDE") && b.getBetriebsnummer() != null && meldung.getBetrieb().getBetriebsnummer() != null) {
+								String deliveryKey = fillDeliveries(specD, cells, "D" + index, meldung.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung());
+								if (!identicalLieferungen.containsKey(deliveryKey)) {
+									List<String> l = new ArrayList<String>();
+									l.add("D" + index);								
+									identicalLieferungen.put(deliveryKey, l);
+									deliveryContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index), cells));
+								}
+								else {
+									List<String> l = identicalLieferungen.get(deliveryKey);
+									l.add("D" + index);								
+								}
+								if (prods.containsKey(wa.getProduktionId())) {
+									Produktion p = prods.get(wa.getProduktionId());
+									for (WareneingangVerwendet wev : p.getWareneingaengeVerwendet().getWareneingangVerwendet()) {
+										if (weIDs.containsKey(wev.getWareneingangId())) {
+											String[] link = new String[2];
+											link[0] = weIDs.get(wev.getWareneingangId());
+											link[1] = "D" + index;
+											linkList.add(link);
+										}
 									}
 								}
+								index++;
 							}
-							index++;
 						}
-					}
-				}									
+					}									
+				}
 			}
 		}
 		deliveryContainer.close();

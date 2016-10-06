@@ -19,6 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -51,6 +54,12 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 
 		xmlField = new FilesHistoryPanel(XML_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		useBusstopBox = new JCheckBox("Use Busstop");
+		useBusstopBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	xmlField.setEnabled(!useBusstopBox.isSelected());
+            }
+        });
 		anonymizeBox = new JCheckBox("Anonymize Data");
 		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
 		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(useBusstopBox)));
@@ -68,7 +77,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		useBusstopBox.setSelected(set.isBusstop());
 		anonymizeBox.setSelected(set.isAnonymize());
 		xmlField.setSelectedFile(set.getXmlPath());
-
+		xmlField.setEnabled(!useBusstopBox.isSelected());
 	}
 
 	@Override

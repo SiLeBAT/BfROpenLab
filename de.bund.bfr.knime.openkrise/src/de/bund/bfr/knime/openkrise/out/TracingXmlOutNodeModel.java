@@ -2,14 +2,28 @@ package de.bund.bfr.knime.openkrise.out;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.GregorianCalendar;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -139,7 +153,23 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		ae.setBewertung(b);
 		b.setKontrollpunktbewertung(kpb);
 		NRW_Exporter e = new NRW_Exporter();
-		e.doExport(ae, m_save.getStringValue(), true);
+		ByteArrayOutputStream soap = e.doExport(ae, m_save.getStringValue(), true);
+		if (soap != null) {
+		    File tempFile = File.createTempFile("t", ".soap");
+		    FileOutputStream fos = new FileOutputStream(tempFile); 
+			try {
+			    soap.writeTo(fos);
+			} catch(IOException ioe) {
+				this.setWarningMessage(ioe.getMessage());
+			    ioe.printStackTrace();
+			} finally {
+			    fos.close();
+			}
+			upload("bfr_admin", "Ifupofetu843", tempFile, 0);
+		}
+		else {
+			this.setWarningMessage("soap is null");
+		}
 
 		return null;
     }
@@ -227,5 +257,27 @@ public class TracingXmlOutNodeModel extends NodeModel {
     	XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
     	return date2;
     }
+	
+	private void upload(String usr, String pwd, File file, long id) throws Exception {
+	    final Client client = ClientBuilder.newBuilder()
+	    		.register(HttpAuthenticationFeature.basic(usr, pwd))
+	    		.register(MultiPartFeature.class)
+	    		.build();
+	    WebTarget t = client.target(UriBuilder.fromUri("https://foodrisklabs.bfr.bund.de/de.bund.bfr.busstopp/").build()).path("rest").path("items").path(""+id).path("upload");
+
+	    FileDataBodyPart filePart = new FileDataBodyPart("file", file);
+	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName("report.soap").build()); // file.getName()
+
+	    FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+	    MultiPart multipartEntity = formDataMultiPart.bodyPart(filePart);
+
+	    Response response = t.request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
+	    System.out.println(response.getStatus() + " \n" + response.readEntity(String.class));
+
+	    response.close();
+	    formDataMultiPart.close();
+	    multipartEntity.close();
+	}
+	
 }
 

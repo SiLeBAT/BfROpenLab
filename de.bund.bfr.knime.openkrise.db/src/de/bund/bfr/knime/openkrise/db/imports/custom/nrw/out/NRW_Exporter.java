@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,8 +45,8 @@ public class NRW_Exporter {
 		new NRW_Exporter().doExport(ae, null, true);
 	}
 	
-	public boolean doExport(Analyseergebnis ae, String filename, boolean xmlStyleOutput) throws SAXException {
-		boolean result = true;
+	public ByteArrayOutputStream doExport(Analyseergebnis ae, String filename, boolean xmlStyleOutput) throws SAXException {
+		ByteArrayOutputStream result = null;
 		Marshaller writer;
 		try {
 			ObjectFactory objectFactory = new ObjectFactory();
@@ -141,10 +142,12 @@ public class NRW_Exporter {
 			    
 			    Transformer transformer = TransformerFactory.newInstance().newTransformer();
 			    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			    transformer.transform(new DOMSource(root), new StreamResult(System.out));    				
+			    //transformer.transform(new DOMSource(root), new StreamResult(System.out));    				
+			    transformer.transform(new DOMSource(root), new StreamResult(result));    				
 			}
 			else {
-				soapMsg.writeTo(System.out);				
+				//soapMsg.writeTo(System.out);				
+				soapMsg.writeTo(result);				
 			}
 		  
 			//FileOutputStream fOut = new FileOutputStream("SoapMessage.xml");
