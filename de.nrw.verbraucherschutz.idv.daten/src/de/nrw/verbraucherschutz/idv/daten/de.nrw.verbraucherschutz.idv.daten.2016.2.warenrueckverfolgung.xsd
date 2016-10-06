@@ -133,9 +133,9 @@
 
 	<xs:complexType name="Ausloeser">
 		<xs:sequence>
-			<xs:element name="vorgaengerMeldung" type="xs:string" minOccurs="0"/>
-			<xs:element name="wareneingaenge" type="Wareneingaenge" minOccurs="0"/>
-			<xs:element name="warenausgaenge" type="Warenausgaenge" minOccurs="0"/>
+			<xs:element name="vorgaengerMeldung" type="xs:string" />
+			<xs:element name="wareneingaenge" type="Wareneingaenge" />
+			<xs:element name="warenausgaenge" type="Warenausgaenge" />
 		</xs:sequence>
 	</xs:complexType>
 

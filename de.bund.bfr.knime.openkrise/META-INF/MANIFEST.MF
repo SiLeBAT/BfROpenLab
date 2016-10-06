@@ -3,7 +3,15 @@ Bundle-ManifestVersion: 2
 Bundle-Name: MyKrisenInterfaces-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise; singleton:=true
 Bundle-Version: 1.1.7.qualifier
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/jersey-client.jar,
+ lib/jersey-common.jar,
+ lib/javax.ws.rs-api-2.0.1.jar,
+ lib/jersey-media-multipart-2.22.2.jar,
+ lib/hk2-api-2.4.0-b34.jar,
+ lib/jersey-guava-2.22.2.jar,
+ lib/hk2-utils-2.4.0-b34.jar,
+ lib/hk2-locator-2.4.0-b34.jar
 Bundle-Activator: de.bund.bfr.knime.openkrise.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: de.bund.bfr.knime.gis;visibility:=reexport,

@@ -36,4 +36,8 @@ public class MyNamespaceMapper extends NamespacePrefixMapper {
   public String[] getPreDeclaredNamespaceUris() {
       return new String[] {NS1_URI,NS2_URI,NS3_URI,NS4_URI,NS5_URI};
   }
+  
+  public static String[] getPreDeclaredNamespacePrefixes() {
+      return new String[] {NS1_PREFIX,NS2_PREFIX,NS3_PREFIX,NS4_PREFIX,NS5_PREFIX};
+  }
 }

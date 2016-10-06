@@ -43,15 +43,17 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 
 	private MyKrisenInterfacesXmlSettings set;
 
-	private JCheckBox anonymizeBox;
+	private JCheckBox anonymizeBox, useBusstopBox;
 	private FilesHistoryPanel xmlField;
 
 	protected MyKrisenInterfacesXmlNodeDialog() {
 		JPanel tracingPanel = new JPanel();
 
 		xmlField = new FilesHistoryPanel(XML_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
+		useBusstopBox = new JCheckBox("Use Busstop");
 		anonymizeBox = new JCheckBox("Anonymize Data");
 		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
+		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(useBusstopBox)));
 		tracingPanel.add(UI.createTitledPanel(xmlField, "Xml Path"));
 		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(anonymizeBox)));
 
@@ -63,6 +65,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 	@Override
 	protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs) {
 		set.loadSettings(settings);
+		useBusstopBox.setSelected(set.isBusstop());
 		anonymizeBox.setSelected(set.isAnonymize());
 		xmlField.setSelectedFile(set.getXmlPath());
 
@@ -70,6 +73,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+		set.setBusstop(useBusstopBox.isSelected());
 		set.setAnonymize(anonymizeBox.isSelected());
 		set.setXmlPath(xmlField.getSelectedFile());
 		set.saveSettings(settings);

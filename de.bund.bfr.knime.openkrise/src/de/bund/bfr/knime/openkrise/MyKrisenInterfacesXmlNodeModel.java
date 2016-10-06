@@ -20,13 +20,27 @@
 package de.bund.bfr.knime.openkrise;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.zip.ZipInputStream;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
+
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -174,9 +188,37 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		return s.replace("\n", "|").replaceAll("\\p{C}", "").replace("\u00A0", "").replace("\t", " ").trim();
 	}
 
-	private BufferedDataTable[] handleNRWXml(final ExecutionContext exec) throws CanceledExecutionException {
+	private BufferedDataTable[] handleNRWXml(final ExecutionContext exec) throws CanceledExecutionException, IOException {
+		File tempDir = null;
+		String xmlFolder = set.getXmlPath();
+		if (set.isBusstop()) {
+		    ClientConfig config = new ClientConfig();
+		    config.register(MultiPartFeature.class);
+		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
+		    Client client = ClientBuilder.newClient(config);
+		    client.register(HttpAuthenticationFeature.basic("bfr_admin", "Ifupofetu843"));
+		    WebTarget service = client.target(UriBuilder.fromUri("https://foodrisklabs.bfr.bund.de/de.bund.bfr.busstopp/").build());
+		    InputStream stream = service.path("rest").path("items").path("files").request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
+	        FileOutputStream fileStream = new FileOutputStream("/Users/arminweiser/Desktop/t.zip");
+	        IOUtils.copy(stream, fileStream);
+	        fileStream.flush();
+	        fileStream.close();
+	        
+		    tempDir = File.createTempFile("temp", Long.toString(System.nanoTime()));
+	        UnzipUtility unzipper = new UnzipUtility();
+	        try {
+	            unzipper.unzip((ZipInputStream) stream, tempDir.getAbsolutePath());
+	            xmlFolder = tempDir.getAbsolutePath();
+	        } catch (Exception ex) {
+	            // some errors occurred
+	            ex.printStackTrace();
+	        }
+		}
 		NRW_Importer nrw = new NRW_Importer();
-		nrw.doImport(set.getXmlPath(), null, true);
+		nrw.doImport(xmlFolder, null, true);
+		if (tempDir != null) {
+			deleteDir(tempDir);
+		}
 		HashMap<String, Kontrollpunktmeldung> kpms = nrw.getKontrollpunktmeldungen();
 		HashMap<String, Betrieb> betriebe = nrw.getBetriebe();
 		
@@ -364,4 +406,13 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		
 		return from + ";;;" + to + ";;;" + los + ";;;" + ld;
 	}	
+	private boolean deleteDir(File folder) {
+	    File[] contents = folder.listFiles();
+	    if (contents != null) {
+	        for(int i = contents.length-1;i>=0;i--) {
+	        	contents[i].delete();
+	        }
+	    }
+	    return folder.delete();
+	}		
 }

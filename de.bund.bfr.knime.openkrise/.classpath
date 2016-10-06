@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/hk2-locator-2.4.0-b34.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hk2-utils-2.4.0-b34.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jersey-guava-2.22.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hk2-api-2.4.0-b34.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jersey-media-multipart-2.22.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jersey-common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jersey-client.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>

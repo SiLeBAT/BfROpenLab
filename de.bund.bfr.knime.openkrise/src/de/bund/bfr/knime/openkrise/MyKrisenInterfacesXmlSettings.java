@@ -27,19 +27,26 @@ import de.bund.bfr.knime.NodeSettings;
 
 public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 
+	private static final String CFG_BUSSTOP = "busstop";
 	private static final String CFG_ANONYMIZE = "anonymize";
 	private static final String CFG_XML_PATH = "xmlPath";
 
-	private boolean anonymize;
+	private boolean anonymize, busstop;
 	private String xmlPath;
 
 	public MyKrisenInterfacesXmlSettings() {
+		busstop = false;
 		anonymize = false;
 		xmlPath = null;
 	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		try {
+			busstop = settings.getBoolean(CFG_BUSSTOP);
+		} catch (InvalidSettingsException e) {
+		}
+
 		try {
 			anonymize = settings.getBoolean(CFG_ANONYMIZE);
 		} catch (InvalidSettingsException e) {
@@ -53,6 +60,7 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		settings.addBoolean(CFG_BUSSTOP, busstop);
 		settings.addBoolean(CFG_ANONYMIZE, anonymize);
 		settings.addString(CFG_XML_PATH, xmlPath);
 	}
@@ -63,6 +71,14 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 
 	public void setAnonymize(boolean anonymize) {
 		this.anonymize = anonymize;
+	}
+
+	public boolean isBusstop() {
+		return busstop;
+	}
+
+	public void setBusstop(boolean busstop) {
+		this.busstop = busstop;
 	}
 
 	public String getXmlPath() {

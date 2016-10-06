@@ -139,7 +139,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		ae.setBewertung(b);
 		b.setKontrollpunktbewertung(kpb);
 		NRW_Exporter e = new NRW_Exporter();
-		e.doExport(ae, m_save.getStringValue());
+		e.doExport(ae, m_save.getStringValue(), true);
 
 		return null;
     }
