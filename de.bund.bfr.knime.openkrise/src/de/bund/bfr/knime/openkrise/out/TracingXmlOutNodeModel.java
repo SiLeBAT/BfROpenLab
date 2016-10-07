@@ -39,6 +39,7 @@ import org.knime.core.node.port.image.ImagePortObject;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.common.Constants;
 import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out.NRW_Exporter;
 import de.nrw.verbraucherschutz.idv.daten.Analyseergebnis;
 import de.nrw.verbraucherschutz.idv.daten.Bewertung;
@@ -165,7 +166,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			} finally {
 			    fos.close();
 			}
-			upload("bfr_admin", "Ifupofetu843", tempFile, 0);
+			upload(Constants.getServerUsr(), Constants.getServerPwd(), tempFile, 0);
 		}
 		else {
 			this.setWarningMessage("soap is null");
@@ -263,7 +264,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    		.register(HttpAuthenticationFeature.basic(usr, pwd))
 	    		.register(MultiPartFeature.class)
 	    		.build();
-	    WebTarget t = client.target(UriBuilder.fromUri("https://foodrisklabs.bfr.bund.de/de.bund.bfr.busstopp/").build()).path("rest").path("items").path(""+id).path("upload");
+	    WebTarget t = client.target(Constants.getServerURI()).path("rest").path("items").path(""+id).path("upload");
 
 	    FileDataBodyPart filePart = new FileDataBodyPart("file", file);
 	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName("report.soap").build()); // file.getName()

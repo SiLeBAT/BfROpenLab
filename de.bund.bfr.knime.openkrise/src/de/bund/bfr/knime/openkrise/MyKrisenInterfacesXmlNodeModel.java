@@ -28,13 +28,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.client.ClientConfig;
@@ -63,6 +61,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.io.Files;
 
+import de.bund.bfr.knime.openkrise.common.Constants;
 import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in.NRW_Importer;
 import de.nrw.verbraucherschutz.idv.daten.Betrieb;
 import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktmeldung;
@@ -198,8 +197,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
 		    Client client = ClientBuilder.newClient(config);
-		    client.register(HttpAuthenticationFeature.basic("bfr_admin", "Ifupofetu843"));
-		    WebTarget service = client.target(UriBuilder.fromUri("https://foodrisklabs.bfr.bund.de/de.bund.bfr.busstopp/").build());
+		    client.register(HttpAuthenticationFeature.basic(Constants.getServerUsr(), Constants.getServerPwd()));
+		    WebTarget service = client.target(Constants.getServerURI());
 		    InputStream stream = service.path("rest").path("items").path("files").request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
 		    File tempFileIn = File.createTempFile("temp", ".zip");
 	        FileOutputStream fileStream = new FileOutputStream(tempFileIn);
