@@ -1,102 +1,91 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 
-import javax.swing.JProgressBar;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeaders;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPPart;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.SchemaFactory;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import de.nrw.verbraucherschutz.idv.daten.*;
-import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 
-public class NRW_Importer implements MyImporter {
-	
-	private HashMap<String, Kontrollpunktmeldung> kpms = null;
-	private HashMap<String, Betrieb> betriebe = null;
-	
-	public static void main(String[] args) throws JAXBException {
-		//new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/bbk/", null, true);
-		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/tst/", null, true);
+public class NRW_Importer {
+
+	private HashMap<String, Fall> faelle = null;
+
+	public static void main(String[] args) throws JAXBException, SOAPException, IOException {
+		// new
+		// NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/bbk/",
+		// null, true);
+		new NRW_Importer().doImport("/Users/arminweiser/Desktop/xml_test/tst/", null);
 	}
-	
-	@Override
+
 	@SuppressWarnings("unchecked")
-	public boolean doImport(String foldername, JProgressBar progress, boolean showResults) {
-		boolean result = true;
+	public String doImport(String foldername, String fallnummer) throws SOAPException, IOException {
+		String lastFallNummer = null;
 		Unmarshaller reader;
 		try {
-			reader = JAXBContext.newInstance(Kontrollpunktmeldung.class.getPackage().getName())
-					.createUnmarshaller();
+			reader = JAXBContext.newInstance(Kontrollpunktmeldung.class.getPackage().getName()).createUnmarshaller();
 
 			reader.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
 					.newSchema(Kontrollpunktmeldung.class.getResource(
 							"/de/nrw/verbraucherschutz/idv/dienste/de.nrw.verbraucherschutz.idv.dienste.2016.2.warenrueckverfolgung.transport.schema.xsd")));
-	
+
 			File folder = new File(foldername);
 			if (folder.exists() && folder.isDirectory()) {
 				File[] fs = folder.listFiles();
 				if (fs != null && fs.length > 0) {
-					kpms = new HashMap<>();
-					betriebe = new HashMap<>();
+					faelle = new HashMap<>();
+					Arrays.sort(fs);
 					for (File f : fs) {
-						if (f.getName().endsWith(".xml")) {
-							System.out.println("----- " + f.getName() + " -----");
+						//System.out.println("----- " + f.getName() + " -----");
+						Fall fall = null;
+						InputStream template = new FileInputStream(f);
+						MessageFactory mf = MessageFactory.newInstance(); // SOAPConstants.SOAP_1_1_PROTOCOL
+						SOAPMessage message = mf.createMessage(new MimeHeaders(), template);
+						SOAPPart sp = message.getSOAPPart();
+						SOAPEnvelope se = sp.getEnvelope();
+						SOAPBody body = se.getBody();
+						NodeList nl = body.getChildNodes();
+						for (int i = 0; i < nl.getLength(); i++) {
+							Node nln = nl.item(i);
+							String nn = nln.getNodeName();
+							if (nn.endsWith(":kontrollpunktmeldung")) {
+								DOMSource ds = new DOMSource(nln);
+								Kontrollpunktmeldung kpm = ((JAXBElement<Kontrollpunktmeldung>) reader
+										.unmarshal(ds)).getValue();
 
-							try {
-								Kontrollpunktmeldung meldung = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(f)).getValue();
-								
-								System.out.println(meldung.getBetrieb().getBetriebsname());
-								if (!betriebe.containsKey(meldung.getBetrieb().getBetriebsnummer())) {
-									betriebe.put(meldung.getBetrieb().getBetriebsnummer(), meldung.getBetrieb());
-								}
-								kpms.put(meldung.getBetrieb().getBetriebsnummer(), meldung);
-								if (meldung.getWareneingaenge() != null) {
-									for (Wareneingang we : meldung.getWareneingaenge().getWareneingang()) {
-										for (Betrieb b : we.getBetrieb()) {
-											if (b.getTyp().equals("LIEFERANT")) {
-												if (!betriebe.containsKey(b.getBetriebsnummer())) {
-													betriebe.put(b.getBetriebsnummer(), b);
-												}
-											}
-										}
-									}									
-								}
-								if (meldung.getWarenausgaenge() != null) {
-									for (Warenausgang wa : meldung.getWarenausgaenge().getWarenausgang()) {
-										for (Betrieb b : wa.getBetrieb()) {
-											if (b.getTyp().equals("KUNDE")) {
-												if (!betriebe.containsKey(b.getBetriebsnummer())) {
-													betriebe.put(b.getBetriebsnummer(), b);
-												}
-											}
-										}
-									}									
-								}
-								/*
-								// erstmal egal:
-								meldung.getMeldung();
-								meldung.getAusloeser();
-								meldung.getWarenbestaende();
-								
-								// erstmal wichtig:
-								meldung.getBetrieb();
-								meldung.getWareneingaenge();
-								meldung.getProduktionen();
-								meldung.getWarenausgaenge();
-								*/
+								Meldung meldung = kpm.getMeldung();
+								String fn = meldung.getFallNummer();
+								lastFallNummer = fn;
+								if (fallnummer != null && !fallnummer.equals(fn)) break;
+								if (!faelle.containsKey(fn)) faelle.put(fn, new Fall(fn, meldung.getFallBezeichnung()));
+								fall = faelle.get(fn);
+
+								//System.out.println(kpm.getBetrieb().getBetriebsname());
+								fall.addKPM(kpm);
 							}
-							catch (Exception e) {}
-														
 						}
 					}
-					System.out.println("Anzahl Stationen: " + betriebe.size());
 				}
 			}
 		} catch (JAXBException e) {
@@ -106,13 +95,10 @@ public class NRW_Importer implements MyImporter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return result;
+		return lastFallNummer;
 	}
-	
-	public HashMap<String, Kontrollpunktmeldung> getKontrollpunktmeldungen() {
-		return kpms;
-	}
-	public HashMap<String, Betrieb> getBetriebe() {
-		return betriebe;
+
+	public HashMap<String, Fall> getFaelle() {
+		return faelle;
 	}
 }

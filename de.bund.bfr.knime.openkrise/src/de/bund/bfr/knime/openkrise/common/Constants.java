@@ -11,9 +11,9 @@ public class Constants {
 		return UriBuilder.fromUri("http://localhost:8080/de.bund.bfr.busstopp/").build();
 	}
 	public static String getServerUsr() {
-		return "bfr_admin";
+		return "";
 	}
 	public static String getServerPwd() {
-		return "Ifupofetu843";		
+		return "";		
 	}
 }

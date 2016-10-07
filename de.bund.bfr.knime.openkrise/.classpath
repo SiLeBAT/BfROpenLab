@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/mimepull-1.9.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hk2-locator-2.4.0-b34.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hk2-utils-2.4.0-b34.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jersey-guava-2.22.2.jar"/>

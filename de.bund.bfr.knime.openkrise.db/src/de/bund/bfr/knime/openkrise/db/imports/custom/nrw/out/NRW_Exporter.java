@@ -142,7 +142,8 @@ public class NRW_Exporter {
 			    
 			    Transformer transformer = TransformerFactory.newInstance().newTransformer();
 			    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			    //transformer.transform(new DOMSource(root), new StreamResult(System.out));    				
+			    transformer.transform(new DOMSource(root), new StreamResult(System.out));    
+			    result = new ByteArrayOutputStream();
 			    transformer.transform(new DOMSource(root), new StreamResult(result));    				
 			}
 			else {

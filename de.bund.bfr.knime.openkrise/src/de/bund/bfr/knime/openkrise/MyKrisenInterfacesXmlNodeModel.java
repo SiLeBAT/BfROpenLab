@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,15 +27,16 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.zip.ZipInputStream;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.xml.soap.SOAPException;
 
-import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.JerseyClient;
+import org.glassfish.jersey.client.JerseyClientBuilder;
+import org.glassfish.jersey.client.JerseyWebTarget;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.knime.core.data.DataCell;
@@ -189,40 +189,32 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		return s.replace("\n", "|").replaceAll("\\p{C}", "").replace("\u00A0", "").replace("\t", " ").trim();
 	}
 
-	private BufferedDataTable[] handleNRWXml(final ExecutionContext exec) throws CanceledExecutionException, IOException {
+	private BufferedDataTable[] handleNRWXml(final ExecutionContext exec) throws CanceledExecutionException, IOException, SOAPException {
 		File tempDir = null;
 		String xmlFolder = set.getXmlPath();
 		if (set.isBusstop()) {
 		    ClientConfig config = new ClientConfig();
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
-		    Client client = ClientBuilder.newClient(config);
+		    JerseyClient client = new JerseyClientBuilder().withConfig(config).build();
 		    client.register(HttpAuthenticationFeature.basic(Constants.getServerUsr(), Constants.getServerPwd()));
-		    WebTarget service = client.target(Constants.getServerURI());
+		    JerseyWebTarget service = client.target(Constants.getServerURI());
 		    InputStream stream = service.path("rest").path("items").path("files").request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
-		    File tempFileIn = File.createTempFile("temp", ".zip");
-	        FileOutputStream fileStream = new FileOutputStream(tempFileIn);
-	        IOUtils.copy(stream, fileStream);
-	        fileStream.flush();
-	        fileStream.close();
+	        ZipInputStream zipIn = new ZipInputStream(stream);
 	        
 		    tempDir = Files.createTempDir();
 	        UnzipUtility unzipper = new UnzipUtility();
-	        try {
-	            unzipper.unzip(tempFileIn, tempDir.getAbsolutePath());
-	            xmlFolder = tempDir.getAbsolutePath();
-	        } catch (Exception ex) {
-	            // some errors occurred
-	            ex.printStackTrace();
-	        }
+            unzipper.unzip(zipIn, tempDir.getAbsolutePath());
+            zipIn.close();
+            xmlFolder = tempDir.getAbsolutePath();
 		}
 		NRW_Importer nrw = new NRW_Importer();
-		nrw.doImport(xmlFolder, null, true);
+		String lastFallNummer = nrw.doImport(xmlFolder, null);
 		if (tempDir != null) {
 			deleteDir(tempDir);
 		}
-		HashMap<String, Kontrollpunktmeldung> kpms = nrw.getKontrollpunktmeldungen();
-		HashMap<String, Betrieb> betriebe = nrw.getBetriebe();
+		HashMap<String, Kontrollpunktmeldung> kpms = nrw.getFaelle().get(lastFallNummer).getKpms();
+		HashMap<String, Betrieb> betriebe = nrw.getFaelle().get(lastFallNummer).getBetriebe();
 		
 		// Station specs
 		List<DataColumnSpec> columns = new ArrayList<>();
@@ -301,12 +293,12 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 			// Delivery fill cells
 			long index = 0;
 			HashMap<String, String> weIDs = new HashMap<>();
-			for (Kontrollpunktmeldung meldung : kpms.values()) {
-				if (meldung.getWareneingaenge() != null) {
-					for (Wareneingang we : meldung.getWareneingaenge().getWareneingang()) {
+			for (Kontrollpunktmeldung kpm : kpms.values()) {
+				if (kpm.getWareneingaenge() != null) {
+					for (Wareneingang we : kpm.getWareneingaenge().getWareneingang()) {
 						for (Betrieb b : we.getBetrieb()) {
-							if (b.getTyp().equals("LIEFERANT") && b.getBetriebsnummer() != null && meldung.getBetrieb().getBetriebsnummer() != null) {							
-								String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), meldung.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung());
+							if (b.getTyp().equals("LIEFERANT") && b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {							
+								String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), kpm.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung());
 								if (!identicalLieferungen.containsKey(deliveryKey)) {
 									List<String> l = new ArrayList<String>();
 									l.add("D" + index);								
@@ -324,16 +316,16 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 					}									
 				}
 				HashMap<String, Produktion> prods = new HashMap<>();
-				if (meldung.getProduktionen() != null) {
-					for (Produktion p : meldung.getProduktionen().getProduktion()) {
+				if (kpm.getProduktionen() != null) {
+					for (Produktion p : kpm.getProduktionen().getProduktion()) {
 						if (p.getWareneingaengeVerwendet() != null) prods.put(p.getId(), p);
 					}
 				}
-				if (meldung.getWarenausgaenge() != null) {
-					for (Warenausgang wa : meldung.getWarenausgaenge().getWarenausgang()) {
+				if (kpm.getWarenausgaenge() != null) {
+					for (Warenausgang wa : kpm.getWarenausgaenge().getWarenausgang()) {
 						for (Betrieb b : wa.getBetrieb()) {
-							if (b.getTyp().equals("KUNDE") && b.getBetriebsnummer() != null && meldung.getBetrieb().getBetriebsnummer() != null) {
-								String deliveryKey = fillDeliveries(specD, cells, "D" + index, meldung.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung());
+							if (b.getTyp().equals("KUNDE") && b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {
+								String deliveryKey = fillDeliveries(specD, cells, "D" + index, kpm.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung());
 								if (!identicalLieferungen.containsKey(deliveryKey)) {
 									List<String> l = new ArrayList<String>();
 									l.add("D" + index);								

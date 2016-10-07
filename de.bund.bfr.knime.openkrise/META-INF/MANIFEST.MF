@@ -11,7 +11,8 @@ Bundle-ClassPath: .,
  lib/jersey-client.jar,
  lib/jersey-common.jar,
  lib/jersey-guava-2.22.2.jar,
- lib/jersey-media-multipart-2.22.2.jar
+ lib/jersey-media-multipart-2.22.2.jar,
+ lib/mimepull-1.9.6.jar
 Bundle-Activator: de.bund.bfr.knime.openkrise.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: de.bund.bfr.knime.gis;visibility:=reexport,

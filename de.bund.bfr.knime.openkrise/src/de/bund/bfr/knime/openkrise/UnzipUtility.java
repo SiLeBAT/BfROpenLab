@@ -26,12 +26,11 @@ public class UnzipUtility {
      * @param destDirectory
      * @throws IOException
      */
-    public void unzip(File zipFile, String destDirectory) throws IOException {
+    public void unzip(ZipInputStream zipIn, String destDirectory) throws IOException {
         File destDir = new File(destDirectory);
         if (!destDir.exists()) {
             destDir.mkdirs();
         }
-        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile));
         ZipEntry entry = zipIn.getNextEntry();
         // iterates over entries in the zip file
         while (entry != null) {
@@ -47,6 +46,10 @@ public class UnzipUtility {
             zipIn.closeEntry();
             entry = zipIn.getNextEntry();
         }
+    }
+    public void unzip(File zipFile, String destDirectory) throws IOException {
+        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile));
+        unzip(zipIn, destDirectory);
         zipIn.close();
     }
     /**

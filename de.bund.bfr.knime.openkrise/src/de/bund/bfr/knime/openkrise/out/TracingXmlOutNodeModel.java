@@ -7,17 +7,16 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.GregorianCalendar;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.glassfish.jersey.client.JerseyClient;
+import org.glassfish.jersey.client.JerseyClientBuilder;
+import org.glassfish.jersey.client.JerseyWebTarget;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -156,7 +155,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		NRW_Exporter e = new NRW_Exporter();
 		ByteArrayOutputStream soap = e.doExport(ae, m_save.getStringValue(), true);
 		if (soap != null) {
-		    File tempFile = File.createTempFile("t", ".soap");
+		    File tempFile = File.createTempFile("bfr_report", ".soap");
 		    FileOutputStream fos = new FileOutputStream(tempFile); 
 			try {
 			    soap.writeTo(fos);
@@ -260,11 +259,11 @@ public class TracingXmlOutNodeModel extends NodeModel {
     }
 	
 	private void upload(String usr, String pwd, File file, long id) throws Exception {
-	    final Client client = ClientBuilder.newBuilder()
+	    JerseyClient client = new JerseyClientBuilder()
 	    		.register(HttpAuthenticationFeature.basic(usr, pwd))
 	    		.register(MultiPartFeature.class)
 	    		.build();
-	    WebTarget t = client.target(Constants.getServerURI()).path("rest").path("items").path(""+id).path("upload");
+	    JerseyWebTarget t = client.target(Constants.getServerURI()).path("rest").path("items").path("uploadreport");
 
 	    FileDataBodyPart filePart = new FileDataBodyPart("file", file);
 	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName("report.soap").build()); // file.getName()
