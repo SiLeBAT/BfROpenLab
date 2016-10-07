@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import de.nrw.verbraucherschutz.idv.daten.Betrieb;
@@ -11,12 +12,14 @@ import de.nrw.verbraucherschutz.idv.daten.Wareneingang;
 public class Fall {
 	private String fallNummer = null;
 	private String fallBezeichnung = null;
-	private HashMap<String, Kontrollpunktmeldung> kpms = null;
+	private HashMap<String, Kontrollpunktmeldung> kpmsB = null;
+	private HashMap<String, Kontrollpunktmeldung> kpmsM = null;
 	
 	public Fall(String fallNummer, String fallBezeichnung) {
 		this.fallNummer = fallNummer; 
 		this.fallBezeichnung = fallBezeichnung; 
-		kpms = new HashMap<>();
+		kpmsB = new HashMap<>();
+		kpmsM = new HashMap<>();
 	}
 
 	public String getFallNummer() {
@@ -28,23 +31,29 @@ public class Fall {
 	
 	public void addKPM(Kontrollpunktmeldung kpm) {
 		Meldung meldung = kpm.getMeldung();
-		System.out.println(meldung.getNummer());
+		String bn = kpm.getBetrieb().getBetriebsnummer();
+		//System.out.println(meldung.getNummer());
 		if (meldung.getStatus().equals("UNGUELTIG")) {
-			kpms.remove(meldung.getNummer());
+			kpmsM.remove(meldung.getNummer());
+			kpmsB.remove(bn);
 		}
 		else {
-			kpms.put(meldung.getNummer(), kpm);			
+			kpmsM.put(meldung.getNummer(), kpm);			
 		}
+		if (kpmsB.containsKey(bn)) {
+			kpmsM.remove(kpm.getMeldung().getNummer());
+		}
+		kpmsB.put(bn, kpm);	
 	}
 	
 	
-	public HashMap<String, Kontrollpunktmeldung> getKpms() {
-		return kpms;
+	public Collection<Kontrollpunktmeldung> getKpms() {
+		return kpmsM.values();
 	}
 
-	public HashMap<String, Betrieb> getBetriebe() {
+	public Collection<Betrieb> getBetriebe() {
 		HashMap <String, Betrieb> betriebe = new HashMap<>();
-		for (Kontrollpunktmeldung kpm : kpms.values()) {
+		for (Kontrollpunktmeldung kpm : getKpms()) {
 			if (!betriebe.containsKey(kpm.getBetrieb().getBetriebsnummer())) {
 				betriebe.put(kpm.getBetrieb().getBetriebsnummer(), kpm.getBetrieb());
 			}	
@@ -74,6 +83,6 @@ public class Fall {
 			}
 		}
 		
-		return betriebe;
+		return betriebe.values();
 	}
 }

@@ -42,10 +42,10 @@ public class NRW_Exporter {
 	public static void main(String[] args) throws JAXBException, SAXException {
 		Analyseergebnis ae = new Analyseergebnis();
 		ae.setBewertung(new Bewertung());
-		new NRW_Exporter().doExport(ae, null, true);
+		new NRW_Exporter().doExport(ae, true);
 	}
 	
-	public ByteArrayOutputStream doExport(Analyseergebnis ae, String filename, boolean xmlStyleOutput) throws SAXException {
+	public ByteArrayOutputStream doExport(Analyseergebnis ae, boolean xmlStyleOutput) throws SAXException {
 		ByteArrayOutputStream result = null;
 		Marshaller writer;
 		try {

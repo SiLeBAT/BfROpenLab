@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise;
+package de.bund.bfr.knime.openkrise.out;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -25,22 +25,15 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.NodeSettings;
 
-public class MyKrisenInterfacesXmlSettings extends NodeSettings {
+public class TracingXmlOutNodeSettings extends NodeSettings {
 
-	private static final String CFG_BUSSTOP = "busstop";
-	private static final String CFG_ANONYMIZE = "anonymize";
-	private static final String CFG_XML_PATH = "xmlPath";
 	private static final String CFG_SERVER = "server";
 	private static final String CFG_USER = "user";
 	private static final String CFG_PASS = "path";
 
-	private boolean anonymize, busstop;
-	private String xmlPath, server, user, pass;
+	private String server, user, pass;
 
-	public MyKrisenInterfacesXmlSettings() {
-		busstop = false;
-		anonymize = false;
-		xmlPath = null;
+	public TracingXmlOutNodeSettings() {
 		server = null;
 		user = null;
 		pass = null;
@@ -48,21 +41,6 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
-		try {
-			busstop = settings.getBoolean(CFG_BUSSTOP);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			anonymize = settings.getBoolean(CFG_ANONYMIZE);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			xmlPath = settings.getString(CFG_XML_PATH);
-		} catch (InvalidSettingsException e) {
-		}
-
 		try {
 			server = settings.getString(CFG_SERVER);
 		} catch (InvalidSettingsException e) {
@@ -81,36 +59,9 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addBoolean(CFG_BUSSTOP, busstop);
-		settings.addBoolean(CFG_ANONYMIZE, anonymize);
-		settings.addString(CFG_XML_PATH, xmlPath);
 		settings.addString(CFG_SERVER, server);
 		settings.addString(CFG_USER, user);
 		settings.addString(CFG_PASS, pass);
-	}
-
-	public boolean isAnonymize() {
-		return anonymize;
-	}
-
-	public void setAnonymize(boolean anonymize) {
-		this.anonymize = anonymize;
-	}
-
-	public boolean isBusstop() {
-		return busstop;
-	}
-
-	public void setBusstop(boolean busstop) {
-		this.busstop = busstop;
-	}
-
-	public String getXmlPath() {
-		return xmlPath;
-	}
-
-	public void setXmlPath(String xmlPath) {
-		this.xmlPath = xmlPath;
 	}
 
 	public String getServer() {

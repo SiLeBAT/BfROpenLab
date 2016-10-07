@@ -1,10 +1,18 @@
 package de.bund.bfr.knime.openkrise.out;
 
-import javax.swing.JFileChooser;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObjectSpec;
+
+import de.bund.bfr.knime.UI;
 
 /**
  * <code>NodeDialog</code> for the "TracingXmlOut" Node.
@@ -17,21 +25,43 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * 
  * @author BfR
  */
-public class TracingXmlOutNodeDialog extends DefaultNodeSettingsPane {
+public class TracingXmlOutNodeDialog extends NodeDialogPane {
 
-    /**
-     * New pane for configuring TracingXmlOut node dialog.
-     * This is just a suggestion to demonstrate possible default dialog
-     * components.
-     */
-    protected TracingXmlOutNodeDialog() {
-        super();
-        
-        addDialogComponent(new DialogComponentFileChooser(
-        		new SettingsModelString (
-        				TracingXmlOutNodeModel.CFGKEY_SAVE,
-        				TracingXmlOutNodeModel.DEFAULT_SAVE ),
-        				"Save file", JFileChooser.SAVE_DIALOG, "xml"));
-    }
+	private TracingXmlOutNodeSettings set;
+
+	private JTextField server, user;
+	private JPasswordField pass;
+
+	protected TracingXmlOutNodeDialog() {
+		JPanel tracingPanel = new JPanel();
+
+		server = new JTextField();
+		user = new JTextField();
+		pass = new JPasswordField();
+		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
+		tracingPanel.add(UI.createTitledPanel(server, "Server Address"));
+		tracingPanel.add(UI.createTitledPanel(user, "Username"));
+		tracingPanel.add(UI.createTitledPanel(pass, "Password"));
+
+		addTab("Options", UI.createNorthPanel(tracingPanel));
+
+		set = new TracingXmlOutNodeSettings();
+	}
+
+	@Override
+	protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs) {
+		set.loadSettings(settings);
+		server.setText(set.getServer());
+		user.setText(set.getUser());
+		pass.setText(set.getPass());
+	}
+
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+		set.setServer(server.getText());
+		set.setUser(user.getText());
+		set.setPass(pass.getPassword().toString());
+		set.saveSettings(settings);
+	}
 }
 

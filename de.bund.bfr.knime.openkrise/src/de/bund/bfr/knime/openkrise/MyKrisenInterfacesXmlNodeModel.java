@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
 import javax.xml.soap.SOAPException;
 
 import org.glassfish.jersey.client.ClientConfig;
@@ -61,7 +62,6 @@ import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.io.Files;
 
-import de.bund.bfr.knime.openkrise.common.Constants;
 import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in.NRW_Importer;
 import de.nrw.verbraucherschutz.idv.daten.Betrieb;
 import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktmeldung;
@@ -197,8 +197,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
 		    JerseyClient client = new JerseyClientBuilder().withConfig(config).build();
-		    client.register(HttpAuthenticationFeature.basic(Constants.getServerUsr(), Constants.getServerPwd()));
-		    JerseyWebTarget service = client.target(Constants.getServerURI());
+		    client.register(HttpAuthenticationFeature.basic(set.getUser(), set.getPass()));
+		    JerseyWebTarget service = client.target(UriBuilder.fromUri(set.getServer()).build());
 		    InputStream stream = service.path("rest").path("items").path("files").request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
 	        ZipInputStream zipIn = new ZipInputStream(stream);
 	        
@@ -213,8 +213,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		if (tempDir != null) {
 			deleteDir(tempDir);
 		}
-		HashMap<String, Kontrollpunktmeldung> kpms = nrw.getFaelle().get(lastFallNummer).getKpms();
-		HashMap<String, Betrieb> betriebe = nrw.getFaelle().get(lastFallNummer).getBetriebe();
+		Collection<Kontrollpunktmeldung> kpms = nrw.getFaelle().get(lastFallNummer).getKpms();
+		Collection<Betrieb> betriebe = nrw.getFaelle().get(lastFallNummer).getBetriebe();
 		
 		// Station specs
 		List<DataColumnSpec> columns = new ArrayList<>();
@@ -240,7 +240,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		if (betriebe != null) {
 			// Station fill cells
 			long index = 0;
-			for (Betrieb b : betriebe.values()) {
+			for (Betrieb b : betriebe) {
 				if (b != null) {
 					fillCell(specS, cells, TracingColumns.ID, createCell(b.getBetriebsnummer()));
 					fillCell(specS, cells, TracingColumns.STATION_ID, createCell(b.getBetriebsnummer()));
@@ -293,7 +293,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 			// Delivery fill cells
 			long index = 0;
 			HashMap<String, String> weIDs = new HashMap<>();
-			for (Kontrollpunktmeldung kpm : kpms.values()) {
+			for (Kontrollpunktmeldung kpm : kpms) {
 				if (kpm.getWareneingaenge() != null) {
 					for (Wareneingang we : kpm.getWareneingaenge().getWareneingang()) {
 						for (Betrieb b : we.getBetrieb()) {

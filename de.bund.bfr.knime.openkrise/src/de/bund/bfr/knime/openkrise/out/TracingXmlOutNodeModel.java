@@ -10,6 +10,7 @@ import java.util.GregorianCalendar;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -30,7 +31,6 @@ import org.knime.core.data.image.ImageContent;
 import org.knime.core.data.image.ImageValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
@@ -38,7 +38,6 @@ import org.knime.core.node.port.image.ImagePortObject;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.openkrise.TracingColumns;
-import de.bund.bfr.knime.openkrise.common.Constants;
 import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out.NRW_Exporter;
 import de.nrw.verbraucherschutz.idv.daten.Analyseergebnis;
 import de.nrw.verbraucherschutz.idv.daten.Bewertung;
@@ -65,13 +64,8 @@ import org.knime.core.node.NodeSettingsWO;
  * @author BfR
  */
 public class TracingXmlOutNodeModel extends NodeModel {
- 	static final String CFGKEY_SAVE = "Save";
-    static final String DEFAULT_SAVE = "";
 
-    private final SettingsModelString m_save =
-        new SettingsModelString(TracingXmlOutNodeModel.CFGKEY_SAVE,
-                    TracingXmlOutNodeModel.DEFAULT_SAVE);
-    
+	private TracingXmlOutNodeSettings set;
 
     /**
      * Constructor for the node model.
@@ -79,6 +73,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
     protected TracingXmlOutNodeModel() {   
 		super(new PortType[] {BufferedDataTable.TYPE, BufferedDataTable.TYPE, ImagePortObject.TYPE},
 				new PortType[] {});
+		set = new TracingXmlOutNodeSettings();
     }
 
     /**
@@ -153,7 +148,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		ae.setBewertung(b);
 		b.setKontrollpunktbewertung(kpb);
 		NRW_Exporter e = new NRW_Exporter();
-		ByteArrayOutputStream soap = e.doExport(ae, m_save.getStringValue(), true);
+		ByteArrayOutputStream soap = e.doExport(ae, true);
 		if (soap != null) {
 		    File tempFile = File.createTempFile("bfr_report", ".soap");
 		    FileOutputStream fos = new FileOutputStream(tempFile); 
@@ -165,7 +160,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			} finally {
 			    fos.close();
 			}
-			upload(Constants.getServerUsr(), Constants.getServerPwd(), tempFile, 0);
+			upload(tempFile);
 		}
 		else {
 			this.setWarningMessage("soap is null");
@@ -195,7 +190,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-    	m_save.saveSettingsTo(settings);
+		set.saveSettings(settings);
     }
 
     /**
@@ -204,7 +199,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-    	m_save.loadSettingsFrom(settings);
+		set.loadSettings(settings);
     }
 
     /**
@@ -213,7 +208,6 @@ public class TracingXmlOutNodeModel extends NodeModel {
     @Override
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-    	m_save.validateSettings(settings);
     }
     
     /**
@@ -257,13 +251,13 @@ public class TracingXmlOutNodeModel extends NodeModel {
     	XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
     	return date2;
     }
-	
-	private void upload(String usr, String pwd, File file, long id) throws Exception {
+
+	private void upload(File file) throws Exception {
 	    JerseyClient client = new JerseyClientBuilder()
-	    		.register(HttpAuthenticationFeature.basic(usr, pwd))
+	    		.register(HttpAuthenticationFeature.basic(set.getUser(), set.getPass()))
 	    		.register(MultiPartFeature.class)
 	    		.build();
-	    JerseyWebTarget t = client.target(Constants.getServerURI()).path("rest").path("items").path("uploadreport");
+	    JerseyWebTarget t = client.target(UriBuilder.fromUri(set.getServer()).build()).path("rest").path("items").path("uploadreport");
 
 	    FileDataBodyPart filePart = new FileDataBodyPart("file", file);
 	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName("report.soap").build()); // file.getName()
