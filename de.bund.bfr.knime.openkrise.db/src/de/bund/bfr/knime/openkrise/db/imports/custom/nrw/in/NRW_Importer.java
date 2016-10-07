@@ -43,6 +43,7 @@ public class NRW_Importer {
 	public String doImport(String foldername, String fallnummer) throws SOAPException, IOException {
 		String lastFallNummer = null;
 		Unmarshaller reader;
+		String fne = null;
 		try {
 			reader = JAXBContext.newInstance(Kontrollpunktmeldung.class.getPackage().getName()).createUnmarshaller();
 
@@ -58,31 +59,40 @@ public class NRW_Importer {
 					Arrays.sort(fs);
 					for (File f : fs) {
 						//System.out.println("----- " + f.getName() + " -----");
+						fne = f.getName();
 						Fall fall = null;
 						InputStream template = new FileInputStream(f);
 						MessageFactory mf = MessageFactory.newInstance(); // SOAPConstants.SOAP_1_1_PROTOCOL
 						SOAPMessage message = mf.createMessage(new MimeHeaders(), template);
 						SOAPPart sp = message.getSOAPPart();
-						SOAPEnvelope se = sp.getEnvelope();
-						SOAPBody body = se.getBody();
-						NodeList nl = body.getChildNodes();
-						for (int i = 0; i < nl.getLength(); i++) {
-							Node nln = nl.item(i);
-							String nn = nln.getNodeName();
-							if (nn.endsWith(":kontrollpunktmeldung")) {
-								DOMSource ds = new DOMSource(nln);
-								Kontrollpunktmeldung kpm = ((JAXBElement<Kontrollpunktmeldung>) reader
-										.unmarshal(ds)).getValue();
+						SOAPEnvelope se = null;
+						try {
+							se = sp.getEnvelope();
+						}
+						catch (Exception e) {System.err.println(fne + " ist nicht korrekt formatiert...");}
+						if (se != null) {
+							SOAPBody body = se.getBody();
+							NodeList nl = body.getChildNodes();
+							for (int i = 0; i < nl.getLength(); i++) {
+								Node nln = nl.item(i);
+								String nn = nln.getNodeName();
+								if (nn.endsWith(":kontrollpunktmeldung")) {
+									DOMSource ds = new DOMSource(nln);
+									try {
+										Kontrollpunktmeldung kpm = ((JAXBElement<Kontrollpunktmeldung>) reader.unmarshal(ds)).getValue();
+										Meldung meldung = kpm.getMeldung();
+										String fn = meldung.getFallNummer();
+										//fn = "1223";
+										lastFallNummer = fn;
+										if (fallnummer != null && !fallnummer.equals(fn)) break;
+										if (!faelle.containsKey(fn)) faelle.put(fn, new Fall(fn, meldung.getFallBezeichnung()));
+										fall = faelle.get(fn);
 
-								Meldung meldung = kpm.getMeldung();
-								String fn = meldung.getFallNummer();
-								lastFallNummer = fn;
-								if (fallnummer != null && !fallnummer.equals(fn)) break;
-								if (!faelle.containsKey(fn)) faelle.put(fn, new Fall(fn, meldung.getFallBezeichnung()));
-								fall = faelle.get(fn);
-
-								//System.out.println(kpm.getBetrieb().getBetriebsname());
-								fall.addKPM(kpm);
+										System.out.println(fn + " - " + kpm.getBetrieb().getBetriebsname());
+										fall.addKPM(kpm);
+									}
+									catch (Exception e) {System.err.println(fne + " ist nicht korrekt formatiert...");}
+								}
 							}
 						}
 					}
@@ -91,9 +101,11 @@ public class NRW_Importer {
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.err.println(fne);
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.err.println(fne);
 		}
 		return lastFallNummer;
 	}

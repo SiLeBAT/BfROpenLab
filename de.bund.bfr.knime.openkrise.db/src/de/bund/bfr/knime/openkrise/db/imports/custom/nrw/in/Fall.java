@@ -39,11 +39,11 @@ public class Fall {
 		}
 		else {
 			kpmsM.put(meldung.getNummer(), kpm);			
+			if (kpmsB.containsKey(bn)) {
+				kpmsM.remove(kpmsB.get(bn).getMeldung().getNummer());
+			}
+			kpmsB.put(bn, kpm);	
 		}
-		if (kpmsB.containsKey(bn)) {
-			kpmsM.remove(kpm.getMeldung().getNummer());
-		}
-		kpmsB.put(bn, kpm);	
 	}
 	
 	
