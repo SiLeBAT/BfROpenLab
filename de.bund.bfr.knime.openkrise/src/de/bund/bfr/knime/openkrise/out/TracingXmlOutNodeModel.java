@@ -257,7 +257,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    		.register(HttpAuthenticationFeature.basic(set.getUser(), set.getPass()))
 	    		.register(MultiPartFeature.class)
 	    		.build();
-	    JerseyWebTarget t = client.target(UriBuilder.fromUri(set.getServer()).build()).path("rest").path("items").path("uploadreport");
+	    JerseyWebTarget t = client.target(UriBuilder.fromUri(set.getServer()).build()).path("rest").path("items").path("upload");
 
 	    FileDataBodyPart filePart = new FileDataBodyPart("file", file);
 	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName("report.soap").build()); // file.getName()
