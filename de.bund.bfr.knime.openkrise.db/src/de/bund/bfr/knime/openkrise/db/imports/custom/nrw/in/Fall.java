@@ -38,10 +38,10 @@ public class Fall {
 			kpmsB.remove(bn);
 		}
 		else {
-			kpmsM.put(meldung.getNummer(), kpm);			
 			if (kpmsB.containsKey(bn)) {
 				kpmsM.remove(kpmsB.get(bn).getMeldung().getNummer());
 			}
+			kpmsM.put(meldung.getNummer(), kpm);			
 			kpmsB.put(bn, kpm);	
 		}
 	}

@@ -263,7 +263,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName("report.soap").build()); // file.getName()
 
 	    FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-	    MultiPart multipartEntity = formDataMultiPart.bodyPart(filePart);
+	    MultiPart multipartEntity = formDataMultiPart.field("comment", "Analysis from BfR").bodyPart(filePart);
 
 	    Response response = t.request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
 	    System.out.println(response.getStatus() + " \n" + response.readEntity(String.class));
