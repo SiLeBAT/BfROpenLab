@@ -69,7 +69,6 @@ import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
-import de.bund.bfr.knime.gis.shapecell.ShapeCellFactory;
 
 /**
  * This is the model implementation of ShapefileReader.
@@ -134,7 +133,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 						}
 
 						shape = (MultiPolygon) JTS.transform((MultiPolygon) value, transform);
-						cells[i] = ShapeCellFactory.create(shape);
+						cells[i] = new ShapeBlobCell(shape);
 					} else if (value instanceof Integer) {
 						cells[i] = new IntCell((Integer) p.getValue());
 					} else if (value instanceof Double) {

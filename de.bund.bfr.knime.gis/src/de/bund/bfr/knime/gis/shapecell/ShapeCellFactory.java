@@ -19,24 +19,10 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.shapecell;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.data.DataCellFactory;
 import org.knime.core.data.DataType;
 
-import com.vividsolutions.jts.geom.Geometry;
-
 public class ShapeCellFactory implements DataCellFactory {
-
-	private ShapeCellFactory() {
-	}
-
-	public static DataCell create(Geometry shape) {
-		if (shape == null) {
-			throw new NullPointerException("Shape must not be null");
-		}
-
-		return new ShapeBlobCell(shape);
-	}
 
 	@Override
 	public DataType getDataType() {

@@ -33,8 +33,7 @@ public class ShapeBlobSerializer implements DataCellSerializer<ShapeBlobCell> {
 
 	@Override
 	public void serialize(ShapeBlobCell cell, DataCellDataOutput output) throws IOException {
-		WKBWriter writer = new WKBWriter();
-		byte[] bytes = writer.write(cell.getShape());
+		byte[] bytes = new WKBWriter().write(cell.getShape());
 
 		output.writeInt(bytes.length);
 		output.write(bytes);
@@ -46,10 +45,8 @@ public class ShapeBlobSerializer implements DataCellSerializer<ShapeBlobCell> {
 
 		input.readFully(bytes);
 
-		WKBReader reader = new WKBReader();
-
 		try {
-			return new ShapeBlobCell(reader.read(bytes));
+			return new ShapeBlobCell(new WKBReader().read(bytes));
 		} catch (ParseException e) {
 			throw new IOException(e.getMessage());
 		}
