@@ -27,10 +27,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
 import javax.xml.soap.SOAPException;
 
 import org.glassfish.jersey.client.ClientConfig;
@@ -62,6 +62,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.io.Files;
 
+import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in.Fall;
 import de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in.NRW_Importer;
 import de.nrw.verbraucherschutz.idv.daten.Betrieb;
 import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktmeldung;
@@ -198,7 +199,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
 		    JerseyClient client = new JerseyClientBuilder().withConfig(config).build();
 		    client.register(HttpAuthenticationFeature.basic(set.getUser(), set.getPass()));
-		    JerseyWebTarget service = client.target(UriBuilder.fromUri(set.getServer()).build());
+		    JerseyWebTarget service = client.target(set.getServer());
 		    InputStream stream = service.path("rest").path("items").path("files").request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
 	        ZipInputStream zipIn = new ZipInputStream(stream);
 	        
@@ -208,8 +209,23 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
             zipIn.close();
             xmlFolder = tempDir.getAbsolutePath();
 		}
+		String caseNumber = set.getCaseNumber();
+		if (caseNumber != null && caseNumber.trim().isEmpty()) caseNumber = null;
 		NRW_Importer nrw = new NRW_Importer();
-		String lastFallNummer = nrw.doImport(xmlFolder, null);
+		String lastFallNummer = nrw.doImport(xmlFolder, caseNumber);
+		if (caseNumber == null) caseNumber = lastFallNummer;
+		this.pushFlowVariableString("Fallnummer", caseNumber);
+		if (caseNumber != null) {
+			Fall fall = nrw.getFaelle().get(caseNumber);
+			this.pushFlowVariableString("Fallbezeichnung", fall.getFallBezeichnung());
+			Set<String> s = fall.getAuftragsnummern();
+			int i=0;
+			for (String an : s) {
+				this.pushFlowVariableString("Auftragsnummer_" + i, an);
+				i++;
+			}
+			//fall.getCommHeader();
+		}
 		if (tempDir != null) {
 			deleteDir(tempDir);
 		}
@@ -235,8 +251,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		BufferedDataContainer stationContainer = exec.createDataContainer(specS);
 		DataCell[] cells = new DataCell[specS.getNumColumns()];
 		
-		if (lastFallNummer != null) {
-			Collection<Betrieb> betriebe = nrw.getFaelle().get(lastFallNummer).getBetriebe();
+		if (caseNumber != null) {
+			Collection<Betrieb> betriebe = nrw.getFaelle().get(caseNumber).getBetriebe();
 			if (betriebe != null) {
 				// Station fill cells
 				long index = 0;
@@ -290,8 +306,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		
 		HashMap<String, List<String>> identicalLieferungen = new HashMap<>();
 		List<String[]> linkList = new ArrayList<>();
-		if (lastFallNummer != null) {
-			Collection<Kontrollpunktmeldung> kpms = nrw.getFaelle().get(lastFallNummer).getKpms();
+		if (caseNumber != null) {
+			Collection<Kontrollpunktmeldung> kpms = nrw.getFaelle().get(caseNumber).getKpms();
 			if (kpms != null) {
 				// Delivery fill cells
 				long index = 0;

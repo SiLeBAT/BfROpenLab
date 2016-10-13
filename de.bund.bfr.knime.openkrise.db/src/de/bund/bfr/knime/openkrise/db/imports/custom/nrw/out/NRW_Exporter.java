@@ -85,7 +85,7 @@ public class NRW_Exporter {
 			header.setPrefix("soapenv");
 			PropertyList pl = new PropertyList();
 			Property p = new Property();
-			p.setKey(PropertyKeys.CORRELATIONID); p.setValue("C123456789@BfR");
+			p.setKey(PropertyKeys.CORRELATIONID); p.setValue(System.currentTimeMillis() + "@BfR");
 			pl.getKey().add(p);
 			p = new Property(); p.setKey(PropertyKeys.SENDER); p.setValue("BFR");
 			pl.getKey().add(p);
@@ -93,7 +93,7 @@ public class NRW_Exporter {
 			pl.getKey().add(p);
 			p = new Property(); p.setKey(PropertyKeys.RECEIVER); p.setValue("LANUV");
 			pl.getKey().add(p);
-			p = new Property(); p.setKey(PropertyKeys.MSGID); p.setValue("ffdeab2449c99c335a55f804918ade5f844edce6@IDV-SFDP");
+			p = new Property(); p.setKey(PropertyKeys.MSGID); p.setValue((System.currentTimeMillis() + 1) + "@BfR");
 			pl.getKey().add(p);
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String formattedDate = sdf.format(new Date());
@@ -117,7 +117,7 @@ public class NRW_Exporter {
 			body.addDocument(document);
 			
 			soapMsg.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
-			//soapMsg.setProperty(SOAPMessage.WRITE_XML_DECLARATION, Boolean.TRUE);
+			//soapMsg.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true");
 			
 			removeXmlns(header.getElementsByTagName("*"));
 			removeXmlns(body.getElementsByTagName("*"));
@@ -142,6 +142,7 @@ public class NRW_Exporter {
 			    
 			    Transformer transformer = TransformerFactory.newInstance().newTransformer();
 			    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 			    transformer.transform(new DOMSource(root), new StreamResult(System.out));    
 			    result = new ByteArrayOutputStream();
 			    transformer.transform(new DOMSource(root), new StreamResult(result));    				

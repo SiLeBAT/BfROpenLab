@@ -50,7 +50,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 
 	private JCheckBox anonymizeBox, useBusstopBox;
 	private FilesHistoryPanel xmlField;
-	private JTextField server, user;
+	private JTextField server, user, caseNumber;
 	private JPasswordField pass;
 
 	protected MyKrisenInterfacesXmlNodeDialog() {
@@ -59,6 +59,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		xmlField = new FilesHistoryPanel(XML_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		server = new JTextField();
 		user = new JTextField();
+		caseNumber = new JTextField();
 		pass = new JPasswordField();
 		useBusstopBox = new JCheckBox("Use Busstop");
 		useBusstopBox.addActionListener(new ActionListener() {
@@ -74,6 +75,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		tracingPanel.add(UI.createTitledPanel(user, "Username"));
 		tracingPanel.add(UI.createTitledPanel(pass, "Password"));
 		tracingPanel.add(UI.createTitledPanel(xmlField, "Xml Path"));
+		tracingPanel.add(UI.createTitledPanel(caseNumber, "Case Number"));
 		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(anonymizeBox)));
 
 		addTab("Options", UI.createNorthPanel(tracingPanel));
@@ -96,6 +98,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		server.setText(set.getServer());
 		user.setText(set.getUser());
 		pass.setText(set.getPass());
+		caseNumber.setText(set.getCaseNumber());
 		setEnableds();
 	}
 
@@ -107,6 +110,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		set.setServer(server.getText());
 		set.setUser(user.getText());
 		set.setPass(pass.getPassword().toString());
+		set.setCaseNumber(caseNumber.getText());
 		set.saveSettings(settings);
 	}
 }

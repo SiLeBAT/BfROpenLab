@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -35,6 +38,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
+import org.knime.core.node.workflow.FlowVariable;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.openkrise.TracingColumns;
@@ -47,6 +51,7 @@ import de.nrw.verbraucherschutz.idv.daten.KatalogWert;
 import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktbewertung;
 import de.nrw.verbraucherschutz.idv.daten.Meldung;
 import de.nrw.verbraucherschutz.idv.daten.Metadaten;
+import de.nrw.verbraucherschutz.idv.daten.Referenz;
 import de.nrw.verbraucherschutz.idv.daten.Warenbewegungsbewertung;
 
 import org.knime.core.node.ExecutionContext;
@@ -99,35 +104,46 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    m_content.save(baos);
 	    baos.close();
 
+		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
 		Analyseergebnis ae = new Analyseergebnis();
-		ae.setMeldung(getMeldung());
 		
 		// Report hierrein
 		Dokument doc = new Dokument();
 		Content content = new Content();
-		content.setContentType("TracingView");
+		content.setContentType("image/png");//"application/pdf");
 		content.setValue(baos.toByteArray());
 		doc.setContent(content);
 		ae.getDokument().add(doc);
 		Metadaten md = new Metadaten();
+		String auftragsNummer = "";
+		for (int i=0;;i++) {
+			if (!fvm.containsKey("Auftragsnummer_" + i)) break;
+			FlowVariable fv = fvm.get("Auftragsnummer_" + i);
+			Referenz r = new Referenz();
+			auftragsNummer = fv.getStringValue(); // "2016-93"
+			r.setKey("AUFTRAGNR"); r.setValue(auftragsNummer);
+			md.getReferenzen().add(r);
+		}
 		md.setAutor("BfR");
-		md.setDokId("");
-		md.setDokumentName("");
-		md.setBeschreibung("");
-		md.setFormat("");
-		md.setKategorie("");
+		md.setDokId(null);
+		md.setDokumentName("Analyse Auftrag Nr. " + auftragsNummer + ".png");
+		md.setBeschreibung("Analyseergebnis des BfRs für den Auftrag " + auftragsNummer);
+		md.setFormat(".png"); // .pdf
+		md.setKategorie("Analyseergebnis");
 		md.setLokation("");
-		md.setMimeType("");
-		md.setOrganisation("");
-		md.setTitel("");
-		md.setVersion("");
+		md.setMimeType("image/png");//"application/pdf");
+		md.setOrganisation("BfR");
+		md.setTitel("Analyse Ergebnis Auftrag Nr. " + auftragsNummer);
+		md.setVersion(getReadableDate()); // "1.0", hier sollte hochgezählt werden
 		md.setPubliziertAm(getDate());
 		md.setUploadAm(getDate());
 		doc.setMetadaten(md);
 		
+		ae.setMeldung(getMeldung(fvm, auftragsNummer));
+
 		// Scores hierrein
 		Kontrollpunktbewertung kpb = new Kontrollpunktbewertung(); 
-		kpb.setNummer("");
+		kpb.setNummer(auftragsNummer);
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.STATION_ID);
 		int nameIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.STATION_NAME);
 		int tobIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.STATION_TOB);
@@ -228,19 +244,22 @@ public class TracingXmlOutNodeModel extends NodeModel {
             CanceledExecutionException {
     }
     
-    private Meldung getMeldung() throws DatatypeConfigurationException {
+    private Meldung getMeldung(Map<String, FlowVariable> fvm, String auftragsNummer) throws DatatypeConfigurationException {		
     	Meldung meldung = new Meldung();
-    	meldung.setFallBezeichnung("BBK");
-    	meldung.setFallNummer("2016-111");
-    	meldung.setNummer("2016-123");
+		FlowVariable fv = fvm.get("Fallbezeichnung");
+    	meldung.setFallBezeichnung(fv == null ? null : fv.getStringValue());
+		fv = fvm.get("Fallnummer");
+    	meldung.setFallNummer(fv == null ? null : fv.getStringValue());
+    	meldung.setNummer(auftragsNummer);
     	meldung.setStatus("GUELTIG");
+    	
     	KatalogWert kw = new KatalogWert();
-    	kw.setCode("123456");
-    	kw.setKatalog("001");
+    	kw.setCode("001");
+    	kw.setKatalog("AMTSKENNUNG");
     	kw.setScope("BUND");
-    	kw.setValue("Amt für BfR");
-    	kw.setVersion("1.28");
-    	kw.setVerz("ADV");
+    	kw.setValue("Bundesinstitut für Risikobewertung");
+    	kw.setVersion("1.0");
+    	kw.setVerz("BFR");
     	meldung.setMeldendeBehoerde(kw);
     	meldung.setMeldungVom(getDate());
     	return meldung;
@@ -250,6 +269,12 @@ public class TracingXmlOutNodeModel extends NodeModel {
     	c.setTimeInMillis(System.currentTimeMillis());
     	XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
     	return date2;
+    }
+    private String getReadableDate() {
+    	SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    	Date dt = new Date();
+    	String S = sdf.format(dt);
+    	return S;
     }
 
 	private void upload(File file) throws Exception {

@@ -2,6 +2,8 @@ package de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.nrw.verbraucherschutz.idv.daten.Betrieb;
 import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktmeldung;
@@ -84,5 +86,12 @@ public class Fall {
 		}
 		
 		return betriebe.values();
+	}
+	public Set<String> getAuftragsnummern() {
+		Set<String> nummern = new HashSet<>();
+		for (Kontrollpunktmeldung kpm : getKpms()) {
+			nummern.add(kpm.getMeldung().getNummer());
+		}		
+		return nummern;
 	}
 }

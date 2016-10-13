@@ -33,9 +33,10 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 	private static final String CFG_SERVER = "server";
 	private static final String CFG_USER = "user";
 	private static final String CFG_PASS = "path";
+	private static final String CFG_CASE = "case";
 
 	private boolean anonymize, busstop;
-	private String xmlPath, server, user, pass;
+	private String xmlPath, server, user, pass, caseNumber;
 
 	public MyKrisenInterfacesXmlSettings() {
 		busstop = false;
@@ -44,6 +45,7 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 		server = null;
 		user = null;
 		pass = null;
+		caseNumber = null;
 	}
 
 	@Override
@@ -77,6 +79,11 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 			pass = settings.getString(CFG_PASS);
 		} catch (InvalidSettingsException e) {
 		}
+		try {
+			caseNumber = settings.getString(CFG_CASE);
+		} catch (InvalidSettingsException e) {
+		}
+
 	}
 
 	@Override
@@ -87,6 +94,7 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 		settings.addString(CFG_SERVER, server);
 		settings.addString(CFG_USER, user);
 		settings.addString(CFG_PASS, pass);
+		settings.addString(CFG_CASE, caseNumber);
 	}
 
 	public boolean isAnonymize() {
@@ -135,5 +143,13 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 
 	public void setPass(String pass) {
 		this.pass = pass;
+	}
+
+	public String getCaseNumber() {
+		return caseNumber;
+	}
+
+	public void setCaseNumber(String caseNumber) {
+		this.caseNumber = caseNumber;
 	}
 }
