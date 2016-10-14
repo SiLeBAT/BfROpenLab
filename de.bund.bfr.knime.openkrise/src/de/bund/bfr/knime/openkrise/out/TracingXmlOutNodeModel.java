@@ -261,8 +261,12 @@ public class TracingXmlOutNodeModel extends NodeModel {
     	kw.setVersion("1.0");
     	kw.setVerz("BFR");
     	meldung.setMeldendeBehoerde(kw);
-    	meldung.setMeldungVom(getDate());
+    	meldung.setMeldungVom(buildXmlDate());
     	return meldung;
+    }
+    private XMLGregorianCalendar buildXmlDate() throws DatatypeConfigurationException {
+    	Date date = new Date();
+        return date==null ? null : DatatypeFactory.newInstance().newXMLGregorianCalendar(new SimpleDateFormat("yyyy-MM-dd").format(date));
     }
     private XMLGregorianCalendar getDate() throws DatatypeConfigurationException {
     	GregorianCalendar c = new GregorianCalendar();
