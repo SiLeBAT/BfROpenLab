@@ -299,6 +299,9 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		addSpec(columns, "Gebinde", StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
 		addSpec(columns, "Lieferscheinnummer", StringCell.TYPE);
+		addSpec(columns, "Kontrollpunktnummer", StringCell.TYPE);
+		addSpec(columns, "WE_ID", StringCell.TYPE);
+		addSpec(columns, "WA_ID", StringCell.TYPE);
 
 		DataTableSpec specD = new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 		BufferedDataContainer deliveryContainer = exec.createDataContainer(specD);
@@ -317,7 +320,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 						for (Wareneingang we : kpm.getWareneingaenge().getWareneingang()) {
 							for (Betrieb b : we.getBetrieb()) {
 								if (b.getTyp().equals("LIEFERANT") && b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {							
-									String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), kpm.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung());
+									String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), kpm.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung(), kpm.getMeldung().getNummer(), we.getId(), null);
 									if (!identicalLieferungen.containsKey(deliveryKey)) {
 										List<String> l = new ArrayList<String>();
 										l.add("D" + index);								
@@ -344,7 +347,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 						for (Warenausgang wa : kpm.getWarenausgaenge().getWarenausgang()) {
 							for (Betrieb b : wa.getBetrieb()) {
 								if (b.getTyp().equals("KUNDE") && b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {
-									String deliveryKey = fillDeliveries(specD, cells, "D" + index, kpm.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung());
+									String deliveryKey = fillDeliveries(specD, cells, "D" + index, kpm.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung(), kpm.getMeldung().getNummer(), null, wa.getId());
 									if (!identicalLieferungen.containsKey(deliveryKey)) {
 										List<String> l = new ArrayList<String>();
 										l.add("D" + index);								
@@ -400,7 +403,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
 	}
 	
-	private String fillDeliveries(DataTableSpec specD, DataCell[] cells, String deliveryId, String from, String to, Produkt p, Warenumfang wu, Lieferung l) {
+	private String fillDeliveries(DataTableSpec specD, DataCell[] cells, String deliveryId, String from, String to, Produkt p, Warenumfang wu, Lieferung l, String kontrollpunktnummer, String we_id, String wa_id) {
 		fillCell(specD, cells, TracingColumns.ID, createCell(deliveryId));
 		fillCell(specD, cells, TracingColumns.FROM, createCell(from));
 		fillCell(specD, cells, TracingColumns.TO, createCell(to));
@@ -422,6 +425,10 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, TracingColumns.DELIVERY_DEPARTURE, createCell(ld));
 		fillCell(specD, cells, "Lieferscheinnummer", createCell(l == null ? null : l.getLieferscheinNummer()));
 		
+		fillCell(specD, cells, "Kontrollpunktnummer", createCell(kontrollpunktnummer));
+		fillCell(specD, cells, "WE_ID", createCell(we_id));
+		fillCell(specD, cells, "WA_ID", createCell(wa_id));
+
 		return from + ";;;" + to + ";;;" + los + ";;;" + ld;
 	}	
 	private boolean deleteDir(File folder) {
