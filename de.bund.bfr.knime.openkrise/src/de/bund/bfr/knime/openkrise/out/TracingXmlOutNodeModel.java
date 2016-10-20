@@ -87,8 +87,8 @@ public class TracingXmlOutNodeModel extends NodeModel {
     @Override
     protected BufferedDataTable[] execute(final PortObject[] inObjects,
             final ExecutionContext exec) throws Exception {
-		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0]; // Stations
-		//BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1]; // Deliveries
+		//BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0]; // Stations
+		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1]; // Deliveries
 		ImagePortObject imageObj = (ImagePortObject) inObjects[2];
 		DataCell imageCellDC = imageObj.toDataCell();
 
@@ -141,24 +141,39 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		
 		ae.setMeldung(getMeldung(fvm, auftragsNummer));
 
-		// Scores hierrein
+		// Scores hierrein		
 		Kontrollpunktbewertung kpb = new Kontrollpunktbewertung(); 
-		kpb.setNummer(auftragsNummer);
-		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.STATION_ID);
-		int nameIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.STATION_NAME);
-		int tobIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.STATION_TOB);
-		int scoreIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.SCORE);
-		for (DataRow row : nodeTable) {
-			Double score = scoreIndex < 0 ? 0.0 : IO.getDouble(row.getCell(scoreIndex));
-			String name = nameIndex < 0 ? "" : IO.getCleanString(row.getCell(nameIndex));
-			String id = idIndex < 0 ? "" : IO.getCleanString(row.getCell(idIndex));
-			String tob = tobIndex < 0 ? "" : IO.getCleanString(row.getCell(tobIndex));
-			Warenbewegungsbewertung wbb = new Warenbewegungsbewertung();
-			wbb.setValue(new BigDecimal(score));
-			wbb.setBetrieb(name);
-			wbb.setId(id);
-			wbb.setTyp(tob);
-			kpb.getWarenbewegungsbewertung().add(wbb);
+		int kpnIndex = edgeTable.getSpec().findColumnIndex("Kontrollpunktnummer");
+		int weIndex = edgeTable.getSpec().findColumnIndex("WE_ID");
+		int waIndex = edgeTable.getSpec().findColumnIndex("WA_ID");
+		int scoreIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.SCORE);
+		for (DataRow row : edgeTable) {
+			String nummer = kpnIndex < 0 ? "" : IO.getCleanString(row.getCell(kpnIndex)); 
+			if (auftragsNummer.equals(nummer)) {
+				kpb.setNummer(nummer); // auftragsNummer
+				Double score = scoreIndex < 0 ? 0.0 : IO.getDouble(row.getCell(scoreIndex));
+				// WA WE Warenausgang Wareneingang
+				String typ = ""; 
+				// Der Betrieb entspricht einem der beiden möglichen Betriebstypen eines Wareneingangs ('ORT_ABHOLUNG', LIEFERANT') oder Warenausgangs('KUNDE','ORT_ANLIEFERUNG')
+				String betrieb = ""; 
+				// id entspricht dem Wert des id Attribute des Wareneingang oder Warenausgang Elements in der Kontrollpunktmeldung.
+				String id = weIndex < 0 ? "" : IO.getCleanString(row.getCell(weIndex)); 
+				if (id == null) {
+					typ = "WA";
+					betrieb = "KUNDE";
+					id = waIndex < 0 ? "" : IO.getCleanString(row.getCell(waIndex));
+				}
+				else {
+					typ = "WE";
+					betrieb = "LIEFERANT";
+				}
+				Warenbewegungsbewertung wbb = new Warenbewegungsbewertung();
+				wbb.setValue(new BigDecimal(score));
+				wbb.setBetrieb(betrieb);
+				wbb.setId(id);
+				wbb.setTyp(typ);
+				kpb.getWarenbewegungsbewertung().add(wbb);
+			}
 		}		
 		Bewertung b = new Bewertung();
 		ae.setBewertung(b);
@@ -176,7 +191,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			} finally {
 			    fos.close();
 			}
-			upload(tempFile);
+			//upload(tempFile);
 		}
 		else {
 			this.setWarningMessage("soap is null");
