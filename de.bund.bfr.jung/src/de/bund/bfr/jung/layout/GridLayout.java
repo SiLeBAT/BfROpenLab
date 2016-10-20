@@ -21,15 +21,20 @@ package de.bund.bfr.jung.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.DoubleConsumer;
 
 import edu.uci.ics.jung.graph.Graph;
 
 public class GridLayout<V, E> extends Layout<V, E> {
+
+	private enum Direction {
+		UP, DOWN, RIGHT, LEFT
+	}
 
 	public GridLayout(Graph<V, E> graph, Dimension size) {
 		super(graph, size);
@@ -38,23 +43,47 @@ public class GridLayout<V, E> extends Layout<V, E> {
 	@Override
 	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, DoubleConsumer progressListener) {
 		Map<V, Point2D> newPositions = new LinkedHashMap<>(initialPositions);
-		Set<V> nodes = new LinkedHashSet<>(graph.getVertices());
+		List<V> nodes = new ArrayList<>(graph.getVertices());
 
 		nodes.removeAll(locked);
 
-		int n = (int) Math.ceil(Math.sqrt(nodes.size()));
+		List<Direction> directions = new ArrayList<>();
+		int steps = 1;
+
+		while (directions.size() < nodes.size()) {
+			directions.addAll(Collections.nCopies(steps, Direction.UP));
+			directions.addAll(Collections.nCopies(steps, Direction.RIGHT));
+			steps++;
+			directions.addAll(Collections.nCopies(steps, Direction.DOWN));
+			directions.addAll(Collections.nCopies(steps, Direction.LEFT));
+			steps++;
+		}
+
 		double width = getSize().getWidth();
 		double height = getSize().getHeight();
-		double d = Math.min(width, height) / (n + 1);
-		double sx = width / 2 - (n - 1) * d / 2;
-		double sy = height / 2 - (n - 1) * d / 2;
-		int row = 0;
-		int column = 0;
+		double d = Math.min(width, height) / (Math.ceil(Math.sqrt(nodes.size())) + 1);
+		double x = width / 2;
+		double y = height / 2;
 
-		for (V node : nodes) {
-			newPositions.put(node, new Point2D.Double(column * d + sx, row * d + sy));
-			column = (column + 1) % n;
-			row = column == 0 ? row + 1 : row;
+		for (int i = 0; i < nodes.size(); i++) {
+			newPositions.put(nodes.get(i), new Point2D.Double(x, y));
+
+			switch (directions.get(i)) {
+			case DOWN:
+				y -= d;
+				break;
+			case LEFT:
+				x -= d;
+				break;
+			case RIGHT:
+				x += d;
+				break;
+			case UP:
+				y += d;
+				break;
+			default:
+				throw new RuntimeException("Unknown Direction");
+			}
 		}
 
 		return newPositions;
