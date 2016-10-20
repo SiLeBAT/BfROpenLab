@@ -111,8 +111,9 @@
 			<option name="Join Deliveries">
 				If checked, deliveries with the same source and target are joined.
 			</option>
-			<option name="Arrow in Middle">
-				If checked, arrows are drawn in the middle of each delivery.
+			<option name="Draw Arrow Head">
+				Here the user can specify, if the arrow head should be drawn at the target,
+				in the middle or not at all.
 			</option>
 			<option name="Skip Unconnected Stations">
 				If checked, stations without any connected deliveries are not shown.

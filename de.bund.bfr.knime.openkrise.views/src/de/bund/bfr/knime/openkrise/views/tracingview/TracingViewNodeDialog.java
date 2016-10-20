@@ -57,6 +57,7 @@ import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
@@ -103,7 +104,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	private boolean joinEdges;
 	private boolean skipEdgelessNodes;
 	private boolean showEdgesInMetaNode;
-	private boolean arrowInMiddle;
+	private ArrowHeadType arrowHeadType;
 	private boolean showLegend;
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
@@ -356,11 +357,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	}
 
 	@Override
-	public void arrowInMiddleChanged(ICanvas<?> source) {
-		boolean newArrowInMiddle = canvas.isArrowInMiddle();
+	public void arrowHeadTypeChanged(ICanvas<?> source) {
+		ArrowHeadType newArrowHeadType = canvas.getArrowHeadType();
 
-		if (changeOccured(new TracingChange.Builder().arrowInMiddle(arrowInMiddle, newArrowInMiddle).build())) {
-			arrowInMiddle = newArrowInMiddle;
+		if (changeOccured(new TracingChange.Builder().arrowHeadType(arrowHeadType, newArrowHeadType).build())) {
+			arrowHeadType = newArrowHeadType;
 		}
 	}
 
@@ -723,7 +724,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		joinEdges = canvas.isJoinEdges();
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
-		arrowInMiddle = canvas.isArrowInMiddle();
+		arrowHeadType = canvas.getArrowHeadType();
 		showLegend = canvas.isShowLegend();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();

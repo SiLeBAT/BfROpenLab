@@ -39,6 +39,7 @@ import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -269,7 +270,7 @@ public class GraphSettings extends NodeSettings {
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		joinEdges = canvas.isJoinEdges();
-		arrowInMiddle = canvas.isArrowInMiddle();
+		arrowInMiddle = canvas.getArrowHeadType() == ArrowHeadType.IN_MIDDLE;
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		label = canvas.getLabel();
@@ -300,7 +301,7 @@ public class GraphSettings extends NodeSettings {
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
 		canvas.setJoinEdges(joinEdges);
-		canvas.setArrowInMiddle(arrowInMiddle);
+		canvas.setArrowHeadType(arrowInMiddle ? ArrowHeadType.IN_MIDDLE : ArrowHeadType.AT_TARGET);
 		canvas.setLabel(label);
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);

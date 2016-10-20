@@ -87,18 +87,18 @@ public class JungUtils {
 		};
 	}
 
-	public static <V, E> Transformer<E, Paint> newEdgeDrawTransformer(RenderContext<V, E> renderContext) {
-		return edge -> {
-			return renderContext.getPickedEdgeState().isPicked(edge) ? Color.GREEN : null;
-		};
-	}
-
 	public static <V, E> Transformer<E, Paint> newEdgeFillTransformer(RenderContext<V, E> renderContext,
 			Map<E, Paint> edgeColors) {
 		return edge -> {
 			Paint color = edgeColors != null && edgeColors.containsKey(edge) ? edgeColors.get(edge) : Color.BLACK;
 
 			return renderContext.getPickedEdgeState().isPicked(edge) ? mixWith(color, Color.GREEN) : color;
+		};
+	}
+
+	public static <V, E> Transformer<E, Paint> newEdgeDrawTransformer(RenderContext<V, E> renderContext) {
+		return edge -> {
+			return renderContext.getPickedEdgeState().isPicked(edge) ? Color.GREEN : null;
 		};
 	}
 

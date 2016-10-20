@@ -59,8 +59,9 @@
 			<option name="Join Edges">
 				If checked, edges with the same source and target are joined.
 			</option>
-			<option name="Arrow in Middle">
-				If checked, arrows are drawn in the middle of each edge.
+			<option name="Draw Arrow Head">
+				Here the user can specify, if the arrow head should be drawn at the target,
+				in the middle or not at all.
 			</option>
 			<option name="Skip Unconnected Nodes">
 				If checked, nodes without any connected edges are not shown.

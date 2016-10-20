@@ -64,7 +64,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 	public static final String DEFAULT_NODE_MAX_SIZE = "";
 	public static final int DEFAULT_EDGE_THICKNESS = 1;
 	public static final String DEFAULT_EDGE_MAX_THICKNESS = "";
-	public static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
+	public static final ArrowHeadType DEFAULT_ARROW_HEAD_TYPE = ArrowHeadType.AT_TARGET;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
 	public static final boolean DEFAULT_AVOID_OVERLAY = false;
 
@@ -101,7 +101,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 	private JComboBox<Integer> edgeThicknessBox;
 	private String edgeMaxThickness;
 	private JComboBox<String> edgeMaxThicknessBox;
-	private JCheckBox arrowInMiddleBox;
+	private JComboBox<ArrowHeadType> arrowHeadBox;
 	private String label;
 	private JTextField labelField;
 	private JButton labelButton;
@@ -146,8 +146,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 			addOption("Join " + naming.Edges(),
 					"If checked, " + naming.edges() + " with the same source and target are joined.", false,
 					joinEdgesBox);
-			addOption("Arrow in Middle", "If checked, arrows are drawn in the middle of each " + naming.edge() + ".",
-					false, arrowInMiddleBox);
+			addOption("Draw Arrow Head", "If and how arrows are drawn can be specified here.", false, arrowHeadBox);
 		}
 
 		if (allowEdges && allowNodeResize) {
@@ -328,12 +327,12 @@ public class CanvasOptionsPanel extends JScrollPane {
 		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness != null ? edgeMaxThickness.toString() : "");
 	}
 
-	public boolean isArrowInMiddle() {
-		return arrowInMiddleBox.isSelected();
+	public ArrowHeadType getArrowHeadType() {
+		return (ArrowHeadType) arrowHeadBox.getSelectedItem();
 	}
 
-	public void setArrowInMiddle(boolean arrowInMiddle) {
-		arrowInMiddleBox.setSelected(arrowInMiddle);
+	public void setArrowHeadType(ArrowHeadType arrowHeadType) {
+		arrowHeadBox.setSelectedItem(arrowHeadType);
 	}
 
 	public String getLabel() {
@@ -430,9 +429,9 @@ public class CanvasOptionsPanel extends JScrollPane {
 		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 		edgeMaxThicknessBox.addItemListener(UI.newItemSelectListener(e -> edgeMaxThicknessChanged()));
 
-		arrowInMiddleBox = new JCheckBox("Activate");
-		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
-		arrowInMiddleBox.addItemListener(e -> call(ChangeListener::arrowInMiddleChanged));
+		arrowHeadBox = new JComboBox<>(ArrowHeadType.values());
+		arrowHeadBox.setSelectedItem(DEFAULT_ARROW_HEAD_TYPE);
+		arrowHeadBox.addItemListener(UI.newItemSelectListener(e -> call(ChangeListener::arrowHeadTypeChanged)));
 
 		label = null;
 		labelField = new JTextField(label, 20);
@@ -656,7 +655,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		void edgeThicknessChanged();
 
-		void arrowInMiddleChanged();
+		void arrowHeadTypeChanged();
 
 		void labelChanged();
 

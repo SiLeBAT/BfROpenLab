@@ -224,7 +224,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	}
 
 	@Override
-	public void arrowInMiddleChanged(ICanvas<?> source) {
+	public void arrowHeadTypeChanged(ICanvas<?> source) {
 	}
 
 	@Override

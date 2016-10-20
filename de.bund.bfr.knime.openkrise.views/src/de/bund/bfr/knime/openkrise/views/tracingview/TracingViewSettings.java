@@ -39,6 +39,7 @@ import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.openkrise.views.Activator;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -53,7 +54,8 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_SHOW_EDGES_IN_META_NODE = "ShowEdgesInMetaNode";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
-	private static final String CFG_ARROW_IN_MIDDLE = "ArrowInMiddle";
+	private static final String CFG_HIDE_ARROW_HEAD = "HideArrowHead";
+	private static final String CFG_ARROW_HEAD_IN_MIDDLE = "ArrowInMiddle";
 	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
 	private static final String CFG_SELECTED_NODES = "GraphSelectedNodes";
 	private static final String CFG_SELECTED_EDGES = "GraphSelectedEdges";
@@ -83,7 +85,8 @@ public class TracingViewSettings extends NodeSettings {
 	private boolean skipEdgelessNodes;
 	private boolean showEdgesInMetaNode;
 	private boolean joinEdges;
-	private boolean arrowInMiddle;
+	private boolean hideArrowHead;
+	private boolean arrowHeadInMiddle;
 	private boolean showLegend;
 	private Mode editingMode;
 	private Dimension canvasSize;
@@ -117,7 +120,8 @@ public class TracingViewSettings extends NodeSettings {
 		skipEdgelessNodes = false;
 		showEdgesInMetaNode = false;
 		joinEdges = false;
-		arrowInMiddle = false;
+		hideArrowHead = false;
+		arrowHeadInMiddle = false;
 		showLegend = false;
 		editingMode = Mode.PICKING;
 		canvasSize = null;
@@ -179,7 +183,12 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			arrowInMiddle = settings.getBoolean(CFG_ARROW_IN_MIDDLE);
+			hideArrowHead = settings.getBoolean(CFG_HIDE_ARROW_HEAD);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			arrowHeadInMiddle = settings.getBoolean(CFG_ARROW_HEAD_IN_MIDDLE);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -307,7 +316,8 @@ public class TracingViewSettings extends NodeSettings {
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_SHOW_EDGES_IN_META_NODE, showEdgesInMetaNode);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
-		settings.addBoolean(CFG_ARROW_IN_MIDDLE, arrowInMiddle);
+		settings.addBoolean(CFG_HIDE_ARROW_HEAD, hideArrowHead);
+		settings.addBoolean(CFG_ARROW_HEAD_IN_MIDDLE, arrowHeadInMiddle);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
@@ -338,7 +348,8 @@ public class TracingViewSettings extends NodeSettings {
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
 		showLegend = canvas.isShowLegend();
 		joinEdges = canvas.isJoinEdges();
-		arrowInMiddle = canvas.isArrowInMiddle();
+		hideArrowHead = canvas.getArrowHeadType() == ArrowHeadType.HIDE;
+		arrowHeadInMiddle = canvas.getArrowHeadType() == ArrowHeadType.IN_MIDDLE;
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		label = canvas.getLabel();
@@ -372,7 +383,8 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setShowLegend(showLegend);
 		canvas.setEditingMode(editingMode);
 		canvas.setJoinEdges(joinEdges);
-		canvas.setArrowInMiddle(arrowInMiddle);
+		canvas.setArrowHeadType(hideArrowHead ? ArrowHeadType.HIDE
+				: (arrowHeadInMiddle ? ArrowHeadType.IN_MIDDLE : ArrowHeadType.AT_TARGET));
 		canvas.setLabel(label);
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);

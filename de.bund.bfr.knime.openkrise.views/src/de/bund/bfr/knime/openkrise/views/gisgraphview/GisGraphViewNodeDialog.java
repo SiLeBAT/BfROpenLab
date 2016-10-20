@@ -225,7 +225,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void arrowInMiddleChanged(ICanvas<?> source) {
+	public void arrowHeadTypeChanged(ICanvas<?> source) {
 	}
 
 	@Override

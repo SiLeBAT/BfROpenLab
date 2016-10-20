@@ -29,6 +29,7 @@ import de.bund.bfr.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
@@ -96,9 +97,9 @@ public interface ICanvas<V extends Node> {
 
 	void setEdgeMaxThickness(Integer edgeMaxThickness);
 
-	boolean isArrowInMiddle();
+	ArrowHeadType getArrowHeadType();
 
-	void setArrowInMiddle(boolean arrowInMiddle);
+	void setArrowHeadType(ArrowHeadType arrowHeadType);
 
 	String getLabel();
 

@@ -227,7 +227,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
-	public void arrowInMiddleChanged(ICanvas<?> source) {
+	public void arrowHeadTypeChanged(ICanvas<?> source) {
 	}
 
 	@Override

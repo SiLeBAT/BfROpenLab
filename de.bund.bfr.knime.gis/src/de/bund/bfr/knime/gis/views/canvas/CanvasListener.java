@@ -47,7 +47,7 @@ public interface CanvasListener extends EventListener {
 
 	void showEdgesInMetaNodeChanged(ICanvas<?> source);
 
-	void arrowInMiddleChanged(ICanvas<?> source);
+	void arrowHeadTypeChanged(ICanvas<?> source);
 
 	void showLegendChanged(ICanvas<?> source);
 

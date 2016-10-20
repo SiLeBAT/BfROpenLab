@@ -51,7 +51,6 @@ import javax.swing.JPanel;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimaps;
@@ -79,6 +78,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasLegend;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
@@ -329,13 +329,13 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	@Override
-	public boolean isArrowInMiddle() {
-		return optionsPanel.isArrowInMiddle();
+	public ArrowHeadType getArrowHeadType() {
+		return optionsPanel.getArrowHeadType();
 	}
 
 	@Override
-	public void setArrowInMiddle(boolean arrowInMiddle) {
-		optionsPanel.setArrowInMiddle(arrowInMiddle);
+	public void setArrowHeadType(ArrowHeadType arrowHeadType) {
+		optionsPanel.setArrowHeadType(arrowHeadType);
 	}
 
 	@Override
@@ -1016,11 +1016,16 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	@Override
-	public void arrowInMiddleChanged() {
-		viewer.getRenderer().getEdgeRenderer().setEdgeArrowRenderingSupport(optionsPanel.isArrowInMiddle()
-				? new MiddleEdgeArrowRenderingSupport<>() : new BasicEdgeArrowRenderingSupport<>());
+	public void arrowHeadTypeChanged() {
+		Color arrowColor = optionsPanel.getArrowHeadType() == ArrowHeadType.HIDE ? new Color(0, 0, 0, 0) : Color.BLACK;
+
+		viewer.getRenderContext().setArrowDrawPaintTransformer(e -> arrowColor);
+		viewer.getRenderContext().setArrowFillPaintTransformer(e -> arrowColor);
+		viewer.getRenderer().getEdgeRenderer()
+				.setEdgeArrowRenderingSupport(optionsPanel.getArrowHeadType() == ArrowHeadType.IN_MIDDLE
+						? new MiddleEdgeArrowRenderingSupport<>() : new BasicEdgeArrowRenderingSupport<>());
 		viewer.repaint();
-		call(l -> l.arrowInMiddleChanged(this));
+		call(l -> l.arrowHeadTypeChanged(this));
 	}
 
 	@Override

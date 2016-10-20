@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
@@ -39,6 +40,7 @@ import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
@@ -78,7 +80,7 @@ public class TracingChange implements Serializable {
 		private boolean edgeJoinChanged;
 		private boolean skipEdgelessChanged;
 		private boolean showEdgesInMetaChanged;
-		private boolean arrowInMiddleChanged;
+		private Pair<ArrowHeadType, ArrowHeadType> arrowHeadTypeDiff;
 		private boolean showLegendChanged;
 
 		private boolean enforceTempChanged;
@@ -128,7 +130,7 @@ public class TracingChange implements Serializable {
 			edgeJoinChanged = false;
 			skipEdgelessChanged = false;
 			showEdgesInMetaChanged = false;
-			arrowInMiddleChanged = false;
+			arrowHeadTypeDiff = null;
 			showLegendChanged = false;
 			enforceTempChanged = false;
 			showForwardChanged = false;
@@ -248,8 +250,8 @@ public class TracingChange implements Serializable {
 			return this;
 		}
 
-		public Builder arrowInMiddle(boolean arrowInMiddleBefore, boolean arrowInMiddleAfter) {
-			arrowInMiddleChanged = arrowInMiddleBefore != arrowInMiddleAfter;
+		public Builder arrowHeadType(ArrowHeadType arrowHeadTypeBefore, ArrowHeadType arrowHeadTypeAfter) {
+			arrowHeadTypeDiff = createDiff(arrowHeadTypeBefore, arrowHeadTypeAfter);
 			return this;
 		}
 
@@ -369,8 +371,9 @@ public class TracingChange implements Serializable {
 			canvas.setShowEdgesInMetaNode(!canvas.isShowEdgesInMetaNode());
 		}
 
-		if (builder.arrowInMiddleChanged) {
-			canvas.setArrowInMiddle(!canvas.isArrowInMiddle());
+		if (builder.arrowHeadTypeDiff != null) {
+			canvas.setArrowHeadType(
+					undo ? builder.arrowHeadTypeDiff.getFirst() : builder.arrowHeadTypeDiff.getSecond());
 		}
 
 		if (builder.showLegendChanged) {
@@ -508,7 +511,7 @@ public class TracingChange implements Serializable {
 				&& builder.changedNodeKillContams.isEmpty() && builder.changedEdgeKillContams.isEmpty()
 				&& builder.changedObservedNodes.isEmpty() && builder.changedObservedEdges.isEmpty()
 				&& !builder.edgeJoinChanged && !builder.skipEdgelessChanged && !builder.showEdgesInMetaChanged
-				&& !builder.arrowInMiddleChanged && !builder.showLegendChanged && !builder.enforceTempChanged
+				&& builder.arrowHeadTypeDiff == null && !builder.showLegendChanged && !builder.enforceTempChanged
 				&& !builder.showForwardChanged && !builder.showWithoutDateChanged && builder.showToDateDiff == null
 				&& builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
 				&& builder.edgeMaxThicknessDiff == null && builder.fontSizeDiff == null && !builder.fontBoldChanged
