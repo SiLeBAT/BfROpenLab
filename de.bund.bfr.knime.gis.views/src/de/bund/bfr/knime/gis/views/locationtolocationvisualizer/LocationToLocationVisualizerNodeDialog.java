@@ -231,6 +231,10 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
+	public void nodeLabelPositionChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void showLegendChanged(ICanvas<?> source) {
 	}
 

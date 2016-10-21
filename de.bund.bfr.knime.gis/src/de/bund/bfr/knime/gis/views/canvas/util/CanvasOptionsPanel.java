@@ -46,6 +46,7 @@ import javax.swing.border.TitledBorder;
 import com.google.common.base.Strings;
 import com.google.common.primitives.Ints;
 
+import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.ui.Dialogs;
@@ -65,6 +66,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 	public static final int DEFAULT_EDGE_THICKNESS = 1;
 	public static final String DEFAULT_EDGE_MAX_THICKNESS = "";
 	public static final ArrowHeadType DEFAULT_ARROW_HEAD_TYPE = ArrowHeadType.AT_TARGET;
+	public static final LabelPosition DEFAULT_NODE_LABEL_POSITION = LabelPosition.BOTTOM_RIGHT;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
 	public static final boolean DEFAULT_AVOID_OVERLAY = false;
 
@@ -102,6 +104,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 	private String edgeMaxThickness;
 	private JComboBox<String> edgeMaxThicknessBox;
 	private JComboBox<ArrowHeadType> arrowHeadBox;
+	private JComboBox<LabelPosition> nodeLabelPositionBox;
 	private String label;
 	private JTextField labelField;
 	private JButton labelButton;
@@ -170,6 +173,8 @@ public class CanvasOptionsPanel extends JScrollPane {
 							+ naming.nodes() + ".\nOtherwise the " + naming.node() + " sizes are between min and max.",
 					false, new JLabel("Min:"), nodeSizeBox, Box.createHorizontalStrut(5), new JLabel("Max:"),
 					nodeMaxSizeBox);
+			addOption(naming.Node() + " Label", "Position of the " + naming.nodes() + " labels.", false,
+					nodeLabelPositionBox);
 		}
 
 		if (allowEdges) {
@@ -335,6 +340,14 @@ public class CanvasOptionsPanel extends JScrollPane {
 		arrowHeadBox.setSelectedItem(arrowHeadType);
 	}
 
+	public LabelPosition getNodeLabelPosition() {
+		return (LabelPosition) nodeLabelPositionBox.getSelectedItem();
+	}
+
+	public void setNodeLabelPosition(LabelPosition nodeLabelPosition) {
+		nodeLabelPositionBox.setSelectedItem(nodeLabelPosition);
+	}
+
 	public String getLabel() {
 		return label;
 	}
@@ -432,6 +445,11 @@ public class CanvasOptionsPanel extends JScrollPane {
 		arrowHeadBox = new JComboBox<>(ArrowHeadType.values());
 		arrowHeadBox.setSelectedItem(DEFAULT_ARROW_HEAD_TYPE);
 		arrowHeadBox.addItemListener(UI.newItemSelectListener(e -> call(ChangeListener::arrowHeadTypeChanged)));
+
+		nodeLabelPositionBox = new JComboBox<>(LabelPosition.values());
+		nodeLabelPositionBox.setSelectedItem(DEFAULT_NODE_LABEL_POSITION);
+		nodeLabelPositionBox
+				.addItemListener(UI.newItemSelectListener(e -> call(ChangeListener::nodeLabelPositionChanged)));
 
 		label = null;
 		labelField = new JTextField(label, 20);
@@ -656,6 +674,8 @@ public class CanvasOptionsPanel extends JScrollPane {
 		void edgeThicknessChanged();
 
 		void arrowHeadTypeChanged();
+
+		void nodeLabelPositionChanged();
 
 		void labelChanged();
 

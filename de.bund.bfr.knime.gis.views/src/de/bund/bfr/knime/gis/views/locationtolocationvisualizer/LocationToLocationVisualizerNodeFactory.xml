@@ -73,10 +73,12 @@
 				for node/edge labels and in the legend.
 			</option>
 			<option name="Node Size">
-				Min/Max diameter of the nodes. Min value is used, when no "Value
-				Condition" or
-				"Logical Value Condition" is defined for nodes. Otherwise the node sizes
-				are between min and max.
+				Min/Max diameter of the nodes. Min value is used, when no "Value Condition"
+				or "Logical Value Condition" is defined for nodes. Otherwise the node sizes are between min and
+				max.
+			</option>
+			<option name="Node Label">
+				Position of the node label relative to the node.
 			</option>
 			<option name="Edge Thickness">
 				Min/Max thickness of the edges. Min value is used, when no "Value Condition"

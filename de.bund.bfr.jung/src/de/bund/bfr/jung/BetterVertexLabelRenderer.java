@@ -36,10 +36,10 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 
 public class BetterVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, E> {
 
-	private Position position;
+	private LabelPosition position;
 
-	public BetterVertexLabelRenderer() {
-		position = Position.SE;
+	public BetterVertexLabelRenderer(LabelPosition position) {
+		this.position = position;
 	}
 
 	@Override
@@ -62,25 +62,26 @@ public class BetterVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, 
 
 	@Override
 	public Position getPosition() {
-		return position;
+		throw new UnsupportedOperationException("");
 	}
 
 	@Override
 	public void setPosition(Position position) {
-		this.position = position;
+		throw new UnsupportedOperationException("");
 	}
 
 	@Override
 	public Positioner getPositioner() {
-		return null;
+		throw new UnsupportedOperationException("");
 	}
 
 	@Override
 	public void setPositioner(Positioner positioner) {
+		throw new UnsupportedOperationException("");
 	}
 
 	private Point getAnchorPoint(Rectangle2D vertexBounds, Dimension labelSize) {
-		switch (position) {
+		switch (position.getPosition()) {
 		case N:
 			return new Point((int) vertexBounds.getCenterX() - labelSize.width / 2,
 					(int) vertexBounds.getMinY() - labelSize.height);

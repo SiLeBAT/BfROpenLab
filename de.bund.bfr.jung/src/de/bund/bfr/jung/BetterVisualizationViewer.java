@@ -43,7 +43,7 @@ public class BetterVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
 		super(new ChangeSupportLayout<>(new StaticLayout<>(new DirectedSparseMultigraph<>())));
 		getRenderer().setEdgeRenderer(new BetterEdgeRenderer<>());
 		getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<>());
-		getRenderer().setVertexLabelRenderer(new BetterVertexLabelRenderer<>());
+		getRenderer().setVertexLabelRenderer(new BetterVertexLabelRenderer<>(LabelPosition.BOTTOM_RIGHT));
 		setPickSupport(new BetterShapePickSupport<>(this));
 		getGraphLayout().setGraph(new BetterDirectedSparseMultigraph<>(this));
 		setDoubleBuffered(true);

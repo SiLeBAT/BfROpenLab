@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import de.bund.bfr.jung.BetterVisualizationViewer;
+import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
@@ -100,6 +101,10 @@ public interface ICanvas<V extends Node> {
 	ArrowHeadType getArrowHeadType();
 
 	void setArrowHeadType(ArrowHeadType arrowHeadType);
+
+	LabelPosition getNodeLabelPosition();
+
+	void setNodeLabelPosition(LabelPosition nodeLabelPosition);
 
 	String getLabel();
 

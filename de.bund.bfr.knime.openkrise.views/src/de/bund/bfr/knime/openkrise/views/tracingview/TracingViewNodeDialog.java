@@ -49,6 +49,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
+import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
@@ -105,6 +106,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	private boolean skipEdgelessNodes;
 	private boolean showEdgesInMetaNode;
 	private ArrowHeadType arrowHeadType;
+	private LabelPosition nodeLabelPosition;
 	private boolean showLegend;
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
@@ -362,6 +364,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 		if (changeOccured(new TracingChange.Builder().arrowHeadType(arrowHeadType, newArrowHeadType).build())) {
 			arrowHeadType = newArrowHeadType;
+		}
+	}
+
+	@Override
+	public void nodeLabelPositionChanged(ICanvas<?> source) {
+		LabelPosition newNodeLabelPosition = canvas.getNodeLabelPosition();
+
+		if (changeOccured(
+				new TracingChange.Builder().nodeLabelPosition(nodeLabelPosition, newNodeLabelPosition).build())) {
+			nodeLabelPosition = newNodeLabelPosition;
 		}
 	}
 
@@ -725,6 +737,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		arrowHeadType = canvas.getArrowHeadType();
+		nodeLabelPosition = canvas.getNodeLabelPosition();
 		showLegend = canvas.isShowLegend();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();

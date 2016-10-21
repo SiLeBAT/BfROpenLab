@@ -49,6 +49,8 @@ public interface CanvasListener extends EventListener {
 
 	void arrowHeadTypeChanged(ICanvas<?> source);
 
+	void nodeLabelPositionChanged(ICanvas<?> source);
+
 	void showLegendChanged(ICanvas<?> source);
 
 	void collapsedNodesChanged(ICanvas<?> source);

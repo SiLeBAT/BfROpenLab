@@ -34,6 +34,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.collect.Ordering;
 
+import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.BackwardUtils;
@@ -56,6 +57,7 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 	private static final String CFG_HIDE_ARROW_HEAD = "HideArrowHead";
 	private static final String CFG_ARROW_HEAD_IN_MIDDLE = "ArrowInMiddle";
+	private static final String CFG_NODE_LABEL_POSITION = "NodeLabelPosition";
 	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
 	private static final String CFG_SELECTED_NODES = "GraphSelectedNodes";
 	private static final String CFG_SELECTED_EDGES = "GraphSelectedEdges";
@@ -87,6 +89,7 @@ public class TracingViewSettings extends NodeSettings {
 	private boolean joinEdges;
 	private boolean hideArrowHead;
 	private boolean arrowHeadInMiddle;
+	private LabelPosition nodeLabelPosition;
 	private boolean showLegend;
 	private Mode editingMode;
 	private Dimension canvasSize;
@@ -122,6 +125,7 @@ public class TracingViewSettings extends NodeSettings {
 		joinEdges = false;
 		hideArrowHead = false;
 		arrowHeadInMiddle = false;
+		nodeLabelPosition = LabelPosition.BOTTOM_RIGHT;
 		showLegend = false;
 		editingMode = Mode.PICKING;
 		canvasSize = null;
@@ -189,6 +193,11 @@ public class TracingViewSettings extends NodeSettings {
 
 		try {
 			arrowHeadInMiddle = settings.getBoolean(CFG_ARROW_HEAD_IN_MIDDLE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeLabelPosition = LabelPosition.valueOf(settings.getString(CFG_NODE_LABEL_POSITION));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -318,6 +327,7 @@ public class TracingViewSettings extends NodeSettings {
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 		settings.addBoolean(CFG_HIDE_ARROW_HEAD, hideArrowHead);
 		settings.addBoolean(CFG_ARROW_HEAD_IN_MIDDLE, arrowHeadInMiddle);
+		settings.addString(CFG_NODE_LABEL_POSITION, nodeLabelPosition.name());
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
@@ -350,6 +360,7 @@ public class TracingViewSettings extends NodeSettings {
 		joinEdges = canvas.isJoinEdges();
 		hideArrowHead = canvas.getArrowHeadType() == ArrowHeadType.HIDE;
 		arrowHeadInMiddle = canvas.getArrowHeadType() == ArrowHeadType.IN_MIDDLE;
+		nodeLabelPosition = canvas.getNodeLabelPosition();
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		label = canvas.getLabel();
@@ -385,6 +396,7 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setJoinEdges(joinEdges);
 		canvas.setArrowHeadType(hideArrowHead ? ArrowHeadType.HIDE
 				: (arrowHeadInMiddle ? ArrowHeadType.IN_MIDDLE : ArrowHeadType.AT_TARGET));
+		canvas.setNodeLabelPosition(nodeLabelPosition);
 		canvas.setLabel(label);
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);

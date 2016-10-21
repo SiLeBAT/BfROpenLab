@@ -228,6 +228,10 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	}
 
 	@Override
+	public void nodeLabelPositionChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void showLegendChanged(ICanvas<?> source) {
 	}
 

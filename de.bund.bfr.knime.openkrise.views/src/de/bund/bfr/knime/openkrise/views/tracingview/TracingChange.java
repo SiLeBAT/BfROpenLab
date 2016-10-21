@@ -35,6 +35,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 
+import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -93,6 +94,7 @@ public class TracingChange implements Serializable {
 		private Pair<Integer, Integer> edgeThicknessDiff;
 		private Pair<Integer, Integer> edgeMaxThicknessDiff;
 
+		private Pair<LabelPosition, LabelPosition> nodeLabelPositionDiff;
 		private Pair<Integer, Integer> fontSizeDiff;
 		private boolean fontBoldChanged;
 		private Pair<String, String> labelDiff;
@@ -142,6 +144,7 @@ public class TracingChange implements Serializable {
 			edgeThicknessDiff = null;
 			edgeMaxThicknessDiff = null;
 
+			nodeLabelPositionDiff = null;
 			fontSizeDiff = null;
 			fontBoldChanged = false;
 			labelDiff = null;
@@ -291,6 +294,11 @@ public class TracingChange implements Serializable {
 				Integer edgeMaxThicknessAfter) {
 			edgeThicknessDiff = createDiff(edgeThicknessBefore, edgeThicknessAfter);
 			edgeMaxThicknessDiff = createDiff(edgeMaxThicknessBefore, edgeMaxThicknessAfter);
+			return this;
+		}
+
+		public Builder nodeLabelPosition(LabelPosition nodeLabelPositionBefore, LabelPosition nodeLabelPositionAfter) {
+			nodeLabelPositionDiff = createDiff(nodeLabelPositionBefore, nodeLabelPositionAfter);
 			return this;
 		}
 
@@ -478,6 +486,11 @@ public class TracingChange implements Serializable {
 					undo ? builder.edgeMaxThicknessDiff.getFirst() : builder.edgeMaxThicknessDiff.getSecond());
 		}
 
+		if (builder.nodeLabelPositionDiff != null) {
+			canvas.setNodeLabelPosition(
+					undo ? builder.nodeLabelPositionDiff.getFirst() : builder.nodeLabelPositionDiff.getSecond());
+		}
+
 		if (builder.fontSizeDiff != null) {
 			canvas.setFontSize(undo ? builder.fontSizeDiff.getFirst() : builder.fontSizeDiff.getSecond());
 		}
@@ -514,8 +527,9 @@ public class TracingChange implements Serializable {
 				&& builder.arrowHeadTypeDiff == null && !builder.showLegendChanged && !builder.enforceTempChanged
 				&& !builder.showForwardChanged && !builder.showWithoutDateChanged && builder.showToDateDiff == null
 				&& builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
-				&& builder.edgeMaxThicknessDiff == null && builder.fontSizeDiff == null && !builder.fontBoldChanged
-				&& builder.labelDiff == null && builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
+				&& builder.edgeMaxThicknessDiff == null && builder.nodeLabelPositionDiff == null
+				&& builder.fontSizeDiff == null && !builder.fontBoldChanged && builder.labelDiff == null
+				&& builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {

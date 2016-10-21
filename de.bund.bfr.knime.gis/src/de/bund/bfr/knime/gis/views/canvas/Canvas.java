@@ -51,6 +51,7 @@ import javax.swing.JPanel;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimaps;
@@ -61,9 +62,11 @@ import de.bund.bfr.jung.BetterEdgeShapeTransformer;
 import de.bund.bfr.jung.BetterGraphMouse;
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.BetterScalingGraphMousePlugin;
+import de.bund.bfr.jung.BetterVertexLabelRenderer;
 import de.bund.bfr.jung.BetterVisualizationViewer;
 import de.bund.bfr.jung.JungListener;
 import de.bund.bfr.jung.JungUtils;
+import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.knime.KnimeUtils;
@@ -153,6 +156,8 @@ public abstract class Canvas<V extends Node> extends JPanel
 		viewer.addPostRenderPaintable(new PostPaintable());
 		viewer.addPostRenderPaintable(createZoomingPaintable());
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(viewer, this.nodes, this.edges));
+		viewer.getRenderer().setVertexLabelRenderer(
+				new BetterVertexLabelRenderer<>(CanvasOptionsPanel.DEFAULT_NODE_LABEL_POSITION));
 
 		RenderContext<V, Edge<V>> rc = viewer.getRenderContext();
 
@@ -336,6 +341,16 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void setArrowHeadType(ArrowHeadType arrowHeadType) {
 		optionsPanel.setArrowHeadType(arrowHeadType);
+	}
+
+	@Override
+	public LabelPosition getNodeLabelPosition() {
+		return optionsPanel.getNodeLabelPosition();
+	}
+
+	@Override
+	public void setNodeLabelPosition(LabelPosition nodeLabelPosition) {
+		optionsPanel.setNodeLabelPosition(nodeLabelPosition);
 	}
 
 	@Override
@@ -1026,6 +1041,14 @@ public abstract class Canvas<V extends Node> extends JPanel
 						? new MiddleEdgeArrowRenderingSupport<>() : new BasicEdgeArrowRenderingSupport<>());
 		viewer.repaint();
 		call(l -> l.arrowHeadTypeChanged(this));
+	}
+
+	@Override
+	public void nodeLabelPositionChanged() {
+		viewer.getRenderer()
+				.setVertexLabelRenderer(new BetterVertexLabelRenderer<>(optionsPanel.getNodeLabelPosition()));
+		viewer.repaint();
+		call(l -> l.nodeLabelPositionChanged(this));
 	}
 
 	@Override

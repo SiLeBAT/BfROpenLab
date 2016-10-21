@@ -127,6 +127,9 @@
 				Condition" or "Logical Value Condition" is defined for stations. Otherwise the station sizes are
 				between min and max.
 			</option>
+			<option name="Station Label">
+				Position of the station label relative to the station.
+			</option>
 			<option name="Delivery Thickness">
 				Min/Max thickness of the deliveries. Min value is used, when no "Value
 				Condition" or "Logical Value Condition" is defined for deliveries. Otherwise the delivery

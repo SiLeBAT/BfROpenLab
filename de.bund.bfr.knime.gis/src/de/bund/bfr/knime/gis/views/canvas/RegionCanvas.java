@@ -26,7 +26,9 @@ import java.util.Collection;
 import java.util.List;
 
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
+import de.bund.bfr.jung.BetterVertexLabelRenderer;
 import de.bund.bfr.jung.JungUtils;
+import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -36,7 +38,6 @@ import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
-import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 /**
  * @author Christian Thoens
@@ -72,7 +73,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(2, null, null, null));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderContext().setVertexFillPaintTransformer(node -> new Color(0, 0, 0, 0));
-		viewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+		viewer.getRenderer().setVertexLabelRenderer(new BetterVertexLabelRenderer<>(LabelPosition.CENTER));
 
 		for (RegionNode node : this.nodes) {
 			node.updatePolygon(GisUtils.latLonToViz(node.getPolygon()));
