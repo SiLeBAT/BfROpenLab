@@ -124,4 +124,10 @@ public class TestFlows {
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
 		runner.runTestWorkflow(new File("workflows/Tracing_Test_without_Temporal_Order"));
 	}
+
+	@Test
+	public void testTracingView() throws IOException, InvalidSettingsException, CanceledExecutionException,
+			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
+		runner.runTestWorkflow(new File("workflows/TracingView_Test"));
+	}
 }
