@@ -360,11 +360,8 @@ public class TracingChange implements Serializable {
 
 	private void undoRedo(ITracingCanvas<?> canvas, boolean undo) {
 		if (builder.transformDiff != null && !builder.transformDiff.equals(Transform.IDENTITY_TRANSFORM)) {
-			if (undo) {
-				canvas.setTransform(builder.transformDiff.inverse().concatenate(canvas.getTransform()));
-			} else {
-				canvas.setTransform(builder.transformDiff.concatenate(canvas.getTransform()));
-			}
+			canvas.setTransform((undo ? builder.transformDiff.inverse() : builder.transformDiff)
+					.concatenate(canvas.getTransform()));
 		}
 
 		if (builder.edgeJoinChanged) {
@@ -380,8 +377,7 @@ public class TracingChange implements Serializable {
 		}
 
 		if (builder.arrowHeadTypeDiff != null) {
-			canvas.setArrowHeadType(
-					undo ? builder.arrowHeadTypeDiff.getFirst() : builder.arrowHeadTypeDiff.getSecond());
+			canvas.setArrowHeadType(applyDiff(builder.arrowHeadTypeDiff, undo));
 		}
 
 		if (builder.showLegendChanged) {
@@ -401,7 +397,7 @@ public class TracingChange implements Serializable {
 		}
 
 		if (builder.showToDateDiff != null) {
-			canvas.setShowToDate(undo ? builder.showToDateDiff.getFirst() : builder.showToDateDiff.getSecond());
+			canvas.setShowToDate(applyDiff(builder.showToDateDiff, undo));
 		}
 
 		if (!builder.changedCollapsedNodes.isEmpty()) {
@@ -427,9 +423,8 @@ public class TracingChange implements Serializable {
 		}
 
 		if (canvas instanceof GraphCanvas && !builder.changedNodePositions.isEmpty()) {
-			GraphCanvas c = (GraphCanvas) canvas;
-
-			c.setNodePositions(toMap(symDiff(toSet(c.getNodePositions()), builder.changedNodePositions)));
+			((GraphCanvas) canvas).setNodePositions(
+					toMap(symDiff(toSet(((GraphCanvas) canvas).getNodePositions()), builder.changedNodePositions)));
 		}
 
 		if (!builder.changedNodeWeights.isEmpty()) {
@@ -469,30 +464,27 @@ public class TracingChange implements Serializable {
 		}
 
 		if (builder.nodeSizeDiff != null) {
-			canvas.setNodeSize(undo ? builder.nodeSizeDiff.getFirst() : builder.nodeSizeDiff.getSecond());
+			canvas.setNodeSize(applyDiff(builder.nodeSizeDiff, undo));
 		}
 
 		if (builder.nodeMaxSizeDiff != null) {
-			canvas.setNodeMaxSize(undo ? builder.nodeMaxSizeDiff.getFirst() : builder.nodeMaxSizeDiff.getSecond());
+			canvas.setNodeMaxSize(applyDiff(builder.nodeMaxSizeDiff, undo));
 		}
 
 		if (builder.edgeThicknessDiff != null) {
-			canvas.setEdgeThickness(
-					undo ? builder.edgeThicknessDiff.getFirst() : builder.edgeThicknessDiff.getSecond());
+			canvas.setEdgeThickness(applyDiff(builder.edgeThicknessDiff, undo));
 		}
 
 		if (builder.edgeMaxThicknessDiff != null) {
-			canvas.setEdgeMaxThickness(
-					undo ? builder.edgeMaxThicknessDiff.getFirst() : builder.edgeMaxThicknessDiff.getSecond());
+			canvas.setEdgeMaxThickness(applyDiff(builder.edgeMaxThicknessDiff, undo));
 		}
 
 		if (builder.nodeLabelPositionDiff != null) {
-			canvas.setNodeLabelPosition(
-					undo ? builder.nodeLabelPositionDiff.getFirst() : builder.nodeLabelPositionDiff.getSecond());
+			canvas.setNodeLabelPosition(applyDiff(builder.nodeLabelPositionDiff, undo));
 		}
 
 		if (builder.fontSizeDiff != null) {
-			canvas.setFontSize(undo ? builder.fontSizeDiff.getFirst() : builder.fontSizeDiff.getSecond());
+			canvas.setFontSize(applyDiff(builder.fontSizeDiff, undo));
 		}
 
 		if (builder.fontBoldChanged) {
@@ -500,11 +492,11 @@ public class TracingChange implements Serializable {
 		}
 
 		if (builder.labelDiff != null) {
-			canvas.setLabel(undo ? builder.labelDiff.getFirst() : builder.labelDiff.getSecond());
+			canvas.setLabel(applyDiff(builder.labelDiff, undo));
 		}
 
 		if (builder.borderAlphaDiff != null) {
-			canvas.setBorderAlpha(undo ? builder.borderAlphaDiff.getFirst() : builder.borderAlphaDiff.getSecond());
+			canvas.setBorderAlpha(applyDiff(builder.borderAlphaDiff, undo));
 		}
 
 		if (builder.avoidOverlayChanged) {
@@ -554,6 +546,10 @@ public class TracingChange implements Serializable {
 
 	private static <T> Pair<T, T> createDiff(T before, T after) {
 		return !Objects.equals(before, after) ? new Pair<>(before, after) : null;
+	}
+
+	private static <T> T applyDiff(Pair<T, T> diff, boolean undo) {
+		return undo ? diff.getFirst() : diff.getSecond();
 	}
 
 	private static class ViewDiff implements Serializable {
