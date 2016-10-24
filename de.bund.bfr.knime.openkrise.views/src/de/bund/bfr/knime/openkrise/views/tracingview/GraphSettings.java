@@ -130,22 +130,22 @@ public class GraphSettings extends NodeSettings {
 
 	public void setFromCanvas(GraphCanvas canvas) {
 		transform = canvas.getTransform();
-		nodeSize = canvas.getNodeSize();
-		nodeMaxSize = canvas.getNodeMaxSize();
-		edgeThickness = canvas.getEdgeThickness();
-		edgeMaxThickness = canvas.getEdgeMaxThickness();
-		fontSize = canvas.getFontSize();
-		fontBold = canvas.isFontBold();
+		nodeSize = canvas.getOptionsPanel().getNodeSize();
+		nodeMaxSize = canvas.getOptionsPanel().getNodeMaxSize();
+		edgeThickness = canvas.getOptionsPanel().getEdgeThickness();
+		edgeMaxThickness = canvas.getOptionsPanel().getEdgeMaxThickness();
+		fontSize = canvas.getOptionsPanel().getFontSize();
+		fontBold = canvas.getOptionsPanel().isFontBold();
 		nodePositions = canvas.getNodePositions();
 	}
 
 	public void setToCanvas(GraphCanvas canvas) {
-		canvas.setNodeSize(nodeSize);
-		canvas.setNodeMaxSize(nodeMaxSize);
-		canvas.setEdgeThickness(edgeThickness);
-		canvas.setEdgeMaxThickness(edgeMaxThickness);
-		canvas.setFontSize(fontSize);
-		canvas.setFontBold(fontBold);
+		canvas.getOptionsPanel().setNodeSize(nodeSize);
+		canvas.getOptionsPanel().setNodeMaxSize(nodeMaxSize);
+		canvas.getOptionsPanel().setEdgeThickness(edgeThickness);
+		canvas.getOptionsPanel().setEdgeMaxThickness(edgeMaxThickness);
+		canvas.getOptionsPanel().setFontSize(fontSize);
+		canvas.getOptionsPanel().setFontBold(fontBold);
 
 		if (transform.isValid()) {
 			canvas.setTransform(transform);

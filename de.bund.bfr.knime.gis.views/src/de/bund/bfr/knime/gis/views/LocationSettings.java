@@ -108,21 +108,21 @@ public class LocationSettings extends GisSettings {
 	@Override
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
 		super.setFromCanvas(canvas, resized);
-		nodeSize = canvas.getNodeSize();
-		nodeMaxSize = canvas.getNodeMaxSize();
-		edgeThickness = canvas.getEdgeThickness();
-		edgeMaxThickness = canvas.getEdgeMaxThickness();
-		avoidOverlay = canvas.isAvoidOverlay();
+		nodeSize = canvas.getOptionsPanel().getNodeSize();
+		nodeMaxSize = canvas.getOptionsPanel().getNodeMaxSize();
+		edgeThickness = canvas.getOptionsPanel().getEdgeThickness();
+		edgeMaxThickness = canvas.getOptionsPanel().getEdgeMaxThickness();
+		avoidOverlay = canvas.getOptionsPanel().isAvoidOverlay();
 	}
 
 	@Override
 	public void setToCanvas(Canvas<?> canvas) {
 		super.setToCanvas(canvas);
-		canvas.setNodeSize(nodeSize);
-		canvas.setNodeMaxSize(nodeMaxSize);
-		canvas.setEdgeThickness(edgeThickness);
-		canvas.setEdgeMaxThickness(edgeMaxThickness);
-		canvas.setAvoidOverlay(avoidOverlay);
+		canvas.getOptionsPanel().setNodeSize(nodeSize);
+		canvas.getOptionsPanel().setNodeMaxSize(nodeMaxSize);
+		canvas.getOptionsPanel().setEdgeThickness(edgeThickness);
+		canvas.getOptionsPanel().setEdgeMaxThickness(edgeMaxThickness);
+		canvas.getOptionsPanel().setAvoidOverlay(avoidOverlay);
 	}
 
 	public String getNodeLatitudeColumn() {

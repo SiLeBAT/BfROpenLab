@@ -66,7 +66,6 @@ import de.bund.bfr.jung.BetterVertexLabelRenderer;
 import de.bund.bfr.jung.BetterVisualizationViewer;
 import de.bund.bfr.jung.JungListener;
 import de.bund.bfr.jung.JungUtils;
-import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.knime.KnimeUtils;
@@ -97,7 +96,6 @@ import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
@@ -221,166 +219,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 	public void setCanvasSize(Dimension canvasSize) {
 		viewer.setPreferredSize(canvasSize);
 		resetLayoutItemClicked();
-	}
-
-	@Override
-	public Mode getEditingMode() {
-		return optionsPanel.getEditingMode();
-	}
-
-	@Override
-	public void setEditingMode(Mode editingMode) {
-		optionsPanel.setEditingMode(editingMode);
-	}
-
-	@Override
-	public boolean isShowLegend() {
-		return optionsPanel.isShowLegend();
-	}
-
-	@Override
-	public void setShowLegend(boolean showLegend) {
-		optionsPanel.setShowLegend(showLegend);
-	}
-
-	@Override
-	public boolean isJoinEdges() {
-		return optionsPanel.isJoinEdges();
-	}
-
-	@Override
-	public void setJoinEdges(boolean joinEdges) {
-		optionsPanel.setJoinEdges(joinEdges);
-	}
-
-	@Override
-	public boolean isSkipEdgelessNodes() {
-		return optionsPanel.isSkipEdgelessNodes();
-	}
-
-	@Override
-	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
-		optionsPanel.setSkipEdgelessNodes(skipEdgelessNodes);
-	}
-
-	@Override
-	public boolean isShowEdgesInMetaNode() {
-		return optionsPanel.isShowEdgesInMetaNode();
-	}
-
-	@Override
-	public void setShowEdgesInMetaNode(boolean showEdgesInMetaNode) {
-		optionsPanel.setShowEdgesInMetaNode(showEdgesInMetaNode);
-	}
-
-	@Override
-	public int getFontSize() {
-		return optionsPanel.getFontSize();
-	}
-
-	@Override
-	public void setFontSize(int fontSize) {
-		optionsPanel.setFontSize(fontSize);
-	}
-
-	@Override
-	public boolean isFontBold() {
-		return optionsPanel.isFontBold();
-	}
-
-	@Override
-	public void setFontBold(boolean fontBold) {
-		optionsPanel.setFontBold(fontBold);
-	}
-
-	@Override
-	public int getNodeSize() {
-		return optionsPanel.getNodeSize();
-	}
-
-	@Override
-	public void setNodeSize(int nodeSize) {
-		optionsPanel.setNodeSize(nodeSize);
-	}
-
-	@Override
-	public Integer getNodeMaxSize() {
-		return optionsPanel.getNodeMaxSize();
-	}
-
-	@Override
-	public void setNodeMaxSize(Integer nodeMaxSize) {
-		optionsPanel.setNodeMaxSize(nodeMaxSize);
-	}
-
-	@Override
-	public int getEdgeThickness() {
-		return optionsPanel.getEdgeThickness();
-	}
-
-	@Override
-	public void setEdgeThickness(int edgeThickness) {
-		optionsPanel.setEdgeThickness(edgeThickness);
-	}
-
-	@Override
-	public Integer getEdgeMaxThickness() {
-		return optionsPanel.getEdgeMaxThickness();
-	}
-
-	@Override
-	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
-		optionsPanel.setEdgeMaxThickness(edgeMaxThickness);
-	}
-
-	@Override
-	public ArrowHeadType getArrowHeadType() {
-		return optionsPanel.getArrowHeadType();
-	}
-
-	@Override
-	public void setArrowHeadType(ArrowHeadType arrowHeadType) {
-		optionsPanel.setArrowHeadType(arrowHeadType);
-	}
-
-	@Override
-	public LabelPosition getNodeLabelPosition() {
-		return optionsPanel.getNodeLabelPosition();
-	}
-
-	@Override
-	public void setNodeLabelPosition(LabelPosition nodeLabelPosition) {
-		optionsPanel.setNodeLabelPosition(nodeLabelPosition);
-	}
-
-	@Override
-	public String getLabel() {
-		return optionsPanel.getLabel();
-	}
-
-	@Override
-	public void setLabel(String label) {
-		optionsPanel.setLabel(label);
-	}
-
-	@Override
-	public int getBorderAlpha() {
-		return optionsPanel.getBorderAlpha();
-	}
-
-	@Override
-	public void setBorderAlpha(int borderAlpha) {
-		optionsPanel.setBorderAlpha(borderAlpha);
-	}
-
-	@Override
-	public boolean isAvoidOverlay() {
-		return optionsPanel.isAvoidOverlay();
-	}
-
-	@Override
-	public void setAvoidOverlay(boolean avoidOverlay) {
-		optionsPanel.setAvoidOverlay(avoidOverlay);
 	}
 
 	@Override
@@ -1009,9 +847,9 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void fontChanged() {
-		Font font = new Font("default", optionsPanel.isFontBold() ? Font.BOLD : Font.PLAIN, getFontSize());
+		Font font = new Font("default", optionsPanel.isFontBold() ? Font.BOLD : Font.PLAIN, optionsPanel.getFontSize());
 
-		viewer.getRenderContext().setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(getFontSize()));
+		viewer.getRenderContext().setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(optionsPanel.getFontSize()));
 		viewer.getRenderContext().setVertexFontTransformer(node -> font);
 		viewer.getRenderContext().setEdgeFontTransformer(edge -> font);
 		viewer.repaint();
@@ -1195,28 +1033,28 @@ public abstract class Canvas<V extends Node> extends JPanel
 	public void applyJoinEdgesAndSkipEdgeless() {
 		joinMap.clear();
 
-		if (isJoinEdges()) {
+		if (optionsPanel.isJoinEdges()) {
 			joinMap.putAll(CanvasUtils.joinEdges(edges, edgeSchema, allEdges));
 			edges.clear();
 			edges.addAll(joinMap.keySet());
 		}
 
-		if (isSkipEdgelessNodes()) {
+		if (optionsPanel.isSkipEdgelessNodes()) {
 			CanvasUtils.removeEdgelessNodes(nodes, edges);
 		}
 	}
 
 	@Override
 	public void applyHighlights() {
-		CanvasUtils.applyNodeHighlights(viewer.getRenderContext(), nodes, nodeHighlightConditions, getNodeSize(),
-				getNodeMaxSize(), metaNodeProperty);
-		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions, getEdgeThickness(),
-				getEdgeMaxThickness());
+		CanvasUtils.applyNodeHighlights(viewer.getRenderContext(), nodes, nodeHighlightConditions,
+				optionsPanel.getNodeSize(), optionsPanel.getNodeMaxSize(), metaNodeProperty);
+		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions,
+				optionsPanel.getEdgeThickness(), optionsPanel.getEdgeMaxThickness());
 	}
 
 	@Override
 	public void applyShowEdgesInMetaNode() {
-		if (!isShowEdgesInMetaNode()) {
+		if (!optionsPanel.isShowEdgesInMetaNode()) {
 			Predicate<Edge<V>> isNotInMetaNode = e -> e.getFrom() != e.getTo()
 					|| !collapsedNodes.containsKey(e.getFrom().getId());
 
@@ -1259,7 +1097,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		dialog.setSelectorCreator(createPropertySelectorCreator());
 		dialog.addChecker(condition -> {
-			if (isJoinEdges() && condition != null && condition.isInvisible()
+			if (optionsPanel.isJoinEdges() && condition != null && condition.isInvisible()
 					&& CanvasUtils.getUsedProperties(condition).contains(edgeSchema.getId())) {
 				return "Joined " + naming.edges() + " cannot be made invisible.\nYou can uncheck \"Join "
 						+ naming.Edges() + "\" and make the unjoined " + naming.edges() + " invisible.";
@@ -1310,7 +1148,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		public void paint(Graphics graphics) {
 			Graphics2D g = (Graphics2D) graphics;
 
-			if (!Strings.isNullOrEmpty(getLabel())) {
+			if (!Strings.isNullOrEmpty(optionsPanel.getLabel())) {
 				paintLabel(g);
 			}
 
@@ -1334,7 +1172,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 			int dy = 2;
 
 			int dx = 5;
-			int sw = (int) font.getStringBounds(getLabel(), g.getFontRenderContext()).getWidth();
+			int sw = (int) font.getStringBounds(optionsPanel.getLabel(), g.getFontRenderContext()).getWidth();
 			Color currentColor = g.getColor();
 			Font currentFont = g.getFont();
 
@@ -1343,7 +1181,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 			g.setColor(Color.BLACK);
 			g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
 			g.setFont(font);
-			g.drawString(getLabel(), w - sw - dx, dy + fontAscent);
+			g.drawString(optionsPanel.getLabel(), w - sw - dx, dy + fontAscent);
 
 			g.setColor(currentColor);
 			g.setFont(currentFont);

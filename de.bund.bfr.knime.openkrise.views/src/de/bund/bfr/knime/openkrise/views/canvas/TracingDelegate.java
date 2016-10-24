@@ -343,7 +343,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void edgePropertiesItemClicked() {
-		if (canvas.isJoinEdges()) {
+		if (canvas.getOptionsPanel().isJoinEdges()) {
 			PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(canvas, canvas.getSelectedEdges(),
 					canvas.getEdgeSchema(), true);
 
@@ -416,7 +416,7 @@ public class TracingDelegate<V extends Node> {
 						.forEach(l -> l.nodePropertiesChanged(canvas));
 			}
 		} else if (obj instanceof Edge) {
-			if (!canvas.isJoinEdges()) {
+			if (!canvas.getOptionsPanel().isJoinEdges()) {
 				EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas.getViewer(),
 						(Element) obj, canvas.getEdgeSchema().getMap());
 
@@ -501,7 +501,7 @@ public class TracingDelegate<V extends Node> {
 
 		Set<Edge<V>> edges = new LinkedHashSet<>();
 
-		if (!canvas.isJoinEdges()) {
+		if (!canvas.getOptionsPanel().isJoinEdges()) {
 			edges.addAll(canvas.getEdges());
 		} else {
 			for (Edge<V> edge : canvas.getEdges()) {
@@ -552,7 +552,7 @@ public class TracingDelegate<V extends Node> {
 			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(edge.getId()));
 		}
 
-		if (canvas.isJoinEdges()) {
+		if (canvas.getOptionsPanel().isJoinEdges()) {
 			for (Edge<V> edge : canvas.getEdges()) {
 				edge.getProperties().put(TracingColumns.SCORE, null);
 				edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, null);

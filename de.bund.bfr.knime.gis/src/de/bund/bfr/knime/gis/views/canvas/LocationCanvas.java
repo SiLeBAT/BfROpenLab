@@ -71,8 +71,8 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true, true));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				JungUtils.newNodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null, null));
+		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(
+				getOptionsPanel().getNodeSize(), getOptionsPanel().getNodeMaxSize(), null, null));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {
@@ -106,8 +106,8 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 	@Override
 	public void avoidOverlayChanged() {
-		LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform, getNodeSize(),
-				isAvoidOverlay());
+		LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform,
+				getOptionsPanel().getNodeSize(), getOptionsPanel().isAvoidOverlay());
 		super.avoidOverlayChanged();
 	}
 
@@ -115,9 +115,10 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	protected void applyTransform() {
 		super.applyTransform();
 
-		if (isAvoidOverlay()) {
+		if (getOptionsPanel().isAvoidOverlay()) {
 			if (lastScaleX == null || lastScaleX != transform.getScaleX()) {
-				LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform, getNodeSize(), true);
+				LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform,
+						getOptionsPanel().getNodeSize(), true);
 			}
 		}
 	}

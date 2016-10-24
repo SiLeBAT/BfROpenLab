@@ -76,16 +76,17 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 
 	@Override
 	protected void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground) {
+		int borderAlpha = getOptionsPanel().getBorderAlpha();
 		Color currentColor = g.getColor();
 
 		if (onWhiteBackground) {
-			g.setColor(new Color(255 - getBorderAlpha(), 255 - getBorderAlpha(), 255 - getBorderAlpha()));
+			g.setColor(new Color(255 - borderAlpha, 255 - borderAlpha, 255 - borderAlpha));
 
 			for (RegionNode node : getRegions()) {
 				g.draw(node.getTransformedPolygon());
 			}
-		} else if (toSvg || getBorderAlpha() == 255) {
-			g.setColor(new Color(0, 0, 0, getBorderAlpha()));
+		} else if (toSvg || borderAlpha == 255) {
+			g.setColor(new Color(0, 0, 0, borderAlpha));
 
 			for (RegionNode node : getRegions()) {
 				g.draw(node.getTransformedPolygon());
@@ -101,7 +102,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 				borderGraphics.draw(node.getTransformedPolygon());
 			}
 
-			CanvasUtils.drawImageWithAlpha(g, borderImage, getBorderAlpha());
+			CanvasUtils.drawImageWithAlpha(g, borderImage, borderAlpha);
 			borderImage.flush();
 		}
 

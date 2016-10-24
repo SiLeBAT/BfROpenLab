@@ -103,8 +103,8 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode> {
 	@Override
 	public void applyHighlights() {
 		CanvasUtils.applyNodeLabels(viewer.getRenderContext(), nodes, nodeHighlightConditions);
-		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions, getEdgeThickness(),
-				getEdgeMaxThickness());
+		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions,
+				getOptionsPanel().getEdgeThickness(), getOptionsPanel().getEdgeMaxThickness());
 	}
 
 	@Override

@@ -74,8 +74,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				JungUtils.newNodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null, null));
+		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(
+				getOptionsPanel().getNodeSize(), getOptionsPanel().getNodeMaxSize(), null, null));
 	}
 
 	public void initLayout() {

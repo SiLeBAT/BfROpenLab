@@ -191,19 +191,19 @@ public class GisSettings extends NodeSettings {
 	}
 
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
-		showLegend = canvas.isShowLegend();
+		showLegend = canvas.getOptionsPanel().isShowLegend();
 		transform = canvas.getTransform();
-		nodeSize = canvas.getNodeSize();
-		nodeMaxSize = canvas.getNodeMaxSize();
-		edgeThickness = canvas.getEdgeThickness();
-		edgeMaxThickness = canvas.getEdgeMaxThickness();
-		fontSize = canvas.getFontSize();
-		fontBold = canvas.isFontBold();
-		borderAlpha = canvas.getBorderAlpha();
-		editingMode = canvas.getEditingMode();
+		nodeSize = canvas.getOptionsPanel().getNodeSize();
+		nodeMaxSize = canvas.getOptionsPanel().getNodeMaxSize();
+		edgeThickness = canvas.getOptionsPanel().getEdgeThickness();
+		edgeMaxThickness = canvas.getOptionsPanel().getEdgeMaxThickness();
+		fontSize = canvas.getOptionsPanel().getFontSize();
+		fontBold = canvas.getOptionsPanel().isFontBold();
+		borderAlpha = canvas.getOptionsPanel().getBorderAlpha();
+		editingMode = canvas.getOptionsPanel().getEditingMode();
 		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
-		avoidOverlay = canvas.isAvoidOverlay();
+		avoidOverlay = canvas.getOptionsPanel().isAvoidOverlay();
 
 		if (resized) {
 			canvasSize = canvas.getCanvasSize();
@@ -211,16 +211,16 @@ public class GisSettings extends NodeSettings {
 	}
 
 	public void setToCanvas(Canvas<?> canvas, boolean applySelectionAndHighlighting) {
-		canvas.setShowLegend(showLegend);
-		canvas.setNodeSize(nodeSize);
-		canvas.setNodeMaxSize(nodeMaxSize);
-		canvas.setEdgeThickness(edgeThickness);
-		canvas.setEdgeMaxThickness(edgeMaxThickness);
-		canvas.setFontSize(fontSize);
-		canvas.setFontBold(fontBold);
-		canvas.setBorderAlpha(borderAlpha);
-		canvas.setEditingMode(editingMode);
-		canvas.setAvoidOverlay(avoidOverlay);
+		canvas.getOptionsPanel().setShowLegend(showLegend);
+		canvas.getOptionsPanel().setNodeSize(nodeSize);
+		canvas.getOptionsPanel().setNodeMaxSize(nodeMaxSize);
+		canvas.getOptionsPanel().setEdgeThickness(edgeThickness);
+		canvas.getOptionsPanel().setEdgeMaxThickness(edgeMaxThickness);
+		canvas.getOptionsPanel().setFontSize(fontSize);
+		canvas.getOptionsPanel().setFontBold(fontBold);
+		canvas.getOptionsPanel().setBorderAlpha(borderAlpha);
+		canvas.getOptionsPanel().setEditingMode(editingMode);
+		canvas.getOptionsPanel().setAvoidOverlay(avoidOverlay);
 
 		if (applySelectionAndHighlighting) {
 			canvas.setNodeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils

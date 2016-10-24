@@ -332,7 +332,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void edgeJoinChanged(ICanvas<?> source) {
-		boolean newEdgeJoin = canvas.isJoinEdges();
+		boolean newEdgeJoin = canvas.getOptionsPanel().isJoinEdges();
 
 		if (changeOccured(new TracingChange.Builder().joinEdges(joinEdges, newEdgeJoin).build())) {
 			joinEdges = newEdgeJoin;
@@ -341,7 +341,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void skipEdgelessChanged(ICanvas<?> source) {
-		boolean newSkipEdgeless = canvas.isSkipEdgelessNodes();
+		boolean newSkipEdgeless = canvas.getOptionsPanel().isSkipEdgelessNodes();
 
 		if (changeOccured(new TracingChange.Builder().skipEdgelessNodes(skipEdgelessNodes, newSkipEdgeless).build())) {
 			skipEdgelessNodes = newSkipEdgeless;
@@ -350,7 +350,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void showEdgesInMetaNodeChanged(ICanvas<?> source) {
-		boolean newShowEdgesInMeta = canvas.isShowEdgesInMetaNode();
+		boolean newShowEdgesInMeta = canvas.getOptionsPanel().isShowEdgesInMetaNode();
 
 		if (changeOccured(
 				new TracingChange.Builder().showEdgesInMetaNode(showEdgesInMetaNode, newShowEdgesInMeta).build())) {
@@ -360,7 +360,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void arrowHeadTypeChanged(ICanvas<?> source) {
-		ArrowHeadType newArrowHeadType = canvas.getArrowHeadType();
+		ArrowHeadType newArrowHeadType = canvas.getOptionsPanel().getArrowHeadType();
 
 		if (changeOccured(new TracingChange.Builder().arrowHeadType(arrowHeadType, newArrowHeadType).build())) {
 			arrowHeadType = newArrowHeadType;
@@ -369,7 +369,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void nodeLabelPositionChanged(ICanvas<?> source) {
-		LabelPosition newNodeLabelPosition = canvas.getNodeLabelPosition();
+		LabelPosition newNodeLabelPosition = canvas.getOptionsPanel().getNodeLabelPosition();
 
 		if (changeOccured(
 				new TracingChange.Builder().nodeLabelPosition(nodeLabelPosition, newNodeLabelPosition).build())) {
@@ -379,7 +379,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void showLegendChanged(ICanvas<?> source) {
-		boolean newShowLegend = canvas.isShowLegend();
+		boolean newShowLegend = canvas.getOptionsPanel().isShowLegend();
 
 		if (changeOccured(new TracingChange.Builder().showLegend(showLegend, newShowLegend).build())) {
 			showLegend = newShowLegend;
@@ -409,8 +409,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void nodeSizeChanged(ICanvas<?> source) {
-		int newNodeSize = canvas.getNodeSize();
-		Integer newNodeMaxSize = canvas.getNodeMaxSize();
+		int newNodeSize = canvas.getOptionsPanel().getNodeSize();
+		Integer newNodeMaxSize = canvas.getOptionsPanel().getNodeMaxSize();
 
 		if (changeOccured(
 				new TracingChange.Builder().nodeSize(nodeSize, newNodeSize, nodeMaxSize, newNodeMaxSize).build())) {
@@ -421,8 +421,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void edgeThicknessChanged(ICanvas<?> source) {
-		int newEdgeThickness = canvas.getEdgeThickness();
-		Integer newEdgeMaxThickness = canvas.getEdgeMaxThickness();
+		int newEdgeThickness = canvas.getOptionsPanel().getEdgeThickness();
+		Integer newEdgeMaxThickness = canvas.getOptionsPanel().getEdgeMaxThickness();
 
 		if (changeOccured(new TracingChange.Builder()
 				.edgeThickness(edgeThickness, newEdgeThickness, edgeMaxThickness, newEdgeMaxThickness).build())) {
@@ -433,8 +433,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void fontChanged(ICanvas<?> source) {
-		int newFontSize = canvas.getFontSize();
-		boolean newFontBold = canvas.isFontBold();
+		int newFontSize = canvas.getOptionsPanel().getFontSize();
+		boolean newFontBold = canvas.getOptionsPanel().isFontBold();
 
 		if (changeOccured(new TracingChange.Builder().font(fontSize, newFontSize, fontBold, newFontBold).build())) {
 			fontSize = newFontSize;
@@ -444,7 +444,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void labelChanged(ICanvas<?> source) {
-		String newLabel = canvas.getLabel();
+		String newLabel = canvas.getOptionsPanel().getLabel();
 
 		if (changeOccured(new TracingChange.Builder().label(label, newLabel).build())) {
 			label = newLabel;
@@ -453,7 +453,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void borderAlphaChanged(ICanvas<?> source) {
-		int newBorderAlpha = canvas.getBorderAlpha();
+		int newBorderAlpha = canvas.getOptionsPanel().getBorderAlpha();
 
 		if (changeOccured(new TracingChange.Builder().borderAlpha(borderAlpha, newBorderAlpha).build())) {
 			borderAlpha = newBorderAlpha;
@@ -462,7 +462,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	@Override
 	public void avoidOverlayChanged(ICanvas<?> source) {
-		boolean newAvoidOverlay = canvas.isAvoidOverlay();
+		boolean newAvoidOverlay = canvas.getOptionsPanel().isAvoidOverlay();
 
 		if (changeOccured(new TracingChange.Builder().avoidOverlay(avoidOverlay, newAvoidOverlay).build())) {
 			avoidOverlay = newAvoidOverlay;
@@ -733,27 +733,27 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		observedNodes = new LinkedHashMap<>(canvas.getObservedNodes());
 		observedEdges = new LinkedHashMap<>(canvas.getObservedEdges());
 
-		joinEdges = canvas.isJoinEdges();
-		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
-		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
-		arrowHeadType = canvas.getArrowHeadType();
-		nodeLabelPosition = canvas.getNodeLabelPosition();
-		showLegend = canvas.isShowLegend();
+		joinEdges = canvas.getOptionsPanel().isJoinEdges();
+		skipEdgelessNodes = canvas.getOptionsPanel().isSkipEdgelessNodes();
+		showEdgesInMetaNode = canvas.getOptionsPanel().isShowEdgesInMetaNode();
+		arrowHeadType = canvas.getOptionsPanel().getArrowHeadType();
+		nodeLabelPosition = canvas.getOptionsPanel().getNodeLabelPosition();
+		showLegend = canvas.getOptionsPanel().isShowLegend();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();
 		showDeliveriesWithoutDate = canvas.isShowDeliveriesWithoutDate();
 		showToDate = canvas.getShowToDate();
 
-		nodeSize = canvas.getNodeSize();
-		nodeMaxSize = canvas.getNodeMaxSize();
-		edgeThickness = canvas.getEdgeThickness();
-		edgeMaxThickness = canvas.getEdgeMaxThickness();
-		fontSize = canvas.getFontSize();
-		fontBold = canvas.isFontBold();
-		label = canvas.getLabel();
+		nodeSize = canvas.getOptionsPanel().getNodeSize();
+		nodeMaxSize = canvas.getOptionsPanel().getNodeMaxSize();
+		edgeThickness = canvas.getOptionsPanel().getEdgeThickness();
+		edgeMaxThickness = canvas.getOptionsPanel().getEdgeMaxThickness();
+		fontSize = canvas.getOptionsPanel().getFontSize();
+		fontBold = canvas.getOptionsPanel().isFontBold();
+		label = canvas.getOptionsPanel().getLabel();
 
-		borderAlpha = canvas.getBorderAlpha();
-		avoidOverlay = canvas.isAvoidOverlay();
+		borderAlpha = canvas.getOptionsPanel().getBorderAlpha();
+		avoidOverlay = canvas.getOptionsPanel().isAvoidOverlay();
 	}
 
 	private void undoRedoPressed(boolean undo) {

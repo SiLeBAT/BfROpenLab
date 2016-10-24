@@ -169,15 +169,15 @@ public class GisSettings extends Settings {
 	}
 
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
-		showLegend = canvas.isShowLegend();
+		showLegend = canvas.getOptionsPanel().isShowLegend();
 		transform = canvas.getTransform();
-		fontSize = canvas.getFontSize();
-		fontBold = canvas.isFontBold();
-		borderAlpha = canvas.getBorderAlpha();
-		editingMode = canvas.getEditingMode();
+		fontSize = canvas.getOptionsPanel().getFontSize();
+		fontBold = canvas.getOptionsPanel().isFontBold();
+		borderAlpha = canvas.getOptionsPanel().getBorderAlpha();
+		editingMode = canvas.getOptionsPanel().getEditingMode();
 		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
-		label = canvas.getLabel();
+		label = canvas.getOptionsPanel().getLabel();
 
 		if (resized || canvasSize == null) {
 			canvasSize = canvas.getCanvasSize();
@@ -185,14 +185,14 @@ public class GisSettings extends Settings {
 	}
 
 	public void setToCanvas(Canvas<?> canvas) {
-		canvas.setShowLegend(showLegend);
-		canvas.setFontSize(fontSize);
-		canvas.setFontBold(fontBold);
-		canvas.setBorderAlpha(borderAlpha);
-		canvas.setEditingMode(editingMode);
+		canvas.getOptionsPanel().setShowLegend(showLegend);
+		canvas.getOptionsPanel().setFontSize(fontSize);
+		canvas.getOptionsPanel().setFontBold(fontBold);
+		canvas.getOptionsPanel().setBorderAlpha(borderAlpha);
+		canvas.getOptionsPanel().setEditingMode(editingMode);
 		canvas.setNodeHighlightConditions(nodeHighlightConditions);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
-		canvas.setLabel(label);
+		canvas.getOptionsPanel().setLabel(label);
 
 		if (canvasSize != null) {
 			canvas.setCanvasSize(canvasSize);

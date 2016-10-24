@@ -261,25 +261,25 @@ public class GraphSettings extends NodeSettings {
 	}
 
 	public void setFromCanvas(ICanvas<?> canvas, boolean resized) {
-		showLegend = canvas.isShowLegend();
+		showLegend = canvas.getOptionsPanel().isShowLegend();
 		transform = canvas.getTransform();
-		nodeSize = canvas.getNodeSize();
-		nodeMaxSize = canvas.getNodeMaxSize();
-		edgeThickness = canvas.getEdgeThickness();
-		edgeMaxThickness = canvas.getEdgeMaxThickness();
-		fontSize = canvas.getFontSize();
-		fontBold = canvas.isFontBold();
-		joinEdges = canvas.isJoinEdges();
-		arrowInMiddle = canvas.getArrowHeadType() == ArrowHeadType.IN_MIDDLE;
-		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
-		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
-		label = canvas.getLabel();
+		nodeSize = canvas.getOptionsPanel().getNodeSize();
+		nodeMaxSize = canvas.getOptionsPanel().getNodeMaxSize();
+		edgeThickness = canvas.getOptionsPanel().getEdgeThickness();
+		edgeMaxThickness = canvas.getOptionsPanel().getEdgeMaxThickness();
+		fontSize = canvas.getOptionsPanel().getFontSize();
+		fontBold = canvas.getOptionsPanel().isFontBold();
+		joinEdges = canvas.getOptionsPanel().isJoinEdges();
+		arrowInMiddle = canvas.getOptionsPanel().getArrowHeadType() == ArrowHeadType.IN_MIDDLE;
+		skipEdgelessNodes = canvas.getOptionsPanel().isSkipEdgelessNodes();
+		showEdgesInMetaNode = canvas.getOptionsPanel().isShowEdgesInMetaNode();
+		label = canvas.getOptionsPanel().getLabel();
 
 		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
 		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
-		editingMode = canvas.getEditingMode();
+		editingMode = canvas.getOptionsPanel().getEditingMode();
 		collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
 
 		if (resized) {
@@ -292,19 +292,19 @@ public class GraphSettings extends NodeSettings {
 	}
 
 	public void setToCanvas(ICanvas<?> canvas) {
-		canvas.setShowLegend(showLegend);
-		canvas.setEditingMode(editingMode);
-		canvas.setNodeSize(nodeSize);
-		canvas.setNodeMaxSize(nodeMaxSize);
-		canvas.setEdgeThickness(edgeThickness);
-		canvas.setEdgeMaxThickness(edgeMaxThickness);
-		canvas.setFontSize(fontSize);
-		canvas.setFontBold(fontBold);
-		canvas.setJoinEdges(joinEdges);
-		canvas.setArrowHeadType(arrowInMiddle ? ArrowHeadType.IN_MIDDLE : ArrowHeadType.AT_TARGET);
-		canvas.setLabel(label);
-		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
-		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
+		canvas.getOptionsPanel().setShowLegend(showLegend);
+		canvas.getOptionsPanel().setEditingMode(editingMode);
+		canvas.getOptionsPanel().setNodeSize(nodeSize);
+		canvas.getOptionsPanel().setNodeMaxSize(nodeMaxSize);
+		canvas.getOptionsPanel().setEdgeThickness(edgeThickness);
+		canvas.getOptionsPanel().setEdgeMaxThickness(edgeMaxThickness);
+		canvas.getOptionsPanel().setFontSize(fontSize);
+		canvas.getOptionsPanel().setFontBold(fontBold);
+		canvas.getOptionsPanel().setJoinEdges(joinEdges);
+		canvas.getOptionsPanel().setArrowHeadType(arrowInMiddle ? ArrowHeadType.IN_MIDDLE : ArrowHeadType.AT_TARGET);
+		canvas.getOptionsPanel().setLabel(label);
+		canvas.getOptionsPanel().setSkipEdgelessNodes(skipEdgelessNodes);
+		canvas.getOptionsPanel().setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setCollapsedNodes(BackwardUtils.toNewCollapseFormat(collapsedNodes));
 
 		canvas.setNodeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils

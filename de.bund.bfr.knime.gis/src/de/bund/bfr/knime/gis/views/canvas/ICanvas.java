@@ -26,11 +26,9 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import de.bund.bfr.jung.BetterVisualizationViewer;
-import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
@@ -38,7 +36,6 @@ import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public interface ICanvas<V extends Node> {
 
@@ -53,70 +50,6 @@ public interface ICanvas<V extends Node> {
 	Dimension getCanvasSize();
 
 	void setCanvasSize(Dimension canvasSize);
-
-	Mode getEditingMode();
-
-	void setEditingMode(Mode editingMode);
-
-	boolean isShowLegend();
-
-	void setShowLegend(boolean showLegend);
-
-	boolean isJoinEdges();
-
-	void setJoinEdges(boolean joinEdges);
-
-	boolean isSkipEdgelessNodes();
-
-	void setSkipEdgelessNodes(boolean skipEdgelessNodes);
-
-	boolean isShowEdgesInMetaNode();
-
-	void setShowEdgesInMetaNode(boolean showEdgesInMetaNode);
-
-	int getFontSize();
-
-	void setFontSize(int fontSize);
-
-	boolean isFontBold();
-
-	void setFontBold(boolean fontBold);
-
-	int getNodeSize();
-
-	void setNodeSize(int nodeSize);
-
-	Integer getNodeMaxSize();
-
-	void setNodeMaxSize(Integer nodeMaxSize);
-
-	int getEdgeThickness();
-
-	void setEdgeThickness(int edgeThickness);
-
-	Integer getEdgeMaxThickness();
-
-	void setEdgeMaxThickness(Integer edgeMaxThickness);
-
-	ArrowHeadType getArrowHeadType();
-
-	void setArrowHeadType(ArrowHeadType arrowHeadType);
-
-	LabelPosition getNodeLabelPosition();
-
-	void setNodeLabelPosition(LabelPosition nodeLabelPosition);
-
-	String getLabel();
-
-	void setLabel(String label);
-
-	int getBorderAlpha();
-
-	void setBorderAlpha(int borderAlpha);
-
-	boolean isAvoidOverlay();
-
-	void setAvoidOverlay(boolean avoidOverlay);
 
 	NodePropertySchema getNodeSchema();
 

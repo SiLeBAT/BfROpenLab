@@ -356,20 +356,20 @@ public class TracingViewSettings extends NodeSettings {
 	}
 
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
-		showLegend = canvas.isShowLegend();
-		joinEdges = canvas.isJoinEdges();
-		hideArrowHead = canvas.getArrowHeadType() == ArrowHeadType.HIDE;
-		arrowHeadInMiddle = canvas.getArrowHeadType() == ArrowHeadType.IN_MIDDLE;
-		nodeLabelPosition = canvas.getNodeLabelPosition();
-		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
-		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
-		label = canvas.getLabel();
+		showLegend = canvas.getOptionsPanel().isShowLegend();
+		joinEdges = canvas.getOptionsPanel().isJoinEdges();
+		hideArrowHead = canvas.getOptionsPanel().getArrowHeadType() == ArrowHeadType.HIDE;
+		arrowHeadInMiddle = canvas.getOptionsPanel().getArrowHeadType() == ArrowHeadType.IN_MIDDLE;
+		nodeLabelPosition = canvas.getOptionsPanel().getNodeLabelPosition();
+		skipEdgelessNodes = canvas.getOptionsPanel().isSkipEdgelessNodes();
+		showEdgesInMetaNode = canvas.getOptionsPanel().isShowEdgesInMetaNode();
+		label = canvas.getOptionsPanel().getLabel();
 
 		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
 		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
-		editingMode = canvas.getEditingMode();
+		editingMode = canvas.getOptionsPanel().getEditingMode();
 		collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
 
 		if (resized || canvasSize == null) {
@@ -391,15 +391,15 @@ public class TracingViewSettings extends NodeSettings {
 	}
 
 	public void setToCanvas(ITracingCanvas<?> canvas) {
-		canvas.setShowLegend(showLegend);
-		canvas.setEditingMode(editingMode);
-		canvas.setJoinEdges(joinEdges);
-		canvas.setArrowHeadType(hideArrowHead ? ArrowHeadType.HIDE
+		canvas.getOptionsPanel().setShowLegend(showLegend);
+		canvas.getOptionsPanel().setEditingMode(editingMode);
+		canvas.getOptionsPanel().setJoinEdges(joinEdges);
+		canvas.getOptionsPanel().setArrowHeadType(hideArrowHead ? ArrowHeadType.HIDE
 				: (arrowHeadInMiddle ? ArrowHeadType.IN_MIDDLE : ArrowHeadType.AT_TARGET));
-		canvas.setNodeLabelPosition(nodeLabelPosition);
-		canvas.setLabel(label);
-		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
-		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
+		canvas.getOptionsPanel().setNodeLabelPosition(nodeLabelPosition);
+		canvas.getOptionsPanel().setLabel(label);
+		canvas.getOptionsPanel().setSkipEdgelessNodes(skipEdgelessNodes);
+		canvas.getOptionsPanel().setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setCollapsedNodes(BackwardUtils.toNewCollapseFormat(collapsedNodes));
 
 		canvas.setNodeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils

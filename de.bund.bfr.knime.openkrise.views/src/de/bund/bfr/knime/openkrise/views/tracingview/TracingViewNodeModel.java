@@ -133,7 +133,7 @@ public class TracingViewNodeModel extends NodeModel {
 			setWarningMessage("Shape Table: Row " + key.getString() + " skipped");
 		}
 
-		graphCanvas.setJoinEdges(false);
+		graphCanvas.getOptionsPanel().setJoinEdges(false);
 
 		count = 0;
 		maxCount = graphCanvas.getNodes().size() + graphCanvas.getEdges().size();

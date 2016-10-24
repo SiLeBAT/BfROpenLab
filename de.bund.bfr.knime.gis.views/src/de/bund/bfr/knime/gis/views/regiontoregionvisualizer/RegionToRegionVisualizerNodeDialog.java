@@ -108,7 +108,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 			gisCanvas.setSelectedNodeIds(
 					RegionToRegionUtils.getSelectedGisNodeIds(gisCanvas.getNodes(), graphCanvas.getSelectedNodes()));
 			gisCanvas.setSelectedEdgeIds(RegionToRegionUtils.getSelectedGisEdgeIds(gisCanvas.getEdges(),
-					graphCanvas.getSelectedEdges(), graphCanvas.isJoinEdges()));
+					graphCanvas.getSelectedEdges(), graphCanvas.getOptionsPanel().isJoinEdges()));
 			gisCanvas.addCanvasListener(this);
 			gisCanvas.repaint();
 		} else if (source == gisCanvas) {
@@ -116,7 +116,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 			graphCanvas.setSelectedNodeIds(
 					RegionToRegionUtils.getSelectedGraphNodeIds(graphCanvas.getNodes(), gisCanvas.getSelectedNodes()));
 			graphCanvas.setSelectedEdgeIds(RegionToRegionUtils.getSelectedGraphEdgeIds(graphCanvas.getEdges(),
-					gisCanvas.getSelectedEdges(), graphCanvas.isJoinEdges()));
+					gisCanvas.getSelectedEdges(), graphCanvas.getOptionsPanel().isJoinEdges()));
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -142,13 +142,13 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setSelectedEdgeIds(RegionToRegionUtils.getSelectedGisEdgeIds(gisCanvas.getEdges(),
-					graphCanvas.getSelectedEdges(), graphCanvas.isJoinEdges()));
+					graphCanvas.getSelectedEdges(), graphCanvas.getOptionsPanel().isJoinEdges()));
 			gisCanvas.addCanvasListener(this);
 			gisCanvas.repaint();
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
 			graphCanvas.setSelectedEdgeIds(RegionToRegionUtils.getSelectedGraphEdgeIds(graphCanvas.getEdges(),
-					gisCanvas.getSelectedEdges(), graphCanvas.isJoinEdges()));
+					gisCanvas.getSelectedEdges(), graphCanvas.getOptionsPanel().isJoinEdges()));
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -188,11 +188,11 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	public void edgeJoinChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setJoinEdges(graphCanvas.isJoinEdges());
+			gisCanvas.getOptionsPanel().setJoinEdges(graphCanvas.getOptionsPanel().isJoinEdges());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setJoinEdges(gisCanvas.isJoinEdges());
+			graphCanvas.getOptionsPanel().setJoinEdges(gisCanvas.getOptionsPanel().isJoinEdges());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -201,11 +201,11 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	public void skipEdgelessChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
+			gisCanvas.getOptionsPanel().setSkipEdgelessNodes(graphCanvas.getOptionsPanel().isSkipEdgelessNodes());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setSkipEdgelessNodes(gisCanvas.isSkipEdgelessNodes());
+			graphCanvas.getOptionsPanel().setSkipEdgelessNodes(gisCanvas.getOptionsPanel().isSkipEdgelessNodes());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -214,11 +214,11 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	public void showEdgesInMetaNodeChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setShowEdgesInMetaNode(graphCanvas.isShowEdgesInMetaNode());
+			gisCanvas.getOptionsPanel().setShowEdgesInMetaNode(graphCanvas.getOptionsPanel().isShowEdgesInMetaNode());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setShowEdgesInMetaNode(gisCanvas.isShowEdgesInMetaNode());
+			graphCanvas.getOptionsPanel().setShowEdgesInMetaNode(gisCanvas.getOptionsPanel().isShowEdgesInMetaNode());
 			graphCanvas.addCanvasListener(this);
 		}
 	}

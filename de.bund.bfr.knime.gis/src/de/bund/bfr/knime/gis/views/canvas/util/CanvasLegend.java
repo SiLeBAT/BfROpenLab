@@ -103,9 +103,11 @@ public class CanvasLegend<V extends Node> {
 		FontRenderContext fontRenderContext = g.getFontRenderContext();
 		int maxNodeWidth = 0;
 		int maxEdgeWidth = 0;
-		Font legendFont = new Font("Default", owner.isFontBold() ? Font.BOLD : Font.PLAIN, owner.getFontSize());
-		Font legendHeadFont = new Font("Default", owner.isFontBold() ? Font.BOLD | Font.ITALIC : Font.BOLD,
-				owner.getFontSize());
+		Font legendFont = new Font("Default", owner.getOptionsPanel().isFontBold() ? Font.BOLD : Font.PLAIN,
+				owner.getOptionsPanel().getFontSize());
+		Font legendHeadFont = new Font("Default",
+				owner.getOptionsPanel().isFontBold() ? Font.BOLD | Font.ITALIC : Font.BOLD,
+				owner.getOptionsPanel().getFontSize());
 
 		for (String name : nodeLegend.keySet()) {
 			maxNodeWidth = Math.max(maxNodeWidth, (int) legendFont.getStringBounds(name, fontRenderContext).getWidth());

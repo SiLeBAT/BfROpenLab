@@ -365,23 +365,23 @@ public class TracingChange implements Serializable {
 		}
 
 		if (builder.edgeJoinChanged) {
-			canvas.setJoinEdges(!canvas.isJoinEdges());
+			canvas.getOptionsPanel().setJoinEdges(!canvas.getOptionsPanel().isJoinEdges());
 		}
 
 		if (builder.skipEdgelessChanged) {
-			canvas.setSkipEdgelessNodes(!canvas.isSkipEdgelessNodes());
+			canvas.getOptionsPanel().setSkipEdgelessNodes(!canvas.getOptionsPanel().isSkipEdgelessNodes());
 		}
 
 		if (builder.showEdgesInMetaChanged) {
-			canvas.setShowEdgesInMetaNode(!canvas.isShowEdgesInMetaNode());
+			canvas.getOptionsPanel().setShowEdgesInMetaNode(!canvas.getOptionsPanel().isShowEdgesInMetaNode());
 		}
 
 		if (builder.arrowHeadTypeDiff != null) {
-			canvas.setArrowHeadType(applyDiff(builder.arrowHeadTypeDiff, undo));
+			canvas.getOptionsPanel().setArrowHeadType(applyDiff(builder.arrowHeadTypeDiff, undo));
 		}
 
 		if (builder.showLegendChanged) {
-			canvas.setShowLegend(!canvas.isShowLegend());
+			canvas.getOptionsPanel().setShowLegend(!canvas.getOptionsPanel().isShowLegend());
 		}
 
 		if (builder.enforceTempChanged) {
@@ -464,43 +464,43 @@ public class TracingChange implements Serializable {
 		}
 
 		if (builder.nodeSizeDiff != null) {
-			canvas.setNodeSize(applyDiff(builder.nodeSizeDiff, undo));
+			canvas.getOptionsPanel().setNodeSize(applyDiff(builder.nodeSizeDiff, undo));
 		}
 
 		if (builder.nodeMaxSizeDiff != null) {
-			canvas.setNodeMaxSize(applyDiff(builder.nodeMaxSizeDiff, undo));
+			canvas.getOptionsPanel().setNodeMaxSize(applyDiff(builder.nodeMaxSizeDiff, undo));
 		}
 
 		if (builder.edgeThicknessDiff != null) {
-			canvas.setEdgeThickness(applyDiff(builder.edgeThicknessDiff, undo));
+			canvas.getOptionsPanel().setEdgeThickness(applyDiff(builder.edgeThicknessDiff, undo));
 		}
 
 		if (builder.edgeMaxThicknessDiff != null) {
-			canvas.setEdgeMaxThickness(applyDiff(builder.edgeMaxThicknessDiff, undo));
+			canvas.getOptionsPanel().setEdgeMaxThickness(applyDiff(builder.edgeMaxThicknessDiff, undo));
 		}
 
 		if (builder.nodeLabelPositionDiff != null) {
-			canvas.setNodeLabelPosition(applyDiff(builder.nodeLabelPositionDiff, undo));
+			canvas.getOptionsPanel().setNodeLabelPosition(applyDiff(builder.nodeLabelPositionDiff, undo));
 		}
 
 		if (builder.fontSizeDiff != null) {
-			canvas.setFontSize(applyDiff(builder.fontSizeDiff, undo));
+			canvas.getOptionsPanel().setFontSize(applyDiff(builder.fontSizeDiff, undo));
 		}
 
 		if (builder.fontBoldChanged) {
-			canvas.setFontBold(!canvas.isFontBold());
+			canvas.getOptionsPanel().setFontBold(!canvas.getOptionsPanel().isFontBold());
 		}
 
 		if (builder.labelDiff != null) {
-			canvas.setLabel(applyDiff(builder.labelDiff, undo));
+			canvas.getOptionsPanel().setLabel(applyDiff(builder.labelDiff, undo));
 		}
 
 		if (builder.borderAlphaDiff != null) {
-			canvas.setBorderAlpha(applyDiff(builder.borderAlphaDiff, undo));
+			canvas.getOptionsPanel().setBorderAlpha(applyDiff(builder.borderAlphaDiff, undo));
 		}
 
 		if (builder.avoidOverlayChanged) {
-			canvas.setAvoidOverlay(!canvas.isAvoidOverlay());
+			canvas.getOptionsPanel().setAvoidOverlay(!canvas.getOptionsPanel().isAvoidOverlay());
 		}
 	}
 
