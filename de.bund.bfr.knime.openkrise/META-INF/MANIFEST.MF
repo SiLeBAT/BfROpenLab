@@ -18,7 +18,7 @@ Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: de.bund.bfr.knime.gis;visibility:=reexport,
  de.bund.bfr.knime.openkrise.common;visibility:=reexport,
  de.bund.bfr.knime.openkrise.db,
- de.nrw.verbraucherschutz.idv.daten
+ de.nrw.verbraucherschutz.idv;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.openkrise
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
