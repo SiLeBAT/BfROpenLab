@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
@@ -39,6 +40,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.workflow.FlowVariable;
+import org.xml.sax.SAXException;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.openkrise.TracingColumns;
@@ -105,6 +107,13 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    baos.close();
 
 		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
+		FlowVariable fv = fvm.get("Fallnummer");
+		String fallNummer = fv == null ? null : fv.getStringValue();
+		fv = fvm.get("Fallbezeichnung");
+		String fallBezeichnung = fv == null ? null : fv.getStringValue();
+		NRW_Exporter e = new NRW_Exporter();
+		
+		// Fall
 		Analyseergebnis ae = new Analyseergebnis();
 		
 		// Report hierrein
@@ -115,6 +124,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		doc.setContent(content);
 		ae.getDokument().add(doc);
 		Metadaten md = new Metadaten();
+		/*
 		String auftragsNummer = "";
 		for (int i=0;;i++) {
 			if (!fvm.containsKey("Auftragsnummer_" + i)) break;
@@ -124,33 +134,50 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			r.setKey("AUFTRAGNR"); r.setValue(auftragsNummer);
 			md.getReferenzen().add(r);
 		}
+		*/
 		md.setAutor("BfR");
 		md.setDokId(null);
-		md.setDokumentName("Analyse Auftrag Nr. " + auftragsNummer + ".png");
-		md.setBeschreibung("Analyseergebnis des BfRs für den Auftrag " + auftragsNummer);
+		md.setDokumentName("Analyse Fall Nr. " + fallNummer + ".png");
+		md.setBeschreibung("Analyseergebnis des BfRs für den Fall " + fallNummer);
 		md.setFormat(".png"); // .pdf
 		md.setKategorie("Analyseergebnis");
-		md.setLokation("");
+		md.setLokation(""); // Fall
 		md.setMimeType("image/png");//"application/pdf");
 		md.setOrganisation("BfR");
-		md.setTitel("Analyse Ergebnis Auftrag Nr. " + auftragsNummer);
+		md.setTitel("Analyse Ergebnis Fall Nr. " + fallNummer);
 		md.setVersion(getReadableDate()); // "1.0", hier sollte hochgezählt werden
 		md.setPubliziertAm(getDate());
 		md.setUploadAm(getDate());
 		doc.setMetadaten(md);
-		
-		ae.setMeldung(getMeldung(fvm, auftragsNummer));
 
-		// Scores hierrein		
-		Kontrollpunktbewertung kpb = new Kontrollpunktbewertung(); 
+		ae.setMeldung(getMeldung(fallBezeichnung, fallNummer, fallNummer));
+		export(e, ae, "bfr_fall_report");
+		
+		// Bewertungen / Scores	
 		int kpnIndex = edgeTable.getSpec().findColumnIndex("Kontrollpunktnummer");
 		int weIndex = edgeTable.getSpec().findColumnIndex("WE_ID");
 		int waIndex = edgeTable.getSpec().findColumnIndex("WA_ID");
+		int typIndex = edgeTable.getSpec().findColumnIndex("BetriebsTyp");
 		int scoreIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.SCORE);
+		Kontrollpunktbewertung kpb = null; 
+		HashMap<String, Analyseergebnis> hm = new HashMap<>();
 		for (DataRow row : edgeTable) {
-			String nummer = kpnIndex < 0 ? "" : IO.getCleanString(row.getCell(kpnIndex)); 
-			if (auftragsNummer.equals(nummer)) {
-				kpb.setNummer(nummer); // auftragsNummer
+			String auftragsNummer = kpnIndex < 0 ? "" : IO.getCleanString(row.getCell(kpnIndex)); 
+			if (hm.containsKey(auftragsNummer)) {
+				kpb = hm.get(auftragsNummer).getBewertung().getKontrollpunktbewertung();
+			}
+			else {
+				Analyseergebnis aes = new Analyseergebnis();
+				aes.setMeldung(getMeldung(fallBezeichnung, fallNummer, auftragsNummer));
+				Bewertung b = new Bewertung();
+				aes.setBewertung(b);
+				kpb = new Kontrollpunktbewertung();
+				kpb.setNummer(auftragsNummer);
+				b.setKontrollpunktbewertung(kpb);
+				hm.put(auftragsNummer, aes);
+			}
+					
+				// Scores
 				Double score = scoreIndex < 0 ? 0.0 : IO.getDouble(row.getCell(scoreIndex));
 				// WA WE Warenausgang Wareneingang
 				String typ = ""; 
@@ -160,28 +187,35 @@ public class TracingXmlOutNodeModel extends NodeModel {
 				String id = weIndex < 0 ? "" : IO.getCleanString(row.getCell(weIndex)); 
 				if (id == null) {
 					typ = "WA";
-					betrieb = "KUNDE";
+					betrieb = "ORT_ANLIEFERUNG"; // KUNDE
 					id = waIndex < 0 ? "" : IO.getCleanString(row.getCell(waIndex));
 				}
 				else {
 					typ = "WE";
-					betrieb = "LIEFERANT";
+					betrieb = "ORT_ABHOLUNG"; // LIEFERANT
 				}
+				if (typIndex >= 0) betrieb = IO.getCleanString(row.getCell(typIndex)); 
+				
 				Warenbewegungsbewertung wbb = new Warenbewegungsbewertung();
 				wbb.setValue(new BigDecimal(score));
 				wbb.setBetrieb(betrieb);
 				wbb.setId(id);
 				wbb.setTyp(typ);
-				kpb.getWarenbewegungsbewertung().add(wbb);
-			}
-		}		
-		Bewertung b = new Bewertung();
-		ae.setBewertung(b);
-		b.setKontrollpunktbewertung(kpb);
-		NRW_Exporter e = new NRW_Exporter();
+			
+			kpb.getWarenbewegungsbewertung().add(wbb);
+		}
+		
+		for (String an : hm.keySet()) {
+			Analyseergebnis aes = hm.get(an);
+			export(e, aes, "bfr_score_report");
+		}
+		
+		return null;
+    }
+    private void export(NRW_Exporter e, Analyseergebnis ae, String filename) throws Exception {
 		ByteArrayOutputStream soap = e.doExport(ae, true);
 		if (soap != null) {
-		    File tempFile = File.createTempFile("bfr_report", ".soap");
+		    File tempFile = File.createTempFile(filename, ".soap");
 		    FileOutputStream fos = new FileOutputStream(tempFile); 
 			try {
 			    soap.writeTo(fos);
@@ -191,13 +225,11 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			} finally {
 			    fos.close();
 			}
-			//upload(tempFile);
+			upload(tempFile, true);
 		}
 		else {
 			this.setWarningMessage("soap is null");
 		}
-
-		return null;
     }
 
     /**
@@ -259,12 +291,10 @@ public class TracingXmlOutNodeModel extends NodeModel {
             CanceledExecutionException {
     }
     
-    private Meldung getMeldung(Map<String, FlowVariable> fvm, String auftragsNummer) throws DatatypeConfigurationException {		
+    private Meldung getMeldung(String fallBezeichnung, String fallNummer, String auftragsNummer) throws DatatypeConfigurationException {		
     	Meldung meldung = new Meldung();
-		FlowVariable fv = fvm.get("Fallbezeichnung");
-    	meldung.setFallBezeichnung(fv == null ? null : fv.getStringValue());
-		fv = fvm.get("Fallnummer");
-    	meldung.setFallNummer(fv == null ? null : fv.getStringValue());
+    	meldung.setFallBezeichnung(fallBezeichnung);
+    	meldung.setFallNummer(fallNummer);
     	meldung.setNummer(auftragsNummer);
     	meldung.setStatus("GUELTIG");
     	
@@ -296,7 +326,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
     	return S;
     }
 
-	private void upload(File file) throws Exception {
+	private void upload(File file, boolean dryRun) throws Exception {
 	    JerseyClient client = new JerseyClientBuilder()
 	    		.register(HttpAuthenticationFeature.basic(set.getUser(), set.getPass()))
 	    		.register(MultiPartFeature.class)
@@ -304,15 +334,21 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    JerseyWebTarget t = client.target(UriBuilder.fromUri(set.getServer()).build()).path("rest").path("items").path("upload");
 
 	    FileDataBodyPart filePart = new FileDataBodyPart("file", file);
-	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName("report.soap").build()); // file.getName()
+	    String fn = file.getName();
+	    fn = fn.substring(0, fn.lastIndexOf("_report") + 7); // die tempnummer am ende des filenamens noch wegoperieren!
+		System.out.println(fn);
+	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName(fn).build());
 
 	    FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
 	    MultiPart multipartEntity = formDataMultiPart.field("comment", "Analysis from BfR").bodyPart(filePart);
 
-	    Response response = t.request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
-	    System.out.println(response.getStatus() + " \n" + response.readEntity(String.class));
+	    if (!dryRun) {
+		    Response response = t.request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
+		    System.out.println(response.getStatus() + " \n" + response.readEntity(String.class));
 
-	    response.close();
+		    response.close();
+	    }
+
 	    formDataMultiPart.close();
 	    multipartEntity.close();
 	}
