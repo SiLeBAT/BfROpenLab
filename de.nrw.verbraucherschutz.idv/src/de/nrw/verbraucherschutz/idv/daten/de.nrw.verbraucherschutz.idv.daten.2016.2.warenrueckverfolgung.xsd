@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema
+	xmlns="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung"
+	xmlns:kat="http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung"
+	version="1.0">
+
+	<!-- Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW 
+		Projekt: IDV Titel: Datenformat für die Übermittlung von Warenrückverfolgungsinformationen 
+		Version: 2016.2.20161004 Autor: Georg Fleischer (CGI) ! -->
+
+	<xs:import
+		namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem"
+		schemaLocation="de.nrw.verbraucherschutz.idv.daten.2016.2.katalogsystem.xsd" />
+
+	<xs:complexType name="Meldung">
+		<xs:sequence>
+			<xs:element name="meldendeBehoerde" type="kat:KatalogWert" />
+			<xs:element name="nummer" type="xs:string" />
+			<xs:element name="status" type="xs:string" />
+
+			<xs:element name="fallNummer" type="xs:string" />
+			<xs:element name="fallBezeichnung" type="xs:string" />
+			<xs:element name="meldungVom" type="xs:date" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Betrieb">
+		<xs:sequence>
+			<xs:element name="betriebsnummer" type="xs:string" />
+			<xs:element nillable="true" name="egZulassungsnummer"
+				type="xs:string" />
+			<xs:element name="betriebsname" type="xs:string" />
+			<xs:element nillable="true" name="strasse" type="xs:string" />
+			<xs:element nillable="true" name="hausnummer" type="xs:int" />
+			<xs:element nillable="true" name="hausnummerZusatz" type="xs:string" />
+			<xs:element name="plz" type="xs:string" />
+			<xs:element nillable="true" name="ort" type="xs:string" />
+			<xs:element name="land" type="xs:string" />
+			<xs:element nillable="true" name="geoPositionLatitude"
+				type="xs:decimal" />
+			<xs:element nillable="true" name="geoPositionLongitude"
+				type="xs:decimal" />
+			<xs:element nillable="true" name="bemerkung" type="xs:string" />
+		</xs:sequence>
+		<xs:attribute name="typ" type="xs:string" />
+	</xs:complexType>
+
+	<xs:complexType name="Wareneingaenge">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="wareneingang"
+				type="Wareneingang" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Wareneingang">
+		<xs:complexContent>
+			<xs:extension base="Warenbewegung" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="Produktionen">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="produktion"
+				type="Produktion" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Produktion">
+		<xs:sequence>
+			<xs:element nillable="true" name="produkt" type="Produkt" />
+			<xs:element nillable="true" name="produktionsumfang" type="Warenumfang" />
+			<xs:element nillable="true" name="produziertAm" type="xs:date" />
+			<xs:element name="wareneingaengeVerwendet" type="WareneingaengeVerwendet" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" />
+	</xs:complexType>
+
+	<xs:complexType name="WareneingaengeVerwendet">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded"
+				name="wareneingangVerwendet" type="WareneingangVerwendet" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="WareneingangVerwendet">
+		<xs:sequence>
+			<xs:element nillable="true" name="warenumfang" type="Warenumfang" />
+		</xs:sequence>
+		<xs:attribute name="wareneingangId" type="xs:string" />
+	</xs:complexType>
+
+
+	<xs:complexType name="Warenausgaenge">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="warenausgang"
+				type="Warenausgang" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Warenausgang">
+		<xs:complexContent>
+			<xs:extension base="Warenbewegung" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="Warenbewegung">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="betrieb" type="Betrieb" />
+			<xs:element name="lieferung" type="Lieferung" />
+			<xs:element name="warenumfang" type="Warenumfang" />
+			<xs:element name="produkt" type="Produkt" />
+			<xs:element nillable="true" name="zusatzparameter" type="Zusatzparameter" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" />
+		<xs:attribute name="produktionId" type="xs:string" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="Warenbestaende">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="Warenbestand"
+				type="Warenbestand" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="Warenbestand">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="betrieb" type="Betrieb" />
+			<xs:element name="warenumfang" type="Warenumfang" />
+			<xs:element name="produkt" type="Produkt" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" />
+	</xs:complexType>
+
+	<xs:complexType name="Ausloeser">
+		<xs:sequence>
+			<xs:element name="vorgaengerMeldung" type="xs:string" />
+			<xs:element name="wareneingaenge" type="Wareneingaenge" />
+			<xs:element name="warenausgaenge" type="Warenausgaenge" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Lieferung">
+		<xs:sequence>
+			<xs:element name="lieferscheinNummer" type="xs:string" />
+			<xs:element name="ausgeliefertAm" type="xs:date" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Warenumfang">
+		<xs:sequence>
+			<xs:element nillable="true" name="anzahlGebinde" type="AnzahlGebinde" />
+			<xs:element nillable="true" name="mengeEinheit" type="MengeEinheit" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AnzahlGebinde">
+		<xs:sequence>
+			<xs:element name="anzahl" type="xs:int" />
+			<xs:element name="gebinde" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MengeEinheit">
+		<xs:sequence>
+			<xs:element name="menge" type="xs:decimal" />
+			<xs:element name="einheit" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Produkt">
+		<xs:sequence>
+			<xs:element nillable="true" name="losNummer" type="xs:string" />
+			<xs:element name="chargenNummer" type="xs:string" />
+			<xs:element name="produktBezeichnung" type="xs:string" />
+			<xs:element name="handelsname" type="xs:string" />
+			<xs:element nillable="true" name="artikelnummer" type="xs:string" />
+			<xs:element nillable="true" name="ean" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Zusatzparameter">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="datum" type="ZusatzparameterDatum"
+				minOccurs="0" />
+			<xs:element name="text" type="ZusatzparameterText"
+				minOccurs="0" />
+			<xs:element name="zahl" type="ZusatzparameterZahl"
+				minOccurs="0" />
+		</xs:choice>
+	</xs:complexType>
+
+	<xs:complexType name="ZusatzparameterDatum">
+		<xs:simpleContent>
+			<xs:extension base="xs:date">
+				<xs:attributeGroup ref="parameter" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="ZusatzparameterText">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attributeGroup ref="parameter" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="ZusatzparameterZahl">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attributeGroup ref="parameter" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:attributeGroup name="parameter">
+		<xs:attribute name="position" type="xs:string" />
+		<xs:attribute name="bezeichnung" type="xs:string" />
+		<xs:attribute name="masseinheit" type="xs:string" />
+		<xs:attribute name="beschreibung" type="xs:string" />
+	</xs:attributeGroup>
+
+	<xs:complexType name="Bewertung">
+		<xs:sequence>
+			<xs:element name="kontrollpunktbewertung" type="Kontrollpunktbewertung" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Kontrollpunktbewertung">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="warenbewegungsbewertung"
+				type="Warenbewegungsbewertung" />
+		</xs:sequence>
+		<xs:attribute name="nummer" type="xs:string" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="Warenbewegungsbewertung">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attributeGroup ref="warenbewegungsbewertungAttributes" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:attributeGroup name="warenbewegungsbewertungAttributes">
+		<xs:attribute name="typ" type="xs:string" use="required" />
+		<xs:attribute name="id" type="xs:string" use="required" />
+		<xs:attribute name="betrieb" type="xs:string" use="required" />
+	</xs:attributeGroup>
+
+</xs:schema>
+

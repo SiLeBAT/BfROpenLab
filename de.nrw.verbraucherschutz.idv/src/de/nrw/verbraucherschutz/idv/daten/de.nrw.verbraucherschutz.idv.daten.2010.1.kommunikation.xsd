@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+     xmlns="http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation"
+     xmlns:com="http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation"
+     targetNamespace="http://verbraucherschutz.nrw.de/idv/daten/2010.1/kommunikation"
+     elementFormDefault="unqualified"
+     attributeFormDefault="unqualified">
+
+	<!-- 
+		Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW
+		Projekt: IDV
+		Titel: Datenformat für technishe Kommunikationsparameter beim Datenaustausch zwischen Systemen.
+		Version: 2010.1.20100422
+		Autor: CGI
+	!-->
+
+	 <xsd:simpleType name="PropertyKeys">
+        <xsd:annotation>
+            <xsd:documentation>Liste der bisher gültigen Properties.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="CORRELATIONID">
+                <xsd:annotation>
+                    <xsd:documentation>
+						IDV-weit eindeutige Kennung.
+						Wenn sie einmal verwendet wurde,
+						darf sie nie wieder verwendet
+						werden. Über die CorrelationID
+						werden asynchrone
+						Request/Response oder
+						Notification/NotificationResponse
+						Nachrichten zueinander in
+						Verbindung gebracht.
+
+						Wenn ein System einen Request an
+						ein anderes System absetzt, muss
+						das sendende System eine
+						CorrelationID erzeugen und in
+						dieses Property stellen. Das
+						Empfängersystem muss in der
+						Response-Nachricht diese
+						CorrelationID verwenden, damit
+						das Sendersystem erkennen kann,
+						zu welchem offenen Request eine
+						Response gehört.
+
+						Dieses Property darf nur genau
+						einmal auftauchen.
+					</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="ORGID">
+                <xsd:annotation>
+                    <xsd:documentation>
+						Dies ist die primäre
+						Organisationseinheit eines
+						IDV-Benutzers. Die
+						Organisationseinheit muss einen
+						Wert haben, der auch im
+						zentralen Active Directory
+						bekannt ist. Wenn ein System
+						einen Request oder eine
+						Notification abschickt, dann
+						muss es hier die
+						Organisationseinheit des
+						Benutzers, der diesen Request
+						erzeugt hat, angeben. Umgekehrt
+						muss das Empfängersystem beim
+						Versenden einer Response nur die
+						OrgID aus dem Request kopieren.
+						OrgID zusammen mit UserID und
+						RoleID ermöglicht es den
+						Systemen zu überpüfen, welche
+						Rechte ein Benutzer hinsichtlich
+						Datenzugriffen besitzt. Dies
+						setzt allerdings voraus, dass
+						jeglicher Benutzer nicht zur im
+						Active Directory bekannt ist
+						sondern auch in jeder
+						Applikation.
+
+						Dieses Property darf nur genau
+						einmal auftauchen.
+					</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="LASTMODIFIED">
+                <xsd:annotation>
+                    <xsd:documentation>
+						Zeitstempel einer Änderung im
+						Format YYYY-MM-DDTHH:mm:ss, also
+						2010-02-19T17:56:14, die Uhrzeit
+						ist in UTC anzugeben ! Besonders
+						bei der
+						Stammdatensynchronisation
+						enthält dieses Feld den
+						Zeitstempel der letzten Änderung
+						an einem Datensatz, egal an
+						welcher Stelle des
+						Betriebsobjektes die Änderung
+						aufgetreten ist.
+
+						Dieses Property darf nur genau
+						einmal auftauchen.
+					</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="MSGID">
+                <xsd:annotation>
+                    <xsd:documentation>Identifiziert einen zusammengehörenden Nachrichtenstrom der Stammdatensynchronisation. 
+Wenn ein Fachsystem Stammdatenänderungen meldet, so kann es eine MSGID vergeben. </xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="RECEIVER">
+                <xsd:annotation>
+                    <xsd:documentation>
+						Name einer Applikations-Kennung
+						wie sie am ESB registriert wird.
+						Aktuell bekannte und erwartete
+						Applikations-Kennungen: BALVI,
+						IDV-SFDP, ESB, TSK. Falls
+						Applikationen innerhalb der
+						Produktionsumgebung in mehreren
+						Instanzen laufen, müssen hier
+						die IDs erweitert werden um
+						Instanzkennungen z.B.
+						IDV-SFDP-ID1.
+
+						Gibt es mehr als einen
+						Empfänger, dann ist der Wert =
+						systemA, systemB, systemX usw.
+						also eine Liste von Systemen,
+						Namen getrennt durch Komma.
+
+						Es wird verwendet bei
+						Notifications mit mehreren
+						Subscribern, die aber trotzdem
+						nicht immer alle Nachrichten
+						erhalten wollen. Bei der
+						Stammdatensynchronisation
+						könnten potentiell alle Systeme
+						den Stammdatendatz bekommen. Aus
+						Datensicherheitsgründen dürfen
+						aber nicht alle Systeme bestimme
+						Updates erhalten. Darum muss
+						IDV-SFDP pro Datensatz auch eine
+						Liste von RECEIVER-Systemen
+						angeben.
+					</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="SENDER">
+                <xsd:annotation>
+                    <xsd:documentation>
+						Gleicher Inhalt wie bei
+						RECEIVER, nur dass sich hier ein
+						sendendes System mit seiner
+						ApplikationsID einträgt. Der
+						Wert enthält immer nur genau
+						EINE ApplikationsID, niemals
+						eine Liste.
+
+						Dieses Property taucht höchstens
+						einmal auf.
+
+						Verwendet wird es dort, wo
+						mehrere Systeme den gleichen
+						Request bei einem Zielsystem
+						aufrufen können und das
+						ZIelsystem bei der Response im
+						RECEIVER-Feld angeben muss,
+						welches System diese Response
+						bekommen soll. Dazu kopiert das
+						aufgerufene System bei der
+						Response den SENDER in den
+						RECEIVER. In diesem Fall darf es
+						nur genau einen RECEIVER geben.
+					</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="USERID">
+                <xsd:annotation>
+                    <xsd:documentation>
+						Dies ist die Benutzerkennung
+						eines IDV-Benutzers. Sie muss
+						einen Wert haben, der auch im
+						zentralen Active Directory
+						bekannt ist. Wenn ein System
+						einen Request oder eine
+						Notification abschickt, dann
+						muss es hier die UserID des
+						Benutzers, der diesen Request
+						erzeugt hat, angeben. Umgekehrt
+						muss das Empfängersystem beim
+						Versenden einer Response nur die
+						UserID aus dem Request kopieren.
+						OrgID, RoleID zusammen mit
+						UserID ermöglicht es den
+						Systemen zu überpüfen, welche
+						Rechte ein Benutzer hinsichtlich
+						Datenzugriffen besitzt. Dies
+						setzt allerdings voraus, dass
+						jeglicher Benutzer nicht zur im
+						Active Directory bekannt ist
+						sondern auch in jeder
+						Applikation.
+
+						Dieses Property darf nur genau
+						einmal auftauchen.
+					</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="ROLEID">
+                <xsd:annotation>
+                    <xsd:documentation>
+						Es handelt sich um die fachliche
+						Rolle des Benutzers, unter der
+						er diese Änderung getroffen hat.
+						Die fachlichen Rollen sind
+						ebenfalls im Active Directory
+						hinterlegt und sagen aus, für
+						welchen Fachbereich ein User
+						Daten lesen und/oder
+						modifizieren darf. Hat ein
+						Benutzer mehrere Rollen, so wird
+						hier die Rolle angegeben, mit
+						der er die Änderung abgeschickt
+						hat.
+					</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="NOEXPORT">
+                <xsd:annotation>
+                    <xsd:documentation>
+						Flag für den Export. Wird nur vom ADB Adapter in speziellen Fällen genutzt um einen
+            Export von IDV-SFDB zu unterdrücken. Muss dann mit true belegt sein.
+					</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:element name="PropertyList" type="com:PropertyList"/>
+    <xsd:complexType name="PropertyList">
+        <xsd:sequence>
+            <xsd:element name="key" type="com:Property" minOccurs="5" maxOccurs="10"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="Property" type="com:Property"/>
+    <xsd:complexType name="Property">
+        <xsd:sequence>
+            <xsd:element name="key" type="com:PropertyKeys">
+                <xsd:annotation>
+                    <xsd:documentation>Schlüsselwert, Indexwert.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="value" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>Eigentlicher Wert zum Schlüssel.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="StatusType" type="com:StatusType"/>
+    <xsd:complexType name="StatusType">
+        <xsd:annotation>
+            <xsd:documentation>Dieser Typ transportiert fachliche und technische Statusmeldungen (ok oder Fehler), sofern keine expliziten fachlichen Antworten vorgesehen sind.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="sourceComp" type="xsd:string" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>Applikation, die den Status meldet. 
+Vorläufig zu befüllen mit einer ApplicationID analog zu SENDER oder RECEIVER des CommHeaders.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="statusCode" type="xsd:int">
+                <xsd:annotation>
+                    <xsd:documentation>Muss-Feld.
+0 = Verarbeitung erfolgreich.
+&gt;0 = Dieser Wertebereich ist nur für Fehler innerhalb der Integrationsschicht reserviert. 
+&lt;0 = Dieser Wertebereich ist für Fehler von Fachsystemen vorgesehen.
+
+Pro Fehler sollte auch ein eigener Fehlercode vorgesehen werden.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="statusDetails" type="xsd:string" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>Optional. Mehr Details zum Fehler wie z.B. einen Java-Error-Stack, wenn es dem Empfänger der Nachricht für die Fehleranalyse hilfreich ist.
+Maximale Länge = 1000 Zeichen.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="statusText" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>statusCode = 0, hier kann dieses Feld für die Rückgabe von einfachen Ergebniswerten verwendet werden, sofern keine gesonderte fachliche Antwort definiert wurde.
+statusCode &lt;&gt; 0: Im Fehlerfall, ist dieses Feld zwingend zu befüllen. Hier steht ein kurzer ausagekräftiger Fehlertext, max. 100 Zeichen lang, über den man Monitoring und Auswertung fahren könnte.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="statusTyp" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>Kennzeichnet den Typ der Statusmeldung.
+Aktuell unterstützt sind "COM" für technische Übertragungsprobleme innerhalb der Integrationschicht und "APP" für fachliche Fehler.
+Stringlänge ist 10 Zeichen.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

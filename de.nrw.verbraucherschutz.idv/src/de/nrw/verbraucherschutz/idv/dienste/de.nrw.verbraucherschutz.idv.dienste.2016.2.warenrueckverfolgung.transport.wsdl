@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:wrv="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport"
+	name="de.nrw.verbraucherschutz.idv.dienste.2016.2.warenrueckverfolgung.transport"
+	targetNamespace="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport">
+
+	<!-- 
+		Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW
+		Projekt: IDV
+		Titel: Servicebeschreibung für die Übermittlung von Warenrückverfolgungsinformationen
+		Version: 2016.2.20161004
+		Autor: Georg Fleischer (CGI)
+	!-->
+
+	<wsdl:types>
+		<xs:schema>
+			<xs:import
+				namespace="http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport"
+				schemaLocation="de.nrw.verbraucherschutz.idv.dienste.2016.2.warenrueckverfolgung.transport.schema.xsd">
+			</xs:import>
+		</xs:schema>
+	</wsdl:types>
+
+	<wsdl:message name="KontrollpunktmeldungUebermittelnRequest">
+		<wsdl:part name="parameters" element="wrv:kontrollpunktmeldung"></wsdl:part>
+	</wsdl:message>
+
+	<wsdl:message name="AnalyseergebnisUebermittelnRequest">
+		<wsdl:part name="parameters" element="wrv:analyseergebnis"></wsdl:part>
+	</wsdl:message>
+	
+ 	<wsdl:message name="CommHeaderMessage">
+		<wsdl:part name="header" element="wrv:CommHeader"></wsdl:part>
+	</wsdl:message>
+ 
+	<wsdl:portType name="warenrueckverfolgungPortType">
+		
+		<wsdl:operation name="KontrollpunktmeldungUebermitteln">
+			<wsdl:input message="wrv:KontrollpunktmeldungUebermittelnRequest"/>
+		</wsdl:operation>
+		
+		<wsdl:operation name="AnalyseergebnisUebermitteln">
+			<wsdl:input message="wrv:AnalyseergebnisUebermittelnRequest"/>
+		</wsdl:operation>
+		
+	</wsdl:portType>
+	
+</wsdl:definitions>
+
