@@ -40,7 +40,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.workflow.FlowVariable;
-import org.xml.sax.SAXException;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.openkrise.TracingColumns;
@@ -135,6 +134,10 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			md.getReferenzen().add(r);
 		}
 		*/
+		Referenz r = new Referenz();
+		r.setKey("AUFTRAGNR"); r.setValue(fallNummer);
+		md.getReferenzen().add(r);
+		
 		md.setAutor("BfR");
 		md.setDokId(null);
 		md.setDokumentName("Analyse Fall Nr. " + fallNummer + ".png");
