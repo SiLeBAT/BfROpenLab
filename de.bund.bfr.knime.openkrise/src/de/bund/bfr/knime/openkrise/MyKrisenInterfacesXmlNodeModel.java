@@ -268,7 +268,6 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		        ZipInputStream zipIn = new ZipInputStream(stream);
 		        
 			    tempDir = Files.createTempDir();
-			    System.err.println(tempDir.getAbsolutePath());
 		        UnzipUtility unzipper = new UnzipUtility();
 	            unzipper.unzip(zipIn, tempDir.getAbsolutePath());
 	            zipIn.close();

@@ -225,7 +225,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			} finally {
 			    fos.close();
 			}
-			upload(tempFile, true);
+			upload(tempFile, false);
 		}
 		else {
 			this.setWarningMessage("soap is null");
