@@ -190,7 +190,61 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		return s.replace("\n", "|").replaceAll("\\p{C}", "").replace("\u00A0", "").replace("\t", " ").trim();
 	}
 
+	private DataTableSpec getStationSpecs() {
+		// Station specs
+		List<DataColumnSpec> columns = new ArrayList<>();
+		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
+		addSpec(columns, TracingColumns.STATION_ID, StringCell.TYPE);
+		addSpec(columns, TracingColumns.STATION_NAME, StringCell.TYPE);
+		addSpec(columns, TracingColumns.STATION_STREET, StringCell.TYPE);
+		addSpec(columns, TracingColumns.STATION_HOUSENO, IntCell.TYPE);
+		addSpec(columns, TracingColumns.STATION_ZIP, StringCell.TYPE);
+		addSpec(columns, TracingColumns.STATION_CITY, StringCell.TYPE);
+		//addSpec(columns, TracingColumns.STATION_STATE, StringCell.TYPE);
+		addSpec(columns, TracingColumns.STATION_COUNTRY, StringCell.TYPE);
+		
+		addSpec(columns, "Bemerkung", StringCell.TYPE);
+		addSpec(columns, "EgZulassungsnummer", StringCell.TYPE);
+		addSpec(columns, "Lat", DoubleCell.TYPE);
+		addSpec(columns, "Lon", DoubleCell.TYPE);
+
+		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
+	}
+	private DataTableSpec getDeliverySpecs() {
+		// Delivery specs
+		List<DataColumnSpec> columns = new ArrayList<>();
+		//addSpec(columns, TracingColumns.DELIVERY_ID, StringCell.TYPE);
+		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
+		addSpec(columns, TracingColumns.FROM, StringCell.TYPE);
+		addSpec(columns, TracingColumns.TO, StringCell.TYPE);
+		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
+		addSpec(columns, TracingColumns.PRODUCT_NUMBER, StringCell.TYPE);
+		addSpec(columns, "EAN", StringCell.TYPE);
+		addSpec(columns, TracingColumns.LOT_NUMBER, StringCell.TYPE);
+		addSpec(columns, "Chargennummer", StringCell.TYPE);
+		addSpec(columns, "Bezeichnung", StringCell.TYPE);
+		addSpec(columns, TracingColumns.DELIVERY_NUM_PU, DoubleCell.TYPE);
+		addSpec(columns, TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE);
+		addSpec(columns, "AnzahlGebinde", IntCell.TYPE);
+		addSpec(columns, "Gebinde", StringCell.TYPE);
+		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
+		addSpec(columns, "Lieferscheinnummer", StringCell.TYPE);
+		addSpec(columns, "Kontrollpunktnummer", StringCell.TYPE);
+		addSpec(columns, "WE_ID", StringCell.TYPE);
+		addSpec(columns, "WA_ID", StringCell.TYPE);
+		addSpec(columns, "BetriebsTyp", StringCell.TYPE);
+
+		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
+	}
 	private BufferedDataTable[] handleNRWXml(final ExecutionContext exec) throws CanceledExecutionException, IOException, SOAPException {
+		DataTableSpec specS = getStationSpecs();
+		BufferedDataContainer stationContainer = exec.createDataContainer(specS);
+		DataTableSpec specD = getDeliverySpecs();
+		BufferedDataContainer deliveryContainer = exec.createDataContainer(specD);
+		DataTableSpec specL = new DataTableSpec(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec());
+		BufferedDataContainer linkContainer = exec.createDataContainer(specL);
+
 		String caseNumber = set.getCaseNumber();
 		if (caseNumber != null && caseNumber.trim().isEmpty()) caseNumber = null;
 		File tempDir = null;
@@ -205,11 +259,12 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    if (caseNumber == null) {
 			    String msg = service.path("rest").path("items").path("faelle").request().accept(MediaType.TEXT_PLAIN).get(String.class);
 			    if (msg.trim().isEmpty()) this.setWarningMessage("Es sind keine Fälle vorhanden!");
-			    else this.setWarningMessage("Folgende Fälle sind verfügbar:\n\n" + msg + "\n\nbitte einen Fall auswählen und als Parameter eintragen!");
-		    	return null;
+			    else this.setWarningMessage("Folgende Fälle sind verfügbar:\n" + msg + "\nbitte einen Fall auswählen und als Parameter eintragen!");
+			    stationContainer.close(); deliveryContainer.close(); linkContainer.close();
+				return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
 		    }
 		    else {
-			    InputStream stream = service.path("rest").path("items").path("files").request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
+			    InputStream stream = service.path("rest").path("items").path("kpms").path(caseNumber).request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
 		        ZipInputStream zipIn = new ZipInputStream(stream);
 		        
 			    tempDir = Files.createTempDir();
@@ -238,25 +293,6 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 			deleteDir(tempDir);
 		}
 		
-		// Station specs
-		List<DataColumnSpec> columns = new ArrayList<>();
-		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_ID, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_NAME, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_STREET, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_HOUSENO, IntCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_ZIP, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_CITY, StringCell.TYPE);
-		//addSpec(columns, TracingColumns.STATION_STATE, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_COUNTRY, StringCell.TYPE);
-		
-		addSpec(columns, "Bemerkung", StringCell.TYPE);
-		addSpec(columns, "EgZulassungsnummer", StringCell.TYPE);
-		addSpec(columns, "Lat", DoubleCell.TYPE);
-		addSpec(columns, "Lon", DoubleCell.TYPE);
-
-		DataTableSpec specS = new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
-		BufferedDataContainer stationContainer = exec.createDataContainer(specS);
 		DataCell[] cells = new DataCell[specS.getNumColumns()];
 		
 		if (caseNumber != null) {
@@ -289,31 +325,6 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		exec.checkCanceled();
 		stationContainer.close();
 
-		// Delivery specs
-		columns = new ArrayList<>();
-		//addSpec(columns, TracingColumns.DELIVERY_ID, StringCell.TYPE);
-		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
-		addSpec(columns, TracingColumns.FROM, StringCell.TYPE);
-		addSpec(columns, TracingColumns.TO, StringCell.TYPE);
-		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
-		addSpec(columns, TracingColumns.PRODUCT_NUMBER, StringCell.TYPE);
-		addSpec(columns, "EAN", StringCell.TYPE);
-		addSpec(columns, TracingColumns.LOT_NUMBER, StringCell.TYPE);
-		addSpec(columns, "Chargennummer", StringCell.TYPE);
-		addSpec(columns, "Bezeichnung", StringCell.TYPE);
-		addSpec(columns, TracingColumns.DELIVERY_NUM_PU, DoubleCell.TYPE);
-		addSpec(columns, TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE);
-		addSpec(columns, "AnzahlGebinde", IntCell.TYPE);
-		addSpec(columns, "Gebinde", StringCell.TYPE);
-		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
-		addSpec(columns, "Lieferscheinnummer", StringCell.TYPE);
-		addSpec(columns, "Kontrollpunktnummer", StringCell.TYPE);
-		addSpec(columns, "WE_ID", StringCell.TYPE);
-		addSpec(columns, "WA_ID", StringCell.TYPE);
-		addSpec(columns, "BetriebsTyp", StringCell.TYPE);
-
-		DataTableSpec specD = new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
-		BufferedDataContainer deliveryContainer = exec.createDataContainer(specD);
 		cells = new DataCell[specD.getNumColumns()];
 		
 		HashMap<String, List<String>> identicalLieferungen = new HashMap<>();
@@ -389,9 +400,6 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		}
 		deliveryContainer.close();
 		
-		DataTableSpec specL = new DataTableSpec(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec(),
-				new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec());
-		BufferedDataContainer linkContainer = exec.createDataContainer(specL);
 		DataCell[] cellsL = new DataCell[specL.getNumColumns()];
 
 		System.err.println("\nremoving identical deliveries...");
