@@ -268,6 +268,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		        ZipInputStream zipIn = new ZipInputStream(stream);
 		        
 			    tempDir = Files.createTempDir();
+			    System.err.println(tempDir.getAbsolutePath());
 		        UnzipUtility unzipper = new UnzipUtility();
 	            unzipper.unzip(zipIn, tempDir.getAbsolutePath());
 	            zipIn.close();
@@ -418,6 +419,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 			linkContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(linkContainer.size()), cellsL));
 		}
 		linkContainer.close();
+		// Achtung!!! still missing: Verknüpfung von deliveries, die identisch sind, aber in verschiedenen Aufträgen definiert wurden - hier auch "Ausloeser" einbeziehen!!!
 		
 		return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
 	}

@@ -63,7 +63,7 @@ public class Fall {
 			if (kpm.getWareneingaenge() != null) {
 				for (Wareneingang we : kpm.getWareneingaenge().getWareneingang()) {
 					for (Betrieb b : we.getBetrieb()) {
-						if (b.getTyp().equals("LIEFERANT")) {
+						if (b.getTyp().equals("LIEFERANT") || b.getTyp().equals("ORT_ABHOLUNG")) {
 							if (!betriebe.containsKey(b.getBetriebsnummer())) {
 								betriebe.put(b.getBetriebsnummer(), b);
 							}
@@ -75,7 +75,7 @@ public class Fall {
 			if (kpm.getWarenausgaenge() != null) {
 				for (Warenausgang wa : kpm.getWarenausgaenge().getWarenausgang()) {
 					for (Betrieb b : wa.getBetrieb()) {
-						if (b.getTyp().equals("KUNDE")) {
+						if (b.getTyp().equals("KUNDE") || b.getTyp().equals("ORT_ANLIEFERUNG")) {
 							if (!betriebe.containsKey(b.getBetriebsnummer())) {
 								betriebe.put(b.getBetriebsnummer(), b);
 							}
