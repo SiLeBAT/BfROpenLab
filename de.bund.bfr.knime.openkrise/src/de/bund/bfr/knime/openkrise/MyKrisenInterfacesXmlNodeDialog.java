@@ -25,7 +25,6 @@ import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -50,17 +49,18 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 
 	private JCheckBox anonymizeBox, useBusstopBox;
 	private FilesHistoryPanel xmlField;
-	private JTextField server, user, caseNumber;
-	private JPasswordField pass;
+	private JTextField server, caseNumber; // user
+	//private JPasswordField pass;
 
 	protected MyKrisenInterfacesXmlNodeDialog() {
 		JPanel tracingPanel = new JPanel();
 
 		xmlField = new FilesHistoryPanel(XML_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		server = new JTextField();
-		user = new JTextField();
 		caseNumber = new JTextField();
-		pass = new JPasswordField();
+		//user = new JTextField();
+		//pass = new JPasswordField();
+		
 		useBusstopBox = new JCheckBox("Use Busstop");
 		useBusstopBox.addActionListener(new ActionListener() {
             @Override
@@ -72,8 +72,8 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
 		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(useBusstopBox)));
 		tracingPanel.add(UI.createTitledPanel(server, "Server Address"));
-		tracingPanel.add(UI.createTitledPanel(user, "Username"));
-		tracingPanel.add(UI.createTitledPanel(pass, "Password"));
+		//tracingPanel.add(UI.createTitledPanel(user, "Username"));
+		//tracingPanel.add(UI.createTitledPanel(pass, "Password"));
 		tracingPanel.add(UI.createTitledPanel(xmlField, "Xml Path"));
 		tracingPanel.add(UI.createTitledPanel(caseNumber, "Case Number"));
 		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(anonymizeBox)));
@@ -85,8 +85,8 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 	private void setEnableds() {
     	xmlField.setEnabled(!useBusstopBox.isSelected());
     	server.setEnabled(useBusstopBox.isSelected());
-    	user.setEnabled(useBusstopBox.isSelected());
-    	pass.setEnabled(useBusstopBox.isSelected());
+    	//user.setEnabled(useBusstopBox.isSelected());
+    	//pass.setEnabled(useBusstopBox.isSelected());
 	}
 
 	@Override
@@ -96,8 +96,8 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		anonymizeBox.setSelected(set.isAnonymize());
 		xmlField.setSelectedFile(set.getXmlPath());
 		server.setText(set.getServer());
-		user.setText(set.getUser());
-		pass.setText(set.getPass());
+		//user.setText(set.getUser());
+		//pass.setText(set.getPass());
 		caseNumber.setText(set.getCaseNumber());
 		setEnableds();
 	}
@@ -108,8 +108,8 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		set.setAnonymize(anonymizeBox.isSelected());
 		set.setXmlPath(xmlField.getSelectedFile());
 		set.setServer(server.getText());
-		set.setUser(user.getText());
-		set.setPass(pass.getPassword().toString());
+		//set.setUser(user.getText());
+		//set.setPass(new String(pass.getPassword()));
 		set.setCaseNumber(caseNumber.getText());
 		set.saveSettings(settings);
 	}

@@ -22,14 +22,16 @@ package de.bund.bfr.knime.openkrise;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.ZipInputStream;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.ws.rs.core.MediaType;
 import javax.xml.soap.SOAPException;
 
@@ -59,6 +61,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.util.KnimeEncryption;
 
 import com.google.common.io.Files;
 
@@ -233,6 +236,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		addSpec(columns, "WE_ID", StringCell.TYPE);
 		addSpec(columns, "WA_ID", StringCell.TYPE);
 		addSpec(columns, "BetriebsTyp", StringCell.TYPE);
+		addSpec(columns, "ReferenzDelivery", StringCell.TYPE);
 
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
@@ -254,7 +258,13 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
 		    JerseyClient client = new JerseyClientBuilder().withConfig(config).build();
-		    client.register(HttpAuthenticationFeature.basic(set.getUser(), set.getPass()));
+			String plain_pass = null;
+			try {
+				plain_pass = KnimeEncryption.decrypt(set.getPass());
+			} catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException | IOException e) {
+				e.printStackTrace();
+			}
+		    client.register(HttpAuthenticationFeature.basic(set.getUser(), plain_pass));
 		    JerseyWebTarget service = client.target(set.getServer());
 		    if (caseNumber == null) {
 			    String msg = service.path("rest").path("items").path("faelle").request().accept(MediaType.TEXT_PLAIN).get(String.class);
@@ -281,12 +291,14 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		if (caseNumber != null) {
 			Fall fall = nrw.getFaelle().get(caseNumber);
 			this.pushFlowVariableString("Fallbezeichnung", fall.getFallBezeichnung());
+			/*
 			Set<String> s = fall.getAuftragsnummern();
 			int i=0;
 			for (String an : s) {
 				this.pushFlowVariableString("Auftragsnummer_" + i, an);
 				i++;
 			}
+			*/
 			//fall.getCommHeader();
 		}
 		if (tempDir != null) {
@@ -338,9 +350,10 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 				for (Kontrollpunktmeldung kpm : kpms) {
 					if (kpm.getWareneingaenge() != null) {
 						for (Wareneingang we : kpm.getWareneingaenge().getWareneingang()) {
+							String refDel = "D" + index;
 							for (Betrieb b : we.getBetrieb()) {
 								if (b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {
-									String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), kpm.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung(), kpm.getMeldung().getNummer(), we.getId(), null, b.getTyp());
+									String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), kpm.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung(), kpm.getMeldung().getNummer(), we.getId(), null, b.getTyp(), refDel);
 									
 									if (!identicalLieferungen.containsKey(deliveryKey)) {
 										List<String> l = new ArrayList<String>();
@@ -366,9 +379,11 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 					}
 					if (kpm.getWarenausgaenge() != null) {
 						for (Warenausgang wa : kpm.getWarenausgaenge().getWarenausgang()) {
+							String refDel = "D" + index;
 							for (Betrieb b : wa.getBetrieb()) {
-								if (b.getTyp().equals("KUNDE") && b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {
-									String deliveryKey = fillDeliveries(specD, cells, "D" + index, kpm.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung(), kpm.getMeldung().getNummer(), null, wa.getId(), b.getTyp());
+								if (b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {
+									String deliveryKey = fillDeliveries(specD, cells, "D" + index, kpm.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung(), kpm.getMeldung().getNummer(), null, wa.getId(), b.getTyp(), refDel);
+									
 									if (!identicalLieferungen.containsKey(deliveryKey)) {
 										List<String> l = new ArrayList<String>();
 										l.add("D" + index);								
@@ -423,7 +438,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
 	}
 	
-	private String fillDeliveries(DataTableSpec specD, DataCell[] cells, String deliveryId, String from, String to, Produkt p, Warenumfang wu, Lieferung l, String kontrollpunktnummer, String we_id, String wa_id, String betriebsTyp) {
+	private String fillDeliveries(DataTableSpec specD, DataCell[] cells, String deliveryId, String from, String to, Produkt p, Warenumfang wu, Lieferung l, String kontrollpunktnummer, String we_id, String wa_id, String betriebsTyp, String referenceDelivery) {
 		fillCell(specD, cells, TracingColumns.ID, createCell(deliveryId));
 		fillCell(specD, cells, TracingColumns.FROM, createCell(from));
 		fillCell(specD, cells, TracingColumns.TO, createCell(to));
@@ -449,6 +464,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, "WE_ID", createCell(we_id));
 		fillCell(specD, cells, "WA_ID", createCell(wa_id));
 		fillCell(specD, cells, "BetriebsTyp", createCell(betriebsTyp));
+		fillCell(specD, cells, "ReferenzDelivery", createCell(referenceDelivery));
 
 		return from + ";;;" + to + ";;;" + los + ";;;" + ld;
 	}	
