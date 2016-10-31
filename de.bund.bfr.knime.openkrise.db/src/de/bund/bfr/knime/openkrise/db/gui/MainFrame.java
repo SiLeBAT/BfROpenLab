@@ -797,11 +797,16 @@ public class MainFrame extends JFrame {
 		    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 		    	File f = chooser.getSelectedFile();
 		    	if (f.isFile()) f = f.getParentFile();
-				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
-				DBKernel.prefs.prefsFlush();
-				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-				new TraceGenerator(f, dialog.getSelected(), chooser, isForward);
-				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
+		    	if (f.exists()) {
+					DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
+					DBKernel.prefs.prefsFlush();
+					this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
+					new TraceGenerator(f, dialog.getSelected(), chooser, isForward);
+					this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
+		    	}
+		    	else {
+		    		JOptionPane.showMessageDialog(this, "Folder does not exist!", "Folder not there", JOptionPane.ERROR_MESSAGE);
+		    	}
 		    }
 		}
 	}
@@ -864,11 +869,16 @@ public class MainFrame extends JFrame {
 		    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 		    	File f = chooser.getSelectedFile();
 		    	if (f.isFile()) f = f.getParentFile();
-				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
-				DBKernel.prefs.prefsFlush();
-				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-				new TraceGenerator(f, dialog.getSelected(), isForward, chooser);
-				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
+		    	if (f.exists()) {
+					DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
+					DBKernel.prefs.prefsFlush();
+					this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
+					new TraceGenerator(f, dialog.getSelected(), isForward, chooser);
+					this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
+		    	}
+		    	else {
+		    		JOptionPane.showMessageDialog(this, "Folder does not exist!", "Folder not there", JOptionPane.ERROR_MESSAGE);
+		    	}
 		    }
 		}
 	}
