@@ -331,7 +331,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 
 	private void upload(File file, boolean dryRun) throws Exception {
 	    JerseyClient client = new JerseyClientBuilder()
-	    		.register(HttpAuthenticationFeature.basic(set.getUser(), set.getPass()))
+	    		.register(HttpAuthenticationFeature.basic("user", "pass")) // set.getUser(), set.getPass()
 	    		.register(MultiPartFeature.class)
 	    		.build();
 	    JerseyWebTarget t = client.target(UriBuilder.fromUri(set.getServer()).build()).path("rest").path("items").path("upload");

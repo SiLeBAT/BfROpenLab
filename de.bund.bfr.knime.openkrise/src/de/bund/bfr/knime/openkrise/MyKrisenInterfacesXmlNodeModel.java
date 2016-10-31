@@ -22,7 +22,6 @@ package de.bund.bfr.knime.openkrise;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -30,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import javax.ws.rs.core.MediaType;
 import javax.xml.soap.SOAPException;
 
@@ -61,7 +58,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.util.KnimeEncryption;
 
 import com.google.common.io.Files;
 
@@ -258,13 +254,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
 		    JerseyClient client = new JerseyClientBuilder().withConfig(config).build();
-			String plain_pass = null;
-			try {
-				plain_pass = KnimeEncryption.decrypt(set.getPass());
-			} catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException | IOException e) {
-				e.printStackTrace();
-			}
-		    client.register(HttpAuthenticationFeature.basic(set.getUser(), plain_pass));
+		    client.register(HttpAuthenticationFeature.basic("user", "pass"));
 		    JerseyWebTarget service = client.target(set.getServer());
 		    if (caseNumber == null) {
 			    String msg = service.path("rest").path("items").path("faelle").request().accept(MediaType.TEXT_PLAIN).get(String.class);
