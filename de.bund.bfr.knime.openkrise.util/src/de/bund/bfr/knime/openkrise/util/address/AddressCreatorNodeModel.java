@@ -19,29 +19,19 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.address;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.container.AbstractCellFactory;
+import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.node.BufferedDataContainer;
-import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
-import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.streamable.simple.SimpleStreamableFunctionNodeModel;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.GisUtils;
@@ -53,7 +43,7 @@ import de.bund.bfr.knime.openkrise.TracingColumns;
  *
  * @author Christian Thoens
  */
-public class AddressCreatorNodeModel extends NodeModel {
+public class AddressCreatorNodeModel extends SimpleStreamableFunctionNodeModel {
 
 	protected static final String CFG_STREET = "Street";
 	protected static final String CFG_HOUSE_NUMBER = "HouseNumber";
@@ -77,7 +67,6 @@ public class AddressCreatorNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected AddressCreatorNodeModel() {
-		super(1, 1);
 		street = new SettingsModelString(CFG_STREET, TracingColumns.STATION_STREET);
 		houseNumber = new SettingsModelString(CFG_HOUSE_NUMBER, TracingColumns.STATION_HOUSENO);
 		city = new SettingsModelString(CFG_CITY, TracingColumns.STATION_CITY);
@@ -88,17 +77,13 @@ public class AddressCreatorNodeModel extends NodeModel {
 		houseNumberAfterStreet = new SettingsModelBoolean(CFG_HOUSE_NUMBER_AFTER_STREET, true);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
-			throws Exception {
-		BufferedDataTable table = inData[0];
-		DataTableSpec spec = table.getSpec();
-		DataTableSpec outSpec = createOutSpec(spec);
-		BufferedDataContainer container = exec.createDataContainer(outSpec);
+	protected ColumnRearranger createColumnRearranger(DataTableSpec spec) throws InvalidSettingsException {
+		if (spec.containsName(TracingColumns.ADDRESS)) {
+			throw new InvalidSettingsException("Column \"" + TracingColumns.ADDRESS + "\" already exists");
+		}
 
+		ColumnRearranger rearranger = new ColumnRearranger(spec);
 		int streetColumn = spec.findColumnIndex(street.getStringValue());
 		int houseNumberColumn = spec.findColumnIndex(houseNumber.getStringValue());
 		int cityColumn = spec.findColumnIndex(city.getStringValue());
@@ -107,76 +92,28 @@ public class AddressCreatorNodeModel extends NodeModel {
 		int countryColumn = spec.findColumnIndex(country.getStringValue());
 		int postalCodeColumn = spec.findColumnIndex(postalCode.getStringValue());
 
-		int index = 0;
+		rearranger.append(new AbstractCellFactory(
+				new DataColumnSpecCreator(TracingColumns.ADDRESS, StringCell.TYPE).createSpec()) {
 
-		for (DataRow row : table) {
-			DataCell[] cells = new DataCell[outSpec.getNumColumns()];
+			@Override
+			public DataCell[] getCells(DataRow row) {
+				String street = streetColumn != -1 ? street = IO.getCleanString(row.getCell(streetColumn)) : null;
+				String houseNumber = houseNumberColumn != -1
+						? houseNumber = IO.getCleanString(row.getCell(houseNumberColumn)) : null;
+				String city = cityColumn != -1 ? city = IO.getCleanString(row.getCell(cityColumn)) : null;
+				String district = districtColumn != -1 ? district = IO.getCleanString(row.getCell(districtColumn))
+						: null;
+				String state = stateColumn != -1 ? state = IO.getCleanString(row.getCell(stateColumn)) : null;
+				String country = countryColumn != -1 ? country = IO.getCleanString(row.getCell(countryColumn)) : null;
+				String postalCode = postalCodeColumn != -1
+						? postalCode = IO.getCleanString(row.getCell(postalCodeColumn)) : null;
 
-			for (String column : spec.getColumnNames()) {
-				cells[outSpec.findColumnIndex(column)] = row.getCell(spec.findColumnIndex(column));
+				return new DataCell[] { IO.createCell(GisUtils.getAddress(street, houseNumber, city, district, state,
+						country, postalCode, houseNumberAfterStreet.getBooleanValue())) };
 			}
+		});
 
-			String street = null;
-			String houseNumber = null;
-			String city = null;
-			String district = null;
-			String state = null;
-			String country = null;
-			String postalCode = null;
-
-			if (streetColumn != -1) {
-				street = IO.getCleanString(row.getCell(streetColumn));
-			}
-
-			if (houseNumberColumn != -1) {
-				houseNumber = IO.getCleanString(row.getCell(houseNumberColumn));
-			}
-
-			if (cityColumn != -1) {
-				city = IO.getCleanString(row.getCell(cityColumn));
-			}
-
-			if (districtColumn != -1) {
-				district = IO.getCleanString(row.getCell(districtColumn));
-			}
-
-			if (stateColumn != -1) {
-				state = IO.getCleanString(row.getCell(stateColumn));
-			}
-
-			if (countryColumn != -1) {
-				country = IO.getCleanString(row.getCell(countryColumn));
-			}
-
-			if (postalCodeColumn != -1) {
-				postalCode = IO.getCleanString(row.getCell(postalCodeColumn));
-			}
-
-			cells[outSpec.findColumnIndex(TracingColumns.ADDRESS)] = IO.createCell(GisUtils.getAddress(street,
-					houseNumber, city, district, state, country, postalCode, houseNumberAfterStreet.getBooleanValue()));
-			container.addRowToTable(new DefaultRow(row.getKey(), cells));
-			exec.checkCanceled();
-			exec.setProgress((double) index / (double) table.size());
-		}
-
-		container.close();
-
-		return new BufferedDataTable[] { container.getTable() };
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void reset() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		return new DataTableSpec[] { createOutSpec(inSpecs[0]) };
+		return rearranger;
 	}
 
 	/**
@@ -219,37 +156,5 @@ public class AddressCreatorNodeModel extends NodeModel {
 		state.validateSettings(settings);
 		country.validateSettings(settings);
 		postalCode.validateSettings(settings);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	private static DataTableSpec createOutSpec(DataTableSpec spec) throws InvalidSettingsException {
-		List<DataColumnSpec> columns = new ArrayList<>();
-
-		for (DataColumnSpec column : spec) {
-			if (column.getName().equals(TracingColumns.ADDRESS)) {
-				throw new InvalidSettingsException("Column \"" + TracingColumns.ADDRESS + "\" already exists");
-			}
-
-			columns.add(column);
-		}
-
-		columns.add(new DataColumnSpecCreator(TracingColumns.ADDRESS, StringCell.TYPE).createSpec());
-
-		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
 }
