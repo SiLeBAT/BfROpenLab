@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+	<extension point="org.knime.workbench.repository.categories">
+		<category icon="icons/pmm.png" level-id="pmmlite" name="PMM-Lab-Lite" path="/" />
+	</extension>
+	
+ 	<extension point="org.knime.core.PortType">
+    <portType
+		hidden="false"
+		name="PMM-Object"
+		objectClass="de.bund.bfr.knime.pmmlite.core.port.PmmPortObject"
+		objectSerializer="de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSerializer"
+		specClass="de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSpec"
+		specSerializer="de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSpecSerializer">
+    </portType>
+ 	</extension>
+
+</plugin>

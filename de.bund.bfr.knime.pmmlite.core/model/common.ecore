@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="common" nsURI="http:///de/bund/bfr/knime/pmmlite/core/common.ecore"
+    nsPrefix="de.bund.bfr.knime.pmmlite.core.common">
+  <eClassifiers xsi:type="ecore:EDataType" name="Unit" instanceClassName="de.bund.bfr.knime.pmmlite.core.PmmUnit"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Nameable" abstract="true" interface="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Identifiable" abstract="true" interface="true"
+      eSuperTypes="#//Nameable">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        iD="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NameableWithUnit" abstract="true" interface="true"
+      eSuperTypes="#//Nameable">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="unit" eType="#//Unit" defaultValueLiteral="NO_TRANSFORM(NO_UNIT)"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="Transform" instanceClassName="de.bund.bfr.math.Transform"/>
+</ecore:EPackage>

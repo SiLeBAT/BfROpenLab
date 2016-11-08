@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/de.bund.bfr.knime.pmmlite.core.generated/src"
+    modelPluginID="de.bund.bfr.knime.pmmlite.core.generated" modelName="Core" modelPluginClass=""
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0" copyrightFields="false"
+    runtimeVersion="2.11">
+  <foreignModel>common.ecore</foreignModel>
+  <foreignModel>data.ecore</foreignModel>
+  <foreignModel>models.ecore</foreignModel>
+  <genPackages prefix="Common" basePackage="de.bund.bfr.knime.pmmlite.core" disposableProviderFactory="true"
+      ecorePackage="common.ecore#/">
+    <genDataTypes ecoreDataType="common.ecore#//Unit"/>
+    <genDataTypes ecoreDataType="common.ecore#//Transform"/>
+    <genClasses image="false" ecoreClass="common.ecore#//Nameable">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute common.ecore#//Nameable/name"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="common.ecore#//Identifiable">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute common.ecore#//Identifiable/id"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="common.ecore#//NameableWithUnit">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute common.ecore#//NameableWithUnit/unit"/>
+    </genClasses>
+  </genPackages>
+  <genPackages prefix="Data" basePackage="de.bund.bfr.knime.pmmlite.core" disposableProviderFactory="true"
+      ecorePackage="data.ecore#/">
+    <genClasses ecoreClass="data.ecore#//TimeSeries">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference data.ecore#//TimeSeries/points"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference data.ecore#//TimeSeries/conditions"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute data.ecore#//TimeSeries/organism"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute data.ecore#//TimeSeries/matrix"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute data.ecore#//TimeSeries/timeUnit"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute data.ecore#//TimeSeries/concentrationUnit"/>
+    </genClasses>
+    <genClasses ecoreClass="data.ecore#//TimeSeriesPoint">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute data.ecore#//TimeSeriesPoint/time"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute data.ecore#//TimeSeriesPoint/concentration"/>
+    </genClasses>
+    <genClasses ecoreClass="data.ecore#//Condition">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute data.ecore#//Condition/value"/>
+    </genClasses>
+  </genPackages>
+  <genPackages prefix="Models" basePackage="de.bund.bfr.knime.pmmlite.core" disposableProviderFactory="true"
+      ecorePackage="models.ecore#/">
+    <genClasses ecoreClass="models.ecore#//Model">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//Model/sse"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//Model/mse"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//Model/rmse"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//Model/r2"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//Model/aic"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//Model/degreesOfFreedom"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//Model/variableRanges"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//Model/paramValues"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//Model/assignments"/>
+      <genOperations ecoreOperation="models.ecore#//Model/getModelFormula"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//ModelFormula">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//ModelFormula/formula"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//ModelFormula/depVar"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//ModelFormula/params"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="models.ecore#//Variable"/>
+    <genClasses ecoreClass="models.ecore#//VariableRange">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//VariableRange/min"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//VariableRange/max"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//Parameter">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//Parameter/min"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//Parameter/max"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//ParameterValue">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//ParameterValue/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//ParameterValue/error"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//ParameterValue/t"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//ParameterValue/p"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//ParameterValue/correlations"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//PrimaryModel">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference models.ecore#//PrimaryModel/modelFormula"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference models.ecore#//PrimaryModel/data"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//SecondaryModel">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference models.ecore#//SecondaryModel/modelFormula"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference models.ecore#//SecondaryModel/data"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//TertiaryModel">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference models.ecore#//TertiaryModel/modelFormula"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference models.ecore#//TertiaryModel/data"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//PrimaryModelFormula">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//PrimaryModelFormula/indepVar"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//PrimaryModelFormula/initialParam"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//SecondaryModelFormula">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//SecondaryModelFormula/indepVars"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//SecondaryModelFormula/transformation"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//TertiaryModelFormula">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//TertiaryModelFormula/indepVars"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//TertiaryModelFormula/timeVar"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//TertiaryModelFormula/initialParam"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference models.ecore#//TertiaryModelFormula/primaryFormula"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference models.ecore#//TertiaryModelFormula/secondaryFormulas"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//TertiaryModelFormula/secondaryRenamings"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//TertiaryModelFormula/assignments"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//Renamings">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//Renamings/map"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//StringToStringMapEntry">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//StringToStringMapEntry/key"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//StringToStringMapEntry/value"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//StringToDoubleMapEntry">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//StringToDoubleMapEntry/key"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//StringToDoubleMapEntry/value"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//StringToVariableRangeMapEntry">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//StringToVariableRangeMapEntry/key"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//StringToVariableRangeMapEntry/value"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//StringToParameterValueMapEntry">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//StringToParameterValueMapEntry/key"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//StringToParameterValueMapEntry/value"/>
+    </genClasses>
+    <genClasses ecoreClass="models.ecore#//StringToRenamingsMapEntry">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute models.ecore#//StringToRenamingsMapEntry/key"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference models.ecore#//StringToRenamingsMapEntry/value"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

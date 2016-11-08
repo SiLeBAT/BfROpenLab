@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+	<extension point="org.knime.workbench.repository.categories">
+		<category icon="icons/views.png" level-id="views" name="Views" path="/pmmlite" />
+	</extension>
+
+	<extension point="org.knime.workbench.repository.nodes">
+		<node category-path="/pmmlite/views" factory-class="de.bund.bfr.knime.pmmlite.views.dataselection.DataSelectionNodeFactory"/>
+		<node category-path="/pmmlite/views" factory-class="de.bund.bfr.knime.pmmlite.views.primarymodelselection.PrimaryModelSelectionNodeFactory"/>
+		<node category-path="/pmmlite/views" factory-class="de.bund.bfr.knime.pmmlite.views.secondarymodelview.SecondaryModelViewNodeFactory"/>
+		<node category-path="/pmmlite/views" factory-class="de.bund.bfr.knime.pmmlite.views.tertiarymodelview.TertiaryModelViewNodeFactory"/>
+		<node category-path="/pmmlite/views" factory-class="de.bund.bfr.knime.pmmlite.views.predictorview.PredictorViewNodeFactory"/>
+		<node category-path="/pmmlite/views" factory-class="de.bund.bfr.knime.pmmlite.views.fittedparameterview.FittedParameterViewNodeFactory"/>
+		<node category-path="/pmmlite/views" factory-class="de.bund.bfr.knime.pmmlite.views.secondarypredictorview.SecondaryPredictorViewNodeFactory"/>
+		<node category-path="/pmmlite/views" factory-class="de.bund.bfr.knime.pmmlite.views.tertiarymodelselection.TertiaryModelSelectionNodeFactory"/>
+	</extension>
+
+</plugin>

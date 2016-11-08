@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pmm-Lab-Lite Core Generated
+Bundle-SymbolicName: de.bund.bfr.knime.pmmlite.core.generated;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: Christian Thoens
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: de.bund.bfr.knime.pmmlite.core.common,
+ de.bund.bfr.knime.pmmlite.core.common.impl,
+ de.bund.bfr.knime.pmmlite.core.common.util,
+ de.bund.bfr.knime.pmmlite.core.data,
+ de.bund.bfr.knime.pmmlite.core.data.impl,
+ de.bund.bfr.knime.pmmlite.core.data.util,
+ de.bund.bfr.knime.pmmlite.core.models,
+ de.bund.bfr.knime.pmmlite.core.models.impl,
+ de.bund.bfr.knime.pmmlite.core.models.util
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.emf.ecore;bundle-version="2.11.0";visibility:=reexport,
+ de.bund.bfr.knime.pmmlite.core.types;visibility:=reexport
+Bundle-ActivationPolicy: lazy

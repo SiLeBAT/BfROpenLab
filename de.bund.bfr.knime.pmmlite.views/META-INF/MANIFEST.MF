@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pmm-Lab-Lite Views
+Bundle-SymbolicName: de.bund.bfr.knime.pmmlite.views;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
+Require-Bundle: de.bund.bfr.knime.pmmlite.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+

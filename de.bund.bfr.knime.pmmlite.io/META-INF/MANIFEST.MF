@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pmm-Lab-Lite IO
+Bundle-SymbolicName: de.bund.bfr.knime.pmmlite.io;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
+Require-Bundle: de.bund.bfr.knime.pmmlite.core,
+ org.apache.poi.new
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+	<extension point="org.knime.workbench.repository.categories">
+		<category icon="icons/io.png" level-id="io" name="IO" path="/pmmlite" />
+	</extension>
+
+	<extension point="org.knime.workbench.repository.nodes">
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.datareader.XlsDataReaderNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.formulacreator.FormulaCreatorNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.datacreator.DataCreatorNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.combasereader.CombaseReaderNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.sbmlwriter.SbmlWriterNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.sbmlreader.SbmlReaderNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.modelreader.XlsModelReaderNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.modelcreator.ModelCreatorNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.xmlreader.XmlReaderNodeFactory"/>
+		<node category-path="/pmmlite/io" factory-class="de.bund.bfr.knime.pmmlite.io.xmlwriter.XmlWriterNodeFactory"/>
+	</extension>
+
+</plugin>
