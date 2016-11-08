@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.shapefilereader;
 
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
@@ -48,11 +47,8 @@ import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -67,6 +63,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 
@@ -76,7 +73,7 @@ import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
  * 
  * @author Christian Thoens
  */
-public class ShapefileReaderNodeModel extends NodeModel {
+public class ShapefileReaderNodeModel extends NodeModelWithoutInternals {
 
 	protected static final String SHP_FILE = "FileName";
 
@@ -168,13 +165,6 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		return new BufferedDataTable[] { container.getTable() };
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void reset() {
-	}
-
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		if (shpFile.getStringValue() == null) {
@@ -217,22 +207,6 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 		shpFile.validateSettings(settings);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
 	}
 
 	private DataTableSpec createSpec(SimpleFeatureType type) {

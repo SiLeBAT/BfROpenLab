@@ -19,15 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.graphvisualizer;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
@@ -35,6 +29,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 
 /**
@@ -43,7 +38,7 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
  * 
  * @author Christian Thoens
  */
-public class GraphVisualizerNodeModel extends NodeModel {
+public class GraphVisualizerNodeModel extends NodeModelWithoutInternals {
 
 	private GraphVisualizerSettings set;
 
@@ -66,13 +61,6 @@ public class GraphVisualizerNodeModel extends NodeModel {
 		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(nodeTable, edgeTable, set);
 
 		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), creator.createGraphCanvas()) };
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void reset() {
 	}
 
 	/**
@@ -105,21 +93,4 @@ public class GraphVisualizerNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
 }

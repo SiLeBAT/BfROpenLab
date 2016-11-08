@@ -19,15 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.regionvisualizer;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
@@ -35,6 +29,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.OsmCanvas;
@@ -46,7 +41,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
  * 
  * @author Christian Thoens
  */
-public class RegionVisualizerNodeModel extends NodeModel {
+public class RegionVisualizerNodeModel extends NodeModelWithoutInternals {
 
 	private RegionVisualizerSettings set;
 
@@ -84,13 +79,6 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void reset() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
@@ -117,21 +105,4 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
 }

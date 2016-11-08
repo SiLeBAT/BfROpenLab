@@ -19,8 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -39,9 +37,7 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
@@ -50,6 +46,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -65,7 +62,7 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
  * 
  * @author Christian Thoens
  */
-public class TracingViewNodeModel extends NodeModel {
+public class TracingViewNodeModel extends NodeModelWithoutInternals {
 
 	private TracingViewSettings set;
 
@@ -150,13 +147,6 @@ public class TracingViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void reset() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		DataTableSpec nodeSpec = (DataTableSpec) inSpecs[0];
 		DataTableSpec edgeSpec = (DataTableSpec) inSpecs[1];
@@ -187,22 +177,6 @@ public class TracingViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
 	}
 
 	private BufferedDataTable createTable(Collection<? extends Element> elements, Map<String, Class<?>> propertyTypes,

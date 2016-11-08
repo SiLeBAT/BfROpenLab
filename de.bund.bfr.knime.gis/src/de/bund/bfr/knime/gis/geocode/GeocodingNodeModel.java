@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -55,9 +54,7 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -68,6 +65,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.Activator;
 import de.bund.bfr.knime.gis.GisUtils;
@@ -79,7 +77,7 @@ import net.minidev.json.JSONArray;
  * 
  * @author Christian Thoens
  */
-public class GeocodingNodeModel extends NodeModel {
+public class GeocodingNodeModel extends NodeModelWithoutInternals {
 
 	public static final String URL_COLUMN = "GeocodingURL";
 	public static final String STREET_COLUMN = "GeocodingStreet";
@@ -188,13 +186,6 @@ public class GeocodingNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void reset() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
@@ -240,22 +231,6 @@ public class GeocodingNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
 	}
 
 	private GeocodingResult performMapQuestGeocoding(String address)

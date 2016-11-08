@@ -27,7 +27,6 @@ import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.PRODUKTKAT
 import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.STATION;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.sql.Connection;
@@ -65,9 +64,7 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -81,6 +78,7 @@ import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -94,7 +92,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * 
  * @author draaw
  */
-public class MyKrisenInterfacesNodeModel extends NodeModel {
+public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 
 	private static final ImmutableMap<String, TableField<?, Integer>> ID_COLUMNS = ImmutableMap.of(STATION.getName(),
 			STATION.ID, LIEFERUNGEN.getName(), LIEFERUNGEN.ID, CHARGEN.getName(), CHARGEN.ID, PRODUKTKATALOG.getName(),
@@ -149,13 +147,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void reset() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		return new DataTableSpec[] { null, null, null };
 	}
@@ -181,22 +172,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
 	}
 
 	protected static String removeNameOfDB(String path) throws InvalidPathException, MalformedURLException {

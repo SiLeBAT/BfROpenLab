@@ -19,8 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.cluster;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -45,15 +43,13 @@ import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -66,7 +62,7 @@ import de.bund.bfr.knime.openkrise.TracingUtils;
  * 
  * @author BfR
  */
-public class DBSCANNodeModel extends NodeModel {
+public class DBSCANNodeModel extends NodeModelWithoutInternals {
 
 	private DBSCANNSettings set;
 
@@ -163,13 +159,6 @@ public class DBSCANNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void reset() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		return new DataTableSpec[] { createSpec(inSpecs[0]) };
 	}
@@ -195,22 +184,6 @@ public class DBSCANNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
 	}
 
 	private static DataTableSpec createSpec(DataTableSpec inSpec) throws InvalidSettingsException {

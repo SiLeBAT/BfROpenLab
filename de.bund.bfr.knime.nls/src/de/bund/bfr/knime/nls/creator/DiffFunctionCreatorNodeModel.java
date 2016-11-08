@@ -19,18 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.knime.nls.creator;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
@@ -39,6 +34,7 @@ import org.knime.core.node.port.PortType;
 
 import com.google.common.collect.Ordering;
 
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
@@ -50,7 +46,7 @@ import de.bund.bfr.math.MathUtils;
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionCreatorNodeModel extends NodeModel {
+public class DiffFunctionCreatorNodeModel extends NodeModelWithoutInternals {
 
 	private DiffFunctionCreatorSettings set;
 
@@ -68,13 +64,6 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		return new PortObject[] { new FunctionPortObject(createFunction(set)) };
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void reset() {
 	}
 
 	/**
@@ -110,22 +99,6 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
 	}
 
 	private static Function createFunction(DiffFunctionCreatorSettings set) {

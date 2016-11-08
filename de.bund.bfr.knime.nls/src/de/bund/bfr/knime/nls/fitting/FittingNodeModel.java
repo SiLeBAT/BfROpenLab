@@ -19,8 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.nls.fitting;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -45,9 +43,7 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
@@ -59,6 +55,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.NodeModelWithoutInternals;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -76,7 +73,7 @@ import de.bund.bfr.math.OptimizationResult;
  * 
  * @author Christian Thoens
  */
-public class FittingNodeModel extends NodeModel {
+public class FittingNodeModel extends NodeModelWithoutInternals {
 
 	private static final PortType[] INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE };
 	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
@@ -205,13 +202,6 @@ public class FittingNodeModel extends NodeModel {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	protected void reset() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
@@ -303,22 +293,6 @@ public class FittingNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
 	}
 
 	private Map<String, OptimizationResult> doFitting(Function f, BufferedDataTable table, ExecutionContext exec)
