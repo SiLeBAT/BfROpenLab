@@ -33,6 +33,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -64,23 +65,13 @@ public class UI {
 	public static final Border TABLE_CELL_FOCUS_BORDER = UIManager.getBorder("Table.focusCellHighlightBorder");
 
 	public static <V> void select(JComboBox<V> box, V item) {
-		if (hasItem(box, item)) {
-			box.setSelectedItem(item);
-		} else {
-			box.setSelectedItem(null);
-		}
+		box.setSelectedItem(hasItem(box, item) ? item : null);
 	}
 
 	public static <V> boolean hasItem(JComboBox<V> box, V item) {
 		for (int i = 0; i < box.getItemCount(); i++) {
-			if (item == null) {
-				if (box.getItemAt(i) == null) {
-					return true;
-				}
-			} else {
-				if (item.equals(box.getItemAt(i))) {
-					return true;
-				}
+			if (Objects.equals(box.getItemAt(i), item)) {
+				return true;
 			}
 		}
 
