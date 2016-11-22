@@ -26,6 +26,7 @@ public class TestFlows {
 		TestrunConfiguration runConfiguration = new TestrunConfiguration();
 
 		runConfiguration.setCheckLogMessages(false);
+		runConfiguration.setLoadSaveLoad(false);
 		runner = new TestFlowRunner(collector, runConfiguration);
 	}
 
