@@ -33,6 +33,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.eclipse.emf.ecore.xmi" version="2.11.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.knime.base" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="com.google.guava" version="19.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jdt.annotation" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="org.apache.commons.math3"/>
       <import plugin="org.knime.ext.jfreechart"/>
@@ -111,12 +112,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="edu.umd.cs.findbugs.annotations"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.google.guava.new"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
