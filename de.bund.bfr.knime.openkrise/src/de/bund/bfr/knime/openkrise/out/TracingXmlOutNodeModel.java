@@ -344,7 +344,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 
 	    FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
 	    MultiPart multipartEntity = formDataMultiPart.field("comment", "Analysis from BfR").bodyPart(filePart);
-//Brunnen: AZ: 6793/06.10-St-52 Stellenzeichen: VIIID304
+
 	    if (!dryRun) {
 		    Response response = t.request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
 		    System.out.println(response.getStatus() + " \n" + response.readEntity(String.class));
