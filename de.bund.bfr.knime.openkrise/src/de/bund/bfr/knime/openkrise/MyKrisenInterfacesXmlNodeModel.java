@@ -277,6 +277,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		NRW_Importer nrw = new NRW_Importer();
 		String lastFallNummer = nrw.doImport(xmlFolder, caseNumber);
 		if (caseNumber == null) caseNumber = lastFallNummer;
+		if (nrw.getFaelle() == null) caseNumber = null;
 		this.pushFlowVariableString("Fallnummer", caseNumber);
 		if (caseNumber != null) {
 			Fall fall = nrw.getFaelle().get(caseNumber);
