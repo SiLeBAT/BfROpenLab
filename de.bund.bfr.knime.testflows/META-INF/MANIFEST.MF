@@ -8,7 +8,7 @@ Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.junit,
  org.knime.base;bundle-version="3.2.0",
  org.knime.testing,
- nl.esciencecenter.e3dchem.knime.testing.plugin,
+ nl.esciencecenter.e3dchem.knime.testing;bundle-version="1.0.0",
  de.bund.bfr.jung,
  de.bund.bfr.knime,
  de.bund.bfr.knime.chart,

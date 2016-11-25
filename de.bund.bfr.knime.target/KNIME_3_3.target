@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.3 TP" sequenceNumber="5">
+<?pde version="3.8"?><target name="KNIME 3.3 TP" sequenceNumber="7">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
-<unit id="org.knime.features.base.feature.group" version="0.0.0"/>
-<repository location="http://update.knime.org/analytics-platform/3.3/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.knime.features.testingapplication.feature.group" version="3.3.0.v201611141512"/>
-<unit id="org.knime.features.ext.osm.feature.group" version="3.3.0.v201611141308"/>
-<unit id="org.knime.features.js.views.feature.group" version="3.3.0.v201611150840"/>
-<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.3.0.v201611141308"/>
-<unit id="org.knime.features.network.feature.group" version="3.3.0.v201611141308"/>
-<unit id="org.knime.features.ext.svg.feature.group" version="3.3.0.v201611141533"/>
-<unit id="org.knime.product.desktop" version="3.3.0.v201611151416"/>
-<unit id="com.knime.features.reporting.designer.feature.group" version="3.3.0.v201607181158"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.3.0.v201611222101"/>
+<unit id="org.knime.features.ext.osm.feature.group" version="3.3.0.v201611222101"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.3.0.v201611250023"/>
+<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.3.0.v201611222101"/>
+<unit id="org.knime.features.network.feature.group" version="3.3.0.v201611222101"/>
+<unit id="org.knime.features.ext.svg.feature.group" version="3.3.0.v201611222101"/>
+<unit id="org.knime.product.desktop" version="3.3.0.v201611242140"/>
+<unit id="com.knime.features.reporting.designer.feature.group" version="3.3.0.v201611222101"/>
 <unit id="com.knime.features.explorer.serverspace.feature.group" version="4.4.0.v201611011438"/>
 <repository location="http://update.knime.org/analytics-platform/3.3/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="nl.esciencecenter.e3dchem.knime.testing.plugin" version="1.0.0"/>
-<repository location="https://3d-e-chem.github.io/updates"/>
+<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
+<unit id="org.knime.features.base.feature.group" version="0.0.0"/>
+<repository location="http://update.knime.org/analytics-platform/3.3/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
