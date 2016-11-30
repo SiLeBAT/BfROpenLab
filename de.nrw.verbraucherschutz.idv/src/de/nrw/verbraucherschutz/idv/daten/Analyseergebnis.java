@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.10.26 um 10:27:53 PM CEST 
+// Generiert: 2016.11.30 um 03:35:33 PM CET 
 //
 
 
@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;element name="meldung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Meldung"/>
  *         &lt;element name="dokument" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument}dokument" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="bewertung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Bewertung" minOccurs="0"/>
+ *         &lt;element name="bewertung" type="{http://verbraucherschutz.nrw.de/idv/daten/2016.2/warenrueckverfolgung}Bewertung" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -50,7 +50,7 @@ public class Analyseergebnis {
     @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport")
     protected List<Dokument> dokument;
     @XmlElement(namespace = "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport")
-    protected Bewertung bewertung;
+    protected List<Bewertung> bewertung;
 
     /**
      * Ruft den Wert der meldung-Eigenschaft ab.
@@ -106,27 +106,32 @@ public class Analyseergebnis {
     }
 
     /**
-     * Ruft den Wert der bewertung-Eigenschaft ab.
+     * Gets the value of the bewertung property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Bewertung }
-     *     
-     */
-    public Bewertung getBewertung() {
-        return bewertung;
-    }
-
-    /**
-     * Legt den Wert der bewertung-Eigenschaft fest.
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the bewertung property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link Bewertung }
-     *     
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getBewertung().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link Bewertung }
+     * 
+     * 
      */
-    public void setBewertung(Bewertung value) {
-        this.bewertung = value;
+    public List<Bewertung> getBewertung() {
+        if (bewertung == null) {
+            bewertung = new ArrayList<Bewertung>();
+        }
+        return this.bewertung;
     }
 
 }
