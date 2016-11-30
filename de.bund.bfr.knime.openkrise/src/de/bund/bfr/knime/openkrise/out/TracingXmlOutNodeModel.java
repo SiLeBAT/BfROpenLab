@@ -167,13 +167,13 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		for (DataRow row : edgeTable) {
 			String auftragsNummer = kpnIndex < 0 ? "" : IO.getCleanString(row.getCell(kpnIndex)); 
 			if (hm.containsKey(auftragsNummer)) {
-				kpb = hm.get(auftragsNummer).getBewertung().getKontrollpunktbewertung();
+				kpb = hm.get(auftragsNummer).getBewertung().get(0).getKontrollpunktbewertung();
 			}
 			else {
 				Analyseergebnis aes = new Analyseergebnis();
 				aes.setMeldung(getMeldung(fallBezeichnung, fallNummer, auftragsNummer));
 				Bewertung b = new Bewertung();
-				aes.setBewertung(b);
+				aes.getBewertung().add(b);
 				kpb = new Kontrollpunktbewertung();
 				kpb.setNummer(auftragsNummer);
 				b.setKontrollpunktbewertung(kpb);
