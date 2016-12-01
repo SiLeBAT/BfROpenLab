@@ -163,24 +163,23 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		int typIndex = edgeTable.getSpec().findColumnIndex("BetriebsTyp");
 		int scoreIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.SCORE);
 
-		HashMap<String, Analyseergebnis> hm = new HashMap<>();
+		Analyseergebnis aes = new Analyseergebnis();
+		String analyseNummer = "" + System.currentTimeMillis();
+		aes.setMeldung(getMeldung(fallBezeichnung, fallNummer, analyseNummer));
+		Bewertung b = new Bewertung();
+		aes.setBewertung(b);
+		HashMap<String, Kontrollpunktbewertung> hm = new HashMap<>();
 		for (DataRow row : edgeTable) {
 			String auftragsNummer = kpnIndex < 0 ? "" : IO.getCleanString(row.getCell(kpnIndex)); 
-			Analyseergebnis aes = null;
 			Kontrollpunktbewertung kpb = null;
 			if (hm.containsKey(auftragsNummer)) {
-				aes = hm.get(auftragsNummer);
-				kpb = aes.getBewertung().getKontrollpunktbewertung().get(0);
+				kpb = hm.get(auftragsNummer);
 			}
 			else {
-				aes = new Analyseergebnis();
-				aes.setMeldung(getMeldung(fallBezeichnung, fallNummer, auftragsNummer));
-				Bewertung b = new Bewertung();
-				aes.setBewertung(b);
-				hm.put(auftragsNummer, aes);
 				kpb = new Kontrollpunktbewertung();
 				kpb.setNummer(auftragsNummer);
-				aes.getBewertung().getKontrollpunktbewertung().add(kpb);
+				b.getKontrollpunktbewertung().add(kpb);
+				hm.put(auftragsNummer, kpb);
 			}
 					
 				// Scores
@@ -211,10 +210,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			kpb.getWarenbewegungsbewertung().add(wbb);
 		}
 		
-		for (String an : hm.keySet()) {
-			Analyseergebnis aes = hm.get(an);
-			export(e, aes, "bfr_score_report");
-		}
+		export(e, aes, "bfr_score_report");
 		
 		return null;
     }
@@ -297,11 +293,11 @@ public class TracingXmlOutNodeModel extends NodeModel {
             CanceledExecutionException {
     }
     
-    private Meldung getMeldung(String fallBezeichnung, String fallNummer, String auftragsNummer) throws DatatypeConfigurationException {		
+    private Meldung getMeldung(String fallBezeichnung, String fallNummer, String nummer) throws DatatypeConfigurationException {		
     	Meldung meldung = new Meldung();
     	meldung.setFallBezeichnung(fallBezeichnung);
     	meldung.setFallNummer(fallNummer);
-    	meldung.setNummer(auftragsNummer);
+    	meldung.setNummer(nummer);
     	meldung.setStatus("GUELTIG");
     	
     	KatalogWert kw = new KatalogWert();
