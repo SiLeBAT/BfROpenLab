@@ -8,7 +8,7 @@
 
 	<!-- Herausgeber: Landesamt für Natur, Umwelt und Verbraucherschutz NRW 
 		Projekt: IDV Titel: Datenformat für die Übermittlung von Warenrückverfolgungsinformationen 
-		Version: 2016.2.20161030-2 Autor: Georg Fleischer (CGI) ! -->
+		Version: 2016.2.20161031 Autor: Georg Fleischer (CGI) ! -->
 
 	<xs:import
 		namespace="http://verbraucherschutz.nrw.de/idv/daten/2016.2/katalogsystem"
@@ -220,7 +220,7 @@
 
 	<xs:complexType name="Bewertung">
 		<xs:sequence>
-			<xs:element name="kontrollpunktbewertung" type="Kontrollpunktbewertung" />
+			<xs:element maxOccurs="unbounded" name="kontrollpunktbewertung" type="Kontrollpunktbewertung" />
 		</xs:sequence>
 	</xs:complexType>
 

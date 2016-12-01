@@ -162,22 +162,25 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		int waIndex = edgeTable.getSpec().findColumnIndex("WA_ID");
 		int typIndex = edgeTable.getSpec().findColumnIndex("BetriebsTyp");
 		int scoreIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.SCORE);
-		Kontrollpunktbewertung kpb = null; 
+
 		HashMap<String, Analyseergebnis> hm = new HashMap<>();
 		for (DataRow row : edgeTable) {
 			String auftragsNummer = kpnIndex < 0 ? "" : IO.getCleanString(row.getCell(kpnIndex)); 
+			Analyseergebnis aes = null;
+			Kontrollpunktbewertung kpb = null;
 			if (hm.containsKey(auftragsNummer)) {
-				kpb = hm.get(auftragsNummer).getBewertung().get(0).getKontrollpunktbewertung();
+				aes = hm.get(auftragsNummer);
+				kpb = aes.getBewertung().getKontrollpunktbewertung().get(0);
 			}
 			else {
-				Analyseergebnis aes = new Analyseergebnis();
+				aes = new Analyseergebnis();
 				aes.setMeldung(getMeldung(fallBezeichnung, fallNummer, auftragsNummer));
 				Bewertung b = new Bewertung();
-				aes.getBewertung().add(b);
+				aes.setBewertung(b);
+				hm.put(auftragsNummer, aes);
 				kpb = new Kontrollpunktbewertung();
 				kpb.setNummer(auftragsNummer);
-				b.setKontrollpunktbewertung(kpb);
-				hm.put(auftragsNummer, aes);
+				aes.getBewertung().getKontrollpunktbewertung().add(kpb);
 			}
 					
 				// Scores
