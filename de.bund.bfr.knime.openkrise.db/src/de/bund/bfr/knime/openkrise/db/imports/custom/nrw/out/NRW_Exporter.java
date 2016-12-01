@@ -41,7 +41,7 @@ public class NRW_Exporter {
 		
 	public static void main(String[] args) throws JAXBException, SAXException {
 		Analyseergebnis ae = new Analyseergebnis();
-		ae.getBewertung().add(new Bewertung());
+		ae.setBewertung(new Bewertung());
 		new NRW_Exporter().doExport(ae, true);
 	}
 	
