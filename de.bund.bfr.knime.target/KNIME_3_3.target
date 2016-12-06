@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.3 TP" sequenceNumber="7">
+<?pde version="3.8"?><target name="KNIME 3.3 TP" sequenceNumber="8">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.knime.features.testingapplication.feature.group" version="3.3.0.v201611222101"/>
-<unit id="org.knime.features.ext.osm.feature.group" version="3.3.0.v201611222101"/>
-<unit id="org.knime.features.js.views.feature.group" version="3.3.0.v201611250023"/>
-<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.3.0.v201611222101"/>
-<unit id="org.knime.features.network.feature.group" version="3.3.0.v201611222101"/>
-<unit id="org.knime.features.ext.svg.feature.group" version="3.3.0.v201611222101"/>
-<unit id="org.knime.product.desktop" version="3.3.0.v201611242140"/>
-<unit id="com.knime.features.reporting.designer.feature.group" version="3.3.0.v201611222101"/>
-<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.4.0.v201611011438"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.3.0.v201612012034"/>
+<unit id="org.knime.features.ext.osm.feature.group" version="3.3.0.v201612012034"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.3.0.v201612051015"/>
+<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.3.0.v201612012034"/>
+<unit id="org.knime.features.network.feature.group" version="3.3.0.v201612012034"/>
+<unit id="org.knime.features.ext.svg.feature.group" version="3.3.0.v201612012034"/>
+<unit id="org.knime.product.desktop" version="3.3.0.v201612012153"/>
+<unit id="com.knime.features.reporting.designer.feature.group" version="3.3.0.v201612012034"/>
+<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.4.0.v201612012034"/>
 <repository location="http://update.knime.org/analytics-platform/3.3/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
