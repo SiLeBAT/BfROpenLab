@@ -365,7 +365,9 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 					HashMap<String, Produktion> prods = new HashMap<>();
 					if (kpm.getProduktionen() != null) {
 						for (Produktion p : kpm.getProduktionen().getProduktion()) {
-							if (p.getWareneingaengeVerwendet() != null) prods.put(p.getId(), p);
+							if (p.getWareneingaengeVerwendet() != null) {
+								prods.put(p.getId(), p);
+							}
 						}
 					}
 					if (kpm.getWarenausgaenge() != null) {
