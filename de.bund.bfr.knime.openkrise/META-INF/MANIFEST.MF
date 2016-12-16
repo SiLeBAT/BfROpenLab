@@ -8,8 +8,7 @@ Bundle-Activator: de.bund.bfr.knime.openkrise.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: de.bund.bfr.knime.gis;visibility:=reexport,
  de.bund.bfr.knime.openkrise.common;visibility:=reexport,
- de.bund.bfr.knime.openkrise.db,
- de.nrw.verbraucherschutz.idv
+ de.bund.bfr.knime.openkrise.db
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.openkrise
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

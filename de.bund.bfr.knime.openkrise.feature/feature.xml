@@ -41,7 +41,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.network.core"/>
       <import plugin="org.knime.network.base"/>
       <import plugin="org.eclipse.core.resources"/>
-      <import plugin="javax.ws.rs-api"/>
    </requires>
 
    <plugin
@@ -151,19 +150,5 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="de.nrw.verbraucherschutz.idv.daten"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="de.nrw.verbraucherschutz.idv"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
 </feature>
