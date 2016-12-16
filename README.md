@@ -7,3 +7,4 @@ BfR KNIME extensions:
 * KNIME Nodes for GIS and Graph Visualization
 * KNIME Nodes for Nonlinear Regression
 * BfR Network Mining Extensions
+* PMM-Lab Lite
