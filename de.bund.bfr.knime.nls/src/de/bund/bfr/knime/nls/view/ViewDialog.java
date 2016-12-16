@@ -79,7 +79,7 @@ public abstract class ViewDialog extends DataAwareNodeDialogPane
 
 	protected void updateChartPanel() {
 		configPanel = createConfigPanel();
-		configPanel.init(reader.getDepVar(), NlsUtils.getOrderedVariables(reader.getPlotables().values()), null);
+		configPanel.init(reader.getDepVar(), NlsUtils.getSortedVariables(reader.getPlotables().values()), null);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());

@@ -44,7 +44,6 @@ import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.text.parser.ParseException;
 
 import com.google.common.math.DoubleMath;
-import com.google.common.primitives.Doubles;
 
 public class MathUtils {
 
@@ -307,8 +306,8 @@ public class MathUtils {
 
 		variableValues.forEach((var, values) -> {
 			if (!var.equals(timeVariable)) {
-				variableFunctions.put(var, interpolator.createInterpolationFunction(
-						Doubles.toArray(variableValues.get(timeVariable)), Doubles.toArray(values)));
+				variableFunctions.put(var,
+						interpolator.createInterpolationFunction(variableValues.get(timeVariable), values));
 			}
 		});
 

@@ -73,7 +73,7 @@ public class NlsUtils {
 			return Collections.emptyList();
 		}
 
-		List<String> ids = new ArrayList<>();
+		Set<String> ids = new LinkedHashSet<>();
 
 		for (DataRow row : table) {
 			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
@@ -83,7 +83,7 @@ public class NlsUtils {
 			}
 		}
 
-		return ids;
+		return new ArrayList<>(ids);
 	}
 
 	public static List<String> getQualityColumns(BufferedDataTable table, Function f) {
@@ -230,29 +230,14 @@ public class NlsUtils {
 		return Multimaps.asMap(values);
 	}
 
-	public static Set<String> getVariables(Collection<Plotable> plotables) {
-		Set<String> variables = new LinkedHashSet<>();
-
-		for (Plotable plotable : plotables) {
-			variables.addAll(plotable.getIndependentVariables().keySet());
-		}
-
-		return variables;
-	}
-
-	public static Set<String> getParameters(Collection<Plotable> plotables) {
-		Set<String> parameters = new LinkedHashSet<>();
-
-		for (Plotable plotable : plotables) {
-			parameters.addAll(plotable.getParameters().keySet());
-		}
-
-		return parameters;
-	}
-
-	public static List<String> getOrderedVariables(Collection<Plotable> plotables) {
+	public static List<String> getSortedVariables(Collection<Plotable> plotables) {
 		return KnimeUtils.ORDERING.sortedCopy(plotables.stream().map(p -> p.getIndependentVariables().keySet())
-				.flatMap(Set::stream).collect(Collectors.toCollection(LinkedHashSet::new)));
+				.flatMap(Set::stream).collect(Collectors.toSet()));
+	}
+
+	public static List<String> getSortedParameters(Collection<Plotable> plotables) {
+		return KnimeUtils.ORDERING.sortedCopy(plotables.stream().map(p -> p.getParameters().keySet())
+				.flatMap(Set::stream).collect(Collectors.toSet()));
 	}
 
 	private static Iterable<DataRow> getRowsById(BufferedDataTable table, String id) {

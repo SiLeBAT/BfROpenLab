@@ -21,10 +21,8 @@ package de.bund.bfr.knime.nls.fitting;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.DoubleConsumer;
 
 import org.apache.commons.math3.util.Pair;
@@ -335,7 +333,7 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 		}
 
 		Map<String, OptimizationResult> results = new LinkedHashMap<>();
-		List<String> ids = readIds(table);
+		List<String> ids = NlsUtils.getIds(table);
 
 		numberOfFittings = ids.size();
 		currentFitting = 0;
@@ -386,24 +384,15 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 			return new LinkedHashMap<>();
 		}
 
-		Pair<ListMultimap<String, Double>, ListMultimap<String, Double>> data = readDataTable(dataTable, f);
-		ListMultimap<String, Double> timeValues = data.getFirst();
-		ListMultimap<String, Double> targetValues = data.getSecond();
-		Map<String, ListMultimap<String, Double>> argumentValues = readConditionTable(conditionTable, f);
-
 		Map<String, OptimizationResult> results = new LinkedHashMap<>();
-		List<String> ids = readIds(dataTable);
+		List<String> ids = NlsUtils.getIds(dataTable);
 
 		numberOfFittings = ids.size();
 		currentFitting = 0;
 
 		for (String id : ids) {
-			Map<String, List<Double>> argumentLists = new LinkedHashMap<>();
-
-			for (String indep : f.getIndependentVariables()) {
-				argumentLists.put(indep, argumentValues.get(indep).get(id));
-			}
-
+			Map<String, List<Double>> variableValues = NlsUtils.getDiffVariableValues(dataTable, id, f);
+			Map<String, List<Double>> argumentValues = NlsUtils.getConditionValues(conditionTable, id, f);
 			List<String> valueVariables = new ArrayList<>(f.getTerms().keySet());
 			List<String> terms = new ArrayList<>();
 			List<Double> initValues = new ArrayList<>();
@@ -416,8 +405,9 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 			}
 
 			LeastSquaresOptimization optimizer = LeastSquaresOptimization.createVectorDiffOptimizer(terms,
-					valueVariables, initValues, initParameters, f.getParameters(), timeValues.get(id),
-					targetValues.get(id), f.getDependentVariable(), f.getTimeVariable(), argumentLists,
+					valueVariables, initValues, initParameters, f.getParameters(),
+					variableValues.get(f.getTimeVariable()), variableValues.get(f.getDependentVariable()),
+					f.getDependentVariable(), f.getTimeVariable(), argumentValues,
 					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()),
 					new InterpolationFactory(set.getInterpolator()));
 
@@ -450,12 +440,7 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 			return new LinkedHashMap<>();
 		}
 
-		List<String> ids = readIds(dataTable);
-		Pair<ListMultimap<String, Double>, ListMultimap<String, Double>> data = readDataTable(dataTable, f);
-		ListMultimap<String, Double> timeValues = data.getFirst();
-		ListMultimap<String, Double> targetValues = data.getSecond();
-		Map<String, ListMultimap<String, Double>> argumentValues = readConditionTable(conditionTable, f);
-
+		List<String> ids = NlsUtils.getIds(dataTable);
 		List<String> valueVariables = new ArrayList<>(f.getTerms().keySet());
 		List<String> terms = new ArrayList<>();
 		List<Double> initValues = new ArrayList<>();
@@ -479,17 +464,12 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 
 		for (int i = 0; i < ids.size(); i++) {
 			String id = ids.get(i);
+			Map<String, List<Double>> variableValues = NlsUtils.getDiffVariableValues(dataTable, id, f);
+			Map<String, List<Double>> argumentValues = NlsUtils.getConditionValues(conditionTable, id, f);
 
-			timeLists.add(timeValues.get(id));
-			targetLists.add(targetValues.get(id));
-
-			Map<String, List<Double>> currentVariableValues = new LinkedHashMap<>();
-
-			for (String var : f.getIndependentVariables()) {
-				currentVariableValues.put(var, argumentValues.get(var).get(id));
-			}
-
-			variableLists.add(currentVariableValues);
+			timeLists.add(variableValues.get(f.getTimeVariable()));
+			targetLists.add(variableValues.get(f.getDependentVariable()));
+			variableLists.add(argumentValues);
 
 			for (String var : set.getInitValuesWithDifferentStart()) {
 				if (f.getInitValues().get(var) == null) {
@@ -569,72 +549,5 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 		}
 
 		return results;
-	}
-
-	private static List<String> readIds(BufferedDataTable table) {
-		Set<String> ids = new LinkedHashSet<>();
-
-		for (DataRow row : table) {
-			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
-
-			if (id != null) {
-				ids.add(id);
-			}
-		}
-
-		return new ArrayList<>(ids);
-	}
-
-	private static Pair<ListMultimap<String, Double>, ListMultimap<String, Double>> readDataTable(
-			BufferedDataTable table, Function f) {
-		ListMultimap<String, Double> timeValues = ArrayListMultimap.create();
-		ListMultimap<String, Double> targetValues = ArrayListMultimap.create();
-
-		for (DataRow row : table) {
-			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
-			Double time = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(f.getTimeVariable())));
-			Double target = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(f.getDependentVariable())));
-
-			if (id != null && time != null && target != null && Double.isFinite(time) && Double.isFinite(target)) {
-				timeValues.put(id, time);
-				targetValues.put(id, target);
-			}
-		}
-
-		return new Pair<>(timeValues, targetValues);
-	}
-
-	private static Map<String, ListMultimap<String, Double>> readConditionTable(BufferedDataTable table, Function f) {
-		Map<String, ListMultimap<String, Double>> argumentValues = new LinkedHashMap<>();
-
-		for (String indep : f.getIndependentVariables()) {
-			argumentValues.put(indep, ArrayListMultimap.create());
-		}
-
-		loop: for (DataRow row : table) {
-			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
-
-			if (id == null) {
-				continue loop;
-			}
-
-			Map<String, Double> values = new LinkedHashMap<>();
-
-			for (String var : f.getIndependentVariables()) {
-				Double value = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(var)));
-
-				if (value == null || !Double.isFinite(value)) {
-					continue loop;
-				}
-
-				values.put(var, value);
-			}
-
-			for (String indep : f.getIndependentVariables()) {
-				argumentValues.get(indep).put(id, values.get(indep));
-			}
-		}
-
-		return argumentValues;
 	}
 }

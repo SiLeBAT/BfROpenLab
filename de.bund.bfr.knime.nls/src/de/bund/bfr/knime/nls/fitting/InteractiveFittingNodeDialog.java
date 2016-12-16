@@ -170,8 +170,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		stepSizeField.setValue(set.getStepSize());
 
 		configPanel = new ChartConfigPanel(false, false, true, false, isDiff);
-		configPanel.init(reader.getDepVar(), new ArrayList<>(NlsUtils.getVariables(reader.getPlotables().values())),
-				new ArrayList<>(NlsUtils.getParameters(reader.getPlotables().values())));
+		configPanel.init(reader.getDepVar(),
+				new ArrayList<>(NlsUtils.getSortedVariables(reader.getPlotables().values())),
+				new ArrayList<>(NlsUtils.getSortedParameters(reader.getPlotables().values())));
 		set.getViewSettings().setToConfigPanel(configPanel);
 		configPanel.setParamValues(set.getStartValues(), set.getMinStartValues(), set.getMaxStartValues());
 		configPanel.setInterpolator(set.getInterpolator());

@@ -19,11 +19,16 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.function.StepFunction;
 import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+
+import com.google.common.primitives.Doubles;
 
 public class InterpolationFactory {
 
@@ -48,12 +53,27 @@ public class InterpolationFactory {
 		this.type = type;
 	}
 
-	public UnivariateFunction createInterpolationFunction(double[] x, double[] y) {
+	public UnivariateFunction createInterpolationFunction(List<Double> x, List<Double> y) {
+		if (y.size() != x.size()) {
+			throw new DimensionMismatchException(y.size(), x.size());
+		}
+
+		int n = x.size();
+		List<Double> nonNullX = new ArrayList<>(n);
+		List<Double> nonNullY = new ArrayList<>(n);
+
+		for (int i = 0; i < n; i++) {
+			if (x.get(i) != null && y.get(i) != null) {
+				nonNullX.add(x.get(i));
+				nonNullY.add(y.get(i));
+			}
+		}
+
 		switch (type) {
 		case STEP:
-			return new StepFunction(x, y);
+			return new StepFunction(Doubles.toArray(nonNullX), Doubles.toArray(nonNullY));
 		case SPLINE:
-			return new SplineInterpolator().interpolate(x, y);
+			return new SplineInterpolator().interpolate(Doubles.toArray(nonNullX), Doubles.toArray(nonNullY));
 		default:
 			throw new RuntimeException("Unknown type of InterpolationFactory: " + type);
 		}
