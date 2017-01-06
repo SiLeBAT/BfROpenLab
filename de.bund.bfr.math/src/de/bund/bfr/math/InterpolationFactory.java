@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import java.util.Objects;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.function.StepFunction;
 import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionLagrangeForm;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 
 import com.google.common.primitives.Doubles;
@@ -33,7 +34,7 @@ import com.google.common.primitives.Doubles;
 public class InterpolationFactory {
 
 	public static enum Type {
-		STEP("Step Function"), SPLINE("Spline");
+		STEP("Step Function"), LINEAR("Linear"), SPLINE("Spline"), LAGRANGE("Lagrange Polynomial");
 
 		private String name;
 
@@ -72,8 +73,12 @@ public class InterpolationFactory {
 		switch (type) {
 		case STEP:
 			return new StepFunction(Doubles.toArray(nonNullX), Doubles.toArray(nonNullY));
+		case LINEAR:
+			return new LinearFunction(Doubles.toArray(nonNullX), Doubles.toArray(nonNullY));
 		case SPLINE:
 			return new SplineInterpolator().interpolate(Doubles.toArray(nonNullX), Doubles.toArray(nonNullY));
+		case LAGRANGE:
+			return new PolynomialFunctionLagrangeForm(Doubles.toArray(nonNullX), Doubles.toArray(nonNullY));
 		default:
 			throw new RuntimeException("Unknown type of InterpolationFactory: " + type);
 		}
