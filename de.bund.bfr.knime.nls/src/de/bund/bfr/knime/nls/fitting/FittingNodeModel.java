@@ -42,6 +42,7 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
@@ -339,6 +340,8 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 		currentFitting = 0;
 
 		for (String id : ids) {
+			NodeLogger.getLogger(FittingNodeModel.class).debug("Started fitting of data set with id: \"" + id + "\"");
+
 			Map<String, List<Double>> argumentLists = new LinkedHashMap<>();
 
 			for (String indep : f.getIndependentVariables()) {
@@ -373,6 +376,7 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 			}
 
 			currentFitting++;
+			NodeLogger.getLogger(FittingNodeModel.class).debug("Finished fitting of data set with id: \"" + id + "\"");
 		}
 
 		return results;
@@ -391,6 +395,7 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 		currentFitting = 0;
 
 		for (String id : ids) {
+			NodeLogger.getLogger(FittingNodeModel.class).debug("Started fitting of data set with id: \"" + id + "\"");
 			Map<String, List<Double>> variableValues = NlsUtils.getDiffVariableValues(dataTable, id, f);
 			Map<String, List<Double>> argumentValues = NlsUtils.getConditionValues(conditionTable, id, f);
 			List<String> valueVariables = new ArrayList<>(f.getTerms().keySet());
@@ -429,6 +434,7 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 			}
 
 			currentFitting++;
+			NodeLogger.getLogger(FittingNodeModel.class).debug("Finished fitting of data set with id: \"" + id + "\"");
 		}
 
 		return results;
@@ -439,6 +445,8 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 		if (f.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
+
+		NodeLogger.getLogger(FittingNodeModel.class).debug("Started fitting of all data sets");
 
 		List<String> ids = NlsUtils.getIds(dataTable);
 		List<String> valueVariables = new ArrayList<>(f.getTerms().keySet());
@@ -547,6 +555,8 @@ public class FittingNodeModel extends NodeModelWithoutInternals {
 
 			results.put(ids.get(i), r);
 		}
+
+		NodeLogger.getLogger(FittingNodeModel.class).debug("Finished fitting of all data sets");
 
 		return results;
 	}
