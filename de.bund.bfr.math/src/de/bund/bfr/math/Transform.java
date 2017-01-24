@@ -20,8 +20,153 @@
 package de.bund.bfr.math;
 
 public enum Transform {
-	NO_TRANSFORM(""), SQRT_TRANSFORM("sqrt"), LOG_TRANSFORM("log"), LOG10_TRANSFORM("log10"), EXP_TRANSFORM(
-			"exp"), EXP10_TRANSFORM("10^x"), KELVIN_TO_CELSIUS("K->C°");
+	NO_TRANSFORM("") {
+		@Override
+		public double to(double value) {
+			return value;
+		}
+
+		@Override
+		public double from(double value) {
+			return value;
+		}
+
+		@Override
+		public String to(String term) {
+			return "(" + term + ")";
+		}
+
+		@Override
+		public String from(String term) {
+			return "(" + term + ")";
+		}
+	},
+	SQRT_TRANSFORM("sqrt") {
+		@Override
+		public double to(double value) {
+			return Math.sqrt(value);
+		}
+
+		@Override
+		public double from(double value) {
+			return value * value;
+		}
+
+		@Override
+		public String to(String term) {
+			return "sqrt(" + term + ")";
+		}
+
+		@Override
+		public String from(String term) {
+			return "(" + term + ")^2";
+		}
+	},
+	LOG_TRANSFORM("log") {
+		@Override
+		public double to(double value) {
+			return Math.log(value);
+		}
+
+		@Override
+		public double from(double value) {
+			return Math.exp(value);
+		}
+
+		@Override
+		public String to(String term) {
+			return "log(" + term + ")";
+		}
+
+		@Override
+		public String from(String term) {
+			return "exp(" + term + ")";
+		}
+	},
+	LOG10_TRANSFORM("log10") {
+		@Override
+		public double to(double value) {
+			return Math.log10(value);
+		}
+
+		@Override
+		public double from(double value) {
+			return Math.pow(10.0, value);
+		}
+
+		@Override
+		public String to(String term) {
+			return "log10(" + term + ")";
+		}
+
+		@Override
+		public String from(String term) {
+			return "10^(" + term + ")";
+		}
+	},
+	EXP_TRANSFORM("exp") {
+		@Override
+		public double to(double value) {
+			return Math.exp(value);
+		}
+
+		@Override
+		public double from(double value) {
+			return Math.log(value);
+		}
+
+		@Override
+		public String to(String term) {
+			return "exp(" + term + ")";
+		}
+
+		@Override
+		public String from(String term) {
+			return "log(" + term + ")";
+		}
+	},
+	EXP10_TRANSFORM("10^x") {
+		@Override
+		public double to(double value) {
+			return Math.pow(10.0, value);
+		}
+
+		@Override
+		public double from(double value) {
+			return Math.log10(value);
+		}
+
+		@Override
+		public String to(String term) {
+			return "10^(" + term + ")";
+		}
+
+		@Override
+		public String from(String term) {
+			return "log10(" + term + ")";
+		}
+	},
+	KELVIN_TO_CELSIUS("K->C°") {
+		@Override
+		public double to(double value) {
+			return value - 273.15;
+		}
+
+		@Override
+		public double from(double value) {
+			return value + 273.15;
+		}
+
+		@Override
+		public String to(String term) {
+			return "(" + term + "-273.15)";
+		}
+
+		@Override
+		public String from(String term) {
+			return "(" + term + "+273.15)";
+		}
+	};
 
 	private String name;
 
@@ -29,97 +174,13 @@ public enum Transform {
 		this.name = name;
 	}
 
-	public double to(double value) {
-		switch (this) {
-		case NO_TRANSFORM:
-			return value;
-		case SQRT_TRANSFORM:
-			return Math.sqrt(value);
-		case LOG_TRANSFORM:
-			return Math.log(value);
-		case LOG10_TRANSFORM:
-			return Math.log10(value);
-		case EXP_TRANSFORM:
-			return Math.exp(value);
-		case EXP10_TRANSFORM:
-			return Math.pow(10.0, value);
-		case KELVIN_TO_CELSIUS:
-			return value - 273.15;
-		default:
-			throw new RuntimeException("Unknown Transform: " + this);
-		}
-	}
+	public abstract double to(double value);
 
-	public double from(double value) {
-		switch (this) {
-		case NO_TRANSFORM:
-			return value;
-		case SQRT_TRANSFORM:
-			return value * value;
-		case LOG_TRANSFORM:
-			return Math.exp(value);
-		case LOG10_TRANSFORM:
-			return Math.pow(10.0, value);
-		case EXP_TRANSFORM:
-			return Math.log(value);
-		case EXP10_TRANSFORM:
-			return Math.log10(value);
-		case KELVIN_TO_CELSIUS:
-			return value + 273.15;
-		default:
-			throw new RuntimeException("Unknown Transform: " + this);
-		}
-	}
+	public abstract double from(double value);
 
-	public String to(String term) {
-		if (term == null) {
-			return null;
-		}
+	public abstract String to(String term);
 
-		switch (this) {
-		case NO_TRANSFORM:
-			return "(" + term + ")";
-		case SQRT_TRANSFORM:
-			return "sqrt(" + term + ")";
-		case LOG_TRANSFORM:
-			return "log(" + term + ")";
-		case LOG10_TRANSFORM:
-			return "log10(" + term + ")";
-		case EXP_TRANSFORM:
-			return "exp(" + term + ")";
-		case EXP10_TRANSFORM:
-			return "10^(" + term + ")";
-		case KELVIN_TO_CELSIUS:
-			return "(" + term + "-273.15)";
-		default:
-			throw new RuntimeException("Unknown Transform: " + this);
-		}
-	}
-
-	public String from(String term) {
-		if (term == null) {
-			return null;
-		}
-
-		switch (this) {
-		case NO_TRANSFORM:
-			return "(" + term + ")";
-		case SQRT_TRANSFORM:
-			return "(" + term + ")^2";
-		case LOG_TRANSFORM:
-			return "exp(" + term + ")";
-		case LOG10_TRANSFORM:
-			return "10^(" + term + ")";
-		case EXP_TRANSFORM:
-			return "log(" + term + ")";
-		case EXP10_TRANSFORM:
-			return "log10(" + term + ")";
-		case KELVIN_TO_CELSIUS:
-			return "(" + term + "+273.15)";
-		default:
-			throw new RuntimeException("Unknown Transform: " + this);
-		}
-	}
+	public abstract String from(String term);
 
 	public String getName() {
 		return name;
