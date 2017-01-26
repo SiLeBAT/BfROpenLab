@@ -24,8 +24,30 @@ import java.awt.Dimension;
 import edu.uci.ics.jung.graph.Graph;
 
 public enum LayoutType {
-	GRID_LAYOUT("Grid Layout"), CIRCLE_LAYOUT("Circle Layout"), FR_LAYOUT("Fruchterman-Reingold"), ISOM_LAYOUT(
-			"Self-Organizing Map");
+	GRID_LAYOUT("Grid Layout") {
+		@Override
+		public <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size) {
+			return new GridLayout<>(graph, size);
+		}
+	},
+	CIRCLE_LAYOUT("Circle Layout") {
+		@Override
+		public <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size) {
+			return new CircleLayout<>(graph, size);
+		}
+	},
+	FR_LAYOUT("Fruchterman-Reingold") {
+		@Override
+		public <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size) {
+			return new FRLayout<>(graph, size);
+		}
+	},
+	ISOM_LAYOUT("Self-Organizing Map") {
+		@Override
+		public <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size) {
+			return new ISOMLayout<>(graph, size);
+		}
+	};
 
 	private String name;
 
@@ -33,20 +55,7 @@ public enum LayoutType {
 		this.name = name;
 	}
 
-	public <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size) {
-		switch (this) {
-		case GRID_LAYOUT:
-			return new GridLayout<>(graph, size);
-		case CIRCLE_LAYOUT:
-			return new CircleLayout<>(graph, size);
-		case FR_LAYOUT:
-			return new FRLayout<>(graph, size);
-		case ISOM_LAYOUT:
-			return new ISOMLayout<>(graph, size);
-		default:
-			throw new RuntimeException("Unknown LayoutType: " + this);
-		}
-	}
+	public abstract <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size);
 
 	@Override
 	public String toString() {
