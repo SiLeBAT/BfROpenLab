@@ -10,3 +10,5 @@ Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.junit,
  org.mockito,
  com.google.guava
+Export-Package: de.bund.bfr.knime.network,
+ de.bund.bfr.knime.network.analyzer

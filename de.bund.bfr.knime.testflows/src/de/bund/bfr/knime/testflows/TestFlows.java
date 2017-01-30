@@ -20,6 +20,7 @@ public class TestFlows {
 	@Rule
 	public ErrorCollector collector = new ErrorCollector();
 	private TestFlowRunner runner;
+	private String path;
 
 	@Before
 	public void setUp() {
@@ -28,107 +29,108 @@ public class TestFlows {
 		runConfiguration.setCheckLogMessages(false);
 		runConfiguration.setLoadSaveLoad(false);
 		runner = new TestFlowRunner(collector, runConfiguration);
+		path = TestFlows.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 	}
 
 	@Test
 	public void testAddressCreator() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/AddressCreator_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/AddressCreator_Test"));
 	}
 
 	@Test
 	public void testDiffFitting() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/DiffFitting_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/DiffFitting_Test"));
 	}
 
 	@Test
 	public void testFittingLOD() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/Fitting_LOD_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/Fitting_LOD_Test"));
 	}
 
 	@Test
 	public void testFitting() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/Fitting_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/Fitting_Test"));
 	}
 
 	@Test
 	public void testGeocoding() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/Geocoding_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/Geocoding_Test"));
 	}
 
 	@Test
 	public void testGISCluster() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/GISCluster_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/GISCluster_Test"));
 	}
 
 	@Test
 	public void testShapefileReader() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/ShapefileReader_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/ShapefileReader_Test"));
 	}
 
 	@Test
 	public void testSupplyChainReader() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/SupplyChainReader_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/SupplyChainReader_Test"));
 	}
 
 	@Test
 	public void testSupplyChainReaderWithExtrafields() throws IOException, InvalidSettingsException,
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/SupplyChainReader_Test_With_Extrafields"));
+		runner.runTestWorkflow(new File(path + "workflows/SupplyChainReader_Test_With_Extrafields"));
 	}
 
 	@Test
 	public void testSupplyChainReaderLotBasedWithExtrafields() throws IOException, InvalidSettingsException,
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/SupplyChainReader_Test_LotBased_With_Extrafields"));
+		runner.runTestWorkflow(new File(path + "workflows/SupplyChainReader_Test_LotBased_With_Extrafields"));
 	}
 
 	@Test
 	public void testSupplyChainReaderWithoutSerials() throws IOException, InvalidSettingsException,
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/SupplyChainReader_Test_Without_Serials"));
+		runner.runTestWorkflow(new File(path + "workflows/SupplyChainReader_Test_Without_Serials"));
 	}
 
 	@Test
 	public void testTracingWithCCOnDeliveries() throws IOException, InvalidSettingsException,
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/Tracing_Test_with_CC_on_Deliveries"));
+		runner.runTestWorkflow(new File(path + "workflows/Tracing_Test_with_CC_on_Deliveries"));
 	}
 
 	@Test
 	public void testTracingWithCollapseAndDifferentWeights() throws IOException, InvalidSettingsException,
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/Tracing_Test_with_Collapse_and_Different_Weights"));
+		runner.runTestWorkflow(new File(path + "workflows/Tracing_Test_with_Collapse_and_Different_Weights"));
 	}
 
 	@Test
 	public void testTracingWithJoinDeliveries() throws IOException, InvalidSettingsException,
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/Tracing_Test_with_Join_Deliveries"));
+		runner.runTestWorkflow(new File(path + "workflows/Tracing_Test_with_Join_Deliveries"));
 	}
 
 	@Test
 	public void testTracingWithTemporalOrder() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/Tracing_Test_with_Temporal_Order"));
+		runner.runTestWorkflow(new File(path + "workflows/Tracing_Test_with_Temporal_Order"));
 	}
 
 	@Test
 	public void testTracingWithoutTemporalOrder() throws IOException, InvalidSettingsException,
 			CanceledExecutionException, UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/Tracing_Test_without_Temporal_Order"));
+		runner.runTestWorkflow(new File(path + "workflows/Tracing_Test_without_Temporal_Order"));
 	}
 
 	@Test
 	public void testTracingView() throws IOException, InvalidSettingsException, CanceledExecutionException,
 			UnsupportedWorkflowVersionException, LockFailedException, InterruptedException {
-		runner.runTestWorkflow(new File("workflows/TracingView_Test"));
+		runner.runTestWorkflow(new File(path + "workflows/TracingView_Test"));
 	}
 }

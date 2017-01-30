@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Eclipse-ExtensibleAPI: true
 Bundle-ManifestVersion: 2
 Bundle-Name: Network Utils
 Bundle-SymbolicName: de.bund.bfr.knime.network;singleton:=true

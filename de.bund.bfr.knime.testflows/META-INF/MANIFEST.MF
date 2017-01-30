@@ -24,3 +24,4 @@ Require-Bundle: org.junit,
  de.bund.bfr.knime.openkrise.util,
  de.bund.bfr.knime.openkrise.views,
  de.bund.bfr.math
+Export-Package: de.bund.bfr.knime.testflows
