@@ -70,3 +70,4 @@ Export-Package: org.mockito,
  org.mockito.session,
  org.mockito.stubbing,
  org.mockito.verification
+Require-Bundle: org.junit
