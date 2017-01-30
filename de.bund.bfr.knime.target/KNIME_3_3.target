@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.3 TP" sequenceNumber="11">
+<?pde version="3.8"?><target name="KNIME 3.3 TP" sequenceNumber="13">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.knime.features.testingapplication.feature.group" version="3.3.1.v201612192115"/>
 <unit id="org.knime.features.ext.osm.feature.group" version="3.3.0.v201612012034"/>
-<unit id="org.knime.features.js.views.feature.group" version="3.3.0.v201612051015"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.3.1.v201612192115"/>
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="3.3.0.v201612012034"/>
 <unit id="org.knime.features.network.feature.group" version="3.3.0.v201612012034"/>
 <unit id="org.knime.features.ext.svg.feature.group" version="3.3.0.v201612012034"/>
