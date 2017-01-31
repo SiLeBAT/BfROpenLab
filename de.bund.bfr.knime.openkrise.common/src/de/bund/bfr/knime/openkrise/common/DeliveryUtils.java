@@ -178,8 +178,7 @@ public class DeliveryUtils {
 
 	public static List<Delivery> getDeliveries(Connection conn, Map<Integer, String> stationIds,
 			Map<Integer, String> deliveryIds, SetMultimap<String, String> warnings) {
-		Map<String, Delivery> deliveries = new LinkedHashMap<>();
-
+		Map<String, Delivery.Builder> builders = new LinkedHashMap<>();
 		Select<Record> deliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN)
 				.leftOuterJoin(CHARGEN).on(LIEFERUNGEN.CHARGE.equal(CHARGEN.ID)).leftOuterJoin(PRODUKTKATALOG)
 				.on(CHARGEN.ARTIKEL.equal(PRODUKTKATALOG.ID));
@@ -214,34 +213,42 @@ public class DeliveryUtils {
 						id + ": " + amountInKg1 + " kg vs. " + amountInKg2 + " kg");
 			}
 
-			Delivery d = new Delivery(deliveryIds.get(id), stationIds.get(from), stationIds.get(to),
-					r.getValue(LIEFERUNGEN.DD_DAY), r.getValue(LIEFERUNGEN.DD_MONTH), r.getValue(LIEFERUNGEN.DD_YEAR),
-					r.getValue(LIEFERUNGEN.AD_DAY), r.getValue(LIEFERUNGEN.AD_MONTH), r.getValue(LIEFERUNGEN.AD_YEAR),
-					lotNumber, r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU),
-					amountInKg1 != null ? amountInKg1 : amountInKg2);
-
-			deliveries.put(d.getId(), d);
+			builders.put(deliveryIds.get(id),
+					new Delivery.Builder(deliveryIds.get(id), stationIds.get(from), stationIds.get(to))
+							.departure(r.getValue(LIEFERUNGEN.DD_YEAR), r.getValue(LIEFERUNGEN.DD_MONTH),
+									r.getValue(LIEFERUNGEN.DD_DAY))
+							.arrival(r.getValue(LIEFERUNGEN.AD_YEAR), r.getValue(LIEFERUNGEN.AD_MONTH),
+									r.getValue(LIEFERUNGEN.AD_DAY))
+							.lot(lotNumber).amount(r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU),
+									amountInKg1 != null ? amountInKg1 : amountInKg2));
 		}
 
+		SetMultimap<String, String> previousDeliveries = LinkedHashMultimap.create();
+		SetMultimap<String, String> nextDeliveries = LinkedHashMultimap.create();
 		Select<Record> deliveryToDeliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(CHARGENVERBINDUNGEN)
 				.leftOuterJoin(LIEFERUNGEN).on(CHARGENVERBINDUNGEN.PRODUKT.equal(LIEFERUNGEN.CHARGE));
 
 		for (Record r : deliveryToDeliverySelect) {
-			Delivery from = deliveries.get(deliveryIds.get(r.getValue(CHARGENVERBINDUNGEN.ZUTAT)));
-			Delivery to = deliveries.get(deliveryIds.get(r.getValue(LIEFERUNGEN.ID)));
+			String from = deliveryIds.get(r.getValue(CHARGENVERBINDUNGEN.ZUTAT));
+			String to = deliveryIds.get(r.getValue(LIEFERUNGEN.ID));
 
-			if (from == null || to == null) {
+			if (!builders.containsKey(from) || !builders.containsKey(to)) {
 				continue;
 			}
 
-			if (from.getId().equals(to.getId())) {
-				warnings.put(INGREDIENT_OF_ITSELF, from.getId());
+			if (from.equals(to)) {
+				warnings.put(INGREDIENT_OF_ITSELF, from);
 				continue;
 			}
 
-			from.getAllNextIds().add(to.getId());
-			to.getAllPreviousIds().add(from.getId());
+			previousDeliveries.put(to, from);
+			nextDeliveries.put(from, to);
 		}
+
+		Map<String, Delivery> deliveries = new LinkedHashMap<>();
+
+		builders.forEach((id, builder) -> deliveries.put(id,
+				builder.connectedDeliveries(previousDeliveries.get(id), nextDeliveries.get(id)).build()));
 
 		checkDates(deliveries, warnings);
 		checkAmounts(deliveries, warnings);
@@ -269,7 +276,7 @@ public class DeliveryUtils {
 		SetMultimap<String, Delivery> deliveriesByLot = LinkedHashMultimap.create();
 
 		for (Delivery d : deliveries.values()) {
-			deliveriesByLot.put(d.getLotNumber(), d);
+			deliveriesByLot.put(d.getLot(), d);
 		}
 
 		for (Map.Entry<String, Set<Delivery>> lot : Multimaps.asMap(deliveriesByLot).entrySet()) {

@@ -625,10 +625,9 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	private static Delivery createDeliveryFromDate(GregorianCalendar c) {
-		return c != null
-				? new Delivery(null, null, null, c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1,
-						c.get(Calendar.YEAR), null, null, null)
-				: new Delivery(null, null, null, null, null, null, null, null, null);
+		return c != null ? new Delivery.Builder("", "", "")
+				.departure(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH)).build()
+				: new Delivery.Builder("", "", "").build();
 	}
 
 	private static GregorianCalendar createDateFromDelivery(Delivery d, boolean arrival) {

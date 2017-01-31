@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Test
+Bundle-Name: All Tests
 Bundle-SymbolicName: de.bund.bfr.knime.test
 Bundle-Version: 1.1.8.qualifier
 Bundle-ClassPath: .
@@ -9,3 +9,4 @@ Require-Bundle: org.junit,
  de.bund.bfr.knime.testflows,
  de.bund.bfr.knime.network,
  de.bund.bfr.knime.gis
+Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)

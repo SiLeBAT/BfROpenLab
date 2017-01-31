@@ -19,164 +19,179 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.common;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 
 public class Delivery {
 
-	private String id;
-	private String supplierId, recipientId;
-	private Integer departureDay;
-	private Integer departureMonth;
-	private Integer departureYear;
-	private Integer arrivalDay;
-	private Integer arrivalMonth;
-	private Integer arrivalYear;
-	private String lotNumber;
-	private Double amount;
-	private String unit;
-	private Double amountInKg;
+	public static class Builder {
 
-	private Set<String> allNextIds;
-	private Set<String> allPreviousIds;
+		private String id;
+		private String supplierId;
+		private String recipientId;
 
-	public Delivery(String id, String supplierId, String recipientId, Integer departureDay, Integer departureMonth,
-			Integer departureYear, Integer arrivalDay, Integer arrivalMonth, Integer arrivalYear, String lotNumber,
-			Double amount, String unit, Double amountInKg) {
-		this.id = id;
-		this.supplierId = supplierId;
-		this.recipientId = recipientId;
-		this.departureDay = departureDay;
-		this.departureMonth = departureMonth;
-		this.departureYear = departureYear;
-		this.arrivalDay = arrivalDay;
-		this.arrivalMonth = arrivalMonth;
-		this.arrivalYear = arrivalYear;
-		this.lotNumber = lotNumber;
-		this.amount = amount;
-		this.unit = unit;
-		this.amountInKg = amountInKg;
+		private Set<String> allPreviousIds;
+		private Set<String> allNextIds;
 
-		allNextIds = new LinkedHashSet<>();
-		allPreviousIds = new LinkedHashSet<>();
+		private Integer departureDay;
+		private Integer departureMonth;
+		private Integer departureYear;
 
-		// if one of the dates is missing, just use the other date
-		if (this.arrivalYear == null) {
-			this.arrivalDay = this.departureDay;
-			this.arrivalMonth = this.departureMonth;
-			this.arrivalYear = this.departureYear;
-		} else if (this.departureYear == null) {
-			this.departureDay = this.arrivalDay;
-			this.departureMonth = this.arrivalMonth;
-			this.departureYear = this.arrivalYear;
+		private Integer arrivalDay;
+		private Integer arrivalMonth;
+		private Integer arrivalYear;
+
+		private String lot;
+
+		private Double amount;
+		private String unit;
+		private Double amountInKg;
+
+		public Builder(String id, String supplierId, String recipientId) {
+			this.id = id;
+			this.supplierId = supplierId;
+			this.recipientId = recipientId;
+
+			allPreviousIds = ImmutableSet.of();
+			allNextIds = ImmutableSet.of();
+
+		}
+
+		public Builder connectedDeliveries(Set<String> allPreviousIds, Set<String> allNextIds) {
+			this.allPreviousIds = allPreviousIds;
+			this.allNextIds = allNextIds;
+			return this;
+		}
+
+		public Builder departure(Integer year, Integer month, Integer day) {
+			departureYear = year;
+			departureMonth = year != null ? month : null;
+			departureDay = (year != null && month != null) ? day : null;
+			return this;
+		}
+
+		public Builder arrival(Integer year, Integer month, Integer day) {
+			arrivalYear = year;
+			arrivalMonth = year != null ? month : null;
+			arrivalDay = (year != null && month != null) ? day : null;
+			return this;
+		}
+
+		public Builder lot(String lot) {
+			this.lot = lot;
+			return this;
+		}
+
+		public Builder amount(Double amount, String unit, Double amountInKg) {
+			this.amount = unit != null ? amount : null;
+			this.unit = amount != null ? unit : null;
+			this.amountInKg = amountInKg;
+			return this;
+		}
+
+		public Delivery build() {
+			// if one of the dates is missing, just use the other date
+			if (arrivalYear == null) {
+				arrivalDay = departureDay;
+				arrivalMonth = departureMonth;
+				arrivalYear = departureYear;
+			} else if (departureYear == null) {
+				departureDay = arrivalDay;
+				departureMonth = arrivalMonth;
+				departureYear = arrivalYear;
+			}
+
+			return new Delivery(this);
 		}
 	}
 
-	public Delivery(String id, String supplierId, String recipientId, Integer departureDay, Integer departureMonth,
-			Integer departureYear, Integer arrivalDay, Integer arrivalMonth, Integer arrivalYear) {
-		this(id, supplierId, recipientId, departureDay, departureMonth, departureYear, arrivalDay, arrivalMonth,
-				arrivalYear, null, null, null, null);
+	private Builder builder;
+
+	private Delivery(Builder builder) {
+		this.builder = builder;
 	}
 
 	public String getSupplierId() {
-		return supplierId;
-	}
-
-	public void setSupplierId(String supplierId) {
-		this.supplierId = supplierId;
+		return builder.supplierId;
 	}
 
 	public String getRecipientId() {
-		return recipientId;
-	}
-
-	public void setRecipientId(String recipientId) {
-		this.recipientId = recipientId;
+		return builder.recipientId;
 	}
 
 	public String getId() {
-		return id;
+		return builder.id;
 	}
 
 	public Integer getDepartureDay() {
-		return departureDay;
+		return builder.departureDay;
 	}
 
 	public Integer getDepartureMonth() {
-		return departureMonth;
+		return builder.departureMonth;
 	}
 
 	public Integer getDepartureYear() {
-		return departureYear;
+		return builder.departureYear;
 	}
 
 	public Integer getArrivalDay() {
-		return arrivalDay;
+		return builder.arrivalDay;
 	}
 
 	public Integer getArrivalMonth() {
-		return arrivalMonth;
+		return builder.arrivalMonth;
 	}
 
 	public Integer getArrivalYear() {
-		return arrivalYear;
+		return builder.arrivalYear;
 	}
 
-	public String getLotNumber() {
-		return lotNumber;
+	public String getLot() {
+		return builder.lot;
 	}
 
 	public Double getAmount() {
-		return amount;
+		return builder.amount;
 	}
 
 	public String getUnit() {
-		return unit;
+		return builder.unit;
 	}
 
 	public Double getAmountInKg() {
-		return amountInKg;
+		return builder.amountInKg;
 	}
 
 	public Set<String> getAllNextIds() {
-		return allNextIds;
+		return builder.allNextIds;
 	}
 
 	public Set<String> getAllPreviousIds() {
-		return allPreviousIds;
+		return builder.allPreviousIds;
 	}
 
-	public Delivery copy() {
-		Delivery copy = new Delivery(id, supplierId, recipientId, departureDay, departureMonth, departureYear,
-				arrivalDay, arrivalMonth, arrivalYear, lotNumber, amount, unit, amountInKg);
-
-		copy.allNextIds = new LinkedHashSet<>(allNextIds);
-		copy.allPreviousIds = new LinkedHashSet<>(allPreviousIds);
-
-		return copy;
-	}
-
-	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
 	public boolean isBefore(Delivery next) {
-		if (arrivalYear == null || next.departureYear == null) {
+		if (builder.arrivalYear == null || next.builder.departureYear == null) {
 			return true;
-		} else if (next.departureYear > arrivalYear) {
+		} else if (next.builder.departureYear > builder.arrivalYear) {
 			return true;
-		} else if (next.departureYear < arrivalYear) {
+		} else if (next.builder.departureYear < builder.arrivalYear) {
 			return false;
 		}
 
-		if (arrivalMonth == null || next.departureMonth == null) {
+		if (builder.arrivalMonth == null || next.builder.departureMonth == null) {
 			return true;
-		} else if (next.departureMonth > arrivalMonth) {
+		} else if (next.builder.departureMonth > builder.arrivalMonth) {
 			return true;
-		} else if (next.departureMonth < arrivalMonth) {
+		} else if (next.builder.departureMonth < builder.arrivalMonth) {
 			return false;
 		}
 
-		if (arrivalDay == null || next.departureDay == null) {
+		if (builder.arrivalDay == null || next.builder.departureDay == null) {
 			return true;
-		} else if (next.departureDay >= arrivalDay) {
+		} else if (next.builder.departureDay >= builder.arrivalDay) {
 			return true;
 		}
 

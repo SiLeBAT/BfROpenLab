@@ -43,6 +43,8 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
@@ -264,30 +266,38 @@ public class TracingUtils {
 		assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Relations Table");
 		assertColumnNotMissing(spec, TracingColumns.NEXT, "Delivery Relations Table");
 
-		Map<String, Delivery> deliveries = new LinkedHashMap<>();
+		Map<String, Delivery.Builder> builders = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
 			String departureDate = (String) edge.getProperties().get(TracingColumns.DELIVERY_DEPARTURE);
 			String arrivalDate = (String) edge.getProperties().get(TracingColumns.DELIVERY_ARRIVAL);
-			Delivery delivery = new Delivery(edge.getId(), edge.getFrom().getId(), edge.getTo().getId(),
-					getDay(departureDate), getMonth(departureDate), getYear(departureDate), getDay(arrivalDate),
-					getMonth(arrivalDate), getYear(arrivalDate));
 
-			deliveries.put(edge.getId(), delivery);
+			builders.put(edge.getId(),
+					new Delivery.Builder(edge.getId(), edge.getFrom().getId(), edge.getTo().getId())
+							.departure(getYear(departureDate), getMonth(departureDate), getDay(departureDate))
+							.arrival(getYear(arrivalDate), getMonth(arrivalDate), getDay(arrivalDate)));
 		}
+
+		SetMultimap<String, String> previousDeliveries = LinkedHashMultimap.create();
+		SetMultimap<String, String> nextDeliveries = LinkedHashMultimap.create();
 
 		for (DataRow row : tracingTable) {
 			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
 			String next = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.NEXT)));
 
-			if (!deliveries.containsKey(id) || !deliveries.containsKey(next)) {
+			if (!builders.containsKey(id) || !builders.containsKey(next)) {
 				skippedRows.add(row.getKey());
 				continue;
 			}
 
-			deliveries.get(id).getAllNextIds().add(next);
-			deliveries.get(next).getAllPreviousIds().add(id);
+			previousDeliveries.put(next, id);
+			nextDeliveries.put(id, next);
 		}
+
+		Map<String, Delivery> deliveries = new LinkedHashMap<>();
+
+		builders.forEach((id, builder) -> deliveries.put(id,
+				builder.connectedDeliveries(previousDeliveries.get(id), nextDeliveries.get(id)).build()));
 
 		return deliveries;
 	}
