@@ -31,8 +31,8 @@ public class Delivery {
 		private String supplierId;
 		private String recipientId;
 
-		private Set<String> allPreviousIds;
-		private Set<String> allNextIds;
+		private ImmutableSet<String> allPreviousIds;
+		private ImmutableSet<String> allNextIds;
 
 		private Integer departureDay;
 		private Integer departureMonth;
@@ -59,8 +59,8 @@ public class Delivery {
 		}
 
 		public Builder connectedDeliveries(Set<String> allPreviousIds, Set<String> allNextIds) {
-			this.allPreviousIds = allPreviousIds;
-			this.allNextIds = allNextIds;
+			this.allPreviousIds = ImmutableSet.copyOf(allPreviousIds);
+			this.allNextIds = ImmutableSet.copyOf(allNextIds);
 			return this;
 		}
 
@@ -164,11 +164,11 @@ public class Delivery {
 		return builder.amountInKg;
 	}
 
-	public Set<String> getAllNextIds() {
+	public ImmutableSet<String> getAllNextIds() {
 		return builder.allNextIds;
 	}
 
-	public Set<String> getAllPreviousIds() {
+	public ImmutableSet<String> getAllPreviousIds() {
 		return builder.allPreviousIds;
 	}
 
