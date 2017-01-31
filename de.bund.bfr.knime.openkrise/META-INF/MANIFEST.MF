@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Eclipse-ExtensibleAPI: true
 Bundle-ManifestVersion: 2
 Bundle-Name: FCL Basic
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise; singleton:=true

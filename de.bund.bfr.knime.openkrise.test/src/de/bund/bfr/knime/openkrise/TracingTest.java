@@ -17,18 +17,26 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.test;
+package de.bund.bfr.knime.openkrise;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.junit.Assert.assertTrue;
 
-import de.bund.bfr.knime.gis.AllGisTests;
-import de.bund.bfr.knime.network.AllNetworkTests;
-import de.bund.bfr.knime.openkrise.AllFclBasicTests;
-import de.bund.bfr.knime.testflows.TestFlows;
+import org.junit.Before;
+import org.junit.Test;
 
-@RunWith(Suite.class)
-@SuiteClasses({ TestFlows.class, AllNetworkTests.class, AllGisTests.class, AllFclBasicTests.class })
-public class AllTests {
+public class TracingTest {
+
+	@Before
+	public void setUp() {
+	}
+
+	@Test
+	public void testTraceWithCrossContamination() {
+		assertTrue(false);
+	}
+
+	@Test
+	public void testTraceWithMerging() {
+		assertTrue(false);
+	}
 }
