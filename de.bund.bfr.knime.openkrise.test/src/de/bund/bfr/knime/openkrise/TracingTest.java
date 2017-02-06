@@ -172,4 +172,19 @@ public class TracingTest {
 
 		assertThat(tracing.getResult(false).getForwardDeliveriesByDelivery().get(F1P1_2), hasItem(P1T1_1));
 	}
+
+	@Test
+	public void testDeliveryCrossContamination() {
+		Tracing tracing = new Tracing(deliveries);
+
+		tracing.setCrossContaminationOfDelivery(P1T1_1, true);
+		tracing.setCrossContaminationOfDelivery(P2T1_2, true);
+
+		Tracing.Result result = tracing.getResult(true);
+
+		assertThat(result.getForwardDeliveriesByDelivery().get(P1T1_1), hasItem(T1M3_1));
+		assertThat(result.getForwardDeliveriesByDelivery().get(P2T1_2), not(hasItem(T1M1_1)));
+
+		assertThat(tracing.getResult(false).getForwardDeliveriesByDelivery().get(P2T1_2), hasItem(T1M1_1));
+	}
 }
