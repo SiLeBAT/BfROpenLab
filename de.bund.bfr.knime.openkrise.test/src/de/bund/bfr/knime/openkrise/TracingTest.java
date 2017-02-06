@@ -19,10 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.CoreMatchers.hasItem;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -184,7 +185,91 @@ public class TracingTest {
 
 		assertThat(result.getForwardDeliveriesByDelivery().get(P1T1_1), hasItem(T1M3_1));
 		assertThat(result.getForwardDeliveriesByDelivery().get(P2T1_2), not(hasItem(T1M1_1)));
+		assertThat(result.getBackwardDeliveriesByDelivery().get(T1M3_1), hasItem(P1T1_1));
+		assertThat(result.getBackwardDeliveriesByDelivery().get(T1M1_1), not(hasItem(P2T1_2)));
 
 		assertThat(tracing.getResult(false).getForwardDeliveriesByDelivery().get(P2T1_2), hasItem(T1M1_1));
+	}
+
+	@Test
+	public void testStationKillContamination() {
+		Tracing tracing = new Tracing(deliveries);
+
+		tracing.setKillContaminationOfStation(PRODUCER_2, true);
+
+		Tracing.Result result = tracing.getResult(true);
+
+		assertTrue(result.getForwardDeliveriesByDelivery().get(F2P2_1).isEmpty());
+		assertTrue(result.getForwardDeliveriesByDelivery().get(F3P2_1).isEmpty());
+		assertTrue(result.getBackwardDeliveriesByDelivery().get(P2T1_1).isEmpty());
+		assertTrue(result.getBackwardDeliveriesByDelivery().get(P2T1_2).isEmpty());
+
+		assertTrue(result.getForwardDeliveriesByStation().get(PRODUCER_2).isEmpty());
+		assertEquals(ImmutableSet.of(F2P2_1, F3P2_1), result.getBackwardDeliveriesByStation().get(PRODUCER_2));
+	}
+
+	@Test
+	public void testDeliveryKillContamination() {
+		Tracing tracing = new Tracing(deliveries);
+
+		tracing.setKillContaminationOfDelivery(P2T1_2, true);
+
+		Tracing.Result result = tracing.getResult(true);
+
+		assertTrue(result.getForwardDeliveriesByDelivery().get(P2T1_2).isEmpty());
+		assertEquals(ImmutableSet.of(F3P2_1), result.getBackwardDeliveriesByDelivery().get(P2T1_2));
+		assertThat(result.getForwardDeliveriesByStation().get(PRODUCER_2), hasItem(P2T1_2));
+		assertThat(result.getBackwardDeliveriesByStation().get(TRADER_1), not(hasItem(P2T1_2)));
+	}
+
+	@Test
+	public void testStationWeight() {
+		Tracing tracing = new Tracing(deliveries);
+
+		tracing.setStationWeight(MARKET_2, 1.0);
+		tracing.setStationWeight(MARKET_3, 2.0);
+
+		Tracing.Result result = tracing.getResult(true);
+
+		assertEquals(1.0 / 3.0, result.getStationScore(FARM_1), 0.0);
+		assertEquals(1.0 / 3.0, result.getStationScore(FARM_2), 0.0);
+		assertEquals(1.0, result.getStationScore(FARM_3), 0.0);
+		assertEquals(1.0 / 3.0, result.getStationScore(PRODUCER_1), 0.0);
+		assertEquals(1.0, result.getStationScore(PRODUCER_2), 0.0);
+		assertEquals(1.0, result.getStationScore(TRADER_1), 0.0);
+		assertEquals(0.0, result.getStationScore(MARKET_1), 0.0);
+		assertEquals(0.0, result.getStationScore(MARKET_1), 0.0);
+		assertEquals(1.0 / 3.0, result.getStationScore(MARKET_2), 0.0);
+		assertEquals(2.0 / 3.0, result.getStationScore(MARKET_3), 0.0);
+	}
+
+	@Test
+	public void testDeliveryWeight() {
+		Tracing tracing = new Tracing(deliveries);
+
+		tracing.setDeliveryWeight(T1M2_2, 1.0);
+		tracing.setDeliveryWeight(T1M3_1, 2.0);
+
+		Tracing.Result result = tracing.getResult(true);
+
+		assertEquals(0.0, result.getDeliveryScore(F1P1_1), 0.0);
+		assertEquals(0.0, result.getDeliveryScore(F1P1_2), 0.0);
+		assertEquals(0.0, result.getDeliveryScore(F2P1_1), 0.0);
+		assertEquals(1.0 / 3.0, result.getDeliveryScore(F2P2_1), 0.0);
+		assertEquals(1.0, result.getDeliveryScore(F3P2_1), 0.0);
+	}
+
+	@Test
+	public void testMergeStations() {
+		final String FARM_12 = "farm12";
+		Tracing tracing = new Tracing(deliveries);
+
+		tracing.mergeStations(ImmutableSet.of(FARM_1, FARM_2), FARM_12);
+
+		Tracing.Result result = tracing.getResult(true);
+
+		assertEquals(ImmutableSet.of(PRODUCER_1, PRODUCER_2, TRADER_1, MARKET_1, MARKET_2),
+				result.getForwardStationsByStation().get(FARM_12));
+		assertEquals(ImmutableSet.of(), result.getBackwardStationsByStation().get(FARM_12));
 	}
 }
