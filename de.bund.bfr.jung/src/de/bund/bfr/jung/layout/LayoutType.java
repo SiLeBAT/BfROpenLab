@@ -39,7 +39,7 @@ public enum LayoutType {
 	FR_LAYOUT("Fruchterman-Reingold") {
 		@Override
 		public <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size) {
-			return new FRLayout<>(graph, size);
+			return new FRLayout<>(graph, size, false);
 		}
 	},
 	ISOM_LAYOUT("Self-Organizing Map") {

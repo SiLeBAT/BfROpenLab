@@ -36,6 +36,8 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	private static final double REPULSION_MULTIPLIER = 0.75;
 	private static final int MAX_ITERATIONS = 700;
 
+	private boolean restrictToSize;
+
 	private double forceConstant;
 	private double temperature;
 	private int currentIteration;
@@ -46,8 +48,9 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	private Map<V, Point2D> newPositions;
 	private Map<V, Point2D> positionChanges;
 
-	public FRLayout(Graph<V, E> graph, Dimension size) {
+	public FRLayout(Graph<V, E> graph, Dimension size, boolean restrictToSize) {
 		super(graph, size);
+		this.restrictToSize = restrictToSize;
 	}
 
 	@Override
@@ -173,7 +176,15 @@ public class FRLayout<V, E> extends Layout<V, E> {
 
 		Point2D pos = newPositions.get(v);
 
-		pos.setLocation(pos.getX() + xDelta * factor, pos.getY() + yDelta * factor);
+		double xNew = pos.getX() + xDelta * factor;
+		double yNew = pos.getY() + yDelta * factor;
+
+		if (restrictToSize) {
+			xNew = Math.max(0.0, Math.min(size.width, xNew));
+			yNew = Math.max(0.0, Math.min(size.height, yNew));
+		}
+
+		pos.setLocation(xNew, yNew);
 	}
 
 	private void cool() {

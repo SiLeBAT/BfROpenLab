@@ -42,6 +42,7 @@ import javax.swing.WindowConstants;
 import com.google.common.collect.Sets;
 
 import de.bund.bfr.jung.JungUtils;
+import de.bund.bfr.jung.layout.FRLayout;
 import de.bund.bfr.jung.layout.Layout;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.PointUtils;
@@ -62,6 +63,7 @@ import de.bund.bfr.knime.ui.Dialogs;
 public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
+	private static final boolean USE_FR_LAYOUT_TO_PLACE_NEW_NODES = true;
 
 	public GraphCanvas(boolean allowCollapse, Naming naming) {
 		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(), naming,
@@ -114,14 +116,38 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Point2D upperLeft = transform.applyInverse(10, 10);
-		Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width - 10, 10);
+		if (!nodesWithoutPos.isEmpty()) {
+			if (USE_FR_LAYOUT_TO_PLACE_NEW_NODES) {
+				Layout<GraphNode, Edge<GraphNode>> layout = new FRLayout<>(viewer.getGraphLayout().getGraph(),
+						viewer.getSize(), true);
+				Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
-		for (int i = 0; i < nodesWithoutPos.size(); i++) {
-			double x = upperLeft.getX()
-					+ (double) i / (double) nodesWithoutPos.size() * (upperRight.getX() - upperLeft.getX());
+				for (GraphNode node : nodes) {
+					Point2D pos = viewer.getGraphLayout().transform(node);
 
-			viewer.getGraphLayout().setLocation(nodesWithoutPos.get(i), new Point2D.Double(x, upperLeft.getY()));
+					initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
+					layout.setLocked(node, !nodesWithoutPos.contains(node));
+				}
+
+				Map<GraphNode, Point2D> newPositions = layout.getNodePositions(initialPositions, null);
+
+				for (GraphNode node : nodesWithoutPos) {
+					Point2D pos = newPositions.get(node);
+
+					viewer.getGraphLayout().setLocation(node, transform.applyInverse(pos.getX(), pos.getY()));
+				}
+			} else {
+				Point2D upperLeft = transform.applyInverse(10, 10);
+				Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width - 10, 10);
+
+				for (int i = 0; i < nodesWithoutPos.size(); i++) {
+					double x = upperLeft.getX()
+							+ (double) i / (double) nodesWithoutPos.size() * (upperRight.getX() - upperLeft.getX());
+
+					viewer.getGraphLayout().setLocation(nodesWithoutPos.get(i),
+							new Point2D.Double(x, upperLeft.getY()));
+				}
+			}
 		}
 	}
 
