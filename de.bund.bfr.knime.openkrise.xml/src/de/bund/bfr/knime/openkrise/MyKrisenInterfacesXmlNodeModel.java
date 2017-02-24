@@ -245,6 +245,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 				new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec());
 		BufferedDataContainer linkContainer = exec.createDataContainer(specL);
 
+		String environment = set.getEnvironment();
 		String caseNumber = set.getCaseNumber();
 		if (caseNumber != null && caseNumber.trim().isEmpty()) caseNumber = null;
 		File tempDir = null;
@@ -257,14 +258,14 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    client.register(HttpAuthenticationFeature.basic("user", "pass"));
 		    JerseyWebTarget service = client.target(set.getServer());
 		    if (caseNumber == null) {
-			    String msg = service.path("rest").path("items").path("faelle").request().accept(MediaType.TEXT_PLAIN).get(String.class);
+			    String msg = service.path("rest").path("items").path("faelle").queryParam("environment", environment).request().accept(MediaType.TEXT_PLAIN).get(String.class);
 			    if (msg.trim().isEmpty()) this.setWarningMessage("Es sind keine Fälle vorhanden!");
 			    else this.setWarningMessage("Folgende Fälle sind verfügbar:\n" + msg + "\nbitte einen Fall auswählen und als Parameter eintragen!");
 			    stationContainer.close(); deliveryContainer.close(); linkContainer.close();
 				return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
 		    }
 		    else {
-			    InputStream stream = service.path("rest").path("items").path("kpms").queryParam("fallnummer", caseNumber).request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
+			    InputStream stream = service.path("rest").path("items").path("kpms").queryParam("environment", environment).queryParam("fallnummer", caseNumber).request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
 		        ZipInputStream zipIn = new ZipInputStream(stream);
 		        
 			    tempDir = Files.createTempDir();
@@ -278,6 +279,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		String lastFallNummer = nrw.doImport(xmlFolder, caseNumber);
 		if (caseNumber == null) caseNumber = lastFallNummer;
 		if (nrw.getFaelle() == null) caseNumber = null;
+		this.pushFlowVariableString("ClientID", environment);
 		this.pushFlowVariableString("Fallnummer", caseNumber);
 		if (caseNumber != null) {
 			Fall fall = nrw.getFaelle().get(caseNumber);

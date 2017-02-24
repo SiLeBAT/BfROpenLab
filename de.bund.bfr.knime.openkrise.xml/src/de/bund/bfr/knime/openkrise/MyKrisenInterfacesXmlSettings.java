@@ -33,10 +33,11 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 	private static final String CFG_SERVER = "server";
 	private static final String CFG_USER = "user";
 	private static final String CFG_PASS = "path";
+	private static final String CFG_ENVIRONMENT = "environment";
 	private static final String CFG_CASE = "case";
 
 	private boolean anonymize, busstop;
-	private String xmlPath, server, user, pass, caseNumber;
+	private String xmlPath, server, user, pass, caseNumber, environment;
 
 	public MyKrisenInterfacesXmlSettings() {
 		busstop = false;
@@ -46,6 +47,7 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 		user = null;
 		pass = null;
 		caseNumber = null;
+		environment = null;
 	}
 
 	@Override
@@ -80,6 +82,10 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 		} catch (InvalidSettingsException e) {
 		}
 		try {
+			environment = settings.getString(CFG_ENVIRONMENT);
+		} catch (InvalidSettingsException e) {
+		}
+		try {
 			caseNumber = settings.getString(CFG_CASE);
 		} catch (InvalidSettingsException e) {
 		}
@@ -94,6 +100,7 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 		settings.addString(CFG_SERVER, server);
 		settings.addString(CFG_USER, user);
 		settings.addString(CFG_PASS, pass);
+		settings.addString(CFG_ENVIRONMENT, environment);
 		settings.addString(CFG_CASE, caseNumber);
 	}
 
@@ -143,6 +150,14 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 
 	public void setPass(String pass) {
 		this.pass = pass;
+	}
+
+	public String getEnvironment() {
+		return environment;
+	}
+
+	public void setEnvironment(String environment) {
+		this.environment = environment;
 	}
 
 	public String getCaseNumber() {

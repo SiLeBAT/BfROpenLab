@@ -108,6 +108,8 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
 		FlowVariable fv = fvm.get("Fallnummer");
 		String fallNummer = fv == null ? null : fv.getStringValue();
+		fv = fvm.get("ClientID");
+		String environment = fv == null ? null : fv.getStringValue();
 		fv = fvm.get("Fallbezeichnung");
 		String fallBezeichnung = fv == null ? null : fv.getStringValue();
 		NRW_Exporter e = new NRW_Exporter();
@@ -154,7 +156,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		doc.setMetadaten(md);
 
 		ae.setMeldung(getMeldung(fallBezeichnung, fallNummer, fallNummer));
-		export(e, ae, "bfr_fall_report");
+		export(e, environment, ae, "bfr_fall_report");
 		
 		// Bewertungen / Scores	
 		int kpnIndex = edgeTable.getSpec().findColumnIndex("Kontrollpunktnummer");
@@ -210,11 +212,11 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			kpb.getWarenbewegungsbewertung().add(wbb);
 		}
 		
-		export(e, aes, "bfr_score_report");
+		export(e, environment, aes, "bfr_score_report");
 		
 		return null;
     }
-    private void export(NRW_Exporter e, Analyseergebnis ae, String filename) throws Exception {
+    private void export(NRW_Exporter e, String environment, Analyseergebnis ae, String filename) throws Exception {
 		ByteArrayOutputStream soap = e.doExport(ae, true);
 		if (soap != null) {
 		    File tempFile = File.createTempFile(filename, ".soap");
@@ -227,7 +229,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			} finally {
 			    fos.close();
 			}
-			upload(tempFile, false);
+			upload(environment, tempFile, false);
 		}
 		else {
 			this.setWarningMessage("soap is null");
@@ -328,7 +330,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
     	return S;
     }
     
-	private void upload(File file, boolean dryRun) throws Exception {
+	private void upload(String environment, File file, boolean dryRun) throws Exception {
 	    JerseyClient client = new JerseyClientBuilder()
 	    		.register(HttpAuthenticationFeature.basic("user", "pass")) // set.getUser(), set.getPass()
 	    		.register(MultiPartFeature.class)
@@ -345,7 +347,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    MultiPart multipartEntity = formDataMultiPart.field("comment", "Analysis from BfR").bodyPart(filePart);
 
 	    if (!dryRun) {
-		    Response response = t.request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
+		    Response response = t.queryParam("environment", environment).request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
 		    System.out.println(response.getStatus() + " \n" + response.readEntity(String.class));
 
 		    response.close();
