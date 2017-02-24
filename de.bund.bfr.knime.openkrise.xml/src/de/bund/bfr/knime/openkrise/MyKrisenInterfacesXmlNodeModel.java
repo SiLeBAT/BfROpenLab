@@ -264,7 +264,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 				return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
 		    }
 		    else {
-			    InputStream stream = service.path("rest").path("items").path("kpms").path(caseNumber).request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
+			    InputStream stream = service.path("rest").path("items").path("kpms").queryParam("fallnummer", caseNumber).request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
 		        ZipInputStream zipIn = new ZipInputStream(stream);
 		        
 			    tempDir = Files.createTempDir();
