@@ -122,7 +122,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 						viewer.getSize(), true);
 				Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
-				for (GraphNode node : nodes) {
+				for (GraphNode node : nodeSaveMap.values()) {
 					Point2D pos = viewer.getGraphLayout().transform(node);
 
 					initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
@@ -131,22 +131,20 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 				Map<GraphNode, Point2D> newPositions = layout.getNodePositions(initialPositions, null);
 
-				for (GraphNode node : nodesWithoutPos) {
-					Point2D pos = newPositions.get(node);
+				newPositions.keySet().retainAll(nodesWithoutPos);
+				newPositions.forEach((node, pos) -> viewer.getGraphLayout().setLocation(node,
+						transform.applyInverse(pos.getX(), pos.getY())));
+				nodesWithoutPos.removeAll(newPositions.keySet());
+			}
 
-					viewer.getGraphLayout().setLocation(node, transform.applyInverse(pos.getX(), pos.getY()));
-				}
-			} else {
-				Point2D upperLeft = transform.applyInverse(10, 10);
-				Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width - 10, 10);
+			Point2D upperLeft = transform.applyInverse(10, 10);
+			Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width - 10, 10);
 
-				for (int i = 0; i < nodesWithoutPos.size(); i++) {
-					double x = upperLeft.getX()
-							+ (double) i / (double) nodesWithoutPos.size() * (upperRight.getX() - upperLeft.getX());
+			for (int i = 0; i < nodesWithoutPos.size(); i++) {
+				double x = upperLeft.getX()
+						+ (double) i / (double) nodesWithoutPos.size() * (upperRight.getX() - upperLeft.getX());
 
-					viewer.getGraphLayout().setLocation(nodesWithoutPos.get(i),
-							new Point2D.Double(x, upperLeft.getY()));
-				}
+				viewer.getGraphLayout().setLocation(nodesWithoutPos.get(i), new Point2D.Double(x, upperLeft.getY()));
 			}
 		}
 	}
