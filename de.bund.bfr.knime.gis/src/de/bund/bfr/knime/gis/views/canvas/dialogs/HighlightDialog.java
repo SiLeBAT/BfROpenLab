@@ -23,6 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -283,12 +285,28 @@ public class HighlightDialog extends KnimeDialog {
 		add(bottomPanel, BorderLayout.SOUTH);
 
 		if (optionsPanel.getComponentCount() != 0) {
-			JPanel upperPanel = new JPanel();
+			JScrollPane scrollPane = new JScrollPane(UI.createWestPanel(optionsPanel));
 
-			upperPanel.setLayout(new BorderLayout());
-			upperPanel.add(UI.createWestPanel(optionsPanel), BorderLayout.CENTER);
-			upperPanel.add(new JSeparator(), BorderLayout.SOUTH);
-			add(upperPanel, BorderLayout.NORTH);
+			add(scrollPane, BorderLayout.NORTH);
+			addComponentListener(new ComponentAdapter() {
+
+				@Override
+				public void componentResized(ComponentEvent e) {
+					if (scrollPane.getSize().width < scrollPane.getPreferredSize().width) {
+						if (scrollPane
+								.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
+							scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+							HighlightDialog.this.revalidate();
+						}
+					} else {
+						if (scrollPane
+								.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
+							scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+							HighlightDialog.this.revalidate();
+						}
+					}
+				}
+			});
 		}
 
 		updateOptionsPanel();
@@ -403,8 +421,7 @@ public class HighlightDialog extends KnimeDialog {
 		logicalAddButtons.add(addButton);
 		logicalPanel.add(addButton, UI.centerConstraints(4, row));
 
-		return new JScrollPane(UI.createNorthPanel(logicalPanel), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		return new JScrollPane(UI.createNorthPanel(logicalPanel));
 	}
 
 	private JComponent createApplyToAllPanel() {
