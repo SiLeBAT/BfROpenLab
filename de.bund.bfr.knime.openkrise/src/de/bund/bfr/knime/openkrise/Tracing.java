@@ -93,9 +93,11 @@ public class Tracing {
 		for (Delivery d : deliveries) {
 			this.deliveries.put(d.getId(), d);
 			String lotId = d.getLotId(); // d.getSupplierId() + "_" +
-			if (!this.lotDeliveries.containsKey(lotId))
-				this.lotDeliveries.put(lotId, new HashSet<>());
-			this.lotDeliveries.get(lotId).add(d.getId());
+			if (lotId != null) {
+				if (!this.lotDeliveries.containsKey(lotId))
+					this.lotDeliveries.put(lotId, new HashSet<>());
+				this.lotDeliveries.get(lotId).add(d.getId());				
+			}
 		}
 
 		stationWeights = new LinkedHashMap<>();
