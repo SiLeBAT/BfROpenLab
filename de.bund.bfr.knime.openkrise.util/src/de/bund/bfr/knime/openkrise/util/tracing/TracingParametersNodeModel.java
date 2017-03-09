@@ -150,7 +150,7 @@ public class TracingParametersNodeModel extends NodeModelWithoutInternals {
 		});
 
 		int index = 0;
-		DataTableSpec nodeOutSpec = createOutSpec(nodeTable.getSpec());
+		DataTableSpec nodeOutSpec = createOutSpec(nodeTable.getSpec(), TracingColumns.STATION_IN_OUT_COLUMNS);
 		BufferedDataContainer nodeContainer = exec.createDataContainer(nodeOutSpec);
 
 		for (DataRow row : nodeTable) {
@@ -187,7 +187,7 @@ public class TracingParametersNodeModel extends NodeModelWithoutInternals {
 
 		nodeContainer.close();
 
-		DataTableSpec edgeOutSpec = createOutSpec(edgeTable.getSpec());
+		DataTableSpec edgeOutSpec = createOutSpec(edgeTable.getSpec(), TracingColumns.DELIVERY_IN_OUT_COLUMNS);
 		BufferedDataContainer edgeContainer = exec.createDataContainer(edgeOutSpec);
 
 		for (DataRow row : edgeTable) {
@@ -207,6 +207,7 @@ public class TracingParametersNodeModel extends NodeModelWithoutInternals {
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(observedEdges.containsKey(id) ? observedEdges.get(id) : false);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(result.getDeliveryScore(id));
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.LOT_SCORE)] = IO.createCell(result.getLotScore(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
 					.createCell(result.getDeliveryNormalizedScore(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.POSITIVE_SCORE)] = IO
@@ -232,7 +233,8 @@ public class TracingParametersNodeModel extends NodeModelWithoutInternals {
 	 */
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		return new DataTableSpec[] { createOutSpec(inSpecs[0]), createOutSpec(inSpecs[1]) };
+		return new DataTableSpec[] { createOutSpec(inSpecs[0], TracingColumns.STATION_IN_OUT_COLUMNS),
+				createOutSpec(inSpecs[1], TracingColumns.DELIVERY_IN_OUT_COLUMNS) };
 	}
 
 	/**
@@ -258,11 +260,12 @@ public class TracingParametersNodeModel extends NodeModelWithoutInternals {
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
-	private static DataTableSpec createOutSpec(DataTableSpec spec) throws InvalidSettingsException {
+	private static DataTableSpec createOutSpec(DataTableSpec spec, List<String> columns)
+			throws InvalidSettingsException {
 		List<DataColumnSpec> outSpec = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
-			if (TracingColumns.COLUMN_TYPES.containsKey(column.getName())) {
+			if (columns.contains(column.getName())) {
 				throw new InvalidSettingsException(
 						"Column name \"" + column.getName() + "\" is not allowed in input table");
 			}
@@ -270,8 +273,9 @@ public class TracingParametersNodeModel extends NodeModelWithoutInternals {
 			outSpec.add(column);
 		}
 
-		TracingColumns.COLUMN_TYPES
-				.forEach((name, type) -> outSpec.add(new DataColumnSpecCreator(name, type).createSpec()));
+		for (String column : columns) {
+			outSpec.add(new DataColumnSpecCreator(column, TracingColumns.IN_OUT_COLUMN_TYPES.get(column)).createSpec());
+		}
 
 		return new DataTableSpec(outSpec.toArray(new DataColumnSpec[0]));
 	}

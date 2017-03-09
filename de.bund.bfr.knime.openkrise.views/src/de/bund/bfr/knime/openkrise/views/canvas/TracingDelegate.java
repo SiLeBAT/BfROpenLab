@@ -406,7 +406,7 @@ public class TracingDelegate<V extends Node> {
 	public void doubleClickedOn(Object obj) {
 		if (obj instanceof Node) {
 			EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas.getViewer(),
-					(Element) obj, canvas.getNodeSchema().getMap());
+					(Element) obj, canvas.getNodeSchema().getMap(), EditableSinglePropertiesDialog.Type.NODE);
 
 			dialog.setVisible(true);
 
@@ -418,7 +418,7 @@ public class TracingDelegate<V extends Node> {
 		} else if (obj instanceof Edge) {
 			if (!canvas.getOptionsPanel().isJoinEdges()) {
 				EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas.getViewer(),
-						(Element) obj, canvas.getEdgeSchema().getMap());
+						(Element) obj, canvas.getEdgeSchema().getMap(), EditableSinglePropertiesDialog.Type.EDGE);
 
 				dialog.setVisible(true);
 
@@ -548,6 +548,7 @@ public class TracingDelegate<V extends Node> {
 			edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, tracing.getDeliveryNormalizedScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.POSITIVE_SCORE, tracing.getDeliveryPositiveScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.NEGATIVE_SCORE, tracing.getDeliveryNegativeScore(edge.getId()));
+			edge.getProperties().put(TracingColumns.LOT_SCORE, tracing.getLotScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.BACKWARD, backwardEdges.contains(edge.getId()));
 			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(edge.getId()));
 		}
@@ -558,6 +559,7 @@ public class TracingDelegate<V extends Node> {
 				edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, null);
 				edge.getProperties().put(TracingColumns.POSITIVE_SCORE, null);
 				edge.getProperties().put(TracingColumns.NEGATIVE_SCORE, null);
+				edge.getProperties().put(TracingColumns.LOT_SCORE, null);
 				edge.getProperties().put(TracingColumns.OBSERVED, false);
 				edge.getProperties().put(TracingColumns.BACKWARD, false);
 				edge.getProperties().put(TracingColumns.FORWARD, false);
@@ -689,9 +691,9 @@ public class TracingDelegate<V extends Node> {
 		public String findError(HighlightCondition condition) {
 			if (condition != null && condition.isInvisible()
 					&& !Sets.intersection(CanvasUtils.getUsedProperties(condition),
-							new LinkedHashSet<>(TracingColumns.OUTPUT_COLUMNS)).isEmpty()) {
+							new LinkedHashSet<>(TracingColumns.OUT_COLUMNS)).isEmpty()) {
 				return "The following columns cannot be used with \"Invisible\" option:\n"
-						+ Joiner.on(", ").join(TracingColumns.OUTPUT_COLUMNS);
+						+ Joiner.on(", ").join(TracingColumns.OUT_COLUMNS);
 			}
 
 			return null;

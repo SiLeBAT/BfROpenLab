@@ -92,8 +92,9 @@ public class Tracing {
 
 		for (Delivery d : deliveries) {
 			this.deliveries.put(d.getId(), d);
-			String lotId = d.getLotId(); // d.getSupplierId() + "_" + 
-			if (!this.lotDeliveries.containsKey(lotId)) this.lotDeliveries.put(lotId, new HashSet<>());
+			String lotId = d.getLotId(); // d.getSupplierId() + "_" +
+			if (!this.lotDeliveries.containsKey(lotId))
+				this.lotDeliveries.put(lotId, new HashSet<>());
 			this.lotDeliveries.get(lotId).add(d.getId());
 		}
 
@@ -278,10 +279,12 @@ public class Tracing {
 			result.forwardDeliveriesByDelivery.putAll(d, getForwardDeliveriesOfDelivery(d));
 			result.backwardDeliveriesByDelivery.putAll(d, getBackwardDeliveriesOfDelivery(d));
 		}
-		
-		for (String l : lotDeliveries.keySet()) {
-			result.lotScores.put(l, getLotScore(l, ScoreType.COMBINED));
-		}
+
+		lotDeliveries.forEach((lot, deliveries) -> {
+			for (String d : deliveries) {
+				result.lotScores.put(d, getLotScore(lot, ScoreType.COMBINED));
+			}
+		});
 
 		double maxScore = Math.max(Collections.max(result.stationScores.values()),
 				Collections.max(result.deliveryScores.values()));
@@ -584,7 +587,7 @@ public class Tracing {
 		public double getDeliveryScore(String id) {
 			return nullToZero(deliveryScores.get(id));
 		}
-		
+
 		public double getLotScore(String id) {
 			return nullToZero(lotScores.get(id));
 		}

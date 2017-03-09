@@ -74,8 +74,13 @@ public class TracingViewCanvasCreator {
 		Map<String, Class<?>> nodeProperties = TracingUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils.getTableColumns(edgeTable.getSpec());
 
-		nodeProperties.putAll(TracingColumns.COLUMN_CLASSES);
-		edgeProperties.putAll(TracingColumns.COLUMN_CLASSES);
+		for (String c : TracingColumns.STATION_IN_OUT_COLUMNS) {
+			nodeProperties.put(c, TracingColumns.IN_OUT_COLUMN_CLASSES.get(c));
+		}
+
+		for (String c : TracingColumns.DELIVERY_IN_OUT_COLUMNS) {
+			edgeProperties.put(c, TracingColumns.IN_OUT_COLUMN_CLASSES.get(c));
+		}
 
 		nodeSchema = new NodePropertySchema(nodeProperties, TracingColumns.ID);
 		edgeSchema = new EdgePropertySchema(edgeProperties, TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);

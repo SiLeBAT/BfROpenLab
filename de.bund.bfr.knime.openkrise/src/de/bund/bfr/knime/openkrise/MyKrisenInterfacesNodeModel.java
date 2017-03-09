@@ -84,7 +84,6 @@ import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyDBTablesNew;
-import de.bund.bfr.knime.openkrise.db.generated.public_.tables.Chargen;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -252,9 +251,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 		addSpec(columns, TracingColumns.FROM, StringCell.TYPE);
 		addSpec(columns, TracingColumns.TO, StringCell.TYPE);
 		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
-		
+
 		addSpec(columns, TracingColumns.LOT_ID, StringCell.TYPE);
-		
+
 		addSpecIf(set.isEnsureBackwardCompatibility() || !set.isLotBased(), columns, TracingColumns.LOT_NUMBER,
 				StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);

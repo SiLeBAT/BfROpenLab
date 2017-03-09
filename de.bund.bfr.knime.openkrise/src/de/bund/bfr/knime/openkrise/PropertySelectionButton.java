@@ -123,7 +123,7 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 		}
 
 		result.put("Tracing", filterGroup(
-				Stream.concat(TracingColumns.INPUT_COLUMNS.stream(), TracingColumns.OUTPUT_COLUMNS.stream()), schema));
+				Stream.concat(TracingColumns.IN_COLUMNS.stream(), TracingColumns.OUT_COLUMNS.stream()), schema));
 
 		List<String> otherProperties = new ArrayList<>(schema.getMap().keySet());
 

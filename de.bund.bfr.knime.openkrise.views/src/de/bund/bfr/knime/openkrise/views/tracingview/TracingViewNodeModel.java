@@ -232,14 +232,14 @@ public class TracingViewNodeModel extends NodeModelWithoutInternals {
 			columns.put(column.getName(), column.getType());
 		}
 
-		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
-			DataType oldType = columns.get(entry.getKey());
+		for (String columnName : TracingColumns.STATION_IN_OUT_COLUMNS) {
+			DataType type = TracingColumns.IN_OUT_COLUMN_TYPES.get(columnName);
+			DataType oldType = columns.get(columnName);
 
 			if (oldType == null) {
-				newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
-			} else if (!oldType.equals(entry.getValue())) {
-				throw new InvalidSettingsException(
-						"Type of column \"" + entry.getKey() + "\" must be \"" + entry.getValue() + "\"");
+				newNodeSpec.add(new DataColumnSpecCreator(columnName, type).createSpec());
+			} else if (!oldType.equals(type)) {
+				throw new InvalidSettingsException("Type of column \"" + columnName + "\" must be \"" + type + "\"");
 			}
 		}
 
@@ -261,14 +261,14 @@ public class TracingViewNodeModel extends NodeModelWithoutInternals {
 			columns.put(column.getName(), column.getType());
 		}
 
-		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
-			DataType oldType = columns.get(entry.getKey());
+		for (String columnName : TracingColumns.DELIVERY_IN_OUT_COLUMNS) {
+			DataType type = TracingColumns.IN_OUT_COLUMN_TYPES.get(columnName);
+			DataType oldType = columns.get(columnName);
 
 			if (oldType == null) {
-				newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
-			} else if (!oldType.equals(entry.getValue())) {
-				throw new InvalidSettingsException(
-						"Type of column \"" + entry.getKey() + "\" must be \"" + entry.getValue() + "\"");
+				newEdgeSpec.add(new DataColumnSpecCreator(columnName, type).createSpec());
+			} else if (!oldType.equals(type)) {
+				throw new InvalidSettingsException("Type of column \"" + columnName + "\" must be \"" + type + "\"");
 			}
 		}
 

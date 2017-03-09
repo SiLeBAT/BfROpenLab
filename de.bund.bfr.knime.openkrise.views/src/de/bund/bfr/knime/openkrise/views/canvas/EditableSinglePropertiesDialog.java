@@ -49,6 +49,10 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
+	public static enum Type {
+		NODE, EDGE
+	}
+
 	private Element element;
 
 	private JTextField caseField;
@@ -58,7 +62,8 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 
 	private boolean approved;
 
-	public EditableSinglePropertiesDialog(Component parent, Element element, Map<String, Class<?>> properties) {
+	public EditableSinglePropertiesDialog(Component parent, Element element, Map<String, Class<?>> properties,
+			Type type) {
 		super(parent, "Properties", DEFAULT_MODALITY_TYPE);
 		this.element = element;
 
@@ -82,7 +87,8 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 		List<JLabel> tracingLabels = new ArrayList<>();
 		List<JTextField> tracingFields = new ArrayList<>();
 
-		for (String column : TracingColumns.OUTPUT_COLUMNS) {
+		for (String column : type == Type.NODE ? TracingColumns.STATION_OUT_COLUMNS
+				: TracingColumns.DELIVERY_OUT_COLUMNS) {
 			tracingLabels.add(new JLabel(column + ":"));
 			tracingFields.add(createField(values.get(column)));
 		}
@@ -96,7 +102,8 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 
 		Map<String, Class<?>> otherProperties = new LinkedHashMap<>(properties);
 
-		for (String column : Iterables.concat(TracingColumns.INPUT_COLUMNS, TracingColumns.OUTPUT_COLUMNS)) {
+		for (String column : Iterables.concat(TracingColumns.IN_COLUMNS,
+				type == Type.NODE ? TracingColumns.STATION_OUT_COLUMNS : TracingColumns.DELIVERY_OUT_COLUMNS)) {
 			otherProperties.remove(column);
 		}
 

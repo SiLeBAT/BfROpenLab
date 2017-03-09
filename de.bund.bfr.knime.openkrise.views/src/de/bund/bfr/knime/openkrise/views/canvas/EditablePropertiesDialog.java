@@ -121,7 +121,8 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 
 		TableCellRenderer boldHeaderRenderer = new BoldHeaderRenderer(table.getTableHeader().getDefaultRenderer());
 
-		for (String column : TracingColumns.OUTPUT_COLUMNS) {
+		for (String column : type == Type.NODE ? TracingColumns.STATION_OUT_COLUMNS
+				: TracingColumns.DELIVERY_OUT_COLUMNS) {
 			table.getColumn(column).setHeaderRenderer(boldHeaderRenderer);
 		}
 

@@ -25,6 +25,7 @@ import org.knime.core.data.def.DoubleCell;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 
@@ -44,6 +45,7 @@ public interface TracingColumns {
 	public static final String NORMALIZED_SCORE = "Normalized Score";
 	public static final String POSITIVE_SCORE = "Positive Score";
 	public static final String NEGATIVE_SCORE = "Negative Score";
+	public static final String LOT_SCORE = "Lot Score";
 
 	public static final String OBSERVED = "Observed";
 	public static final String BACKWARD = "Backward";
@@ -87,19 +89,29 @@ public interface TracingColumns {
 	public static final ImmutableList<String> ADDRESS_COLUMNS = ImmutableList.of(ADDRESS, STATION_STREET,
 			STATION_HOUSENO, STATION_ZIP, STATION_CITY, STATION_DISTRICT, STATION_STATE, STATION_COUNTRY,
 			BackwardUtils.STATION_COUNTY, GeocodingNodeModel.LATITUDE_COLUMN, GeocodingNodeModel.LONGITUDE_COLUMN);
-	public static final ImmutableList<String> INPUT_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
+
+	public static final ImmutableList<String> IN_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
 			KILL_CONTAMINATION, OBSERVED);
-	public static final ImmutableList<String> OUTPUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE, POSITIVE_SCORE,
-			NEGATIVE_SCORE, BACKWARD, FORWARD);
-	public static final ImmutableMap<String, DataType> COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
+	public static final ImmutableList<String> STATION_OUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE,
+			POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
+	public static final ImmutableList<String> DELIVERY_OUT_COLUMNS = ImmutableList.of(SCORE, LOT_SCORE,
+			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
+	public static final ImmutableMap<String, DataType> IN_OUT_COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
 			.put(WEIGHT, DoubleCell.TYPE).put(CROSS_CONTAMINATION, BooleanCell.TYPE)
-			.put(KILL_CONTAMINATION, BooleanCell.TYPE).put(SCORE, DoubleCell.TYPE)
+			.put(KILL_CONTAMINATION, BooleanCell.TYPE).put(SCORE, DoubleCell.TYPE).put(LOT_SCORE, DoubleCell.TYPE)
 			.put(NORMALIZED_SCORE, DoubleCell.TYPE).put(POSITIVE_SCORE, DoubleCell.TYPE)
 			.put(NEGATIVE_SCORE, DoubleCell.TYPE).put(OBSERVED, BooleanCell.TYPE).put(BACKWARD, BooleanCell.TYPE)
 			.put(FORWARD, BooleanCell.TYPE).build();
-	public static final ImmutableMap<String, Class<?>> COLUMN_CLASSES = new ImmutableMap.Builder<String, Class<?>>()
+	public static final ImmutableMap<String, Class<?>> IN_OUT_COLUMN_CLASSES = new ImmutableMap.Builder<String, Class<?>>()
 			.put(WEIGHT, Double.class).put(CROSS_CONTAMINATION, Boolean.class).put(KILL_CONTAMINATION, Boolean.class)
-			.put(SCORE, Double.class).put(NORMALIZED_SCORE, Double.class).put(POSITIVE_SCORE, Double.class)
-			.put(NEGATIVE_SCORE, Double.class).put(OBSERVED, Boolean.class).put(BACKWARD, Boolean.class)
-			.put(FORWARD, Boolean.class).build();
+			.put(SCORE, Double.class).put(LOT_SCORE, Double.class).put(NORMALIZED_SCORE, Double.class)
+			.put(POSITIVE_SCORE, Double.class).put(NEGATIVE_SCORE, Double.class).put(OBSERVED, Boolean.class)
+			.put(BACKWARD, Boolean.class).put(FORWARD, Boolean.class).build();
+
+	public static final ImmutableList<String> STATION_IN_OUT_COLUMNS = new ImmutableList.Builder<String>()
+			.addAll(IN_COLUMNS).addAll(STATION_OUT_COLUMNS).build();
+	public static final ImmutableList<String> DELIVERY_IN_OUT_COLUMNS = new ImmutableList.Builder<String>()
+			.addAll(IN_COLUMNS).addAll(DELIVERY_OUT_COLUMNS).build();
+	public static final ImmutableSet<String> OUT_COLUMNS = new ImmutableSet.Builder<String>()
+			.addAll(STATION_OUT_COLUMNS).addAll(DELIVERY_OUT_COLUMNS).build();
 }
