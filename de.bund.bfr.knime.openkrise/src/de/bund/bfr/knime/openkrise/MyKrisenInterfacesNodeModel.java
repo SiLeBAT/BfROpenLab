@@ -84,6 +84,7 @@ import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyDBTablesNew;
+import de.bund.bfr.knime.openkrise.db.generated.public_.tables.Chargen;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -251,6 +252,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 		addSpec(columns, TracingColumns.FROM, StringCell.TYPE);
 		addSpec(columns, TracingColumns.TO, StringCell.TYPE);
 		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
+		
+		addSpec(columns, TracingColumns.LOT_ID, StringCell.TYPE);
+		
 		addSpecIf(set.isEnsureBackwardCompatibility() || !set.isLotBased(), columns, TracingColumns.LOT_NUMBER,
 				StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
@@ -437,6 +441,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 
 		for (Record r : select.orderBy(PRODUKTKATALOG.ID)) {
 			String deliveryId = deliveryIds.get(r.getValue(LIEFERUNGEN.ID));
+			String lotId = r.getValue(CHARGEN.ID) + "";
 			String fromId = !set.isLotBased() ? stationIds.get(r.getValue(PRODUKTKATALOG.STATION))
 					: String.valueOf(r.getValue(CHARGEN.ID));
 			String toId = !set.isLotBased() ? stationIds.get(r.getValue(LIEFERUNGEN.EMPFÄNGER))
@@ -452,6 +457,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 			fillCell(spec, cells, TracingColumns.ID, createCell(id));
 			fillCell(spec, cells, TracingColumns.FROM, createCell(fromId));
 			fillCell(spec, cells, TracingColumns.TO, createCell(toId));
+			fillCell(spec, cells, TracingColumns.LOT_ID, createCell(lotId));
 			fillCell(spec, cells, TracingColumns.DELIVERY_ID, createCell(deliveryId));
 			fillCell(spec, cells, TracingColumns.NAME, createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
 			fillCell(spec, cells, TracingColumns.PRODUCT_NUMBER, set.isAnonymize() ? DataType.getMissingCell()

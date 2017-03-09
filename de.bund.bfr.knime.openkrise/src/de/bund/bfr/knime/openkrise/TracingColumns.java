@@ -68,6 +68,8 @@ public interface TracingColumns {
 	public static final String STATION_DEADSTART = "DeadStart";
 	public static final String STATION_DEADEND = "DeadEnd";
 
+	public static final String LOT_ID = "Lot ID";
+
 	public static final String DELIVERY_ID = "Delivery ID";
 	public static final String DELIVERY_AMOUNT = "Amount [kg]";
 	public static final String DELIVERY_NUM_PU = "Amount";

@@ -42,6 +42,7 @@ public class Delivery {
 		private Integer arrivalMonth;
 		private Integer arrivalYear;
 
+		private String lotId;
 		private String lot;
 
 		private Double amount;
@@ -75,6 +76,11 @@ public class Delivery {
 			arrivalYear = year;
 			arrivalMonth = year != null ? month : null;
 			arrivalDay = (year != null && month != null) ? day : null;
+			return this;
+		}
+
+		public Builder lotId(String lotId) {
+			this.lotId = lotId;
 			return this;
 		}
 
@@ -146,6 +152,10 @@ public class Delivery {
 
 	public Integer getArrivalYear() {
 		return builder.arrivalYear;
+	}
+
+	public String getLotId() {
+		return builder.lotId;
 	}
 
 	public String getLot() {

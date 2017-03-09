@@ -275,7 +275,8 @@ public class TracingUtils {
 			builders.put(edge.getId(),
 					new Delivery.Builder(edge.getId(), edge.getFrom().getId(), edge.getTo().getId())
 							.departure(getYear(departureDate), getMonth(departureDate), getDay(departureDate))
-							.arrival(getYear(arrivalDate), getMonth(arrivalDate), getDay(arrivalDate)));
+							.arrival(getYear(arrivalDate), getMonth(arrivalDate), getDay(arrivalDate))
+							.lotId((String) edge.getProperties().get(TracingColumns.LOT_ID)));
 		}
 
 		SetMultimap<String, String> previousDeliveries = LinkedHashMultimap.create();

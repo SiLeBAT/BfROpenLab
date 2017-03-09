@@ -221,6 +221,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		addSpec(columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpec(columns, TracingColumns.PRODUCT_NUMBER, StringCell.TYPE);
 		addSpec(columns, "EAN", StringCell.TYPE);
+		addSpec(columns, TracingColumns.LOT_ID, StringCell.TYPE);
 		addSpec(columns, TracingColumns.LOT_NUMBER, StringCell.TYPE);
 		addSpec(columns, "Chargennummer", StringCell.TYPE);
 		addSpec(columns, "Bezeichnung", StringCell.TYPE);
@@ -443,9 +444,11 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, TracingColumns.TO, createCell(to));
 
 		String los = p == null ? null : p.getLosNummer() == null ? p.getChargenNummer() : p.getLosNummer();
-		fillCell(specD, cells, TracingColumns.NAME, createCell(p == null ? null : p.getHandelsname()));
+		String hn = p == null ? null : p.getHandelsname();
+		fillCell(specD, cells, TracingColumns.NAME, createCell(hn));
 		fillCell(specD, cells, TracingColumns.PRODUCT_NUMBER, createCell(p == null ? null : p.getArtikelnummer()));
 		fillCell(specD, cells, "EAN", createCell(p == null ? null : p.getEan()));
+		fillCell(specD, cells, TracingColumns.LOT_ID, createCell(from + "_" + hn + "_" + los));
 		fillCell(specD, cells, TracingColumns.LOT_NUMBER, createCell(los));
 		fillCell(specD, cells, "Chargennummer", createCell(p == null ? null : p.getChargenNummer()));
 		fillCell(specD, cells, "Bezeichnung", createCell(p == null ? null : p.getProduktBezeichnung()));
