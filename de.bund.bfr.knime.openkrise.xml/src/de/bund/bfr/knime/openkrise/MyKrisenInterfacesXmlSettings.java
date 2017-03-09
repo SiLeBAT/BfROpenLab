@@ -104,6 +104,23 @@ public class MyKrisenInterfacesXmlSettings extends NodeSettings {
 		settings.addString(CFG_CASE, caseNumber);
 	}
 
+	public void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
+		String error = "";
+		String s;
+		boolean b = settings == null ? busstop : settings.getBoolean(CFG_BUSSTOP);
+		if (b) {
+			s = settings == null ? server : settings.getString(CFG_SERVER);
+			if (s == null || s.trim().isEmpty()) error += "Server address not defined\n";
+			s = settings == null ? environment : settings.getString(CFG_ENVIRONMENT);
+			if (s == null || s.trim().isEmpty()) error += "Client ID not defined\n";
+		}
+		else {
+			s = settings == null ? xmlPath : settings.getString(CFG_XML_PATH);
+			if (s == null || s.trim().isEmpty()) error += "Xml path not defined\n";
+		}
+		if (!error.trim().isEmpty()) throw new InvalidSettingsException(error.trim());
+	}
+
 	public boolean isAnonymize() {
 		return anonymize;
 	}

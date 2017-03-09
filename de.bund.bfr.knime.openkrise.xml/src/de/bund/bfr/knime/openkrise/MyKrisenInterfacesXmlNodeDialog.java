@@ -73,10 +73,10 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
 		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(useBusstopBox)));
 		tracingPanel.add(UI.createTitledPanel(server, "Server Address"));
+		tracingPanel.add(UI.createTitledPanel(environment, "Client ID"));
 		//tracingPanel.add(UI.createTitledPanel(user, "Username"));
 		//tracingPanel.add(UI.createTitledPanel(pass, "Password"));
 		tracingPanel.add(UI.createTitledPanel(xmlField, "Xml Path"));
-		tracingPanel.add(UI.createTitledPanel(environment, "Client ID"));
 		tracingPanel.add(UI.createTitledPanel(caseNumber, "Case Number"));
 		tracingPanel.add(UI.createWestPanel(UI.createBorderPanel(anonymizeBox)));
 
@@ -87,6 +87,7 @@ public class MyKrisenInterfacesXmlNodeDialog extends NodeDialogPane {
 	private void setEnableds() {
     	xmlField.setEnabled(!useBusstopBox.isSelected());
     	server.setEnabled(useBusstopBox.isSelected());
+    	environment.setEnabled(useBusstopBox.isSelected());
     	//user.setEnabled(useBusstopBox.isSelected());
     	//pass.setEnabled(useBusstopBox.isSelected());
 	}

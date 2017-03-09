@@ -111,6 +111,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 	 */
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
+		if (set != null) set.validateSettings(null);
 		return new DataTableSpec[] { null, null, null };
 	}
 
@@ -135,6 +136,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+		set.validateSettings(settings);
 	}
 
 	/**
@@ -246,6 +248,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		BufferedDataContainer linkContainer = exec.createDataContainer(specL);
 
 		String environment = set.getEnvironment();
+		if (environment == null || environment.trim().isEmpty()) return null;
 		String caseNumber = set.getCaseNumber();
 		if (caseNumber != null && caseNumber.trim().isEmpty()) caseNumber = null;
 		File tempDir = null;
@@ -280,6 +283,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		if (caseNumber == null) caseNumber = lastFallNummer;
 		if (nrw.getFaelle() == null) caseNumber = null;
 		this.pushFlowVariableString("ClientID", environment);
+		this.pushFlowVariableString("Server", set.getServer());
 		this.pushFlowVariableString("Fallnummer", caseNumber);
 		if (caseNumber != null) {
 			Fall fall = nrw.getFaelle().get(caseNumber);

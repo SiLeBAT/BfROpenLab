@@ -71,15 +71,12 @@ import org.knime.core.node.NodeSettingsWO;
  */
 public class TracingXmlOutNodeModel extends NodeModel {
 
-	private TracingXmlOutNodeSettings set;
-
     /**
      * Constructor for the node model.
      */
     protected TracingXmlOutNodeModel() {   
 		super(new PortType[] {BufferedDataTable.TYPE, BufferedDataTable.TYPE, ImagePortObject.TYPE},
 				new PortType[] {});
-		set = new TracingXmlOutNodeSettings();
     }
 
     /**
@@ -108,10 +105,15 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
 		FlowVariable fv = fvm.get("Fallnummer");
 		String fallNummer = fv == null ? null : fv.getStringValue();
+		fv = fvm.get("Server");
+		String server = fv == null ? null : fv.getStringValue();
+		if (server == null || server.trim().isEmpty()) throw new Exception("Server not known");
 		fv = fvm.get("ClientID");
 		String environment = fv == null ? null : fv.getStringValue();
+		if (environment == null || environment.trim().isEmpty()) throw new Exception("Client ID not known");
 		fv = fvm.get("Fallbezeichnung");
 		String fallBezeichnung = fv == null ? null : fv.getStringValue();
+		
 		NRW_Exporter e = new NRW_Exporter();
 		
 		// Fall
@@ -156,7 +158,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		doc.setMetadaten(md);
 
 		ae.setMeldung(getMeldung(fallBezeichnung, fallNummer, fallNummer));
-		export(e, environment, ae, "bfr_fall_report");
+		export(e, server, environment, ae, "bfr_fall_report");
 		
 		// Bewertungen / Scores	
 		int kpnIndex = edgeTable.getSpec().findColumnIndex("Kontrollpunktnummer");
@@ -212,11 +214,11 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			kpb.getWarenbewegungsbewertung().add(wbb);
 		}
 		
-		export(e, environment, aes, "bfr_score_report");
+		export(e, server, environment, aes, "bfr_score_report");
 		
 		return null;
     }
-    private void export(NRW_Exporter e, String environment, Analyseergebnis ae, String filename) throws Exception {
+    private void export(NRW_Exporter e, String server, String environment, Analyseergebnis ae, String filename) throws Exception {
 		ByteArrayOutputStream soap = e.doExport(ae, true);
 		if (soap != null) {
 		    File tempFile = File.createTempFile(filename, ".soap");
@@ -229,7 +231,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			} finally {
 			    fos.close();
 			}
-			upload(environment, tempFile, false);
+			upload(server, environment, tempFile, false);
 		}
 		else {
 			this.setWarningMessage("soap is null");
@@ -257,7 +259,6 @@ public class TracingXmlOutNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-		set.saveSettings(settings);
     }
 
     /**
@@ -266,7 +267,6 @@ public class TracingXmlOutNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-		set.loadSettings(settings);
     }
 
     /**
@@ -330,12 +330,12 @@ public class TracingXmlOutNodeModel extends NodeModel {
     	return S;
     }
     
-	private void upload(String environment, File file, boolean dryRun) throws Exception {
+	private void upload(String server, String environment, File file, boolean dryRun) throws Exception {
 	    JerseyClient client = new JerseyClientBuilder()
 	    		.register(HttpAuthenticationFeature.basic("user", "pass")) // set.getUser(), set.getPass()
 	    		.register(MultiPartFeature.class)
 	    		.build();
-	    JerseyWebTarget t = client.target(UriBuilder.fromUri(set.getServer()).build()).path("rest").path("items").path("upload");
+	    JerseyWebTarget t = client.target(UriBuilder.fromUri(server).build()).path("rest").path("items").path("upload");
 
 	    FileDataBodyPart filePart = new FileDataBodyPart("file", file);
 	    String fn = file.getName();

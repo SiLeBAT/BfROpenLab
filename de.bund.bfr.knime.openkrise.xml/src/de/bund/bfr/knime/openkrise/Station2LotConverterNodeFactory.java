@@ -1,24 +1,24 @@
-package de.bund.bfr.knime.openkrise.out;
+package de.bund.bfr.knime.openkrise;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeFactory</code> for the "TracingXmlOut" Node.
+ * <code>NodeFactory</code> for the "Station2LotConverter" Node.
  * 
  *
  * @author BfR
  */
-public class TracingXmlOutNodeFactory 
-        extends NodeFactory<TracingXmlOutNodeModel> {
+public class Station2LotConverterNodeFactory 
+        extends NodeFactory<Station2LotConverterNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public TracingXmlOutNodeModel createNodeModel() {
-        return new TracingXmlOutNodeModel();
+    public Station2LotConverterNodeModel createNodeModel() {
+        return new Station2LotConverterNodeModel();
     }
 
     /**
@@ -33,8 +33,8 @@ public class TracingXmlOutNodeFactory
      * {@inheritDoc}
      */
     @Override
-    public NodeView<TracingXmlOutNodeModel> createNodeView(final int viewIndex,
-            final TracingXmlOutNodeModel nodeModel) {
+    public NodeView<Station2LotConverterNodeModel> createNodeView(final int viewIndex,
+            final Station2LotConverterNodeModel nodeModel) {
         return null;
     }
 

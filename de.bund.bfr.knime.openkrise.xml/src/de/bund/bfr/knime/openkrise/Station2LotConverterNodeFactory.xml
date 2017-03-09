@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./default.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Station2LotConverter</name>
+
+	<shortDescription>
+		Converts a station-based data into a lot-based network
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+		</intro>
+
+	</fullDescription>
+
+	<ports>
+        <inPort index="0" name="In-Port name">Table with Station data.</inPort>
+        <inPort index="1" name="In-Port name">Table with Delivery data.</inPort>
+        <inPort index="2" name="In-Port name">Model that contains the relations between deliveries.</inPort>
+		<outPort index="0" name="Lots">
+			Table with Lot data.
+		</outPort>
+		<outPort index="1" name="Lot Relations">
+			Model that contains the relations between lots.
+		</outPort>
+		<outPort index="2" name="Delivery Relations">
+			Model that contains the relations between deliveries.
+		</outPort>
+	</ports>
+    
+</knimeNode>
