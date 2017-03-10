@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="spec.xml">
 <entry key="spec_name" type="xstring" value="default"/>
-<entry key="number_columns" type="xint" value="11"/>
+<entry key="number_columns" type="xint" value="12"/>
 <config key="column_spec_0">
 <entry key="column_name" type="xstring" value="ID"/>
 <config key="element_names">
@@ -87,6 +87,17 @@
 <config key="column_properties"/>
 </config>
 <config key="column_spec_4">
+<entry key="column_name" type="xstring" value="Lot ID"/>
+<config key="element_names">
+<entry key="array-size" type="xint" value="0"/>
+</config>
+<config key="column_type">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.StringCell"/>
+</config>
+<config key="column_domain"/>
+<config key="column_properties"/>
+</config>
+<config key="column_spec_5">
 <entry key="column_name" type="xstring" value="Lot Number"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -101,7 +112,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_5">
+<config key="column_spec_6">
 <entry key="column_name" type="xstring" value="Date Delivery"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -112,7 +123,7 @@
 <config key="column_domain"/>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_6">
+<config key="column_spec_7">
 <entry key="column_name" type="xstring" value="Date Delivery Arrival"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -127,7 +138,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_7">
+<config key="column_spec_8">
 <entry key="column_name" type="xstring" value="ImportSources"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -148,7 +159,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_8">
+<config key="column_spec_9">
 <entry key="column_name" type="xstring" value="Charge Number"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -163,7 +174,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_9">
+<config key="column_spec_10">
 <entry key="column_name" type="xstring" value="_Lieferungen.Look"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -184,7 +195,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_10">
+<config key="column_spec_11">
 <entry key="column_name" type="xstring" value="_Lieferungen.Taste"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>

@@ -59,7 +59,7 @@
 <entry key="node-bundle-name" type="xstring" value="Test-Node extension for KNIME Workbench"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.testing"/>
 <entry key="node-bundle-vendor" type="xstring" value="KNIME GmbH, Konstanz, Germany"/>
-<entry key="node-bundle-version" type="xstring" value="3.2.1.v201608182043"/>
+<entry key="node-bundle-version" type="xstring" value="3.3.1.v201612192115"/>
 <entry key="node-feature-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-symbolic-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-vendor" type="xstring" isnull="true" value=""/>

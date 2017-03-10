@@ -19,36 +19,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
-</config>
-</config>
-<config key="columnConfig__Taste">
-<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
-<config key="internals">
-<config key="ignoreColumnProperties_Internals">
+<config key="ignoreColumnElementNames_Internals">
 <entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
-<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
-<config key="ignoreDomain_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreDomain" type="xboolean" value="false"/>
-</config>
-</config>
-<config key="columnConfig_Date Delivery">
-<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
-<config key="internals">
-<config key="ignoreColumnProperties_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
-<config key="ignoreDomain_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreDomain" type="xboolean" value="false"/>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_Charge Number">
@@ -64,9 +39,14 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
-<config key="columnConfig_from">
+<config key="columnConfig_Lot ID">
 <entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
 <config key="internals">
 <config key="ignoreColumnProperties_Internals">
@@ -74,36 +54,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreColumnProperties" type="xboolean" value="false"/>
-<config key="ignoreDomain_Internals">
+<config key="ignoreColumnElementNames_Internals">
 <entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
-<entry key="ignoreDomain" type="xboolean" value="false"/>
-</config>
-</config>
-<config key="columnConfig_ID">
-<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
-<config key="internals">
-<config key="ignoreColumnProperties_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
-<config key="ignoreDomain_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreDomain" type="xboolean" value="false"/>
-</config>
-</config>
-<config key="columnConfig_to">
-<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
-<config key="internals">
-<config key="ignoreColumnProperties_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 <config key="ignoreDomain_Internals">
 <entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
 <entry key="EnabledStatus" type="xboolean" value="true"/>
@@ -124,6 +79,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_Delivery ID">
@@ -139,6 +99,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_ImportSources">
@@ -154,6 +119,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_Name">
@@ -169,6 +139,111 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="columnConfig__Taste">
+<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
+<config key="internals">
+<config key="ignoreColumnProperties_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<config key="ignoreDomain_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="columnConfig_Date Delivery">
+<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
+<config key="internals">
+<config key="ignoreColumnProperties_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<config key="ignoreDomain_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="columnConfig_from">
+<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
+<config key="internals">
+<config key="ignoreColumnProperties_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<config key="ignoreDomain_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="columnConfig_ID">
+<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
+<config key="internals">
+<config key="ignoreColumnProperties_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<config key="ignoreDomain_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="columnConfig_to">
+<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
+<config key="internals">
+<config key="ignoreColumnProperties_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<config key="ignoreDomain_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_Lot Number">
@@ -184,6 +259,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <entry key="ignoreRowIds" type="xboolean" value="false"/>
@@ -209,7 +289,7 @@
 <entry key="node-bundle-name" type="xstring" value="Test-Node extension for KNIME Workbench"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.testing"/>
 <entry key="node-bundle-vendor" type="xstring" value="KNIME GmbH, Konstanz, Germany"/>
-<entry key="node-bundle-version" type="xstring" value="3.2.1.v201608182043"/>
+<entry key="node-bundle-version" type="xstring" value="3.3.1.v201612192115"/>
 <entry key="node-feature-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-symbolic-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-vendor" type="xstring" isnull="true" value=""/>
