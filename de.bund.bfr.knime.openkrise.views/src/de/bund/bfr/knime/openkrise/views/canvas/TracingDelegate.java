@@ -536,6 +536,7 @@ public class TracingDelegate<V extends Node> {
 
 		for (V node : canvas.getNodes()) {
 			node.getProperties().put(TracingColumns.SCORE, tracing.getStationScore(node.getId()));
+			node.getProperties().put(TracingColumns.MAX_LOT_SCORE, tracing.getMaxLotScore(node.getId()));
 			node.getProperties().put(TracingColumns.NORMALIZED_SCORE, tracing.getStationNormalizedScore(node.getId()));
 			node.getProperties().put(TracingColumns.POSITIVE_SCORE, tracing.getStationPositiveScore(node.getId()));
 			node.getProperties().put(TracingColumns.NEGATIVE_SCORE, tracing.getStationNegativeScore(node.getId()));
@@ -545,10 +546,10 @@ public class TracingDelegate<V extends Node> {
 
 		for (Edge<V> edge : edges) {
 			edge.getProperties().put(TracingColumns.SCORE, tracing.getDeliveryScore(edge.getId()));
+			edge.getProperties().put(TracingColumns.LOT_SCORE, tracing.getLotScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, tracing.getDeliveryNormalizedScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.POSITIVE_SCORE, tracing.getDeliveryPositiveScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.NEGATIVE_SCORE, tracing.getDeliveryNegativeScore(edge.getId()));
-			edge.getProperties().put(TracingColumns.LOT_SCORE, tracing.getLotScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.BACKWARD, backwardEdges.contains(edge.getId()));
 			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(edge.getId()));
 		}

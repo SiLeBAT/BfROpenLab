@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -28,6 +27,7 @@ import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
@@ -59,7 +59,8 @@ public class Tracing {
 	}
 
 	private Map<String, Delivery> deliveries;
-	private Map<String, Set<String>> lotDeliveries;
+	private SetMultimap<String, String> lotDeliveries;
+	private SetMultimap<String, String> stationLots;
 	private Map<String, Double> stationWeights;
 	private Map<String, Double> deliveryWeights;
 	private Set<String> ccStations;
@@ -88,15 +89,15 @@ public class Tracing {
 		}
 
 		this.deliveries = new LinkedHashMap<>();
-		this.lotDeliveries = new LinkedHashMap<>();
+		lotDeliveries = LinkedHashMultimap.create();
+		stationLots = LinkedHashMultimap.create();
 
 		for (Delivery d : deliveries) {
 			this.deliveries.put(d.getId(), d);
-			String lotId = d.getLotId(); // d.getSupplierId() + "_" +
-			if (lotId != null) {
-				if (!this.lotDeliveries.containsKey(lotId))
-					this.lotDeliveries.put(lotId, new HashSet<>());
-				this.lotDeliveries.get(lotId).add(d.getId());				
+
+			if (d.getLotId() != null) {
+				lotDeliveries.put(d.getLotId(), d.getId());
+				stationLots.put(d.getSupplierId(), d.getLotId());
 			}
 		}
 
@@ -272,6 +273,16 @@ public class Tracing {
 			result.backwardDeliveriesByStation.putAll(s, getBackwardDeliveriesOfStation(s));
 		}
 
+		Multimaps.asMap(stationLots).forEach((station, lots) -> {
+			double max = Double.NEGATIVE_INFINITY;
+
+			for (String lot : lots) {
+				max = Math.max(max, getLotScore(lot, ScoreType.COMBINED));
+			}
+
+			result.maxLotScores.put(station, max);
+		});
+
 		for (String d : deliveries.keySet()) {
 			result.deliveryScores.put(d, getDeliveryScore(d, ScoreType.COMBINED));
 			result.deliveryPositiveScores.put(d, getDeliveryScore(d, ScoreType.POSITIVE));
@@ -282,7 +293,7 @@ public class Tracing {
 			result.backwardDeliveriesByDelivery.putAll(d, getBackwardDeliveriesOfDelivery(d));
 		}
 
-		lotDeliveries.forEach((lot, deliveries) -> {
+		Multimaps.asMap(lotDeliveries).forEach((lot, deliveries) -> {
 			for (String d : deliveries) {
 				result.lotScores.put(d, getLotScore(lot, ScoreType.COMBINED));
 			}
@@ -533,6 +544,7 @@ public class Tracing {
 	public static final class Result {
 
 		private Map<String, Double> stationScores;
+		private Map<String, Double> maxLotScores;
 		private Map<String, Double> stationPositiveScores;
 		private Map<String, Double> stationNegativeScores;
 		private Map<String, Double> deliveryScores;
@@ -553,6 +565,7 @@ public class Tracing {
 
 		private Result() {
 			stationScores = new LinkedHashMap<>();
+			maxLotScores = new LinkedHashMap<>();
 			stationPositiveScores = new LinkedHashMap<>();
 			stationNegativeScores = new LinkedHashMap<>();
 			deliveryScores = new LinkedHashMap<>();
@@ -574,6 +587,10 @@ public class Tracing {
 			return nullToZero(stationScores.get(id));
 		}
 
+		public Double getMaxLotScore(String id) {
+			return maxLotScores.get(id);
+		}
+
 		public double getStationNormalizedScore(String id) {
 			return nullToZero(stationScores.get(id)) / scoreNormalizer;
 		}
@@ -590,8 +607,8 @@ public class Tracing {
 			return nullToZero(deliveryScores.get(id));
 		}
 
-		public double getLotScore(String id) {
-			return nullToZero(lotScores.get(id));
+		public Double getLotScore(String id) {
+			return lotScores.get(id);
 		}
 
 		public double getDeliveryNormalizedScore(String id) {

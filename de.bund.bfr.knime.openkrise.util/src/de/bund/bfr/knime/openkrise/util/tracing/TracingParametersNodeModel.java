@@ -170,6 +170,7 @@ public class TracingParametersNodeModel extends NodeModelWithoutInternals {
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(observedNodes.containsKey(id) ? observedNodes.get(id) : false);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(result.getStationScore(id));
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.MAX_LOT_SCORE)] = IO.createCell(result.getMaxLotScore(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
 					.createCell(result.getStationNormalizedScore(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.POSITIVE_SCORE)] = IO

@@ -45,6 +45,7 @@ public interface TracingColumns {
 	public static final String NORMALIZED_SCORE = "Normalized Score";
 	public static final String POSITIVE_SCORE = "Positive Score";
 	public static final String NEGATIVE_SCORE = "Negative Score";
+	public static final String MAX_LOT_SCORE = "Max Lot Score";
 	public static final String LOT_SCORE = "Lot Score";
 
 	public static final String OBSERVED = "Observed";
@@ -92,21 +93,21 @@ public interface TracingColumns {
 
 	public static final ImmutableList<String> IN_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
 			KILL_CONTAMINATION, OBSERVED);
-	public static final ImmutableList<String> STATION_OUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE,
-			POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
+	public static final ImmutableList<String> STATION_OUT_COLUMNS = ImmutableList.of(SCORE, MAX_LOT_SCORE,
+			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
 	public static final ImmutableList<String> DELIVERY_OUT_COLUMNS = ImmutableList.of(SCORE, LOT_SCORE,
 			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
 	public static final ImmutableMap<String, DataType> IN_OUT_COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
 			.put(WEIGHT, DoubleCell.TYPE).put(CROSS_CONTAMINATION, BooleanCell.TYPE)
-			.put(KILL_CONTAMINATION, BooleanCell.TYPE).put(SCORE, DoubleCell.TYPE).put(LOT_SCORE, DoubleCell.TYPE)
-			.put(NORMALIZED_SCORE, DoubleCell.TYPE).put(POSITIVE_SCORE, DoubleCell.TYPE)
+			.put(KILL_CONTAMINATION, BooleanCell.TYPE).put(SCORE, DoubleCell.TYPE).put(MAX_LOT_SCORE, DoubleCell.TYPE)
+			.put(LOT_SCORE, DoubleCell.TYPE).put(NORMALIZED_SCORE, DoubleCell.TYPE).put(POSITIVE_SCORE, DoubleCell.TYPE)
 			.put(NEGATIVE_SCORE, DoubleCell.TYPE).put(OBSERVED, BooleanCell.TYPE).put(BACKWARD, BooleanCell.TYPE)
 			.put(FORWARD, BooleanCell.TYPE).build();
 	public static final ImmutableMap<String, Class<?>> IN_OUT_COLUMN_CLASSES = new ImmutableMap.Builder<String, Class<?>>()
 			.put(WEIGHT, Double.class).put(CROSS_CONTAMINATION, Boolean.class).put(KILL_CONTAMINATION, Boolean.class)
-			.put(SCORE, Double.class).put(LOT_SCORE, Double.class).put(NORMALIZED_SCORE, Double.class)
-			.put(POSITIVE_SCORE, Double.class).put(NEGATIVE_SCORE, Double.class).put(OBSERVED, Boolean.class)
-			.put(BACKWARD, Boolean.class).put(FORWARD, Boolean.class).build();
+			.put(SCORE, Double.class).put(MAX_LOT_SCORE, Double.class).put(LOT_SCORE, Double.class)
+			.put(NORMALIZED_SCORE, Double.class).put(POSITIVE_SCORE, Double.class).put(NEGATIVE_SCORE, Double.class)
+			.put(OBSERVED, Boolean.class).put(BACKWARD, Boolean.class).put(FORWARD, Boolean.class).build();
 
 	public static final ImmutableList<String> STATION_IN_OUT_COLUMNS = new ImmutableList.Builder<String>()
 			.addAll(IN_COLUMNS).addAll(STATION_OUT_COLUMNS).build();
