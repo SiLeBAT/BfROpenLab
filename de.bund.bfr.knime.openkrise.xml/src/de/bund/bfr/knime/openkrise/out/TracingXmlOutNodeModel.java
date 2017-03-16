@@ -165,7 +165,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		int weIndex = edgeTable.getSpec().findColumnIndex("WE_ID");
 		int waIndex = edgeTable.getSpec().findColumnIndex("WA_ID");
 		int typIndex = edgeTable.getSpec().findColumnIndex("BetriebsTyp");
-		int scoreIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.SCORE);
+		int scoreIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.LOT_SCORE); // TracingColumns.SCORE
 
 		Analyseergebnis aes = new Analyseergebnis();
 		String analyseNummer = "" + System.currentTimeMillis();

@@ -88,7 +88,7 @@ public class NRW_Importer {
 										if (!faelle.containsKey(fn)) faelle.put(fn, new Fall(fn, meldung.getFallBezeichnung()));
 										fall = faelle.get(fn);
 
-										System.out.println(fn + " - " + kpm.getBetrieb().getBetriebsname());
+										System.out.println(fn + " - " + kpm.getBetrieb().getBetriebsname() + " - " + kpm.getMeldung().getNummer() + " - " + kpm.getMeldung().getMeldungVom());
 										fall.addKPM(kpm);
 									}
 									catch (Exception e) {System.err.println(fne + " ist nicht korrekt formatiert...");}
