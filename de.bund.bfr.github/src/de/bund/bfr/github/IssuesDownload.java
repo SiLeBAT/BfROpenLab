@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
@@ -81,47 +82,22 @@ public class IssuesDownload {
 				parts.add(issue.getTitle());
 				parts.add(issue.getUser().getLogin());
 
-				if (issue.getAssignee() != null) {
-					parts.add(issue.getAssignee().getLogin());
-				} else {
-					parts.add("");
-				}
+				parts.add(issue.getAssignee() != null ? issue.getAssignee().getLogin() : "");
+				parts.add(issue.getMilestone() != null ? issue.getMilestone().getTitle() : "");
 
-				if (issue.getMilestone() != null) {
-					parts.add(issue.getMilestone().getTitle());
-				} else {
-					parts.add("");
-				}
+				// Add labels
+				parts.add(issue.getLabels().stream().map(GHLabel::getName).collect(Collectors.joining("+")));
 
-				List<String> labels = new ArrayList<>();
-
-				for (GHLabel label : issue.getLabels()) {
-					labels.add(label.getName());
-				}
-
-				parts.add(Joiner.on("+").join(labels));
-
-				if (issue.getCreatedAt() != null) {
-					parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getCreatedAt()));
-				} else {
-					parts.add("");
-				}
-
-				if (issue.getClosedAt() != null) {
-					parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getClosedAt()));
-				} else {
-					parts.add("");
-				}
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				parts.add(issue.getCreatedAt() != null ? sdf.format(issue.getCreatedAt()) : "");
+				parts.add(issue.getClosedAt() != null ? sdf.format(issue.getClosedAt()) : "");
 
 				parts.add(issue.getState().toString());
 
-				List<String> cleanedParts = new ArrayList<>();
+				String cleanedParts = parts.stream().map(s -> s.replace("\t", " ").replace("\n", " "))
+						.collect(Collectors.joining("\t"));
 
-				for (String s : parts) {
-					cleanedParts.add(s.replace("\t", " ").replace("\n", " "));
-				}
-
-				writer.write(Joiner.on("\t").join(cleanedParts) + "\n");
+				writer.write(cleanedParts + "\n");
 				System.out.println(index++ + "\tissues processed");
 			}
 		}
