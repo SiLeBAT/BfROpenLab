@@ -69,11 +69,9 @@ public class ISOMLayout<V, E> extends Layout<V, E> {
 		epoch = 1;
 		radius = 5;
 		adaption = INITIAL_ADAPTION;
-		vertexStates = new LinkedHashMap<>();
 
-		for (V v : getGraph().getVertices()) {
-			vertexStates.put(v, new VertexState());
-		}
+		vertexStates = new LinkedHashMap<>(getGraph().getVertexCount());
+		getGraph().getVertices().forEach(v -> vertexStates.put(v, new VertexState()));
 
 		while (!done()) {
 			step();
