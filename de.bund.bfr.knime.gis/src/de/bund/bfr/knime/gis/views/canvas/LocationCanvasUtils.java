@@ -29,12 +29,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -63,11 +64,8 @@ public class LocationCanvasUtils {
 			return;
 		}
 
-		Map<LocationNode, Point2D> positions = new LinkedHashMap<>();
-
-		for (LocationNode n : nodes) {
-			positions.put(n, n.getCenter());
-		}
+		Map<LocationNode, Point2D> positions = nodes.stream()
+				.collect(Collectors.toMap(Function.identity(), LocationNode::getCenter));
 
 		double s = nodeSize / transform.getScaleX();
 		double d = s / 5.0;
@@ -176,11 +174,8 @@ public class LocationCanvasUtils {
 				Set<LocationNode> validConnections = invalidToValid.get(node);
 
 				if (!validConnections.isEmpty()) {
-					List<Point2D> points = new ArrayList<>();
-
-					for (LocationNode n : validConnections) {
-						points.add(n.getCenter());
-					}
+					List<Point2D> points = validConnections.stream().map(LocationNode::getCenter)
+							.collect(Collectors.toList());
 
 					Point2D p = getClosestPointOnRect(PointUtils.getCenter(points), rect);
 
