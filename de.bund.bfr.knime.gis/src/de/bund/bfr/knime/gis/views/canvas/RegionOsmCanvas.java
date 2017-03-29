@@ -73,13 +73,8 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode> {
 		viewer.getRenderContext().setVertexFillPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderer().setVertexLabelRenderer(new BetterVertexLabelRenderer<>(LabelPosition.CENTER));
 
-		for (RegionNode node : this.nodes) {
-			node.updatePolygon(GisUtils.latLonToViz(node.getPolygon()));
-		}
-
-		for (RegionNode node : this.nodes) {
-			viewer.getGraphLayout().setLocation(node, node.getCenter());
-		}
+		this.nodes.forEach(node -> node.updatePolygon(GisUtils.latLonToViz(node.getPolygon())));
+		this.nodes.forEach(node -> viewer.getGraphLayout().setLocation(node, node.getCenter()));
 	}
 
 	@Override
@@ -111,9 +106,7 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode> {
 	protected void applyTransform() {
 		flushImage();
 
-		for (RegionNode node : nodes) {
-			node.createTransformedPolygons(transform);
-		}
+		nodes.forEach(node -> node.createTransformedPolygons(transform));
 
 		viewer.repaint();
 	}

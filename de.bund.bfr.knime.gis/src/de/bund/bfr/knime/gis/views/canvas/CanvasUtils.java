@@ -265,10 +265,7 @@ public class CanvasUtils {
 			String id, String metaNodeProperty) {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
-		for (Node node : nodes) {
-			addMapToMap(properties, schema, node.getProperties());
-		}
-
+		nodes.forEach(node -> addMapToMap(properties, schema, node.getProperties()));
 		properties.put(schema.getId(), id);
 		properties.put(metaNodeProperty, true);
 		properties.put(schema.getLatitude(), null);

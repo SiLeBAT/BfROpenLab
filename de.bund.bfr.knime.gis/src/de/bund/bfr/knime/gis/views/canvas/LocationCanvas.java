@@ -79,10 +79,8 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 				node.updateCenter(GisUtils.latLonToViz(node.getCenter()));
 			}
 		}
-
-		for (RegionNode region : this.regions) {
-			region.updatePolygon(GisUtils.latLonToViz(region.getPolygon()));
-		}
+		
+		this.regions.forEach(region -> region.updatePolygon(GisUtils.latLonToViz(region.getPolygon())));
 
 		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
 	}

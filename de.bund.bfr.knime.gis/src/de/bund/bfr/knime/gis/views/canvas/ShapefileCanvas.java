@@ -67,9 +67,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 	protected void applyTransform() {
 		flushImage();
 
-		for (RegionNode node : getRegions()) {
-			node.createTransformedPolygons(transform);
-		}
+		getRegions().forEach(node -> node.createTransformedPolygons(transform));
 
 		viewer.repaint();
 	}
@@ -82,15 +80,11 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 		if (onWhiteBackground) {
 			g.setColor(new Color(255 - borderAlpha, 255 - borderAlpha, 255 - borderAlpha));
 
-			for (RegionNode node : getRegions()) {
-				g.draw(node.getTransformedPolygon());
-			}
+			getRegions().forEach(node -> g.draw(node.getTransformedPolygon()));
 		} else if (toSvg || borderAlpha == 255) {
 			g.setColor(new Color(0, 0, 0, borderAlpha));
 
-			for (RegionNode node : getRegions()) {
-				g.draw(node.getTransformedPolygon());
-			}
+			getRegions().forEach(node -> g.draw(node.getTransformedPolygon()));
 		} else {
 			BufferedImage borderImage = new BufferedImage(getCanvasSize().width, getCanvasSize().height,
 					BufferedImage.TYPE_INT_ARGB);
@@ -98,9 +92,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 
 			borderGraphics.setColor(Color.BLACK);
 
-			for (RegionNode node : getRegions()) {
-				borderGraphics.draw(node.getTransformedPolygon());
-			}
+			getRegions().forEach(node -> borderGraphics.draw(node.getTransformedPolygon()));
 
 			CanvasUtils.drawImageWithAlpha(g, borderImage, borderAlpha);
 			borderImage.flush();
