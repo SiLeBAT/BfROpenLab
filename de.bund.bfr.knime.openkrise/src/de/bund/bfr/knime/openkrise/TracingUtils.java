@@ -300,6 +300,12 @@ public class TracingUtils {
 		builders.forEach((id, builder) -> deliveries.put(id,
 				builder.connectedDeliveries(previousDeliveries.get(id), nextDeliveries.get(id)).build()));
 
+		try {
+			new Tracing(deliveries.values()).check();
+		} catch (TracingException e) {
+			throw new NotConfigurableException(e.getMessage());
+		}
+
 		return deliveries;
 	}
 

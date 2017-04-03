@@ -19,9 +19,14 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,11 +82,10 @@ public class Tracing {
 	private transient SetMultimap<String, String> outgoingDeliveries;
 	private transient Map<String, Set<String>> backwardDeliveries;
 	private transient Map<String, Set<String>> forwardDeliveries;
-	private transient Map<String, Set<String>> forwardDeliveriesOfLot;
 	private transient double positiveWeightSum;
 	private transient double negativeWeightSum;
 
-	public Tracing(Iterable<Delivery> deliveries) {
+	public Tracing(Collection<Delivery> deliveries) {
 		Set<String> allIds = new LinkedHashSet<>();
 
 		for (Delivery d : deliveries) {
@@ -162,7 +166,20 @@ public class Tracing {
 		toBeMerged.forEach(s -> mergedTo.put(s, mergedStationId));
 	}
 
+	public void check() throws TracingException {
+		getResult(false, false);
+	}
+
 	public Result getResult(boolean enforceTemporalOrder) {
+		try {
+			return getResult(enforceTemporalOrder, true);
+		} catch (TracingException e) {
+			// Cannot happen
+			return null;
+		}
+	}
+
+	private Result getResult(boolean enforceTemporalOrder, boolean ignoreCircularDependencies) throws TracingException {
 		if (deliveries.isEmpty()) {
 			return new Result();
 		}
@@ -257,11 +274,14 @@ public class Tracing {
 			incomingDeliveries.remove(recipients.get(delivery), delivery);
 		}
 
-		Result result = new Result();
-
 		backwardDeliveries = new LinkedHashMap<>();
 		forwardDeliveries = new LinkedHashMap<>();
-		forwardDeliveriesOfLot = new LinkedHashMap<>();
+
+		if (!ignoreCircularDependencies) {
+			checkForCircularDependencies();
+		}
+
+		Result result = new Result();
 
 		for (String s : Sets.union(incomingDeliveries.keySet(), outgoingDeliveries.keySet())) {
 			result.stationScores.put(s, getStationScore(s, ScoreType.COMBINED));
@@ -310,6 +330,47 @@ public class Tracing {
 		}
 
 		return result;
+	}
+
+	private void checkForCircularDependencies() throws TracingException {
+		for (String d : deliveries.keySet()) {
+			Set<String> backward = getBackwardDeliveriesOfDelivery(d);
+			Set<String> forward = getForwardDeliveriesOfDelivery(d);
+
+			if (!Sets.intersection(backward, forward).isEmpty()) {
+				Map<String, String> previous = new LinkedHashMap<>();
+				Deque<String> active = new LinkedList<>();
+
+				active.add(d);
+
+				while (!active.isEmpty()) {
+					String current = active.removeFirst();
+
+					for (String next : nextDeliveries.get(current)) {
+						previous.put(next, current);
+						active.addLast(next);
+
+						if (next.equals(d)) {
+							active.clear();
+							break;
+						}
+					}
+				}
+
+				List<String> trace = new ArrayList<>();
+				String current = d;
+
+				do {
+					trace.add(current);
+					current = previous.get(current);
+				} while (!current.equals(d));
+
+				trace.add(d);
+				Collections.reverse(trace);
+
+				throw new TracingException("Circular dependency of deliveries: " + trace.toString());
+			}
+		}
 	}
 
 	private double getStationScore(String id, ScoreType type) {
@@ -435,6 +496,7 @@ public class Tracing {
 		}
 
 		backward = new LinkedHashSet<>();
+		backwardDeliveries.put(delivery, backward);
 
 		for (String previous : previousDeliveries.get(delivery)) {
 			if (!previous.equals(delivery)) {
@@ -442,8 +504,6 @@ public class Tracing {
 				backward.addAll(getBackwardDeliveriesOfDelivery(previous));
 			}
 		}
-
-		backwardDeliveries.put(delivery, backward);
 
 		return backward;
 	}
@@ -456,6 +516,7 @@ public class Tracing {
 		}
 
 		forward = new LinkedHashSet<>();
+		forwardDeliveries.put(delivery, forward);
 
 		for (String next : nextDeliveries.get(delivery)) {
 			if (!next.equals(delivery)) {
@@ -464,19 +525,11 @@ public class Tracing {
 			}
 		}
 
-		forwardDeliveries.put(delivery, forward);
-
 		return forward;
 	}
 
 	private Set<String> getForwardDeliveriesOfLot(String lot) {
-		Set<String> forward = forwardDeliveriesOfLot.get(lot);
-
-		if (forward != null) {
-			return forward;
-		}
-
-		forward = new LinkedHashSet<>();
+		Set<String> forward = new LinkedHashSet<>();
 
 		for (String delivery : lotDeliveries.get(lot)) {
 			for (String next : nextDeliveries.get(delivery)) {
@@ -486,8 +539,6 @@ public class Tracing {
 				}
 			}
 		}
-
-		forwardDeliveriesOfLot.put(lot, forward);
 
 		return forward;
 	}
