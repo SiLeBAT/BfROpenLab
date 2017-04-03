@@ -1,0 +1,29 @@
+entries:
+
+- name: home_sidebar
+  items:
+  - title: Introduction
+    url: index.html
+  - title: Products
+    subitems:
+    - title: FoodChain-Lab
+      url: fcl_home.html
+    - title: PMM-Lab Lite
+      url: pmm_home.html
+    - title: Other KNIME extensions
+      url: other_home.html
+      
+- name: fcl_sidebar
+  items:
+  - title: Introduction
+    url: fcl_home.html
+    
+- name: pmm_sidebar
+  items:
+  - title: Introduction
+    url: pmm_home.html
+    
+- name: other_sidebar
+  items:
+  - title: Introduction
+    url: other_home.html

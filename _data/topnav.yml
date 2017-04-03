@@ -1,0 +1,15 @@
+title: BfROpenLab
+items:
+
+- title: Home
+  url: index.html
+  folder: home
+- title: FoodChain-Lab
+  url: fcl_home.html
+  folder: fcl
+- title: PMM-Lab Lite
+  url: pmm_home.html
+  folder: pmm
+- title: Other KNIME extensions
+  url: other_home.html
+  folder: other

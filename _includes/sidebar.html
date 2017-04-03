@@ -1,0 +1,43 @@
+{% for sidebar in site.data.sidebar.entries %}
+{% if sidebar.name == page.sidebar %}
+    {% for item in sidebar.items %}
+        {% if page.url contains item.url %}
+            {% assign active_item = item %}
+        {% endif %}
+        {% for subitem in item.subitems %}
+            {% if page.url contains subitem.url %}
+                {% assign active_item = item %}
+                {% assign active_subitem = subitem %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    <div class="panel-group" id="sidebar">
+    {% for id in (1..sidebar.items.size) %}
+        {% assign i = id | minus: 1 %}
+        {% assign item = sidebar.items[i] %}
+        <div class="panel panel-default">
+        {% if item.url %}
+            <div class="panel-heading{% if item == active_item %} active{% endif %}">
+            <h4 class="panel-title">
+            <a href="{{ item.url }}">{{ item.title }}</a>
+            </h4>
+            </div>
+        {% else %}
+            <div class="panel-heading">
+            <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#sidebar" href="{{ '#' | append: id }}">{{ item.title }}</a>
+            </h4>
+            </div>
+            <div id="{{ id }}" class="panel-collapse collapse {% if item == active_item %}in{% endif %}">
+            <div class="list-group">
+            {% for subitem in item.subitems %}
+                <a class="list-group-item{% if subitem == active_subitem %} active{% endif %}" href="{{ subitem.url }}">{{ subitem.title }}</a>
+            {% endfor %}
+            </div>
+            </div>
+        {% endif %}
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
+{% endfor %}
