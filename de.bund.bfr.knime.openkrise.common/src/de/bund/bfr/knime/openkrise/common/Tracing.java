@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimaps;
@@ -366,7 +367,8 @@ public class Tracing {
 				trace.add(d);
 				Collections.reverse(trace);
 
-				throw new TracingException("Circular dependency of deliveries: " + trace.toString());
+				throw new TracingException(
+						"Circular dependency of deliveries with the following ids:\n" + Joiner.on(" -> ").join(trace));
 			}
 		}
 	}
