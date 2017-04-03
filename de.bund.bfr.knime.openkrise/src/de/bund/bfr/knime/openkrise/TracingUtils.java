@@ -63,6 +63,8 @@ import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.openkrise.common.Delivery;
+import de.bund.bfr.knime.openkrise.common.Tracing;
+import de.bund.bfr.knime.openkrise.common.TracingException;
 
 public class TracingUtils {
 

@@ -59,9 +59,9 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
-import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.common.Delivery;
+import de.bund.bfr.knime.openkrise.common.Tracing;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
 public class TracingDelegate<V extends Node> {

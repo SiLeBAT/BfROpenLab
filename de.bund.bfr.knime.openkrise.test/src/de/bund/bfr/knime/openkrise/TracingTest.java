@@ -34,6 +34,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableSet;
 
 import de.bund.bfr.knime.openkrise.common.Delivery;
+import de.bund.bfr.knime.openkrise.common.Tracing;
 
 public class TracingTest {
 

@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise;
+package de.bund.bfr.knime.openkrise.common;
 
 public class TracingException extends Exception {
 

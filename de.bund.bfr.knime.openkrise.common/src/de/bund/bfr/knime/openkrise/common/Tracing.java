@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise;
+package de.bund.bfr.knime.openkrise.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,8 +35,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
-
-import de.bund.bfr.knime.openkrise.common.Delivery;
 
 public class Tracing {
 
