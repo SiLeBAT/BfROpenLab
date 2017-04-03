@@ -15,8 +15,36 @@ entries:
       
 - name: fcl_sidebar
   items:
-  - title: Introduction
+  - title: FoodChain-Lab
     url: fcl_home.html
+  - title: Tutorials
+    subitems:
+    - title: Introduction
+      url: fcl1_home.html
+    - title: Data Collection (Part 1)
+      url: fcl_datacollecting_1.html
+    - title: Data Collection (Part 2)
+      url: fcl3_home.html
+    - title: How to import workflows?
+      url: fcl4_home.html
+    - title: How to create a Workflow (Part 1)?
+      url: fcl5_home.html
+    - title: How to create a Workflow (Part 2)?
+      url: fcl6_home.html
+    - title: Tracing
+      url: fcl7_home.html
+    - title: Highlighting
+      url: fcl8_home.html
+    - title: Geo-Visualization
+      url: fcl9_home.html
+    - title: Clustering
+      url: fcl10_home.html
+    - title: Geo-Clustering
+      url: fcl11_home.html
+    - title: Geocoding
+      url: fcl12_home.html
+    - title: Video Demonstration
+      url: fcl13_home.html
     
 - name: pmm_sidebar
   items:

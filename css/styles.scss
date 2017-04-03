@@ -84,3 +84,26 @@ dt[id] {
         color: $component-active-color;
     }
 }
+
+h2.tutorial {
+    overflow: hidden;
+    text-align: center;
+}
+h2.tutorial:before,
+h2.tutorial:after {
+    background-color: #000;
+    content: "";
+    display: inline-block;
+    height: 1px;
+    position: relative;
+    vertical-align: middle;
+    width: 50%;
+}
+h2.tutorial:before {
+    right: 0.5em;
+    margin-left: -50%;
+}
+h2.tutorial:after {
+    left: 0.5em;
+    margin-right: -50%;
+}
