@@ -19,6 +19,8 @@ entries:
     url: fcl_home.html
   - title: Tutorials
     subitems:
+    - title: Installation
+      url: fcl_installation.html
     - title: Introduction
       url: fcl_overview.html
     - title: Data Collection (Part 1)
@@ -26,25 +28,23 @@ entries:
     - title: Data Collection (Part 2)
       url: fcl_datacollecting_2.html
     - title: How to import workflows?
-      url: fcl4_home.html
+      url: fcl_import.html
     - title: How to create a Workflow (Part 1)?
-      url: fcl5_home.html
+      url: fcl_workflow_1.html
     - title: How to create a Workflow (Part 2)?
-      url: fcl6_home.html
+      url: fcl_workflow_2.html
     - title: Tracing
-      url: fcl7_home.html
+      url: fcl_tracing.html
     - title: Highlighting
-      url: fcl8_home.html
+      url: fcl_highlighting.html
     - title: Geo-Visualization
-      url: fcl9_home.html
+      url: fcl_geoview.html
     - title: Clustering
-      url: fcl10_home.html
+      url: fcl_cluster.html
     - title: Geo-Clustering
-      url: fcl11_home.html
+      url: fcl_geocluster.html
     - title: Geocoding
-      url: fcl12_home.html
-    - title: Video Demonstration
-      url: fcl13_home.html
+      url: fcl_geocoding.html
     
 - name: pmm_sidebar
   items:

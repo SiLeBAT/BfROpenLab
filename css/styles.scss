@@ -5,16 +5,11 @@
 @import "syntax-highlight";
 
 body {
-    padding-top: 75px;
+    padding-top: calc(#{$navbar-height} + #{$navbar-margin-bottom});
 }
 
 img {
     max-width: 100%
-}
-
-footer {
-    text-align: right;
-    margin-top: 70px;
 }
 
 h1[id],
@@ -25,7 +20,7 @@ h5[id],
 h6[id],
 dt[id] {
     padding-top: calc(#{$navbar-height} + #{$navbar-margin-bottom});
-    margin-top: -40px
+    margin-top: calc(#{$line-height-computed} - #{$navbar-height} - #{$navbar-margin-bottom});
 }
 
 .material-icons {
