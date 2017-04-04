@@ -92,7 +92,7 @@ dt[id] {
     text-align: center;
     &:before,
     &:after {
-        background-color: #000;
+        background-color: $headings-color;
         content: "";
         display: inline-block;
         height: 1px;
