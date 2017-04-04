@@ -24,7 +24,7 @@ h4[id],
 h5[id],
 h6[id],
 dt[id] {
-    padding-top: 60px;
+    padding-top: calc(#{$navbar-height} + #{$navbar-margin-bottom});
     margin-top: -40px
 }
 
@@ -66,7 +66,14 @@ dt[id] {
 @media (min-width: $screen-md-min) {
     #sidebar {
         position: fixed;
+        top: $navbar-height;
+        bottom: 0;
+        padding: $navbar-margin-bottom 5px;
         width: 225px;
+        overflow-y: auto;
+        &>div {
+            margin: 0 0 0 0;
+        }
     }
 }
 
@@ -85,25 +92,31 @@ dt[id] {
     }
 }
 
-h2.tutorial {
+.tutorial-heading {
     overflow: hidden;
     text-align: center;
+    &:before,
+    &:after {
+        background-color: #000;
+        content: "";
+        display: inline-block;
+        height: 1px;
+        position: relative;
+        vertical-align: middle;
+        width: 50%;
+    }
+    &:before {
+        right: 0.5em;
+        margin-left: -50%;
+    }
+    &:after {
+        left: 0.5em;
+        margin-right: -50%;
+    }
 }
-h2.tutorial:before,
-h2.tutorial:after {
-    background-color: #000;
-    content: "";
-    display: inline-block;
-    height: 1px;
-    position: relative;
-    vertical-align: middle;
-    width: 50%;
-}
-h2.tutorial:before {
-    right: 0.5em;
-    margin-left: -50%;
-}
-h2.tutorial:after {
-    left: 0.5em;
-    margin-right: -50%;
+
+.aligncenter {
+	display: block;
+	margin-right: auto;
+	margin-left: auto;
 }

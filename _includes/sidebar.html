@@ -11,7 +11,7 @@
             {% endif %}
         {% endfor %}
     {% endfor %}
-    <div class="panel-group" id="sidebar">
+    <div class="panel-group">
     {% for id in (1..sidebar.items.size) %}
         {% assign i = id | minus: 1 %}
         {% assign item = sidebar.items[i] %}
