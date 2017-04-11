@@ -2,7 +2,7 @@
 <?pde version="3.8"?><target name="KNIME 3.3 TP aaw" sequenceNumber="25">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.knime.features.ext.textprocessing.feature.group" version="3.3.1.v201612201519"/>
+<unit id="org.knime.features.ext.textprocessing.feature.group" version="3.3.2.v201704041632"/>
 <repository location="http://update.knime.org/analytics-platform/3.3/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
@@ -10,18 +10,18 @@
 <repository location="http://tech.knime.org/update/community-contributions/trusted/3.3"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.knime.features.js.views.feature.group" version="3.3.1.v201612192115"/>
-<unit id="org.knime.product.desktop" version="3.3.1.v201612192115"/>
-<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.3.0.v201612012034"/>
-<unit id="com.knime.features.reporting.designer.feature.group" version="3.3.0.v201612012034"/>
-<unit id="org.knime.features.base.filehandling.feature.group" version="3.3.0.v201612012034"/>
-<unit id="org.knime.features.ext.svg.feature.group" version="3.3.0.v201612012034"/>
-<unit id="org.knime.features.network.feature.group" version="3.3.0.v201612012034"/>
-<unit id="org.knime.features.quickform.legacy.feature.group" version="3.3.0.v201612012034"/>
-<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.4.0.v201612012034"/>
-<unit id="org.knime.features.testingapplication.feature.group" version="3.3.1.v201612192115"/>
-<unit id="org.knime.features.ext.osm.feature.group" version="3.3.0.v201612012034"/>
-<unit id="org.knime.features.rest.feature.group" version="3.3.0.v201611241448"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.3.2.v201703230956"/>
+<unit id="org.knime.product.desktop" version="3.3.2.v201704061137"/>
+<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.3.0.v201611252100"/>
+<unit id="com.knime.features.reporting.designer.feature.group" version="3.3.0.v201611161455"/>
+<unit id="org.knime.features.base.filehandling.feature.group" version="3.3.2.v201703312034"/>
+<unit id="org.knime.features.ext.svg.feature.group" version="3.3.0.v201611141533"/>
+<unit id="org.knime.features.network.feature.group" version="3.3.0.v201608101435"/>
+<unit id="org.knime.features.quickform.legacy.feature.group" version="3.3.0.v201607181158"/>
+<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.4.1.v201703230956"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.3.2.v201703230956"/>
+<unit id="org.knime.features.ext.osm.feature.group" version="3.3.0.v201607181158"/>
+<unit id="org.knime.features.rest.feature.group" version="3.3.2.v201703230956"/>
 <repository location="http://update.knime.org/analytics-platform/3.3/"/>
 </location>
 </locations>
