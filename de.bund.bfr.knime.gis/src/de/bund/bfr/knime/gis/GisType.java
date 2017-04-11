@@ -22,17 +22,30 @@ package de.bund.bfr.knime.gis;
 import java.util.stream.Stream;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.AbstractOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 public enum GisType {
 	SHAPEFILE("Shapefile", null),
 
-	MAPNIK("Mapnik", new OsmTileSource.Mapnik()),
+	MAPNIK("Mapnik", new AbstractOsmTileSource("Mapnik", "http://a.tile.openstreetmap.org", "MAPNIK") {
+	}),
 
-	CYCLE_MAP("Cycle Map", new OsmTileSource.CycleMap()),
+	BING_AERIAL("Bing Aerial", new BingAerialTileSource()),
 
-	BING_AERIAL("Bing Aerial", new BingAerialTileSource());
+	WIKIMEDIA("Wikimedia", new AbstractOsmTileSource("Wikimedia", "https://maps.wikimedia.org/osm-intl", "WIKIMEDIA") {
+	}),
+
+	CARTO_LIGHT("Carto Light",
+			new AbstractOsmTileSource("Carto Light", "http://a.basemaps.cartocdn.com/light_all", "CARTO_LIGHT") {
+			}),
+
+	BLACK_AND_WHITE("Black & White",
+			new AbstractOsmTileSource("Black & White", "https://tiles.wmflabs.org/bw-mapnik", "BLACK_AND_WHITE") {
+			}),
+
+	HOT("HOT", new AbstractOsmTileSource("HOT", "http://a.tile.openstreetmap.fr/hot", "HOT") {
+	});
 
 	private String name;
 	private TileSource tileSource;

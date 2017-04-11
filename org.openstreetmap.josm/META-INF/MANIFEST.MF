@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JOSM
 Bundle-SymbolicName: org.openstreetmap.josm
-Bundle-Version: 10526
+Bundle-Version: 11826
 Bundle-ClassPath: lib/josm-tested.jar
 Export-Package: org.openstreetmap.gui.jmapviewer,
  org.openstreetmap.gui.jmapviewer.events,
