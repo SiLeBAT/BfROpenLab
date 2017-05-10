@@ -8,7 +8,7 @@ Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
  org.apache.commons.math3;visibility:=reexport,
- de.bund.bfr.pmfml;visibility:=reexport
+ org.sbml.jsbml;visibility:=reexport
 Export-Package: de.bund.bfr.math
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

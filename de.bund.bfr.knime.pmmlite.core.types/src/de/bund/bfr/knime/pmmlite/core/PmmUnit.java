@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
@@ -41,8 +40,6 @@ import com.google.common.cache.CacheBuilder;
 
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.math.Transform;
-import de.bund.bfr.pmfml.sbml.PMFUnit;
-import de.bund.bfr.pmfml.sbml.PMFUnitDefinition;
 
 public class PmmUnit implements Serializable {
 
@@ -66,17 +63,6 @@ public class PmmUnit implements Serializable {
 		public Builder() {
 			transform = Transform.NO_TRANSFORM;
 			definition = new UnitDefinition(LEVEL, VERSION);
-		}
-
-		public Builder fromPmfUnit(PMFUnitDefinition unit) {
-			transform = Transform.fromName(unit.getTransformationName());
-
-			for (PMFUnit u : unit.getUnits()) {
-				definition.addUnit(
-						new Unit(u.getMultiplier(), u.getScale(), u.getKind(), u.getExponent(), LEVEL, VERSION));
-			}
-
-			return this;
 		}
 
 		public Builder transform(Transform transform) {
@@ -163,18 +149,6 @@ public class PmmUnit implements Serializable {
 		}
 
 		return unit.transform.to(factor * transform.from(value));
-	}
-
-	public PMFUnitDefinition toPmfUnit() {
-		UnitDefinition definition = definitionFromXml(definitionXml);
-		List<PMFUnit> units = new ArrayList<>();
-
-		for (Unit u : definition.getListOfUnits()) {
-			units.add(new PMFUnit(u.getMultiplier(), u.getScale(), u.getKind(), u.getExponent()));
-		}
-
-		return new PMFUnitDefinition(definition.getId(), definition.getName(),
-				transform != Transform.NO_TRANSFORM ? transform.getName() : null, units.toArray(new PMFUnit[0]));
 	}
 
 	public boolean isEmpty() {

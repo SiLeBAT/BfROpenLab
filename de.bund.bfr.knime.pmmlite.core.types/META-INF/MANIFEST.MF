@@ -7,7 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.emf.ecore;bundle-version="2.11.0",
  de.bund.bfr.knime;visibility:=reexport,
  de.bund.bfr.math;visibility:=reexport,
- de.bund.bfr.pmfml;visibility:=reexport
+ org.sbml.jsbml;visibility:=reexport
 Export-Package: de.bund.bfr.knime.pmmlite.core
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Bundle-ActivationPolicy: lazy
