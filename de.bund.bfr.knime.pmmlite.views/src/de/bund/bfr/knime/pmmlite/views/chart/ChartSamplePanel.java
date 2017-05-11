@@ -289,11 +289,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener, CellEdit
 
 		@Override
 		public void textChanged(TextInput source) {
-			if (numberField.isValueValid() && sizeField.isValueValid()) {
-				okButton.setEnabled(true);
-			} else {
-				okButton.setEnabled(false);
-			}
+			okButton.setEnabled(numberField.isValueValid() && sizeField.isValueValid());
 		}
 	}
 
