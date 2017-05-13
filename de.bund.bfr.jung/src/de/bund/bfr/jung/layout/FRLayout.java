@@ -75,9 +75,7 @@ public class FRLayout<V, E> extends Layout<V, E> {
 			}
 		}
 
-		for (V v : getGraph().getVertices()) {
-			positionChanges.put(v, new Point2D.Double());
-		}
+		getGraph().getVertices().forEach(v -> positionChanges.put(v, new Point2D.Double()));
 
 		while (!done()) {
 			if (progressListener != null) {
