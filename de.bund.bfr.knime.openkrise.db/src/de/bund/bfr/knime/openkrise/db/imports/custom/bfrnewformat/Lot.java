@@ -22,6 +22,7 @@ package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,9 +36,23 @@ import de.bund.bfr.knime.openkrise.db.MyDBI;
 public class Lot {
 
 	private static HashMap<String, Lot> gathereds = new HashMap<>();
+	private boolean alreadyInDb = false;
 	private HashMap<String, String> flexibles = new HashMap<>();
+	public String getFlexible(String key) {
+		if (flexibles.containsKey(key)) return flexibles.get(key);
+		else return "";
+	}
 	private HashSet<String> inDeliveries = new HashSet<>();
 	private List<Exception> exceptions = new ArrayList<>();
+	private Integer id;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public List<Exception> getExceptions() {
 		return exceptions;
@@ -192,4 +207,40 @@ public class Lot {
 		return result;
 	}	
 	
+	public Integer insertIntoDb(MyDBI mydbi) throws Exception {
+		if (alreadyInDb) return dbId;
+		//dbId = null;
+		int productId = this.getProduct().insertIntoDb(mydbi);
+		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Artikel");
+		String iv = id + "," + productId;
+		String[] feldnames = new String[]{"ChargenNr"};
+		String[] sFeldVals = new String[]{number};
+
+		int i=0;
+		for (;i<sFeldVals.length;i++) {
+			if (sFeldVals[i] != null) {
+				in += "," + MyDBI.delimitL(feldnames[i]);
+				iv += ",'" + sFeldVals[i] + "'";
+			}
+		}
+		String sql = "INSERT INTO " + MyDBI.delimitL("Chargen") + " (" + in + ") VALUES (" + iv + ")";
+		@SuppressWarnings("resource")
+		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+		PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		try {
+			if (ps.executeUpdate() > 0) {
+				dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+			}
+		}
+		catch (SQLException e) {
+			if (e.getMessage().startsWith("integrity constraint violation")) {
+				dbId = id;
+				//throw new Exception("Station ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
+			}
+			else throw e;
+		}
+		handleFlexibles(mydbi);
+		alreadyInDb = true;
+		return dbId;
+	}
 }

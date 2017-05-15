@@ -42,5 +42,10 @@ Export-Package: de.bund.bfr.knime.openkrise.db,
  org.hsqldb.util
 Bundle-ClassPath: .,
  lib/hsqldb.jar,
- lib/sqltool.jar
+ lib/sqltool.jar,
+ lib/addressParser-commons-4.0-beta1.jar,
+ lib/log4j-1.2.13.jar,
+ lib/gisgraphy-commons-4.0-beta1.jar,
+ lib/universalserialiser-3.0.jar,
+ lib/universalserialiser-commons-3.0.jar
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)

@@ -36,7 +36,12 @@ import de.bund.bfr.knime.openkrise.db.MyDBI;
 public class Delivery {
 
 	public static HashMap<String, Delivery> gathereds = new HashMap<>();
+	private boolean alreadyInDb = false;
 	private HashMap<String, String> flexibles = new HashMap<>();
+	public String getFlexible(String key) {
+		if (flexibles.containsKey(key)) return flexibles.get(key);
+		else return "";
+	}
 	private List<Exception> exceptions = new ArrayList<>();
 	private boolean newlyGeneratedID = false;
 
@@ -408,5 +413,47 @@ public class Delivery {
 			if (mydbi != null) mydbi.sendRequest(sql, false, false);
 			else DBKernel.sendRequest(sql, false);
 		}
+	}
+	
+	public Integer insertIntoDb(MyDBI mydbi) throws Exception {
+		if (alreadyInDb) return dbId;
+		//dbId = null;
+		int lotId = this.getLot().insertIntoDb(mydbi);
+		int recId = this.getReceiver().insertIntoDb(mydbi);
+		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Charge") + "," + MyDBI.delimitL("Empfänger");
+		String iv = Integer.parseInt(id) + "," + lotId + "," + recId;
+		String[] feldnames = new String[]{"ad_day","ad_month","ad_year"};
+		Integer[] iFeldVals = new Integer[]{arrivalDay,arrivalMonth,arrivalYear};
+
+		int i=0;
+		for (;i<iFeldVals.length;i++) {
+			if (iFeldVals[i] != null) {
+				in += "," + MyDBI.delimitL(feldnames[i]);
+				iv += "," + iFeldVals[i];
+			}
+		}
+		if (comment != null) {
+			in += "," + MyDBI.delimitL("Kommentar");
+			iv += "," + "'" + comment + "'";
+		}
+		String sql = "INSERT INTO " + MyDBI.delimitL("Lieferungen") + " (" + in + ") VALUES (" + iv + ")";
+		@SuppressWarnings("resource")
+		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+		PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		try {
+			if (ps.executeUpdate() > 0) {
+				dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+			}
+		}
+		catch (SQLException e) {
+			if (e.getMessage().startsWith("integrity constraint violation")) {
+				dbId = Integer.parseInt(id);
+				//throw new Exception("Delivery ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
+			}
+			else throw e;
+		}
+		handleFlexibles(mydbi);
+		alreadyInDb = true;
+		return dbId;
 	}
 }

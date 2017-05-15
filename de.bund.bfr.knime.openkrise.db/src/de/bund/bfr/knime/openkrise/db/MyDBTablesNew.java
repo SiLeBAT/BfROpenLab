@@ -419,7 +419,7 @@ public class MyDBTablesNew extends MyDBI {
 
 		MyTable extraFields = new MyTable("ExtraFields",
 				new String[]{"tablename","id","attribute","value"},
-				new String[]{"VARCHAR(255)","INTEGER","VARCHAR(255)","VARCHAR(255)"},
+				new String[]{"VARCHAR(255)","INTEGER","VARCHAR(255)","VARCHAR(16384)"},
 				new String[]{null,null,null,null}, 
 				new MyTable[]{null,null,null,null},
 				new String[][]{{"tablename","id","attribute","value"}},

@@ -36,6 +36,12 @@ public class Station {
 
 	private static HashMap<String, Station> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
+	private boolean alreadyInDb = false;
+	public String getFlexible(String key) {
+		if (flexibles.containsKey(key)) return flexibles.get(key);
+		else return "";
+	}
+
 	private List<Exception> exceptions = new ArrayList<>();
 
 	public List<Exception> getExceptions() {
@@ -142,7 +148,7 @@ public class Station {
 	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		if (gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
 		if (dbId != null) {
-			handleFlexibles(mydbi);
+			handleFlexibles(mydbi, true, false);
 			return dbId;
 		}
 		Integer retId = getID(new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","District","Bundesland","Land","Betriebsart","Serial"},
@@ -151,23 +157,33 @@ public class Station {
 		gathereds.get(id).setDbId(dbId);
 		
 		if (retId != null) {
-			handleFlexibles(mydbi);
+			handleFlexibles(mydbi, true, false);
 		}
 		return retId;
 	}
-	public void handleFlexibles(MyDBI mydbi) {
+	public void handleFlexibles(MyDBI mydbi, boolean doOldWay, boolean doUpdate) {
 		// Further flexible cells
 		for (Entry<String, String> es : flexibles.entrySet()) {
 			if (es.getValue() != null && !es.getValue().trim().isEmpty()) {
-				String sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
-						" WHERE " + MyDBI.delimitL("tablename") + "='Station'" +
-						" AND " + MyDBI.delimitL("id") + "=" + dbId +
-						" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
-				if (mydbi != null) mydbi.sendRequest(sql, false, false);
-				else DBKernel.sendRequest(sql, false);
-				sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
-						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-						") VALUES ('Station'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+				String sql;
+				if (doOldWay) {
+					sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
+							" WHERE " + MyDBI.delimitL("tablename") + "='Station'" +
+							" AND " + MyDBI.delimitL("id") + "=" + dbId +
+							" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+					if (mydbi != null) mydbi.sendRequest(sql, false, false);
+					else DBKernel.sendRequest(sql, false);
+				}
+				if (doUpdate) {
+					sql = "UPDATE " + MyDBI.delimitL("ExtraFields") + " SET " + MyDBI.delimitL("value") + "=CONCAT(" + MyDBI.delimitL("value") + ",';;; " + es.getValue() + "')" +
+							" WHERE " + MyDBI.delimitL("tablename") + "='Station' AND " + MyDBI.delimitL("id") + "=" + dbId +
+							" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+				}
+				else {
+					sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+							" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
+							") VALUES ('Station'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+				}
 				if (mydbi != null) mydbi.sendRequest(sql, false, false);
 				else DBKernel.sendRequest(sql, false);
 			}
@@ -240,5 +256,42 @@ public class Station {
 		}
 
 		return result;
+	}
+	
+	public Integer insertIntoDb(MyDBI mydbi) throws Exception {
+		if (alreadyInDb) return dbId;
+		//dbId = null;
+		String in = MyDBI.delimitL("ID");
+		String iv = Integer.parseInt(id)+"";
+		String[] feldnames = new String[]{"Name","Strasse"};
+		String[] sFeldVals = new String[]{name,street};
+
+		int i=0;
+		for (;i<sFeldVals.length;i++) {
+			if (sFeldVals[i] != null) {
+				in += "," + MyDBI.delimitL(feldnames[i]);
+				iv += ",'" + sFeldVals[i] + "'";
+			}
+		}
+		boolean isNewEntry = false;
+		String sql = "INSERT INTO " + MyDBI.delimitL("Station") + " (" + in + ") VALUES (" + iv + ")";
+		@SuppressWarnings("resource")
+		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+		PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		try {
+			if (ps.executeUpdate() > 0) {
+				dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+				isNewEntry = true;
+			}
+		}
+		catch (SQLException e) {
+			if (e.getMessage().startsWith("integrity constraint violation")) {
+				dbId = Integer.parseInt(id);
+			}//throw new Exception("Station ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
+			else throw e;
+		}
+		handleFlexibles(mydbi, false, !isNewEntry);
+		alreadyInDb = true;
+		return dbId;
 	}
 }

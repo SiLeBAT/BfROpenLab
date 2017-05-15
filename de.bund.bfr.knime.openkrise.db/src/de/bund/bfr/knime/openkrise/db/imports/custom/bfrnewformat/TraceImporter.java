@@ -44,6 +44,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.gisgraphy.addressparser.Address;
+import com.gisgraphy.addressparser.StructuredAddressQuery;
+
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
@@ -464,6 +467,168 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		
 		return exceptions;
+	}
+	private String getCellString(Cell cell) {
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			return getStr(cell.getStringCellValue());
+		}
+		return null;
+	}
+	private List<Exception> doTheSimpleImport(Workbook wb, String filename) { //  throws Exception
+		DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
+		List<Exception> exceptions = new ArrayList<>();
+		
+		Sheet backSheet = wb.getSheet("Rückverfolgung");
+		//Sheet fwdSheet = wb.getSheet("Vorwärtsverfolgung");
+		Sheet backProdSheet = wb.getSheet("Herstellung - Rückverfolgung");
+		Sheet fwdProdSheet = wb.getSheet("Herstellung - Vorwärtsverfolgun");
+				
+		if (backSheet == null && backProdSheet == null && fwdProdSheet == null) {
+			exceptions.add(new Exception("Wrong template format!"));
+			return exceptions;
+		}
+
+		HashMap<Integer, Station> stations = new HashMap<>();
+		HashMap<Integer, Product> products = new HashMap<>();
+		HashMap<Integer, Lot> lots = new HashMap<>();
+		HashMap<Integer, Delivery> dels = new HashMap<>();
+
+		Station focusS = new Station();
+		Row row = backSheet.getRow(0);
+		String cs = getCellString(row.getCell(1));
+		focusS.setName(cs);
+		String address = getCellString(row.getCell(2));
+		focusS.setStreet(address);
+		focusS.addFlexibleField("Quelle", "Zeile 1");
+		int sID = genDbId(""+cs+address);
+		focusS.setId(""+sID);
+		stations.put(sID, focusS);
+		
+		int numRows = backSheet.getLastRowNum() + 1;
+		boolean doCollect = false;
+		for (int i=1;i<numRows;i++) {
+			row = backSheet.getRow(i);
+			if (row != null) {
+				cs = getCellString(row.getCell(0));
+				if (cs != null) {
+					if (doCollect) {
+						System.err.print(i+1);
+
+						address = getCellString(row.getCell(1));
+						sID = genDbId(""+cs+address);
+						Station supplierS = null;
+						if (stations.containsKey(sID)) {
+							supplierS = stations.get(sID);
+							supplierS.addFlexibleField("Quelle", supplierS.getFlexible("Quelle") + "; Zeile " + (i+1));
+						}
+						else {
+							supplierS = new Station();
+							supplierS.setName(cs);
+							supplierS.setStreet(address);
+							supplierS.addFlexibleField("Quelle", "Zeile " + (i+1));
+							supplierS.setId(""+sID);
+							stations.put(sID, supplierS);
+						}
+						
+						String f2 = getCellString(row.getCell(2));
+						String f3 = getCellString(row.getCell(3));
+						int pID = genDbId(""+supplierS.getId() + f2 + f3);
+						Product p = null;
+						if (products.containsKey(pID)) {
+							p = products.get(pID);
+							p.addFlexibleField("Quelle", p.getFlexible("Quelle") + "; Zeile " + (i+1));
+						}
+						else {
+							p = new Product();
+							p.setStation(supplierS);
+							p.setName(f2);
+							p.addFlexibleField("EAN", f3);
+							p.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
+							p.setId(pID);
+							products.put(pID, p);
+						}
+
+						f2 = getCellString(row.getCell(4));
+						f3 = getCellString(row.getCell(5));
+						int lID = genDbId(""+p.getId() + f2 + f3);
+						Lot lot = null;
+						if (lots.containsKey(lID)) {
+							lot = lots.get(lID);
+							lot.addFlexibleField("Quelle", lot.getFlexible("Quelle") + "; Zeile " + (i+1));
+						}
+						else {
+							lot = new Lot();
+							lot.setProduct(p);
+							lot.setNumber(f2);
+							lot.addFlexibleField("MHD", f3);
+							lot.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
+							lot.setId(lID);
+							lots.put(lID, lot);
+						}
+
+						Integer f4 = getInt(getCellString(row.getCell(6)));
+						Integer f5 = getInt(getCellString(row.getCell(7)));
+						Integer f6 = getInt(getCellString(row.getCell(8)));
+						String f7 = getCellString(row.getCell(9));
+						String f8 = getCellString(row.getCell(10));
+						int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+focusS.getId());						
+						Delivery d = null;
+						if (dels.containsKey(dID)) {
+							d = dels.get(dID);
+							d.addFlexibleField("Quelle", d.getFlexible("Quelle") + "; Zeile " + (i+1));
+						}
+						else {
+							d = new Delivery();
+							d.setLot(lot);
+							d.setArrivalDay(f4);
+							d.setArrivalMonth(f5);
+							d.setArrivalYear(f6);
+							d.addFlexibleField("Amount", f7);
+							d.setComment(f8);
+							d.setReceiver(focusS);
+							d.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
+							d.setId(dID+"");
+							dels.put(dID, d);
+						}
+						/*
+						Address a = new Address();
+						a.setBlock("Hessenweg 1, 12343 Gese");
+						a.getStreetName();
+						StructuredAddressQuery saq = new StructuredAddressQuery(a, "DE");
+						
+						saq.getAddress();
+						//com.gisgraphy.ser
+						saq.getStructuredAddress().getStreetName();
+						*/
+						
+					}
+					else if (cs.equals("Lieferant Name")) {
+						doCollect = true;
+						i++;
+						continue;
+					}
+				}
+			}
+		}
+			
+		try {
+			for (Station s: stations.values()) {
+				s.addFlexibleField("Quelle", filename + ": " + s.getFlexible("Quelle"));
+			}
+			for (Delivery d : dels.values()) {
+				d.insertIntoDb(mydbi);
+				//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+				if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+			}
+		} catch (Exception e) {
+			exceptions.add(e);
+		}
+
+		return exceptions;
+	}
+	private int genDbId(String toCode) {
+		return toCode.hashCode();
 	}
 	private void insertForIntoDb(List<Exception> exceptions, Integer miDbId, HashMap<String, Delivery> outDeliveries, HashMap<String, Delivery> inDeliveries) throws Exception {
 		HashMap<String, Integer> lotDbNumber = new HashMap<>();
@@ -949,7 +1114,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	private static Integer getInt(String val) {
 		Integer result = null;
-		if (!val.trim().isEmpty()) {
+		if (val != null && !val.trim().isEmpty()) {
 			try {
 				result = Integer.parseInt(val);
 			}
@@ -965,6 +1130,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return result;
 	}
 	private static String getStr(String val) {
+		if (val == null) return null;
 		if (val.trim().isEmpty()) return null;
 		return val;
 	}
@@ -1060,7 +1226,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					Station.reset(); Lot.reset(); Delivery.reset();
 					warns = new HashMap<>();
 					//if (existsDBKernel()) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+					
 					List<Exception> exceptions = doTheImport(wb, filename);
+					//List<Exception> exceptions = doTheSimpleImport(wb, filename);
 					
 					if (exceptions != null && exceptions.size() > 0) {
 						importResult = false;

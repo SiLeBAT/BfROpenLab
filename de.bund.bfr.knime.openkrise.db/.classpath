@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/universalserialiser-3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/universalserialiser-commons-3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gisgraphy-commons-4.0-beta1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/addressParser-commons-4.0-beta1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/sqltool.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hsqldb.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
