@@ -224,6 +224,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		List<Exception> exceptions = new ArrayList<>();
 		
 		Sheet stationSheet = wb.getSheet("Stations");
+		if (stationSheet == null) return doTheSimpleImport(wb, filename);
 		Sheet deliverySheet = wb.getSheet("Deliveries");
 		Sheet d2dSheet = wb.getSheet("Deliveries2Deliveries");
 		Sheet transactionSheet = wb.getSheet("BackTracing");
@@ -480,136 +481,156 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		List<Exception> exceptions = new ArrayList<>();
 		
 		Sheet backSheet = wb.getSheet("Rückverfolgung");
-		//Sheet fwdSheet = wb.getSheet("Vorwärtsverfolgung");
+		Sheet fwdSheet = wb.getSheet("Vorwärtsverfolgung");
 		Sheet backProdSheet = wb.getSheet("Herstellung - Rückverfolgung");
 		Sheet fwdProdSheet = wb.getSheet("Herstellung - Vorwärtsverfolgun");
 				
-		if (backSheet == null && backProdSheet == null && fwdProdSheet == null) {
-			exceptions.add(new Exception("Wrong template format!"));
-			return exceptions;
-		}
-
 		HashMap<Integer, Station> stations = new HashMap<>();
 		HashMap<Integer, Product> products = new HashMap<>();
 		HashMap<Integer, Lot> lots = new HashMap<>();
 		HashMap<Integer, Delivery> dels = new HashMap<>();
 
-		Station focusS = new Station();
-		Row row = backSheet.getRow(0);
-		String cs = getCellString(row.getCell(1));
-		focusS.setName(cs);
-		String address = getCellString(row.getCell(2));
-		focusS.setStreet(address);
-		focusS.addFlexibleField("Quelle", "Zeile 1");
-		int sID = genDbId(""+cs+address);
-		focusS.setId(""+sID);
-		stations.put(sID, focusS);
-		
-		int numRows = backSheet.getLastRowNum() + 1;
-		boolean doCollect = false;
-		for (int i=1;i<numRows;i++) {
-			row = backSheet.getRow(i);
-			if (row != null) {
-				cs = getCellString(row.getCell(0));
-				if (cs != null) {
-					if (doCollect) {
-						System.err.print(i+1);
+		if (backSheet != null || fwdSheet != null) {
+			int NAME = -1, ADDRESS = -1, ADDRESS_COUNTRY = -1, PRODUCTNAME = -1, EAN = -1, CHARGE = -1, MHD = -1, DAY = -1, MONTH = -1, YEAR = -1, AMOUNT = -1, COMMENT = -1;
+			Sheet sheet = backSheet != null ? backSheet : fwdSheet;
+			Station focusS = new Station();
+			Row row = sheet.getRow(0);
+			String cs = getCellString(row.getCell(1));
+			focusS.setName(cs);
+			String address = getCellString(row.getCell(2));
+			focusS.setStreet(address);
+			focusS.setCountry(getCellString(row.getCell(3)));
+			focusS.addFlexibleField("Quelle", "Zeile 1");
+			int sID = genDbId(""+cs+address);
+			focusS.setId(""+sID);
+			stations.put(sID, focusS);
+			
+			int numRows = sheet.getLastRowNum() + 1;
+			boolean doCollect = false;
+			for (int i=1;i<numRows;i++) {
+				row = sheet.getRow(i);
+				if (row != null) {
+					cs = getCellString(row.getCell(NAME));
+					if (cs != null) {
+						if (doCollect) {
+							System.err.print(i+1);
 
-						address = getCellString(row.getCell(1));
-						sID = genDbId(""+cs+address);
-						Station supplierS = null;
-						if (stations.containsKey(sID)) {
-							supplierS = stations.get(sID);
-							supplierS.addFlexibleField("Quelle", supplierS.getFlexible("Quelle") + "; Zeile " + (i+1));
-						}
-						else {
-							supplierS = new Station();
-							supplierS.setName(cs);
-							supplierS.setStreet(address);
-							supplierS.addFlexibleField("Quelle", "Zeile " + (i+1));
-							supplierS.setId(""+sID);
-							stations.put(sID, supplierS);
-						}
-						
-						String f2 = getCellString(row.getCell(2));
-						String f3 = getCellString(row.getCell(3));
-						int pID = genDbId(""+supplierS.getId() + f2 + f3);
-						Product p = null;
-						if (products.containsKey(pID)) {
-							p = products.get(pID);
-							p.addFlexibleField("Quelle", p.getFlexible("Quelle") + "; Zeile " + (i+1));
-						}
-						else {
-							p = new Product();
-							p.setStation(supplierS);
-							p.setName(f2);
-							p.addFlexibleField("EAN", f3);
-							p.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
-							p.setId(pID);
-							products.put(pID, p);
-						}
+							address = getCellString(row.getCell(ADDRESS));
+							sID = genDbId(""+cs+address);
+							Station supplierS = null;
+							if (stations.containsKey(sID)) {
+								supplierS = stations.get(sID);
+								supplierS.addFlexibleField("Quelle", supplierS.getFlexible("Quelle") + "; Zeile " + (i+1));
+							}
+							else {
+								supplierS = new Station();
+								supplierS.setName(cs);
+								supplierS.setStreet(address);
+								if (ADDRESS_COUNTRY >= 0) supplierS.setCountry(getCellString(row.getCell(ADDRESS_COUNTRY)));
+								supplierS.addFlexibleField("Quelle", "Zeile " + (i+1));
+								supplierS.setId(""+sID);
+								stations.put(sID, supplierS);
+							}
+							
+							String f2 = getCellString(row.getCell(PRODUCTNAME));
+							String f3 = getCellString(row.getCell(EAN));
+							int pID = genDbId(""+supplierS.getId() + f2 + f3);
+							Product p = null;
+							if (products.containsKey(pID)) {
+								p = products.get(pID);
+								p.addFlexibleField("Quelle", p.getFlexible("Quelle") + "; Zeile " + (i+1));
+							}
+							else {
+								p = new Product();
+								if (backSheet != null) p.setStation(supplierS);
+								else p.setStation(focusS);
+								p.setName(f2);
+								p.addFlexibleField("EAN", f3);
+								p.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
+								p.setId(pID);
+								products.put(pID, p);
+							}
 
-						f2 = getCellString(row.getCell(4));
-						f3 = getCellString(row.getCell(5));
-						int lID = genDbId(""+p.getId() + f2 + f3);
-						Lot lot = null;
-						if (lots.containsKey(lID)) {
-							lot = lots.get(lID);
-							lot.addFlexibleField("Quelle", lot.getFlexible("Quelle") + "; Zeile " + (i+1));
-						}
-						else {
-							lot = new Lot();
-							lot.setProduct(p);
-							lot.setNumber(f2);
-							lot.addFlexibleField("MHD", f3);
-							lot.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
-							lot.setId(lID);
-							lots.put(lID, lot);
-						}
+							f2 = getCellString(row.getCell(CHARGE));
+							f3 = getCellString(row.getCell(MHD));
+							int lID = genDbId(""+p.getId() + f2 + f3);
+							Lot lot = null;
+							if (lots.containsKey(lID)) {
+								lot = lots.get(lID);
+								lot.addFlexibleField("Quelle", lot.getFlexible("Quelle") + "; Zeile " + (i+1));
+							}
+							else {
+								lot = new Lot();
+								lot.setProduct(p);
+								lot.setNumber(f2);
+								lot.addFlexibleField("MHD", f3);
+								lot.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
+								lot.setId(lID);
+								lots.put(lID, lot);
+							}
 
-						Integer f4 = getInt(getCellString(row.getCell(6)));
-						Integer f5 = getInt(getCellString(row.getCell(7)));
-						Integer f6 = getInt(getCellString(row.getCell(8)));
-						String f7 = getCellString(row.getCell(9));
-						String f8 = getCellString(row.getCell(10));
-						int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+focusS.getId());						
-						Delivery d = null;
-						if (dels.containsKey(dID)) {
-							d = dels.get(dID);
-							d.addFlexibleField("Quelle", d.getFlexible("Quelle") + "; Zeile " + (i+1));
+							Integer f4 = getInt(getCellString(row.getCell(DAY)));
+							Integer f5 = getInt(getCellString(row.getCell(MONTH)));
+							Integer f6 = getInt(getCellString(row.getCell(YEAR)));
+							String f7 = getCellString(row.getCell(AMOUNT));
+							String f8 = getCellString(row.getCell(COMMENT));
+							int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+focusS.getId());						
+							Delivery d = null;
+							if (dels.containsKey(dID)) {
+								d = dels.get(dID);
+								d.addFlexibleField("Quelle", d.getFlexible("Quelle") + "; Zeile " + (i+1));
+							}
+							else {
+								d = new Delivery();
+								d.setLot(lot);
+								d.setArrivalDay(f4);
+								d.setArrivalMonth(f5);
+								d.setArrivalYear(f6);
+								d.addFlexibleField("Amount", f7);
+								d.setComment(f8);								
+								if (backSheet != null) d.setReceiver(focusS);
+								else d.setReceiver(supplierS);
+								d.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
+								d.setId(dID+"");
+								dels.put(dID, d);
+							}
+							/*
+							Address a = new Address();
+							a.setBlock("Hessenweg 1, 12343 Gese");
+							a.getStreetName();
+							StructuredAddressQuery saq = new StructuredAddressQuery(a, "DE");
+							
+							saq.getAddress();
+							//com.gisgraphy.ser
+							saq.getStructuredAddress().getStreetName();
+							*/
+							
 						}
-						else {
-							d = new Delivery();
-							d.setLot(lot);
-							d.setArrivalDay(f4);
-							d.setArrivalMonth(f5);
-							d.setArrivalYear(f6);
-							d.addFlexibleField("Amount", f7);
-							d.setComment(f8);
-							d.setReceiver(focusS);
-							d.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
-							d.setId(dID+"");
-							dels.put(dID, d);
+						else if (backSheet != null && cs.equals("Lieferant") || fwdSheet != null && cs.equals("Empfänger")) {
+							doCollect = true;
+							i++;
+							row = sheet.getRow(i);
+							if (getCellString(row.getCell(2)).equals("Land")) {
+								NAME = 0; ADDRESS = 1; ADDRESS_COUNTRY = 2; PRODUCTNAME = 3; EAN = 4; CHARGE = 5;
+								MHD = 6; DAY = 7; MONTH = 8; YEAR = 9; AMOUNT = 10; COMMENT = 11;								
+							}
+							else {
+								NAME = 0; ADDRESS = 1; ADDRESS_COUNTRY = -1; PRODUCTNAME = 2; EAN = 3; CHARGE = 4;
+								MHD = 5; DAY = 6; MONTH = 7; YEAR = 8; AMOUNT = 9; COMMENT = 10;																
+							}
+							continue;
 						}
-						/*
-						Address a = new Address();
-						a.setBlock("Hessenweg 1, 12343 Gese");
-						a.getStreetName();
-						StructuredAddressQuery saq = new StructuredAddressQuery(a, "DE");
-						
-						saq.getAddress();
-						//com.gisgraphy.ser
-						saq.getStructuredAddress().getStreetName();
-						*/
-						
-					}
-					else if (cs.equals("Lieferant Name")) {
-						doCollect = true;
-						i++;
-						continue;
 					}
 				}
-			}
+			}			
+		}
+		else if (backProdSheet != null || fwdProdSheet != null) {
+			exceptions.add(new Exception("Wrong template format!"));
+			return exceptions;
+		}
+		else {
+			exceptions.add(new Exception("Wrong template format!"));
+			return exceptions;
 		}
 			
 		try {
