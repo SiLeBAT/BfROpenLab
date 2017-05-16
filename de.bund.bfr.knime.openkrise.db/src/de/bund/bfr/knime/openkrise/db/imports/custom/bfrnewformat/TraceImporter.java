@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -39,6 +40,7 @@ import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -55,6 +57,7 @@ import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 public class TraceImporter extends FileFilter implements MyImporter {
 
 	private MyDBI mydbi;
+	private SimpleDateFormat sdt = new SimpleDateFormat("dd.MM.yyyy");
 	
 	public TraceImporter() {
 		this.mydbi = null;
@@ -470,9 +473,18 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return exceptions;
 	}
 	private String getCellString(Cell cell) {
+		return getCellString(cell, false);
+	}
+	private String getCellString(Cell cell, boolean checkIfDate) {
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-			cell.setCellType(Cell.CELL_TYPE_STRING);
-			return getStr(cell.getStringCellValue());
+			if (checkIfDate && DateUtil.isCellDateFormatted(cell)) {
+				Date date = cell.getDateCellValue();
+				return sdt.format(date);
+			}
+			else {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				return getStr(cell.getStringCellValue());				
+			}
 		}
 		return null;
 	}
@@ -499,7 +511,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			focusS.setName(cs);
 			String address = getCellString(row.getCell(2));
 			focusS.setStreet(address);
-			focusS.setCountry(getCellString(row.getCell(3)));
+			focusS.setCountry(getCellString(row.getCell(6)));
 			focusS.addFlexibleField("Quelle", "Zeile 1");
 			int sID = genDbId(""+cs+address);
 			focusS.setId(""+sID);
@@ -552,7 +564,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 
 							f2 = getCellString(row.getCell(CHARGE));
-							f3 = getCellString(row.getCell(MHD));
+							f3 = getCellString(row.getCell(MHD), true);
 							int lID = genDbId(""+p.getId() + f2 + f3);
 							Lot lot = null;
 							if (lots.containsKey(lID)) {

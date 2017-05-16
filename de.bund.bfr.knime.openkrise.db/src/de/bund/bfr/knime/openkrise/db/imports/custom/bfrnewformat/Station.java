@@ -263,8 +263,8 @@ public class Station {
 		//dbId = null;
 		String in = MyDBI.delimitL("ID");
 		String iv = Integer.parseInt(id)+"";
-		String[] feldnames = new String[]{"Name","Strasse"};
-		String[] sFeldVals = new String[]{name,street};
+		String[] feldnames = new String[]{"Name","Strasse","Land"};
+		String[] sFeldVals = new String[]{name,street,country};
 
 		int i=0;
 		for (;i<sFeldVals.length;i++) {
