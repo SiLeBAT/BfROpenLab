@@ -510,7 +510,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			for (int i=1;i<numRows;i++) {
 				row = sheet.getRow(i);
 				if (row != null) {
-					cs = getCellString(row.getCell(NAME));
+					cs = getCellString(row.getCell(0));
 					if (cs != null) {
 						if (doCollect) {
 							System.err.print(i+1);
@@ -610,7 +610,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							doCollect = true;
 							i++;
 							row = sheet.getRow(i);
-							if (getCellString(row.getCell(2)).equals("Land")) {
+							String ls = getCellString(row.getCell(2));
+							if (ls != null && ls.equals("Land")) {
 								NAME = 0; ADDRESS = 1; ADDRESS_COUNTRY = 2; PRODUCTNAME = 3; EAN = 4; CHARGE = 5;
 								MHD = 6; DAY = 7; MONTH = 8; YEAR = 9; AMOUNT = 10; COMMENT = 11;								
 							}
