@@ -476,8 +476,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return getCellString(cell, false);
 	}
 	private String getCellString(Cell cell, boolean checkIfDate) {
-		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-			if (checkIfDate && DateUtil.isCellDateFormatted(cell)) {
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {			
+			if (checkIfDate && cell.getCellType() != Cell.CELL_TYPE_STRING && DateUtil.isCellDateFormatted(cell)) {
 				Date date = cell.getDateCellValue();
 				return sdt.format(date);
 			}
