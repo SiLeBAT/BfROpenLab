@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -268,16 +269,20 @@ public class Station {
 
 		int i=0;
 		for (;i<sFeldVals.length;i++) {
-			if (sFeldVals[i] != null) {
+			//if (sFeldVals[i] != null) {
 				in += "," + MyDBI.delimitL(feldnames[i]);
-				iv += ",'" + sFeldVals[i] + "'";
-			}
+				iv += ",?";
+			//}
 		}
 		boolean isNewEntry = false;
 		String sql = "INSERT INTO " + MyDBI.delimitL("Station") + " (" + in + ") VALUES (" + iv + ")";
 		@SuppressWarnings("resource")
 		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
 		PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		for (int ii=0;ii<sFeldVals.length;ii++) {
+			if (sFeldVals[ii] == null) ps.setNull(ii+1, Types.VARCHAR);	
+			else ps.setString(ii+1, sFeldVals[ii]);
+		}
 		try {
 			if (ps.executeUpdate() > 0) {
 				dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
@@ -288,7 +293,10 @@ public class Station {
 			if (e.getMessage().startsWith("integrity constraint violation")) {
 				dbId = Integer.parseInt(id);
 			}//throw new Exception("Station ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
-			else throw e;
+			else {
+				System.err.println(name + " - " + street);
+				throw e;
+			}
 		}
 		handleFlexibles(mydbi, false, !isNewEntry);
 		alreadyInDb = true;

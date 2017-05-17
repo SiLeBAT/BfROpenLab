@@ -511,7 +511,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			focusS.setName(cs);
 			String address = getCellString(row.getCell(2));
 			focusS.setStreet(address);
-			focusS.setCountry(getCellString(row.getCell(6)));
+			focusS.setCountry(getCellString(row.getCell(6))); // oder 3 ... ???
 			focusS.addFlexibleField("Quelle", "Zeile 1");
 			int sID = genDbId(""+cs+address);
 			focusS.setId(""+sID);
@@ -618,7 +618,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							*/
 							
 						}
-						else if (backSheet != null && cs.equals("Lieferant") || fwdSheet != null && cs.equals("Empfänger")) {
+						else if (backSheet != null && cs.trim().startsWith("Lieferant") || fwdSheet != null && cs.trim().startsWith("Empfänger")) {
 							doCollect = true;
 							i++;
 							row = sheet.getRow(i);

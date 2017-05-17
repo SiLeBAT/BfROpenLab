@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -165,15 +166,19 @@ public class Product {
 
 		int i=0;
 		for (;i<sFeldVals.length;i++) {
-			if (sFeldVals[i] != null) {
+			//if (sFeldVals[i] != null) {
 				in += "," + MyDBI.delimitL(feldnames[i]);
-				iv += ",'" + sFeldVals[i] + "'";
-			}
+				iv += ",?";
+			//}
 		}
 		String sql = "INSERT INTO " + MyDBI.delimitL("Produktkatalog") + " (" + in + ") VALUES (" + iv + ")";
 		@SuppressWarnings("resource")
 		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
 		PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		for (int ii=0;ii<sFeldVals.length;ii++) {
+			if (sFeldVals[ii] == null) ps.setNull(ii+1, Types.VARCHAR);	
+			else ps.setString(ii+1, sFeldVals[ii]);
+		}
 		try {
 			if (ps.executeUpdate() > 0) {
 				dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
