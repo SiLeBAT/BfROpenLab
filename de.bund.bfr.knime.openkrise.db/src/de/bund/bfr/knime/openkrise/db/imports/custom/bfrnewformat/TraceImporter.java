@@ -46,9 +46,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.gisgraphy.addressparser.Address;
-import com.gisgraphy.addressparser.StructuredAddressQuery;
-
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyLogger;

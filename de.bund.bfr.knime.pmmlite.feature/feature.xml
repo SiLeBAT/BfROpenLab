@@ -117,10 +117,9 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.pmfml"
+         id="org.sbml.jsbml"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>
