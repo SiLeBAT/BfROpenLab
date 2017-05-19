@@ -57,6 +57,9 @@ public class BackwardUtils {
 	public static final String OLD_WEIGHT = "CaseWeight";
 	public static final String OLD_OBSERVED = "Filter";
 
+	public static final String OLD_FROM = "ID";
+	public static final String OLD_TO = "Next";
+
 	private BackwardUtils() {
 	}
 

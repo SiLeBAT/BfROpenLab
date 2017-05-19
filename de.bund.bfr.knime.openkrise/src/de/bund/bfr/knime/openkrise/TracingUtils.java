@@ -264,9 +264,16 @@ public class TracingUtils {
 	public static <V extends Node> Map<String, Delivery> readDeliveries(BufferedDataTable tracingTable,
 			Collection<Edge<V>> edges, Set<RowKey> skippedRows) throws NotConfigurableException {
 		DataTableSpec spec = tracingTable.getSpec();
+		String fromColumn = TracingColumns.FROM;
+		String toColumn = TracingColumns.TO;
 
-		assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Relations Table");
-		assertColumnNotMissing(spec, TracingColumns.NEXT, "Delivery Relations Table");
+		if (spec.containsName(BackwardUtils.OLD_FROM) && spec.containsName(BackwardUtils.OLD_TO)) {
+			fromColumn = BackwardUtils.OLD_FROM;
+			toColumn = BackwardUtils.OLD_TO;
+		} else {
+			assertColumnNotMissing(spec, TracingColumns.FROM, "Delivery Relations Table");
+			assertColumnNotMissing(spec, TracingColumns.TO, "Delivery Relations Table");
+		}
 
 		Map<String, Delivery.Builder> builders = new LinkedHashMap<>();
 
@@ -285,16 +292,16 @@ public class TracingUtils {
 		SetMultimap<String, String> nextDeliveries = LinkedHashMultimap.create();
 
 		for (DataRow row : tracingTable) {
-			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
-			String next = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.NEXT)));
+			String from = IO.getToCleanString(row.getCell(spec.findColumnIndex(fromColumn)));
+			String to = IO.getToCleanString(row.getCell(spec.findColumnIndex(toColumn)));
 
-			if (!builders.containsKey(id) || !builders.containsKey(next)) {
+			if (!builders.containsKey(from) || !builders.containsKey(to)) {
 				skippedRows.add(row.getKey());
 				continue;
 			}
 
-			previousDeliveries.put(next, id);
-			nextDeliveries.put(id, next);
+			previousDeliveries.put(to, from);
+			nextDeliveries.put(from, to);
 		}
 
 		Map<String, Delivery> deliveries = new LinkedHashMap<>();

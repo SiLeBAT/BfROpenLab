@@ -244,8 +244,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		BufferedDataContainer stationContainer = exec.createDataContainer(specS);
 		DataTableSpec specD = getDeliverySpecs();
 		BufferedDataContainer deliveryContainer = exec.createDataContainer(specD);
-		DataTableSpec specL = new DataTableSpec(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec(),
-				new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec());
+		DataTableSpec specL = new DataTableSpec(new DataColumnSpecCreator(TracingColumns.FROM, StringCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(TracingColumns.TO, StringCell.TYPE).createSpec());
 		BufferedDataContainer linkContainer = exec.createDataContainer(specL);
 
 		String environment = set.getEnvironment();
@@ -428,8 +428,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		}
 		// Link fill cells
 		for (String[] link : linkList) {
-			fillCell(specL, cellsL, TracingColumns.ID, createCell(mapLieferung.get(link[0])));
-			fillCell(specL, cellsL, TracingColumns.NEXT, createCell(mapLieferung.get(link[1])));
+			fillCell(specL, cellsL, TracingColumns.FROM, createCell(mapLieferung.get(link[0])));
+			fillCell(specL, cellsL, TracingColumns.TO, createCell(mapLieferung.get(link[1])));
 			linkContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(linkContainer.size()), cellsL));
 		}
 		linkContainer.close();

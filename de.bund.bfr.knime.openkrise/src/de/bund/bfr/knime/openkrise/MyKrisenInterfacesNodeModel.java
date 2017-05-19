@@ -539,8 +539,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 	private BufferedDataTable getDeliveryConnectionsTable(List<Delivery> deliveries, BufferedDataTable deliveryTable,
 			ExecutionContext exec) throws CanceledExecutionException {
 		BufferedDataContainer container = exec.createDataContainer(
-				new DataTableSpec(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec(),
-						new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec()));
+				new DataTableSpec(new DataColumnSpecCreator(TracingColumns.FROM, StringCell.TYPE).createSpec(),
+						new DataColumnSpecCreator(TracingColumns.TO, StringCell.TYPE).createSpec()));
 		int index = 0;
 
 		if (!set.isLotBased()) {

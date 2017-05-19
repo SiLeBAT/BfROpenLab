@@ -3,7 +3,7 @@
 <entry key="spec_name" type="xstring" value="default"/>
 <entry key="number_columns" type="xint" value="2"/>
 <config key="column_spec_0">
-<entry key="column_name" type="xstring" value="ID"/>
+<entry key="column_name" type="xstring" value="from"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
 </config>
@@ -14,7 +14,7 @@
 <config key="column_properties"/>
 </config>
 <config key="column_spec_1">
-<entry key="column_name" type="xstring" value="Next"/>
+<entry key="column_name" type="xstring" value="to"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
 </config>
