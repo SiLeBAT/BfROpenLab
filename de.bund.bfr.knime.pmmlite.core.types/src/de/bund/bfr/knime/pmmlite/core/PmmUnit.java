@@ -168,11 +168,8 @@ public class PmmUnit implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof PmmUnit) {
-			return transform == ((PmmUnit) obj).transform && definitionXml.equals(((PmmUnit) obj).definitionXml);
-		}
-
-		return false;
+		return obj instanceof PmmUnit
+				? transform == ((PmmUnit) obj).transform && definitionXml.equals(((PmmUnit) obj).definitionXml) : false;
 	}
 
 	@Override
