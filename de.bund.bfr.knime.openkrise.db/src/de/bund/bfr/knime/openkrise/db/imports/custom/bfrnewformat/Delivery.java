@@ -453,7 +453,31 @@ public class Delivery {
 			else throw e;
 		}
 		handleFlexibles(mydbi);
+		for (String tLotId : targetLotIds) {
+			insertD2D(mydbi, dbId+"", tLotId);
+		}
 		alreadyInDb = true;
 		return dbId;
+	}
+	public static void insertD2D(MyDBI mydbi, String delId, String lotId) throws Exception {
+		String sql = "INSERT INTO " + MyDBI.delimitL("ChargenVerbindungen") +
+				" (" + MyDBI.delimitL("Zutat") + "," + MyDBI.delimitL("Produkt") + ") VALUES (" + delId + "," + lotId + ")";
+		//DBKernel.sendRequest(sql, false);
+		@SuppressWarnings("resource")
+		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+		PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		try {
+			if (ps.executeUpdate() > 0) {
+				if (mydbi != null) mydbi.getLastInsertedID(ps);
+				else DBKernel.getLastInsertedID(ps);
+			}
+		}
+		catch (SQLException e) {
+			//if (e.getMessage().startsWith("integrity constraint violation")) {
+				//throw new Exception("Delivery ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
+			//}
+			//else 
+				throw e;
+		}
 	}
 }

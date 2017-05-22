@@ -245,6 +245,9 @@ public class Lot {
 			else throw e;
 		}
 		handleFlexibles(mydbi);
+		for (String inDel : inDeliveries) {
+			Delivery.insertD2D(mydbi, inDel, dbId+"");
+		}
 		alreadyInDb = true;
 		return dbId;
 	}

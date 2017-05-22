@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,6 +48,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.gisgraphy.addressparser.Address;
+import com.gisgraphy.addressparser.StructuredAddressQuery;
+
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
@@ -54,7 +59,6 @@ import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 public class TraceImporter extends FileFilter implements MyImporter {
 
 	private MyDBI mydbi;
-	private SimpleDateFormat sdt = new SimpleDateFormat("dd.MM.yyyy");
 	
 	public TraceImporter() {
 		this.mydbi = null;
@@ -67,6 +71,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private String logWarnings = "";
 	private Map<String, Set<String>> warns = new HashMap<>();
 	private Map<String, Set<String>> warnsBeforeImport = new HashMap<>();
+	private DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
 	
 	public Map<String, Set<String>> getLastWarnings() {
 		return warns;
@@ -476,7 +481,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {			
 			if (checkIfDate && cell.getCellType() != Cell.CELL_TYPE_STRING && DateUtil.isCellDateFormatted(cell)) {
 				Date date = cell.getDateCellValue();
-				return sdt.format(date);
+				return df.format(date);
 			}
 			else {
 				cell.setCellType(Cell.CELL_TYPE_STRING);
@@ -489,19 +494,26 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
 		List<Exception> exceptions = new ArrayList<>();
 		
-		Sheet backSheet = wb.getSheet("Rückverfolgung");
-		Sheet fwdSheet = wb.getSheet("Vorwärtsverfolgung");
-		Sheet backProdSheet = wb.getSheet("Herstellung - Rückverfolgung");
-		Sheet fwdProdSheet = wb.getSheet("Herstellung - Vorwärtsverfolgun");
+		boolean backtracing = true;
+		boolean isProduction = false;
+		Sheet sheet = wb.getSheet("Rückverfolgung");
+		if (sheet == null) {sheet = wb.getSheet("Herstellung - Rückverfolgung"); isProduction = true;}
+		if (sheet == null) {
+			backtracing = false;
+			sheet = wb.getSheet("Vorwärtsverfolgung");
+		}
+		if (sheet == null) {sheet = wb.getSheet("Herstellung - Vorwärtsverfolgun"); isProduction = true;}
 				
 		HashMap<Integer, Station> stations = new HashMap<>();
 		HashMap<Integer, Product> products = new HashMap<>();
 		HashMap<Integer, Lot> lots = new HashMap<>();
 		HashMap<Integer, Delivery> dels = new HashMap<>();
+		HashMap<String, Delivery> olddels = new HashMap<>();
+		HashMap<String, Delivery> olddelsLot = new HashMap<>();
 
-		if (backSheet != null || fwdSheet != null) {
-			int NAME = -1, ADDRESS = -1, ADDRESS_COUNTRY = -1, PRODUCTNAME = -1, EAN = -1, CHARGE = -1, MHD = -1, DAY = -1, MONTH = -1, YEAR = -1, AMOUNT = -1, COMMENT = -1;
-			Sheet sheet = backSheet != null ? backSheet : fwdSheet;
+		int NAME = -1, ADDRESS = -1, ADDRESS_COUNTRY = -1, PRODUCTNAME = -1, EAN = -1, CHARGE = -1, MHD = -1, DAY = -1, MONTH = -1,
+				YEAR = -1, AMOUNT = -1, COMMENT = -1, CHARGENLINK = -1;
+		if (sheet != null) {
 			Station focusS = new Station();
 			Row row = sheet.getRow(0);
 			String cs = getCellString(row.getCell(1));
@@ -516,16 +528,20 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 			int numRows = sheet.getLastRowNum() + 1;
 			boolean doCollect = false;
+			boolean doPreCollect = false;
 			for (int i=1;i<numRows;i++) {
 				row = sheet.getRow(i);
 				if (row != null) {
 					cs = getCellString(row.getCell(0));
-					if (cs != null) {
-						if (doCollect) {
-							System.err.print(i+1);
+					String cs1 = getCellString(row.getCell(1));
+					if (cs != null || cs1 != null) {
+						if (cs != null && cs.startsWith("Information zum Ausfüllen")) doPreCollect = false;
+						if (doCollect || doPreCollect) {
+							//System.err.print(i+1);
 
+							String name = getCellString(row.getCell(NAME));
 							address = getCellString(row.getCell(ADDRESS));
-							sID = genDbId(""+cs+address);
+							sID = genDbId(""+name+address);
 							Station supplierS = null;
 							if (stations.containsKey(sID)) {
 								supplierS = stations.get(sID);
@@ -533,7 +549,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 							else {
 								supplierS = new Station();
-								supplierS.setName(cs);
+								supplierS.setName(name);
 								supplierS.setStreet(address);
 								if (ADDRESS_COUNTRY >= 0) supplierS.setCountry(getCellString(row.getCell(ADDRESS_COUNTRY)));
 								supplierS.addFlexibleField("Quelle", "Zeile " + (i+1));
@@ -543,7 +559,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							
 							String f2 = getCellString(row.getCell(PRODUCTNAME));
 							String f3 = getCellString(row.getCell(EAN));
-							int pID = genDbId(""+supplierS.getId() + f2 + f3);
+							int pID = genDbId(""+(backtracing==doPreCollect?focusS.getId():supplierS.getId()) + f2 + f3);
 							Product p = null;
 							if (products.containsKey(pID)) {
 								p = products.get(pID);
@@ -551,8 +567,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 							else {
 								p = new Product();
-								if (backSheet != null) p.setStation(supplierS);
-								else p.setStation(focusS);
+								if (doPreCollect) {
+									if (!backtracing) p.setStation(supplierS);
+									else p.setStation(focusS);
+								}
+								else {
+									if (backtracing) p.setStation(supplierS);
+									else p.setStation(focusS);									
+								}
 								p.setName(f2);
 								p.addFlexibleField("EAN", f3);
 								p.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
@@ -583,25 +605,64 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Integer f6 = getInt(getCellString(row.getCell(YEAR)));
 							String f7 = getCellString(row.getCell(AMOUNT));
 							String f8 = getCellString(row.getCell(COMMENT));
-							int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+focusS.getId());						
+							int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+(doPreCollect==backtracing?supplierS.getId():focusS.getId()));						
 							Delivery d = null;
-							if (dels.containsKey(dID)) {
-								d = dels.get(dID);
-								d.addFlexibleField("Quelle", d.getFlexible("Quelle") + "; Zeile " + (i+1));
-							}
-							else {
+							if (doPreCollect) {
 								d = new Delivery();
 								d.setLot(lot);
 								d.setArrivalDay(f4);
 								d.setArrivalMonth(f5);
 								d.setArrivalYear(f6);
 								d.addFlexibleField("Amount", f7);
-								d.setComment(f8);								
-								if (backSheet != null) d.setReceiver(focusS);
-								else d.setReceiver(supplierS);
+								d.setComment(f8);
+								if (doPreCollect) {
+									if (!backtracing) d.setReceiver(focusS);
+									else d.setReceiver(supplierS);									
+								}
+								else {
+									if (!backtracing) d.setReceiver(supplierS);
+									else d.setReceiver(focusS);
+								}
 								d.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
 								d.setId(dID+"");
-								dels.put(dID, d);
+								olddels.put((i+1)+"", d);
+								olddelsLot.put(d.getLot().getNumber(), d);
+							}
+							else {
+								if (dels.containsKey(dID)) {
+									d = dels.get(dID);
+									d.addFlexibleField("Quelle", d.getFlexible("Quelle") + "; Zeile " + (i+1));
+								}
+								else {
+									d = new Delivery();
+									d.setLot(lot);
+									d.setArrivalDay(f4);
+									d.setArrivalMonth(f5);
+									d.setArrivalYear(f6);
+									d.addFlexibleField("Amount", f7);
+									d.setComment(f8);								
+									if (backtracing) d.setReceiver(focusS);
+									else d.setReceiver(supplierS);
+									d.addFlexibleField("Quelle", filename + " - Zeile " + (i+1));
+									d.setId(dID+"");
+									dels.put(dID, d);
+								}
+							}
+							
+							if (CHARGENLINK >= 0) {
+								String rownum = getCellString(row.getCell(CHARGENLINK));
+								// hier nochmal überlegen, ob nicht besser bei leerer Zelle einfach importiert werden soll - ohne Verknüpfung
+								// nicht vergessen: verenglischen
+								if (!olddelsLot.containsKey(rownum) && !olddels.containsKey(rownum)) {
+									exceptions.add(new Exception("Zeilennummer/Chargennummer in Feld A" + (i+1) + " ist ungültig!"));
+								}
+								else {
+									Delivery od = olddels.get(rownum);
+									if (od == null) od = olddelsLot.get(rownum);
+									System.err.println(od.getLot().getNumber() + ": " + od.getLot().getProduct().getStation().getId() + " - " + od.getLot().getProduct().getId() + " - " + od.getLot().getId() + " - " + od.getId());
+									if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
+									else d.getLot().getInDeliveries().add(od.getId());
+								}
 							}
 							/*
 							Address a = new Address();
@@ -615,28 +676,51 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							*/
 							
 						}
-						else if (backSheet != null && cs.trim().startsWith("Lieferant") || fwdSheet != null && cs.trim().startsWith("Empfänger")) {
-							doCollect = true;
+						else if (backtracing && cs != null && (cs.trim().startsWith("Lieferant") || cs.trim().startsWith("Zeilennummer")) ||
+								!backtracing && cs != null && (cs.trim().startsWith("Empfänger") || cs.trim().startsWith("Zeilennummer")) ||
+								isProduction && i==3) {
 							i++;
 							row = sheet.getRow(i);
-							String ls = getCellString(row.getCell(2));
-							if (ls != null && ls.equals("Land")) {
-								NAME = 0; ADDRESS = 1; ADDRESS_COUNTRY = 2; PRODUCTNAME = 3; EAN = 4; CHARGE = 5;
-								MHD = 6; DAY = 7; MONTH = 8; YEAR = 9; AMOUNT = 10; COMMENT = 11;								
+							if (isProduction && i==4) {
+								CHARGENLINK = -1; NAME = 9; ADDRESS = 10; PRODUCTNAME = 1; EAN = 2; CHARGE = 3; MHD = 4; DAY = 5; MONTH = 6; YEAR = 7; AMOUNT = 8;							
+								String ls = getCellString(row.getCell(11));
+								if (ls != null && ls.equals("Land")) {
+									ADDRESS_COUNTRY = 11; COMMENT = 12;								
+								}
+								else {
+									ADDRESS_COUNTRY = -1; COMMENT = 11;																
+								}								
+								doPreCollect = true;
+							}
+							else if (cs.trim().startsWith("Zeilennummer")) {
+								CHARGENLINK = 0; NAME = 9; ADDRESS = 10; PRODUCTNAME = 1; EAN = 2; CHARGE = 3; MHD = 4; DAY = 5; MONTH = 6; YEAR = 7; AMOUNT = 8;							
+								String ls = getCellString(row.getCell(11));
+								if (ls != null && ls.equals("Land")) {
+									ADDRESS_COUNTRY = 11; COMMENT = 12;								
+								}
+								else {
+									ADDRESS_COUNTRY = -1; COMMENT = 11;																
+								}
+								doCollect = true;
 							}
 							else {
-								NAME = 0; ADDRESS = 1; ADDRESS_COUNTRY = -1; PRODUCTNAME = 2; EAN = 3; CHARGE = 4;
-								MHD = 5; DAY = 6; MONTH = 7; YEAR = 8; AMOUNT = 9; COMMENT = 10;																
+								NAME = 0; ADDRESS = 1; 
+								String ls = getCellString(row.getCell(2));
+								if (ls != null && ls.equals("Land")) {
+									ADDRESS_COUNTRY = 2; PRODUCTNAME = 3; EAN = 4; CHARGE = 5;
+									MHD = 6; DAY = 7; MONTH = 8; YEAR = 9; AMOUNT = 10; COMMENT = 11;								
+								}
+								else {
+									ADDRESS_COUNTRY = -1; PRODUCTNAME = 2; EAN = 3; CHARGE = 4;
+									MHD = 5; DAY = 6; MONTH = 7; YEAR = 8; AMOUNT = 9; COMMENT = 10;																
+								}
+								doCollect = true;
 							}
 							continue;
 						}
 					}
 				}
 			}			
-		}
-		else if (backProdSheet != null || fwdProdSheet != null) {
-			exceptions.add(new Exception("Wrong template format!"));
-			return exceptions;
 		}
 		else {
 			exceptions.add(new Exception("Wrong template format!"));
