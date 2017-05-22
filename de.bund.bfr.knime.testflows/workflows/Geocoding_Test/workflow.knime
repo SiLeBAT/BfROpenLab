@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="workflow.knime">
-<entry key="created_by" type="xstring" value="3.2.0.v201607061829"/>
+<entry key="created_by" type="xstring" value="3.3.2.v201704041558"/>
 <entry key="version" type="xstring" value="3.1.0"/>
 <entry key="name" type="xstring" isnull="true" value=""/>
 <config key="authorInformation">
 <entry key="authored-by" type="xstring" value="thoens"/>
 <entry key="authored-when" type="xstring" value="2015-08-24 16:12:07 +0200"/>
 <entry key="lastEdited-by" type="xstring" value="thoens"/>
-<entry key="lastEdited-when" type="xstring" value="2016-07-21 18:12:22 +0200"/>
+<entry key="lastEdited-when" type="xstring" value="2017-05-22 13:21:35 +0200"/>
 </config>
 <entry key="customDescription" type="xstring" isnull="true" value=""/>
 <entry key="state" type="xstring" value="CONFIGURED"/>
@@ -104,5 +104,7 @@
 <entry key="workflow.editor.gridX" type="xint" value="90"/>
 <entry key="workflow.editor.gridY" type="xint" value="120"/>
 <entry key="workflow.editor.zoomLevel" type="xdouble" value="1.0"/>
+<entry key="workflow.editor.curvedConnections" type="xboolean" value="false"/>
+<entry key="workflow.editor.connectionWidth" type="xint" value="1"/>
 </config>
 </config>

@@ -152,10 +152,19 @@ public class TracingUtils {
 			NodePropertySchema nodeSchema, Set<RowKey> invalidRows, boolean skipInvalid)
 			throws NotConfigurableException {
 		DataTableSpec spec = nodeTable.getSpec();
+		String latColumn = GeocodingNodeModel.LATITUDE_COLUMN;
+		String lonColumn = GeocodingNodeModel.LONGITUDE_COLUMN;
 
 		assertColumnNotMissing(spec, TracingColumns.ID, "Station Table");
-		assertColumnNotMissing(spec, GeocodingNodeModel.LATITUDE_COLUMN, "Station Table");
-		assertColumnNotMissing(spec, GeocodingNodeModel.LONGITUDE_COLUMN, "Station Table");
+
+		if (spec.containsName(de.bund.bfr.knime.gis.BackwardUtils.OLD_LATITUDE_COLUMN)
+				&& spec.containsName(de.bund.bfr.knime.gis.BackwardUtils.OLD_LONGITUDE_COLUMN)) {
+			latColumn = de.bund.bfr.knime.gis.BackwardUtils.OLD_LATITUDE_COLUMN;
+			lonColumn = de.bund.bfr.knime.gis.BackwardUtils.OLD_LONGITUDE_COLUMN;
+		} else {
+			assertColumnNotMissing(spec, latColumn, "Station Table");
+			assertColumnNotMissing(spec, lonColumn, "Station Table");
+		}
 
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
@@ -165,8 +174,8 @@ public class TracingUtils {
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
-			Double lat = IO.getDouble(row.getCell(spec.findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN)));
-			Double lon = IO.getDouble(row.getCell(spec.findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN)));
+			Double lat = IO.getDouble(row.getCell(spec.findColumnIndex(latColumn)));
+			Double lon = IO.getDouble(row.getCell(spec.findColumnIndex(lonColumn)));
 
 			if (id == null) {
 				throw new NotConfigurableException("Station Table: Missing value in " + TracingColumns.ID + " column");

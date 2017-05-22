@@ -31,6 +31,7 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -84,8 +85,10 @@ public class TracingViewCanvasCreator {
 
 		nodeSchema = new NodePropertySchema(nodeProperties, TracingColumns.ID);
 		edgeSchema = new EdgePropertySchema(edgeProperties, TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
-		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
-		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
+		nodeSchema.setLatitude(nodeProperties.containsKey(BackwardUtils.OLD_LATITUDE_COLUMN)
+				? BackwardUtils.OLD_LATITUDE_COLUMN : GeocodingNodeModel.LATITUDE_COLUMN);
+		nodeSchema.setLongitude(nodeProperties.containsKey(BackwardUtils.OLD_LONGITUDE_COLUMN)
+				? BackwardUtils.OLD_LONGITUDE_COLUMN : GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		skippedEdgeRows = new LinkedHashSet<>();
 		skippedTracingRows = new LinkedHashSet<>();
@@ -97,6 +100,12 @@ public class TracingViewCanvasCreator {
 	public boolean hasGisCoordinates() {
 		int latIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN);
+
+		if (nodeTable.getSpec().containsName(BackwardUtils.OLD_LATITUDE_COLUMN)
+				&& nodeTable.getSpec().containsName(BackwardUtils.OLD_LONGITUDE_COLUMN)) {
+			latIndex = nodeTable.getSpec().findColumnIndex(BackwardUtils.OLD_LATITUDE_COLUMN);
+			lonIndex = nodeTable.getSpec().findColumnIndex(BackwardUtils.OLD_LONGITUDE_COLUMN);
+		}
 
 		if (latIndex == -1 || lonIndex == -1) {
 			return false;

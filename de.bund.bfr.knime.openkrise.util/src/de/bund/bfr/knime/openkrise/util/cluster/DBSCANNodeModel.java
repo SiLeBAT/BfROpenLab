@@ -50,6 +50,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -82,10 +83,19 @@ public class DBSCANNodeModel extends NodeModelWithoutInternals {
 			throws Exception {
 		BufferedDataTable table = inData[0];
 		DataTableSpec spec = table.getSpec();
+		String latColumn = GeocodingNodeModel.LATITUDE_COLUMN;
+		String lonColumn = GeocodingNodeModel.LONGITUDE_COLUMN;
 
 		TracingUtils.assertColumnNotMissing(spec, TracingColumns.ID, null);
-		TracingUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LATITUDE_COLUMN, null);
-		TracingUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LONGITUDE_COLUMN, null);
+
+		if (spec.containsName(BackwardUtils.OLD_LATITUDE_COLUMN)
+				&& spec.containsName(BackwardUtils.OLD_LONGITUDE_COLUMN)) {
+			latColumn = BackwardUtils.OLD_LATITUDE_COLUMN;
+			lonColumn = BackwardUtils.OLD_LONGITUDE_COLUMN;
+		} else {
+			TracingUtils.assertColumnNotMissing(spec, latColumn, null);
+			TracingUtils.assertColumnNotMissing(spec, lonColumn, null);
+		}
 
 		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(table.getSpec()),
 				TracingColumns.ID);
@@ -104,8 +114,8 @@ public class DBSCANNodeModel extends NodeModelWithoutInternals {
 
 		for (DataRow row : table) {
 			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
-			Double lat = IO.getDouble(row.getCell(spec.findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN)));
-			Double lon = IO.getDouble(row.getCell(spec.findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN)));
+			Double lat = IO.getDouble(row.getCell(spec.findColumnIndex(latColumn)));
+			Double lon = IO.getDouble(row.getCell(spec.findColumnIndex(lonColumn)));
 
 			if (id == null || lat == null || lon == null || filteredOut.contains(id)) {
 				continue;

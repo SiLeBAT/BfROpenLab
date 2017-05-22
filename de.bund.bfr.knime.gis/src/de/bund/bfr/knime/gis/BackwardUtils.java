@@ -37,6 +37,9 @@ public class BackwardUtils {
 	private BackwardUtils() {
 	}
 
+	public static final String OLD_LATITUDE_COLUMN = "GeocodingLatitude";
+	public static final String OLD_LONGITUDE_COLUMN = "GeocodingLongitude";
+
 	private static final String PROVIDER_MAPQUEST = "MapQuest";
 	private static final String PROVIDER_GISGRAPHY = "Gisgraphy";
 	private static final String PROVIDER_BKG = "Bundesamt für Kartographie und Geodäsie";

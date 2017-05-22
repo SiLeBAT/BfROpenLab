@@ -19,21 +19,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
-</config>
-</config>
-<config key="columnConfig_GeocodingDistrict">
-<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
-<config key="internals">
-<config key="ignoreColumnProperties_Internals">
+<config key="ignoreColumnElementNames_Internals">
 <entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
-<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
-<config key="ignoreDomain_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreDomain" type="xboolean" value="false"/>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_Address">
@@ -49,6 +39,31 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="columnConfig_GeocodingDistrict">
+<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
+<config key="internals">
+<config key="ignoreColumnProperties_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<config key="ignoreDomain_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_GeocodingState">
@@ -64,21 +79,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
-</config>
-</config>
-<config key="columnConfig_GeocodingLatitude">
-<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
-<config key="internals">
-<config key="ignoreColumnProperties_Internals">
+<config key="ignoreColumnElementNames_Internals">
 <entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
-<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
-<config key="ignoreDomain_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreDomain" type="xboolean" value="false"/>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_GeocodingStreet">
@@ -94,9 +99,14 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
-<config key="columnConfig_GeocodingLongitude">
+<config key="columnConfig_Latitude">
 <entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
 <config key="internals">
 <config key="ignoreColumnProperties_Internals">
@@ -104,21 +114,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreColumnProperties" type="xboolean" value="false"/>
-<config key="ignoreDomain_Internals">
+<config key="ignoreColumnElementNames_Internals">
 <entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
-<entry key="ignoreDomain" type="xboolean" value="false"/>
-</config>
-</config>
-<config key="columnConfig_GeocodingCity">
-<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
-<config key="internals">
-<config key="ignoreColumnProperties_Internals">
-<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
-<entry key="EnabledStatus" type="xboolean" value="true"/>
-</config>
-<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 <config key="ignoreDomain_Internals">
 <entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
 <entry key="EnabledStatus" type="xboolean" value="true"/>
@@ -139,6 +139,51 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="columnConfig_GeocodingCity">
+<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
+<config key="internals">
+<config key="ignoreColumnProperties_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<config key="ignoreDomain_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="columnConfig_Longitude">
+<entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
+<config key="internals">
+<config key="ignoreColumnProperties_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnProperties" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
+<config key="ignoreDomain_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreDomain" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_GeocodingPostalCode">
@@ -154,6 +199,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <config key="columnConfig_GeocodingURL">
@@ -169,6 +219,11 @@
 <entry key="EnabledStatus" type="xboolean" value="true"/>
 </config>
 <entry key="ignoreDomain" type="xboolean" value="false"/>
+<config key="ignoreColumnElementNames_Internals">
+<entry key="SettingsModelID" type="xstring" value="SMID_boolean"/>
+<entry key="EnabledStatus" type="xboolean" value="true"/>
+</config>
+<entry key="ignoreColumnElementNames" type="xboolean" value="false"/>
 </config>
 </config>
 <entry key="ignoreRowIds" type="xboolean" value="false"/>
@@ -194,7 +249,7 @@
 <entry key="node-bundle-name" type="xstring" value="Test-Node extension for KNIME Workbench"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.testing"/>
 <entry key="node-bundle-vendor" type="xstring" value="KNIME GmbH, Konstanz, Germany"/>
-<entry key="node-bundle-version" type="xstring" value="3.2.0.v201606211823"/>
+<entry key="node-bundle-version" type="xstring" value="3.3.2.v201703230956"/>
 <entry key="node-feature-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-symbolic-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-vendor" type="xstring" isnull="true" value=""/>

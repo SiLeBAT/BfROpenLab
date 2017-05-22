@@ -86,8 +86,8 @@ public class GeocodingNodeModel extends NodeModelWithoutInternals {
 	public static final String STATE_COLUMN = "GeocodingState";
 	public static final String COUNTRY_COLUMN = "GeocodingCountry";
 	public static final String POSTAL_CODE_COLUMN = "GeocodingPostalCode";
-	public static final String LATITUDE_COLUMN = "GeocodingLatitude";
-	public static final String LONGITUDE_COLUMN = "GeocodingLongitude";
+	public static final String LATITUDE_COLUMN = "Latitude";
+	public static final String LONGITUDE_COLUMN = "Longitude";
 
 	private ImmutableSet<String> GEOCODING_COLUMNS = ImmutableSet.of(URL_COLUMN, STREET_COLUMN, CITY_COLUMN,
 			DISTRICT_COLUMN, STATE_COLUMN, COUNTRY_COLUMN, POSTAL_CODE_COLUMN, LATITUDE_COLUMN, LONGITUDE_COLUMN);

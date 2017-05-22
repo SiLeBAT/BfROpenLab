@@ -35,8 +35,8 @@
 
 	<ports>
 		<inPort index="0" name="Input Data">
-			Input data table. Latitude must be in column "GeocodingLatitude" and
-			longitude in column "GeocodingLongitude". Optional column "Clusterable" defines which rows should
+			Input data table. Latitude must be in column "Latitude" and
+			longitude in column "Longitude". Optional column "Clusterable" defines which rows should
 			be clustered.
 		</inPort>
 		<outPort index="0" name="Clustered Data">

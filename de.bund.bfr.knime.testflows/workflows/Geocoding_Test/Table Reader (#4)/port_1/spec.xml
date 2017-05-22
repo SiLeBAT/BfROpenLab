@@ -174,7 +174,7 @@
 <config key="column_properties"/>
 </config>
 <config key="column_spec_9">
-<entry key="column_name" type="xstring" value="GeocodingLatitude"/>
+<entry key="column_name" type="xstring" value="Latitude"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
 </config>
@@ -198,7 +198,7 @@
 <config key="column_properties"/>
 </config>
 <config key="column_spec_10">
-<entry key="column_name" type="xstring" value="GeocodingLongitude"/>
+<entry key="column_name" type="xstring" value="Longitude"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
 </config>

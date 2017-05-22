@@ -81,7 +81,7 @@
 			<option name="Switch to GIS/Graph">
 				This button can be used to switch between the usual graph view and a
 				geographical view. Is only enabled if latitude and longitude for stations are provided in
-				columns "GeocodingLatitude" and "GeocodingLongitude".
+				columns "Latitude" and "Longitude".
 			</option>
 			<option name="GIS Type">
 				Here the use can choose between different GIS visualizations. If a shape
