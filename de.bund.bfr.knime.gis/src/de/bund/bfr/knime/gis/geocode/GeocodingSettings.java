@@ -58,6 +58,9 @@ public class GeocodingSettings extends NodeSettings {
 		}
 	}
 
+	public static final String DEFAULT_ADDRESS_COLUMN = "Address";
+	public static final String DEFAULT_COUNTRY_COLUMN = "Country";
+
 	private static final String CFG_SERVICE_PROVIDER = "ServiceProvider";
 	private static final String CFG_ADDRESS_COLUMN = "AddressColumn";
 	private static final String CFG_COUNTRY_CODE_COLUMN = "CountryCodeColumn";
@@ -74,8 +77,8 @@ public class GeocodingSettings extends NodeSettings {
 
 	public GeocodingSettings() {
 		serviceProvider = Provider.MAPQUEST;
-		addressColumn = null;
-		countryCodeColumn = null;
+		addressColumn = DEFAULT_ADDRESS_COLUMN;
+		countryCodeColumn = DEFAULT_COUNTRY_COLUMN;
 		gisgraphyServer = null;
 		requestDelay = 500;
 		multipleResults = Multiple.DO_NOT_USE;

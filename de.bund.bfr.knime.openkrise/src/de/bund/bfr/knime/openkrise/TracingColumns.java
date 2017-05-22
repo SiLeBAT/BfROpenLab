@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+import de.bund.bfr.knime.gis.geocode.GeocodingSettings;
 
 public interface TracingColumns {
 
@@ -53,7 +54,7 @@ public interface TracingColumns {
 	public static final String FORWARD = "Forward";
 
 	public static final String CLUSTER_ID = "ClusterID";
-	public static final String ADDRESS = "Address";
+	public static final String ADDRESS = GeocodingSettings.DEFAULT_ADDRESS_COLUMN;
 	public static final String DELIVERY_DEPARTURE = "Date Delivery";
 	public static final String DELIVERY_ARRIVAL = "Date Delivery Arrival";
 
@@ -65,7 +66,7 @@ public interface TracingColumns {
 	public static final String STATION_CITY = "City";
 	public static final String STATION_DISTRICT = "District";
 	public static final String STATION_STATE = "State";
-	public static final String STATION_COUNTRY = "Country";
+	public static final String STATION_COUNTRY = GeocodingSettings.DEFAULT_COUNTRY_COLUMN;
 	public static final String STATION_TOB = "type of business";
 	public static final String STATION_SIMPLESUPPLIER = "SimpleSupplier";
 	public static final String STATION_DEADSTART = "DeadStart";

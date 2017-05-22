@@ -107,10 +107,6 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		if (addressBox.getSelectedColumnName() == null) {
-			throw new InvalidSettingsException("No Address Data specified");
-		}
-
 		if (delayField.getText().trim().isEmpty()) {
 			throw new InvalidSettingsException("No Request Delay specified");
 		}
@@ -127,10 +123,6 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		set.setMultipleResults((GeocodingSettings.Multiple) multipleBox.getSelectedItem());
 
 		if (set.getServiceProvider() == GeocodingSettings.Provider.GISGRAPHY) {
-			if (countryCodeBox.getSelectedColumnName() == null) {
-				throw new InvalidSettingsException("No Country Code specified");
-			}
-
 			if (serverField.getText().trim().isEmpty()) {
 				throw new InvalidSettingsException("No Server specified");
 			}
