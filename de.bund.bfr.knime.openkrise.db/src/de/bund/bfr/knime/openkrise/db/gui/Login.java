@@ -130,6 +130,8 @@ public class Login extends JFrame {
 			mf = loadDB(autoUpdate, openTheGui, autoUpdate == null);
 		}
 		if (mf != null) {
+			DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
+			DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("Station") + " ADD COLUMN " + MyDBI.delimitL("Adresse") + " VARCHAR(32768)", true, true);
 			//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
 			/*
 			  DBKernel.sendRequest("DELETE FROM " +

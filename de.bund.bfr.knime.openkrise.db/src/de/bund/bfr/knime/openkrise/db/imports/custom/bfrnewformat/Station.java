@@ -136,6 +136,15 @@ public class Station {
 	private String district;
 	private String state;
 	private String country;
+	private String address;
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
 	private String typeOfBusiness;
 	
 	private Integer dbId;
@@ -264,8 +273,8 @@ public class Station {
 		//dbId = null;
 		String in = MyDBI.delimitL("ID");
 		String iv = Integer.parseInt(id)+"";
-		String[] feldnames = new String[]{"Name","Strasse","Land"};
-		String[] sFeldVals = new String[]{name,street,country};
+		String[] feldnames = new String[]{"Name","Strasse","Land","Adresse","Betriebsart"};
+		String[] sFeldVals = new String[]{name,street,country,address,typeOfBusiness};
 
 		int i=0;
 		for (;i<sFeldVals.length;i++) {

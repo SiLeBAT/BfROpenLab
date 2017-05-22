@@ -63,7 +63,7 @@ import de.bund.bfr.knime.openkrise.common.Station;
 public class TraceGenerator {
 
 	private JComponent parent;
-	private boolean doTheSimpleTemplates = true;
+	private boolean doTheSimpleTemplates = false;
 	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward) {
 		this.parent = parent;
 		try {

@@ -492,6 +492,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	private List<Exception> doTheSimpleImport(Workbook wb, String filename) { //  throws Exception
 		DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
+		DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("Station") + " ADD COLUMN " + MyDBI.delimitL("Adresse") + " VARCHAR(32768)", true, true);
 		List<Exception> exceptions = new ArrayList<>();
 		
 		boolean backtracing = true;
@@ -512,14 +513,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		HashMap<String, Delivery> olddelsLot = new HashMap<>();
 
 		int NAME = -1, ADDRESS = -1, ADDRESS_COUNTRY = -1, PRODUCTNAME = -1, EAN = -1, CHARGE = -1, MHD = -1, DAY = -1, MONTH = -1,
-				YEAR = -1, AMOUNT = -1, COMMENT = -1, CHARGENLINK = -1;
+				YEAR = -1, AMOUNT = -1, COMMENT = -1, CHARGENLINK = -1, TOB = -1;
 		if (sheet != null) {
 			Station focusS = new Station();
 			Row row = sheet.getRow(0);
 			String cs = getCellString(row.getCell(1));
 			focusS.setName(cs);
 			String address = getCellString(row.getCell(2));
-			focusS.setStreet(address);
+			focusS.setAddress(address);
 			focusS.setCountry(getCellString(row.getCell(6))); // oder 3 ... ???
 			focusS.addFlexibleField("Quelle", "Zeile 1");
 			int sID = genDbId(""+cs+address);
@@ -550,8 +551,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							else {
 								supplierS = new Station();
 								supplierS.setName(name);
-								supplierS.setStreet(address);
+								supplierS.setAddress(address);
 								if (ADDRESS_COUNTRY >= 0) supplierS.setCountry(getCellString(row.getCell(ADDRESS_COUNTRY)));
+								if (TOB >= 0) supplierS.setTypeOfBusiness(getCellString(row.getCell(TOB)));
 								supplierS.addFlexibleField("Quelle", "Zeile " + (i+1));
 								supplierS.setId(""+sID);
 								stations.put(sID, supplierS);
@@ -684,7 +686,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							if (isProduction && i==4) {
 								CHARGENLINK = -1; NAME = 9; ADDRESS = 10; PRODUCTNAME = 1; EAN = 2; CHARGE = 3; MHD = 4; DAY = 5; MONTH = 6; YEAR = 7; AMOUNT = 8;							
 								String ls = getCellString(row.getCell(11));
-								if (ls != null && ls.equals("Land")) {
+								if (ls != null && ls.equals("Land")) { // Betriebsart hier auch rein etc etc
 									ADDRESS_COUNTRY = 11; COMMENT = 12;								
 								}
 								else {
