@@ -130,8 +130,6 @@ public class Login extends JFrame {
 			mf = loadDB(autoUpdate, openTheGui, autoUpdate == null);
 		}
 		if (mf != null) {
-			DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
-			DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("Station") + " ADD COLUMN " + MyDBI.delimitL("Adresse") + " VARCHAR(32768)", true, true);
 			//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
 			/*
 			  DBKernel.sendRequest("DELETE FROM " +
@@ -473,6 +471,10 @@ public class Login extends JFrame {
 			if (DBKernel.getDBVersionFromDB().equals("1.8.4")) {
 				UpdateChecker.check4Updates_184_185();
 				DBKernel.setDBVersion("1.8.5");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.8.5")) {
+				UpdateChecker.check4Updates_185_186();
+				DBKernel.setDBVersion("1.8.6");
 			}
 
 			DBKernel.closeDBConnections(false);

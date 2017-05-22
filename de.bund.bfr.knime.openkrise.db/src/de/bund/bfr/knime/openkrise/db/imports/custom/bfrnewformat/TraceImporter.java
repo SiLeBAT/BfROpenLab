@@ -491,8 +491,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return null;
 	}
 	private List<Exception> doTheSimpleImport(Workbook wb, String filename) { //  throws Exception
-		DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
-		DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("Station") + " ADD COLUMN " + MyDBI.delimitL("Adresse") + " VARCHAR(32768)", true, true);
 		List<Exception> exceptions = new ArrayList<>();
 		
 		boolean backtracing = true;
@@ -686,7 +684,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							if (isProduction && i==4) {
 								CHARGENLINK = -1; NAME = 9; ADDRESS = 10; PRODUCTNAME = 1; EAN = 2; CHARGE = 3; MHD = 4; DAY = 5; MONTH = 6; YEAR = 7; AMOUNT = 8;							
 								String ls = getCellString(row.getCell(11));
-								if (ls != null && ls.equals("Land")) { // Betriebsart hier auch rein etc etc
+								if (ls != null && ls.equals("Land")) { // Betriebsart hier auch rein etc etc UND mal bitte wieder ein DB update machen!
 									ADDRESS_COUNTRY = 11; COMMENT = 12;								
 								}
 								else {

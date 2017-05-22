@@ -39,6 +39,10 @@ import de.bund.bfr.knime.openkrise.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_185_186() {
+		DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
+		DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("Station") + " ADD COLUMN " + MyDBI.delimitL("Adresse") + " VARCHAR(32768)", true, true);
+	}
 	public static void check4Updates_184_185() {
 		DBKernel.myDBi.getTable("LookUps").createTable();
 	}

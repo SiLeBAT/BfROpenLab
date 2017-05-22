@@ -105,7 +105,7 @@ public class DBKernel {
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
 
-	public static String softwareVersion = "1.8.5";
+	public static String softwareVersion = "1.8.6";
 	public static boolean debug = true;
 
 	public static String getTempSA(String dbPath) {
