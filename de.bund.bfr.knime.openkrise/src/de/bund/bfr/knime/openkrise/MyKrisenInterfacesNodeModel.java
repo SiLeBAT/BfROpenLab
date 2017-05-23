@@ -198,12 +198,19 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 		addSpecIf(!set.isLotBased(), columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.STATION_NAME, StringCell.TYPE);
 
-		addSpec(columns, TracingColumns.STATION_STREET, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_HOUSENO, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_ZIP, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_CITY, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_DISTRICT, StringCell.TYPE);
-		addSpec(columns, TracingColumns.STATION_STATE, StringCell.TYPE);
+		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.STRASSE), columns,
+				TracingColumns.STATION_STREET, StringCell.TYPE);
+		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.HAUSNUMMER), columns,
+				TracingColumns.STATION_HOUSENO, StringCell.TYPE);
+		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.PLZ), columns,
+				TracingColumns.STATION_ZIP, StringCell.TYPE);
+		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.ORT), columns,
+				TracingColumns.STATION_CITY, StringCell.TYPE);
+		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.DISTRICT), columns,
+				TracingColumns.STATION_DISTRICT, StringCell.TYPE);
+		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.BUNDESLAND), columns,
+				TracingColumns.STATION_STATE, StringCell.TYPE);
+		addSpecIf(hasValues(conn, STATION.ADRESSE), columns, TracingColumns.ADDRESS, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_COUNTRY, StringCell.TYPE);
 
 		addSpecIf(!set.isLotBased(), columns, TracingColumns.STATION_SIMPLESUPPLIER, BooleanCell.TYPE);
@@ -332,33 +339,33 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 
 		for (Record r : select) {
 			String stationId = stationIds.get(r.getValue(STATION.ID));
-			String district = clean(r.getValue(STATION.DISTRICT));
 			String state = clean(r.getValue(STATION.BUNDESLAND));
 			String country = clean(r.getValue(STATION.LAND));
-			String zip = clean(r.getValue(STATION.PLZ));
-
-			String company = r.getValue(STATION.NAME) == null || set.isAnonymize()
+			String name = r.getValue(STATION.NAME) == null || set.isAnonymize()
 					? getISO3166_2(country, state) + "#" + r.getValue(STATION.ID) : clean(r.getValue(STATION.NAME));
+
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
 			fillCell(spec, cells, TracingColumns.ID,
 					!set.isLotBased() ? createCell(stationId) : createCell(String.valueOf(r.getValue(CHARGEN.ID))));
 			fillCell(spec, cells, TracingColumns.STATION_ID, createCell(stationId));
-			fillCell(spec, cells, BackwardUtils.STATION_NODE, createCell(company));
+			fillCell(spec, cells, BackwardUtils.STATION_NODE, createCell(name));
 			fillCell(spec, cells, TracingColumns.NAME,
-					!set.isLotBased() ? createCell(company) : createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
-			fillCell(spec, cells, TracingColumns.STATION_NAME, createCell(company));
+					!set.isLotBased() ? createCell(name) : createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
+			fillCell(spec, cells, TracingColumns.STATION_NAME, createCell(name));
 			fillCell(spec, cells, TracingColumns.STATION_STREET,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.STRASSE)));
 			fillCell(spec, cells, TracingColumns.STATION_HOUSENO,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.HAUSNUMMER)));
-			fillCell(spec, cells, TracingColumns.STATION_ZIP, createCell(zip));
+			fillCell(spec, cells, TracingColumns.STATION_ZIP, createCell(r.getValue(STATION.PLZ)));
 			fillCell(spec, cells, TracingColumns.STATION_CITY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.ORT)));
 			fillCell(spec, cells, TracingColumns.STATION_DISTRICT,
-					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
+					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.DISTRICT)));
 			fillCell(spec, cells, TracingColumns.STATION_STATE,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(state));
+			fillCell(spec, cells, TracingColumns.ADDRESS,
+					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.ADRESSE)));
 			fillCell(spec, cells, TracingColumns.STATION_COUNTRY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(country));
 			fillCell(spec, cells, BackwardUtils.STATION_VAT,
@@ -378,7 +385,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 					!deliversTo.containsKey(stationId) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
 			fillCell(spec, cells, BackwardUtils.STATION_COUNTY,
-					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
+					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.DISTRICT)));
 
 			if (set.isLotBased()) {
 				fillCell(spec, cells, TracingColumns.LOT_NUMBER, createCell(r.getValue(CHARGEN.CHARGENNR)));
