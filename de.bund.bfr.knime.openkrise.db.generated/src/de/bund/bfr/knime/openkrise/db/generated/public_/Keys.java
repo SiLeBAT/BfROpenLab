@@ -59,15 +59,15 @@ public class Keys {
 	// UNIQUE and PRIMARY KEY definitions
 	// -------------------------------------------------------------------------
 
-	public static final UniqueKey<ChargenRecord> SYS_PK_10912 = UniqueKeys0.SYS_PK_10912;
-	public static final UniqueKey<ChargenverbindungenRecord> SYS_PK_10926 = UniqueKeys0.SYS_PK_10926;
+	public static final UniqueKey<ChargenRecord> SYS_PK_10175 = UniqueKeys0.SYS_PK_10175;
+	public static final UniqueKey<ChargenverbindungenRecord> SYS_PK_10189 = UniqueKeys0.SYS_PK_10189;
 	public static final UniqueKey<ExtrafieldsRecord> EXTRAFIELDS_UNI_0 = UniqueKeys0.EXTRAFIELDS_UNI_0;
-	public static final UniqueKey<ImportmetadataRecord> SYS_PK_10939 = UniqueKeys0.SYS_PK_10939;
+	public static final UniqueKey<ImportmetadataRecord> SYS_PK_10202 = UniqueKeys0.SYS_PK_10202;
 	public static final UniqueKey<ImportmetadataRecord> IMPORTMETADATA_UNI_0 = UniqueKeys0.IMPORTMETADATA_UNI_0;
-	public static final UniqueKey<LieferungenRecord> SYS_PK_10918 = UniqueKeys0.SYS_PK_10918;
-	public static final UniqueKey<LookupsRecord> SYS_PK_10944 = UniqueKeys0.SYS_PK_10944;
-	public static final UniqueKey<ProduktkatalogRecord> SYS_PK_10898 = UniqueKeys0.SYS_PK_10898;
-	public static final UniqueKey<StationRecord> SYS_PK_10886 = UniqueKeys0.SYS_PK_10886;
+	public static final UniqueKey<LieferungenRecord> SYS_PK_10181 = UniqueKeys0.SYS_PK_10181;
+	public static final UniqueKey<LookupsRecord> SYS_PK_10207 = UniqueKeys0.SYS_PK_10207;
+	public static final UniqueKey<ProduktkatalogRecord> SYS_PK_10161 = UniqueKeys0.SYS_PK_10161;
+	public static final UniqueKey<StationRecord> SYS_PK_10149 = UniqueKeys0.SYS_PK_10149;
 
 	// -------------------------------------------------------------------------
 	// FOREIGN KEY definitions
@@ -95,23 +95,23 @@ public class Keys {
 	}
 
 	private static class UniqueKeys0 extends AbstractKeys {
-		public static final UniqueKey<ChargenRecord> SYS_PK_10912 = createUniqueKey(Chargen.CHARGEN, Chargen.CHARGEN.ID);
-		public static final UniqueKey<ChargenverbindungenRecord> SYS_PK_10926 = createUniqueKey(Chargenverbindungen.CHARGENVERBINDUNGEN, Chargenverbindungen.CHARGENVERBINDUNGEN.ID);
+		public static final UniqueKey<ChargenRecord> SYS_PK_10175 = createUniqueKey(Chargen.CHARGEN, Chargen.CHARGEN.ID);
+		public static final UniqueKey<ChargenverbindungenRecord> SYS_PK_10189 = createUniqueKey(Chargenverbindungen.CHARGENVERBINDUNGEN, Chargenverbindungen.CHARGENVERBINDUNGEN.ID);
 		public static final UniqueKey<ExtrafieldsRecord> EXTRAFIELDS_UNI_0 = createUniqueKey(Extrafields.EXTRAFIELDS, Extrafields.EXTRAFIELDS.TABLENAME, Extrafields.EXTRAFIELDS.ID, Extrafields.EXTRAFIELDS.ATTRIBUTE, Extrafields.EXTRAFIELDS.VALUE);
-		public static final UniqueKey<ImportmetadataRecord> SYS_PK_10939 = createUniqueKey(Importmetadata.IMPORTMETADATA, Importmetadata.IMPORTMETADATA.ID);
+		public static final UniqueKey<ImportmetadataRecord> SYS_PK_10202 = createUniqueKey(Importmetadata.IMPORTMETADATA, Importmetadata.IMPORTMETADATA.ID);
 		public static final UniqueKey<ImportmetadataRecord> IMPORTMETADATA_UNI_0 = createUniqueKey(Importmetadata.IMPORTMETADATA, Importmetadata.IMPORTMETADATA.FILENAME);
-		public static final UniqueKey<LieferungenRecord> SYS_PK_10918 = createUniqueKey(Lieferungen.LIEFERUNGEN, Lieferungen.LIEFERUNGEN.ID);
-		public static final UniqueKey<LookupsRecord> SYS_PK_10944 = createUniqueKey(Lookups.LOOKUPS, Lookups.LOOKUPS.ID);
-		public static final UniqueKey<ProduktkatalogRecord> SYS_PK_10898 = createUniqueKey(Produktkatalog.PRODUKTKATALOG, Produktkatalog.PRODUKTKATALOG.ID);
-		public static final UniqueKey<StationRecord> SYS_PK_10886 = createUniqueKey(Station.STATION, Station.STATION.ID);
+		public static final UniqueKey<LieferungenRecord> SYS_PK_10181 = createUniqueKey(Lieferungen.LIEFERUNGEN, Lieferungen.LIEFERUNGEN.ID);
+		public static final UniqueKey<LookupsRecord> SYS_PK_10207 = createUniqueKey(Lookups.LOOKUPS, Lookups.LOOKUPS.ID);
+		public static final UniqueKey<ProduktkatalogRecord> SYS_PK_10161 = createUniqueKey(Produktkatalog.PRODUKTKATALOG, Produktkatalog.PRODUKTKATALOG.ID);
+		public static final UniqueKey<StationRecord> SYS_PK_10149 = createUniqueKey(Station.STATION, Station.STATION.ID);
 	}
 
 	private static class ForeignKeys0 extends AbstractKeys {
-		public static final ForeignKey<ChargenRecord, ProduktkatalogRecord> CHARGEN_FK_ARTIKEL_0 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10898, Chargen.CHARGEN, Chargen.CHARGEN.ARTIKEL);
-		public static final ForeignKey<ChargenverbindungenRecord, LieferungenRecord> CHARGENVERBINDUNGEN_FK_ZUTAT_0 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10918, Chargenverbindungen.CHARGENVERBINDUNGEN, Chargenverbindungen.CHARGENVERBINDUNGEN.ZUTAT);
-		public static final ForeignKey<ChargenverbindungenRecord, ChargenRecord> CHARGENVERBINDUNGEN_FK_PRODUKT_1 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10912, Chargenverbindungen.CHARGENVERBINDUNGEN, Chargenverbindungen.CHARGENVERBINDUNGEN.PRODUKT);
-		public static final ForeignKey<LieferungenRecord, ChargenRecord> LIEFERUNGEN_FK_CHARGE_0 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10912, Lieferungen.LIEFERUNGEN, Lieferungen.LIEFERUNGEN.CHARGE);
-		public static final ForeignKey<LieferungenRecord, StationRecord> LIEFERUNGEN_FK_EMPFÄNGER_8 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10886, Lieferungen.LIEFERUNGEN, Lieferungen.LIEFERUNGEN.EMPFÄNGER);
-		public static final ForeignKey<ProduktkatalogRecord, StationRecord> PRODUKTKATALOG_FK_STATION_0 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10886, Produktkatalog.PRODUKTKATALOG, Produktkatalog.PRODUKTKATALOG.STATION);
+		public static final ForeignKey<ChargenRecord, ProduktkatalogRecord> CHARGEN_FK_ARTIKEL_0 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10161, Chargen.CHARGEN, Chargen.CHARGEN.ARTIKEL);
+		public static final ForeignKey<ChargenverbindungenRecord, LieferungenRecord> CHARGENVERBINDUNGEN_FK_ZUTAT_0 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10181, Chargenverbindungen.CHARGENVERBINDUNGEN, Chargenverbindungen.CHARGENVERBINDUNGEN.ZUTAT);
+		public static final ForeignKey<ChargenverbindungenRecord, ChargenRecord> CHARGENVERBINDUNGEN_FK_PRODUKT_1 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10175, Chargenverbindungen.CHARGENVERBINDUNGEN, Chargenverbindungen.CHARGENVERBINDUNGEN.PRODUKT);
+		public static final ForeignKey<LieferungenRecord, ChargenRecord> LIEFERUNGEN_FK_CHARGE_0 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10175, Lieferungen.LIEFERUNGEN, Lieferungen.LIEFERUNGEN.CHARGE);
+		public static final ForeignKey<LieferungenRecord, StationRecord> LIEFERUNGEN_FK_EMPFÄNGER_8 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10149, Lieferungen.LIEFERUNGEN, Lieferungen.LIEFERUNGEN.EMPFÄNGER);
+		public static final ForeignKey<ProduktkatalogRecord, StationRecord> PRODUKTKATALOG_FK_STATION_0 = createForeignKey(de.bund.bfr.knime.openkrise.db.generated.public_.Keys.SYS_PK_10149, Produktkatalog.PRODUKTKATALOG, Produktkatalog.PRODUKTKATALOG.STATION);
 	}
 }

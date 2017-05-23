@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Importmetadata extends TableImpl<ImportmetadataRecord> {
 
-	private static final long serialVersionUID = 902704517;
+	private static final long serialVersionUID = 376981295;
 
 	/**
 	 * The reference instance of <code>PUBLIC.ImportMetadata</code>
@@ -109,7 +109,7 @@ public class Importmetadata extends TableImpl<ImportmetadataRecord> {
 	 */
 	@Override
 	public UniqueKey<ImportmetadataRecord> getPrimaryKey() {
-		return Keys.SYS_PK_10939;
+		return Keys.SYS_PK_10202;
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class Importmetadata extends TableImpl<ImportmetadataRecord> {
 	 */
 	@Override
 	public List<UniqueKey<ImportmetadataRecord>> getKeys() {
-		return Arrays.<UniqueKey<ImportmetadataRecord>>asList(Keys.SYS_PK_10939, Keys.IMPORTMETADATA_UNI_0);
+		return Arrays.<UniqueKey<ImportmetadataRecord>>asList(Keys.SYS_PK_10202, Keys.IMPORTMETADATA_UNI_0);
 	}
 
 	/**

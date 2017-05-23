@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Produktkatalog extends TableImpl<ProduktkatalogRecord> {
 
-	private static final long serialVersionUID = 1583532685;
+	private static final long serialVersionUID = -433376093;
 
 	/**
 	 * The reference instance of <code>PUBLIC.Produktkatalog</code>
@@ -145,7 +145,7 @@ public class Produktkatalog extends TableImpl<ProduktkatalogRecord> {
 	 */
 	@Override
 	public UniqueKey<ProduktkatalogRecord> getPrimaryKey() {
-		return Keys.SYS_PK_10898;
+		return Keys.SYS_PK_10161;
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class Produktkatalog extends TableImpl<ProduktkatalogRecord> {
 	 */
 	@Override
 	public List<UniqueKey<ProduktkatalogRecord>> getKeys() {
-		return Arrays.<UniqueKey<ProduktkatalogRecord>>asList(Keys.SYS_PK_10898);
+		return Arrays.<UniqueKey<ProduktkatalogRecord>>asList(Keys.SYS_PK_10161);
 	}
 
 	/**

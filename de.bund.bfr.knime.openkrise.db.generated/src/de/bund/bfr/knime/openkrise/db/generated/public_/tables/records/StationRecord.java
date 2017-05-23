@@ -27,7 +27,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class StationRecord extends UpdatableRecordImpl<StationRecord> {
 
-	private static final long serialVersionUID = -658309396;
+	private static final long serialVersionUID = -2089588068;
 
 	/**
 	 * Setter for <code>PUBLIC.Station.ID</code>.
@@ -491,6 +491,20 @@ public class StationRecord extends UpdatableRecordImpl<StationRecord> {
 		return (String) getValue(32);
 	}
 
+	/**
+	 * Setter for <code>PUBLIC.Station.Adresse</code>.
+	 */
+	public void setAdresse(String value) {
+		setValue(33, value);
+	}
+
+	/**
+	 * Getter for <code>PUBLIC.Station.Adresse</code>.
+	 */
+	public String getAdresse() {
+		return (String) getValue(33);
+	}
+
 	// -------------------------------------------------------------------------
 	// Primary key information
 	// -------------------------------------------------------------------------
@@ -517,7 +531,7 @@ public class StationRecord extends UpdatableRecordImpl<StationRecord> {
 	/**
 	 * Create a detached, initialised StationRecord
 	 */
-	public StationRecord(Integer id, Integer produktkatalog, String name, String strasse, String hausnummer, String postfach, String plz, String ort, String district, String bundesland, String land, Double longitude, Double latitude, String ansprechpartner, String telefon, String fax, String email, String webseite, String betriebsnummer, String betriebsart, String vatnumber, String code, Double casepriority, Integer anzahlfaelle, Integer altermin, Integer altermax, Date datumbeginn, Date datumhoehepunkt, Date datumende, Integer erregernachweis, String serial, String importsources, String kommentar) {
+	public StationRecord(Integer id, Integer produktkatalog, String name, String strasse, String hausnummer, String postfach, String plz, String ort, String district, String bundesland, String land, Double longitude, Double latitude, String ansprechpartner, String telefon, String fax, String email, String webseite, String betriebsnummer, String betriebsart, String vatnumber, String code, Double casepriority, Integer anzahlfaelle, Integer altermin, Integer altermax, Date datumbeginn, Date datumhoehepunkt, Date datumende, Integer erregernachweis, String serial, String importsources, String kommentar, String adresse) {
 		super(Station.STATION);
 
 		setValue(0, id);
@@ -553,5 +567,6 @@ public class StationRecord extends UpdatableRecordImpl<StationRecord> {
 		setValue(30, serial);
 		setValue(31, importsources);
 		setValue(32, kommentar);
+		setValue(33, adresse);
 	}
 }

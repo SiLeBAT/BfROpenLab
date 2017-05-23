@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Chargenverbindungen extends TableImpl<ChargenverbindungenRecord> {
 
-	private static final long serialVersionUID = 423102800;
+	private static final long serialVersionUID = 2135761126;
 
 	/**
 	 * The reference instance of <code>PUBLIC.ChargenVerbindungen</code>
@@ -115,7 +115,7 @@ public class Chargenverbindungen extends TableImpl<ChargenverbindungenRecord> {
 	 */
 	@Override
 	public UniqueKey<ChargenverbindungenRecord> getPrimaryKey() {
-		return Keys.SYS_PK_10926;
+		return Keys.SYS_PK_10189;
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class Chargenverbindungen extends TableImpl<ChargenverbindungenRecord> {
 	 */
 	@Override
 	public List<UniqueKey<ChargenverbindungenRecord>> getKeys() {
-		return Arrays.<UniqueKey<ChargenverbindungenRecord>>asList(Keys.SYS_PK_10926);
+		return Arrays.<UniqueKey<ChargenverbindungenRecord>>asList(Keys.SYS_PK_10189);
 	}
 
 	/**

@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Station extends TableImpl<StationRecord> {
 
-	private static final long serialVersionUID = 305731856;
+	private static final long serialVersionUID = 984748903;
 
 	/**
 	 * The reference instance of <code>PUBLIC.Station</code>
@@ -216,6 +216,11 @@ public class Station extends TableImpl<StationRecord> {
 	public final TableField<StationRecord, String> KOMMENTAR = createField("Kommentar", org.jooq.impl.SQLDataType.VARCHAR.length(1023), this, "");
 
 	/**
+	 * The column <code>PUBLIC.Station.Adresse</code>.
+	 */
+	public final TableField<StationRecord, String> ADRESSE = createField("Adresse", org.jooq.impl.SQLDataType.VARCHAR.length(32768), this, "");
+
+	/**
 	 * Create a <code>PUBLIC.Station</code> table reference
 	 */
 	public Station() {
@@ -250,7 +255,7 @@ public class Station extends TableImpl<StationRecord> {
 	 */
 	@Override
 	public UniqueKey<StationRecord> getPrimaryKey() {
-		return Keys.SYS_PK_10886;
+		return Keys.SYS_PK_10149;
 	}
 
 	/**
@@ -258,7 +263,7 @@ public class Station extends TableImpl<StationRecord> {
 	 */
 	@Override
 	public List<UniqueKey<StationRecord>> getKeys() {
-		return Arrays.<UniqueKey<StationRecord>>asList(Keys.SYS_PK_10886);
+		return Arrays.<UniqueKey<StationRecord>>asList(Keys.SYS_PK_10149);
 	}
 
 	/**

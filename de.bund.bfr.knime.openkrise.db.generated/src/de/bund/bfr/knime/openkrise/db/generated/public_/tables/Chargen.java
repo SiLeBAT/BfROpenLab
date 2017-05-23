@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Chargen extends TableImpl<ChargenRecord> {
 
-	private static final long serialVersionUID = 1186160251;
+	private static final long serialVersionUID = 1820516645;
 
 	/**
 	 * The reference instance of <code>PUBLIC.Chargen</code>
@@ -175,7 +175,7 @@ public class Chargen extends TableImpl<ChargenRecord> {
 	 */
 	@Override
 	public UniqueKey<ChargenRecord> getPrimaryKey() {
-		return Keys.SYS_PK_10912;
+		return Keys.SYS_PK_10175;
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class Chargen extends TableImpl<ChargenRecord> {
 	 */
 	@Override
 	public List<UniqueKey<ChargenRecord>> getKeys() {
-		return Arrays.<UniqueKey<ChargenRecord>>asList(Keys.SYS_PK_10912);
+		return Arrays.<UniqueKey<ChargenRecord>>asList(Keys.SYS_PK_10175);
 	}
 
 	/**

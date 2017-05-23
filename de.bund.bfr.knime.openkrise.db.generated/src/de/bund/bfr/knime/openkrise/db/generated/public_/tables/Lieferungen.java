@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Lieferungen extends TableImpl<LieferungenRecord> {
 
-	private static final long serialVersionUID = -375175963;
+	private static final long serialVersionUID = 159186169;
 
 	/**
 	 * The reference instance of <code>PUBLIC.Lieferungen</code>
@@ -185,7 +185,7 @@ public class Lieferungen extends TableImpl<LieferungenRecord> {
 	 */
 	@Override
 	public UniqueKey<LieferungenRecord> getPrimaryKey() {
-		return Keys.SYS_PK_10918;
+		return Keys.SYS_PK_10181;
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class Lieferungen extends TableImpl<LieferungenRecord> {
 	 */
 	@Override
 	public List<UniqueKey<LieferungenRecord>> getKeys() {
-		return Arrays.<UniqueKey<LieferungenRecord>>asList(Keys.SYS_PK_10918);
+		return Arrays.<UniqueKey<LieferungenRecord>>asList(Keys.SYS_PK_10181);
 	}
 
 	/**

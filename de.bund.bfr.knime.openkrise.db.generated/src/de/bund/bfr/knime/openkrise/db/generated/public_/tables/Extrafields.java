@@ -33,7 +33,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Extrafields extends TableImpl<ExtrafieldsRecord> {
 
-	private static final long serialVersionUID = -2141018744;
+	private static final long serialVersionUID = -373302160;
 
 	/**
 	 * The reference instance of <code>PUBLIC.ExtraFields</code>
@@ -66,7 +66,7 @@ public class Extrafields extends TableImpl<ExtrafieldsRecord> {
 	/**
 	 * The column <code>PUBLIC.ExtraFields.value</code>.
 	 */
-	public final TableField<ExtrafieldsRecord, String> VALUE = createField("value", org.jooq.impl.SQLDataType.VARCHAR.length(255), this, "");
+	public final TableField<ExtrafieldsRecord, String> VALUE = createField("value", org.jooq.impl.SQLDataType.VARCHAR.length(32768), this, "");
 
 	/**
 	 * Create a <code>PUBLIC.ExtraFields</code> table reference

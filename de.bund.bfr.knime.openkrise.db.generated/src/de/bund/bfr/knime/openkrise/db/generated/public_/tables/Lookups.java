@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Lookups extends TableImpl<LookupsRecord> {
 
-	private static final long serialVersionUID = -786591673;
+	private static final long serialVersionUID = -2136365625;
 
 	/**
 	 * The reference instance of <code>PUBLIC.LookUps</code>
@@ -99,7 +99,7 @@ public class Lookups extends TableImpl<LookupsRecord> {
 	 */
 	@Override
 	public UniqueKey<LookupsRecord> getPrimaryKey() {
-		return Keys.SYS_PK_10944;
+		return Keys.SYS_PK_10207;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class Lookups extends TableImpl<LookupsRecord> {
 	 */
 	@Override
 	public List<UniqueKey<LookupsRecord>> getKeys() {
-		return Arrays.<UniqueKey<LookupsRecord>>asList(Keys.SYS_PK_10944);
+		return Arrays.<UniqueKey<LookupsRecord>>asList(Keys.SYS_PK_10207);
 	}
 
 	/**
