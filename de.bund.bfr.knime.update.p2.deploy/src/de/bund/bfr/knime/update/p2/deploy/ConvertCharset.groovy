@@ -37,7 +37,7 @@ class ConvertCharset {
 	}
 
 	static void convert(File dir) {
-		for (File f : dir.listFiles()) {
+		for (def f : dir.listFiles()) {
 			if (f.isDirectory())
 				convert(f)
 			else if (f.name.toLowerCase().endsWith(".java"))

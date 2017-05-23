@@ -25,12 +25,12 @@ import java.util.zip.ZipOutputStream
 
 class RemoveFeatureFromContentJar {
 
-	static String CATEGORY = "bfropenlab"
-	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
-	static String FEATURE = "de.bund.bfr.knime.sbml.feature.feature.group"
+	static CATEGORY = "bfropenlab"
+	static UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
+	static FEATURE = "de.bund.bfr.knime.sbml.feature.feature.group"
 
-	static String CONTENT_JAR = "content.jar"
-	static String CONTENT_XML = "content.xml"
+	static CONTENT_JAR = "content.jar"
+	static CONTENT_XML = "content.xml"
 
 	static main(args) {
 		def contentJar = new File("${UPDATE_SITE}/${CONTENT_JAR}")

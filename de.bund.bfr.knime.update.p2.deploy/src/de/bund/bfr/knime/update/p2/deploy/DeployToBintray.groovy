@@ -33,18 +33,18 @@ import org.apache.http.protocol.HttpContext
 
 class DeployToBintray {
 
-	static boolean USE_PROXY = true
-	static String PROXY = "webproxy"
-	static int PORT = 8080
+	static USE_PROXY = true
+	static PROXY = "webproxy"
+	static PORT = 8080
 
-	static String SUBJECT = "silebat"
-	static String REPO = "generic"
-	static String PACKAGE = "update"
+	static SUBJECT = "silebat"
+	static REPO = "generic"
+	static PACKAGE = "update"
 
-	static String ARTIFACTS_JAR = "artifacts.jar"
-	static String CONTENT_JAR = "content.jar"
-	static String FEATURES = "features"
-	static String PLUGINS = "plugins"
+	static ARTIFACTS_JAR = "artifacts.jar"
+	static CONTENT_JAR = "content.jar"
+	static FEATURES = "features"
+	static PLUGINS = "plugins"
 
 	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
 

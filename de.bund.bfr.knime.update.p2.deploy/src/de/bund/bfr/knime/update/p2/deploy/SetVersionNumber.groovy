@@ -25,13 +25,13 @@ import java.util.zip.ZipOutputStream
 
 class SetVersionNumber {
 
-	static String ROOT = ".."
+	static ROOT = ".."
 
 	static main(args) {
 		println "version:"
 		def version = new Scanner(System.in).nextLine()
 
-		for (File d : new File(ROOT).listFiles())
+		for (def d : new File(ROOT).listFiles())
 			if (d.isDirectory() && (d.name.startsWith("de.bund.bfr") || d.name.startsWith("de.nrw"))) {
 				def manifest = new File("${d.absolutePath}/META-INF/MANIFEST.MF")
 				def feature = new File("${d.absolutePath}/feature.xml")
