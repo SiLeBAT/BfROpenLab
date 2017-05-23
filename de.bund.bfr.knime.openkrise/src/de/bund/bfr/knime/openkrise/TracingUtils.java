@@ -223,11 +223,17 @@ public class TracingUtils {
 		assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Table");
 		assertColumnNotMissing(spec, TracingColumns.FROM, "Delivery Table");
 		assertColumnNotMissing(spec, TracingColumns.TO, "Delivery Table");
-		assertColumnNotMissing(spec, TracingColumns.DELIVERY_DEPARTURE, "Delivery Table");
 
-		if (spec.getColumnSpec(TracingColumns.DELIVERY_DEPARTURE).getType() != StringCell.TYPE) {
+		if (spec.containsName(TracingColumns.DELIVERY_DEPARTURE)
+				&& spec.getColumnSpec(TracingColumns.DELIVERY_DEPARTURE).getType() != StringCell.TYPE) {
 			throw new NotConfigurableException(
 					"Delivery Table: Column \"" + TracingColumns.DELIVERY_DEPARTURE + "\" must be of type String");
+		}
+
+		if (spec.containsName(TracingColumns.DELIVERY_ARRIVAL)
+				&& spec.getColumnSpec(TracingColumns.DELIVERY_ARRIVAL).getType() != StringCell.TYPE) {
+			throw new NotConfigurableException(
+					"Delivery Table: Column \"" + TracingColumns.DELIVERY_ARRIVAL + "\" must be of type String");
 		}
 
 		List<Edge<V>> edges = new ArrayList<>();
