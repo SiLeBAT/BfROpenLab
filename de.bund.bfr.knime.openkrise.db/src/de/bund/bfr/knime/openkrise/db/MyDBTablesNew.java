@@ -113,8 +113,8 @@ public class MyDBTablesNew extends MyDBI {
 			if (toVersion.equals(fromVersion)) return;
 		}
 		if (fromVersion.equals("1.8.5")) {
-			DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
-			DBKernel.sendRequest("ALTER TABLE " + MyDBI.delimitL("Station") + " ADD COLUMN " + MyDBI.delimitL("Adresse") + " VARCHAR(32768)", true, true);
+			sendRequest("ALTER TABLE " + MyDBI.delimitL("Station") + " ADD COLUMN " + MyDBI.delimitL("Adresse") + " VARCHAR(32768)", false, true);
+			sendRequest("ALTER TABLE " + MyDBI.delimitL("ExtraFields") + " ALTER COLUMN " + MyDBI.delimitL("value") + " VARCHAR(32768)", false, true);
 			fromVersion = "1.8.6";
 			setVersion2DB(fromVersion);
 			if (toVersion.equals(fromVersion)) return;

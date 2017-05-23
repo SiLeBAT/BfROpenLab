@@ -657,6 +657,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
 		MyDBI db = new MyDBTablesNew();
 
 		db.establishNewConnection("SA", "", dbFolder + File.separator, false);
+		db.setDbUsername("SA");
 		db.updateCheck("");
 
 		Connection result = db.getConn();

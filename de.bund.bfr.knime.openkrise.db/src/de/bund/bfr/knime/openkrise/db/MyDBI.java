@@ -133,6 +133,9 @@ public abstract class MyDBI {
 	public String getDbUsername() {
 		return dbUsername;
 	}
+	public void setDbUsername(String dbUsername) {
+		this.dbUsername = dbUsername;;
+	}
 
 	public Connection getActualConn() {
 		return conn;
