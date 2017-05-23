@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FCL Basic Tests
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise.test
-Bundle-Version: 1.1.10.qualifier
+Bundle-Version: 1.1.11.qualifier
 Bundle-ClassPath: .
 Fragment-Host: de.bund.bfr.knime.openkrise
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
