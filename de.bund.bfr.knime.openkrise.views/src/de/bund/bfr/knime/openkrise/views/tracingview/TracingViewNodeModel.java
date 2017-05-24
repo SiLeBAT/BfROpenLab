@@ -30,7 +30,6 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
-import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
@@ -118,17 +117,12 @@ public class TracingViewNodeModel extends NodeModelWithoutInternals {
 
 		set.setGisType(originalGisType);
 
-		for (RowKey key : creator.getSkippedEdgeRows()) {
-			setWarningMessage("Delivery Table: Row " + key.getString() + " skipped");
-		}
-
-		for (RowKey key : creator.getSkippedTracingRows()) {
-			setWarningMessage("Tracing Table: Row " + key.getString() + " skipped");
-		}
-
-		for (RowKey key : creator.getSkippedShapeRows()) {
-			setWarningMessage("Shape Table: Row " + key.getString() + " skipped");
-		}
+		creator.getSkippedDeliveryRows().forEach((key,
+				value) -> setWarningMessage("Deliveries Table: Row " + key.getString() + " skipped (" + value + ")"));
+		creator.getSkippedDeliveryRelationRows().forEach((key, value) -> setWarningMessage(
+				"Deliveries Relations Table: Row " + key.getString() + " skipped (" + value + ")"));
+		creator.getSkippedShapeRows().forEach(
+				(key, value) -> setWarningMessage("Shapes Table: Row " + key.getString() + " skipped (" + value + ")"));
 
 		graphCanvas.getOptionsPanel().setJoinEdges(false);
 

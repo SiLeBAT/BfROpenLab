@@ -85,21 +85,19 @@ public class TracingParametersNodeModel extends NodeModelWithoutInternals {
 				TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(TracingUtils.getTableColumns(edgeTable.getSpec()),
 				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
-		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
-		Set<RowKey> skippedTracingRows = new LinkedHashSet<>();
+		Map<RowKey, String> skippedDeliveryRows = new LinkedHashMap<>();
+		Map<RowKey, String> skippedDeliveryRelationsRows = new LinkedHashMap<>();
 
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
-		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges, skippedTracingRows);
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+				skippedDeliveryRelationsRows);
 		Tracing tracing = new Tracing(deliveries.values());
 
-		for (RowKey key : skippedEdgeRows) {
-			setWarningMessage("Delivery Table: Row " + key.getString() + " skipped");
-		}
-
-		for (RowKey key : skippedTracingRows) {
-			setWarningMessage("Tracing Table: Row " + key.getString() + " skipped");
-		}
+		skippedDeliveryRows.forEach((key,
+				value) -> setWarningMessage("Deliveries Table: Row " + key.getString() + " skipped (" + value + ")"));
+		skippedDeliveryRelationsRows.forEach((key, value) -> setWarningMessage(
+				"Deliveries Relations Table: Row " + key.getString() + " skipped (" + value + ")"));
 
 		Map<String, Double> nodeWeights = createValueMap(nodes.values(), set.getNodeWeightCondition(),
 				set.getNodeWeightConditionValue(), 0.0, set.getNodeWeights());

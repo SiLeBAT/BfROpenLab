@@ -20,7 +20,7 @@
 package de.bund.bfr.knime.openkrise.util.cluster;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -96,7 +96,7 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane {
 			throws NotConfigurableException {
 		schema = new NodePropertySchema(TracingUtils.getTableColumns(input[0].getSpec()), TracingColumns.ID);
 		schema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(
-				TracingUtils.readLocationNodes(input[0], schema, new LinkedHashSet<>(), false).values()));
+				TracingUtils.readLocationNodes(input[0], schema, new LinkedHashMap<>(), false).values()));
 
 		set.loadSettings(settings);
 		modelBox.setSelectedItem(set.getModel());

@@ -19,10 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.tracing;
 
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTabbedPane;
@@ -125,8 +124,8 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		}
 
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
+		Map<RowKey, String> skippedDeliveryRows = new LinkedHashMap<>();
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
 
 		nodeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(nodes.values()));
 		edgeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(edges));
@@ -149,7 +148,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				set.getObservedEdgesConditionValue());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 
-		String warning = !skippedEdgeRows.isEmpty() ? "Some rows from the delivery table could not be imported."
+		String warning = !skippedDeliveryRows.isEmpty() ? "Some rows from the deliveries table could not be imported."
 				+ " Execute the Tracing View for more information." : null;
 
 		if (warning != null && lotBased) {

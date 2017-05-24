@@ -20,10 +20,9 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.RowKey;
@@ -58,9 +57,9 @@ public class TracingViewCanvasCreator {
 	private NodePropertySchema nodeSchema;
 	private EdgePropertySchema edgeSchema;
 
-	private Set<RowKey> skippedEdgeRows;
-	private Set<RowKey> skippedTracingRows;
-	private Set<RowKey> skippedShapeRows;
+	private Map<RowKey, String> skippedDeliveryRows;
+	private Map<RowKey, String> skippedDeliveryRelationRows;
+	private Map<RowKey, String> skippedShapeRows;
 
 	private boolean lotBased;
 
@@ -90,9 +89,9 @@ public class TracingViewCanvasCreator {
 		nodeSchema.setLongitude(nodeProperties.containsKey(BackwardUtils.OLD_LONGITUDE_COLUMN)
 				? BackwardUtils.OLD_LONGITUDE_COLUMN : GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		skippedEdgeRows = new LinkedHashSet<>();
-		skippedTracingRows = new LinkedHashSet<>();
-		skippedShapeRows = new LinkedHashSet<>();
+		skippedDeliveryRows = new LinkedHashMap<>();
+		skippedDeliveryRelationRows = new LinkedHashMap<>();
+		skippedShapeRows = new LinkedHashMap<>();
 
 		lotBased = TracingUtils.isLotBased(nodeSchema, edgeSchema);
 	}
@@ -125,8 +124,9 @@ public class TracingViewCanvasCreator {
 
 	public TracingGraphCanvas createGraphCanvas() throws NotConfigurableException {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
-		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges, skippedTracingRows);
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+				skippedDeliveryRelationRows);
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
 				edgeSchema, deliveries, lotBased);
 
@@ -139,10 +139,11 @@ public class TracingViewCanvasCreator {
 	}
 
 	public ITracingGisCanvas<?> createGisCanvas() throws NotConfigurableException {
-		Set<RowKey> invalidRows = new LinkedHashSet<>();
-		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, invalidRows, false);
-		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
-		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges, skippedTracingRows);
+		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashMap<>(),
+				false);
+		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+				skippedDeliveryRelationRows);
 		ITracingGisCanvas<?> canvas;
 
 		if (set.getGisType() == GisType.SHAPEFILE) {
@@ -162,15 +163,15 @@ public class TracingViewCanvasCreator {
 		return canvas;
 	}
 
-	public Set<RowKey> getSkippedEdgeRows() {
-		return skippedEdgeRows;
+	public Map<RowKey, String> getSkippedDeliveryRows() {
+		return skippedDeliveryRows;
 	}
 
-	public Set<RowKey> getSkippedTracingRows() {
-		return skippedTracingRows;
+	public Map<RowKey, String> getSkippedDeliveryRelationRows() {
+		return skippedDeliveryRelationRows;
 	}
 
-	public Set<RowKey> getSkippedShapeRows() {
+	public Map<RowKey, String> getSkippedShapeRows() {
 		return skippedShapeRows;
 	}
 

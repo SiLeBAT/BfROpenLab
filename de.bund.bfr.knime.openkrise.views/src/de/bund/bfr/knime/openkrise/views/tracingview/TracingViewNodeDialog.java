@@ -637,12 +637,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 		String warningTable = null;
 
-		if (!creator.getSkippedEdgeRows().isEmpty() && !creator.getSkippedTracingRows().isEmpty()) {
-			warningTable = "the delivery table and the tracing table";
-		} else if (!creator.getSkippedEdgeRows().isEmpty()) {
-			warningTable = "the delivery table";
-		} else if (!creator.getSkippedTracingRows().isEmpty()) {
-			warningTable = "the tracing table";
+		if (!creator.getSkippedDeliveryRows().isEmpty() && !creator.getSkippedDeliveryRelationRows().isEmpty()) {
+			warningTable = "the deliveries table and the delivery relations table";
+		} else if (!creator.getSkippedDeliveryRows().isEmpty()) {
+			warningTable = "the deliveries table";
+		} else if (!creator.getSkippedDeliveryRelationRows().isEmpty()) {
+			warningTable = "the delivery relations table";
 		}
 
 		String warning = warningTable != null ? "Some rows from " + warningTable + " could not be imported."

@@ -114,17 +114,17 @@ public class TracingUtils {
 		return new DataColumnSpecCreator(spec.getName(), StringCell.TYPE).createSpec();
 	}
 
-	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable nodeTable, NodePropertySchema nodeSchema)
+	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable stationTable, NodePropertySchema nodeSchema)
 			throws NotConfigurableException {
-		assertColumnNotMissing(nodeTable.getSpec(), TracingColumns.ID, "Station Table");
+		assertColumnNotMissing(stationTable.getSpec(), TracingColumns.ID, "Station Table");
 
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
 
 		nodeSchema.getMap().put(TracingColumns.ID, String.class);
 
-		for (DataRow row : nodeTable) {
-			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec().findColumnIndex(TracingColumns.ID)));
+		for (DataRow row : stationTable) {
+			String id = IO.getToCleanString(row.getCell(stationTable.getSpec().findColumnIndex(TracingColumns.ID)));
 
 			if (id == null) {
 				throw new NotConfigurableException("Station Table: Missing value in " + TracingColumns.ID + " column");
@@ -135,7 +135,7 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, nodeSchema, nodeTable.getSpec(), row);
+			TracingUtils.addToProperties(properties, nodeSchema, stationTable.getSpec(), row);
 			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeSchema);
 			nodes.put(id, new GraphNode(id, properties));
@@ -148,10 +148,10 @@ public class TracingUtils {
 		return nodes;
 	}
 
-	public static Map<String, LocationNode> readLocationNodes(BufferedDataTable nodeTable,
-			NodePropertySchema nodeSchema, Set<RowKey> invalidRows, boolean skipInvalid)
+	public static Map<String, LocationNode> readLocationNodes(BufferedDataTable stationTable,
+			NodePropertySchema nodeSchema, Map<RowKey, String> invalidRows, boolean skipInvalid)
 			throws NotConfigurableException {
-		DataTableSpec spec = nodeTable.getSpec();
+		DataTableSpec spec = stationTable.getSpec();
 		String latColumn = GeocodingNodeModel.LATITUDE_COLUMN;
 		String lonColumn = GeocodingNodeModel.LONGITUDE_COLUMN;
 
@@ -172,7 +172,7 @@ public class TracingUtils {
 
 		nodeSchema.getMap().put(TracingColumns.ID, String.class);
 
-		for (DataRow row : nodeTable) {
+		for (DataRow row : stationTable) {
 			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
 			Double lat = IO.getDouble(row.getCell(spec.findColumnIndex(latColumn)));
 			Double lon = IO.getDouble(row.getCell(spec.findColumnIndex(lonColumn)));
@@ -190,7 +190,8 @@ public class TracingUtils {
 				center = new Point2D.Double(lat, lon);
 				hasCoordinates = true;
 			} else {
-				invalidRows.add(row.getKey());
+				invalidRows.put(row.getKey(), "Invalid " + GeocodingNodeModel.LATITUDE_COLUMN + " and "
+						+ GeocodingNodeModel.LONGITUDE_COLUMN);
 
 				if (skipInvalid) {
 					continue;
@@ -199,7 +200,7 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, nodeSchema, nodeTable.getSpec(), row);
+			TracingUtils.addToProperties(properties, nodeSchema, stationTable.getSpec(), row);
 			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeSchema);
 			nodes.put(id, new LocationNode(id, properties, center));
@@ -216,9 +217,10 @@ public class TracingUtils {
 		return nodes;
 	}
 
-	public static <V extends Node> List<Edge<V>> readEdges(BufferedDataTable edgeTable, EdgePropertySchema edgeSchema,
-			Map<String, V> nodes, Set<RowKey> skippedRows) throws NotConfigurableException {
-		DataTableSpec spec = edgeTable.getSpec();
+	public static <V extends Node> List<Edge<V>> readEdges(BufferedDataTable deliveryTable,
+			EdgePropertySchema edgeSchema, Map<String, V> nodes, Map<RowKey, String> skippedRows)
+			throws NotConfigurableException {
+		DataTableSpec spec = deliveryTable.getSpec();
 
 		assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Table");
 		assertColumnNotMissing(spec, TracingColumns.FROM, "Delivery Table");
@@ -243,7 +245,7 @@ public class TracingUtils {
 		edgeSchema.getMap().put(TracingColumns.FROM, String.class);
 		edgeSchema.getMap().put(TracingColumns.TO, String.class);
 
-		for (DataRow row : edgeTable) {
+		for (DataRow row : deliveryTable) {
 			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
 
 			if (id == null) {
@@ -255,30 +257,33 @@ public class TracingUtils {
 
 			String from = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.FROM)));
 			String to = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.TO)));
-			V node1 = nodes.get(from);
-			V node2 = nodes.get(to);
+			V fromNode = nodes.get(from);
+			V toNode = nodes.get(to);
 
-			if (node1 == null || node2 == null) {
-				skippedRows.add(row.getKey());
+			if (fromNode == null) {
+				skippedRows.put(row.getKey(), "Station with " + TracingColumns.ID + " \"" + from + "\" does not exist");
+				continue;
+			} else if (toNode == null) {
+				skippedRows.put(row.getKey(), "Station with " + TracingColumns.ID + " \"" + to + "\" does not exist");
 				continue;
 			}
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, edgeSchema, edgeTable.getSpec(), row);
+			TracingUtils.addToProperties(properties, edgeSchema, deliveryTable.getSpec(), row);
 			properties.put(TracingColumns.ID, id);
 			properties.put(TracingColumns.FROM, from);
 			properties.put(TracingColumns.TO, to);
 			replaceNullsInInputProperties(properties, edgeSchema);
-			edges.add(new Edge<>(id, properties, node1, node2));
+			edges.add(new Edge<>(id, properties, fromNode, toNode));
 		}
 
 		return edges;
 	}
 
-	public static <V extends Node> Map<String, Delivery> readDeliveries(BufferedDataTable tracingTable,
-			Collection<Edge<V>> edges, Set<RowKey> skippedRows) throws NotConfigurableException {
-		DataTableSpec spec = tracingTable.getSpec();
+	public static <V extends Node> Map<String, Delivery> readDeliveries(BufferedDataTable deliveryRelationsTable,
+			Collection<Edge<V>> edges, Map<RowKey, String> skippedRows) throws NotConfigurableException {
+		DataTableSpec spec = deliveryRelationsTable.getSpec();
 		String fromColumn = TracingColumns.FROM;
 		String toColumn = TracingColumns.TO;
 
@@ -306,12 +311,16 @@ public class TracingUtils {
 		SetMultimap<String, String> previousDeliveries = LinkedHashMultimap.create();
 		SetMultimap<String, String> nextDeliveries = LinkedHashMultimap.create();
 
-		for (DataRow row : tracingTable) {
+		for (DataRow row : deliveryRelationsTable) {
 			String from = IO.getToCleanString(row.getCell(spec.findColumnIndex(fromColumn)));
 			String to = IO.getToCleanString(row.getCell(spec.findColumnIndex(toColumn)));
 
-			if (!builders.containsKey(from) || !builders.containsKey(to)) {
-				skippedRows.add(row.getKey());
+			if (!builders.containsKey(from)) {
+				skippedRows.put(row.getKey(),
+						"Delivery with " + TracingColumns.ID + " \"" + from + "\" does not exist");
+				continue;
+			} else if (!builders.containsKey(to)) {
+				skippedRows.put(row.getKey(), "Delivery with " + TracingColumns.ID + " \"" + to + "\" does not exist");
 				continue;
 			}
 
@@ -333,7 +342,7 @@ public class TracingUtils {
 		return deliveries;
 	}
 
-	public static List<RegionNode> readRegions(BufferedDataTable shapeTable, Set<RowKey> skippedRows)
+	public static List<RegionNode> readRegions(BufferedDataTable shapeTable, Map<RowKey, String> skippedRows)
 			throws NotConfigurableException {
 		List<RegionNode> nodes = new ArrayList<>();
 		List<DataColumnSpec> shapeColumns = IO.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE);
@@ -349,7 +358,7 @@ public class TracingUtils {
 			Geometry shape = GisUtils.getShape(row.getCell(shapeIndex));
 
 			if (!(shape instanceof MultiPolygon)) {
-				skippedRows.add(row.getKey());
+				skippedRows.put(row.getKey(), "No valid shape");
 				continue;
 			}
 

@@ -19,9 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.network;
 
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
@@ -90,13 +89,12 @@ public class ToKnimeNetworkNodeModel extends AbstractGraphNodeModel {
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(TracingUtils.getTableColumns(edgeTable.getSpec()),
 				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
+		Map<RowKey, String> skippedDeliveryRows = new LinkedHashMap<>();
 		Map<String, Edge<GraphNode>> edges = CanvasUtils
-				.getElementsById(TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows));
+				.getElementsById(TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows));
 
-		for (RowKey key : skippedEdgeRows) {
-			setWarningMessage("Delivery Table: Row " + key.getString() + " skipped");
-		}
+		skippedDeliveryRows.forEach((key,
+				value) -> setWarningMessage("Deliveries Table: Row " + key.getString() + " skipped (" + value + ")"));
 
 		if (!addPrefix.getBooleanValue() && !Sets.intersection(nodes.keySet(), edges.keySet()).isEmpty()) {
 			throw new Exception(

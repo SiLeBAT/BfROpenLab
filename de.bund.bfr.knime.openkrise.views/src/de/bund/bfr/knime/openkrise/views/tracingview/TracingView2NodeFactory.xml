@@ -367,7 +367,7 @@
 			Model that contains the relations between deliveries. Is provided by
 			third out port of Supply Chain Reader.
 		</inPort>
-		<inPort index="3" name="Shape Table">
+		<inPort index="3" name="Shapes">
 			Optional Table with geographical shape column.
 		</inPort>
 		<outPort index="0" name="Stations">
