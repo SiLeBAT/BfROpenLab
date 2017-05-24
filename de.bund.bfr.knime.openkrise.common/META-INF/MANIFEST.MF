@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FoodChain-Lab Common
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise.common;singleton:=true
-Bundle-Version: 1.1.11.qualifier
+Bundle-Version: 1.1.12.qualifier
 Bundle-Activator: de.bund.bfr.knime.openkrise.common.Activator
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
  de.bund.bfr.knime.openkrise.db.generated;visibility:=reexport
