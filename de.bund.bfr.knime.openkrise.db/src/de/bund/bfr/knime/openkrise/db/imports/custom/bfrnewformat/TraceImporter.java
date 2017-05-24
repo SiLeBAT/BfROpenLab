@@ -650,16 +650,17 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 							
 							if (CHARGENLINK >= 0) {
-								String rownum = getCellString(row.getCell(CHARGENLINK));
+								String key = getCellString(row.getCell(CHARGENLINK));
 								// hier nochmal überlegen, ob nicht besser bei leerer Zelle einfach importiert werden soll - ohne Verknüpfung
 								// nicht vergessen: verenglischen
-								if (!olddelsLot.containsKey(rownum) && !olddels.containsKey(rownum)) {
+								Delivery od = null;
+								if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);
+								else if (olddels.containsKey(key)) od = olddels.get(key);
+								if (od == null) {
 									exceptions.add(new Exception("Zeilennummer/Chargennummer in Feld A" + (i+1) + " ist ungültig!"));
 								}
 								else {
-									Delivery od = olddels.get(rownum);
-									if (od == null) od = olddelsLot.get(rownum);
-									System.err.println(od.getLot().getNumber() + ": " + od.getLot().getProduct().getStation().getId() + " - " + od.getLot().getProduct().getId() + " - " + od.getLot().getId() + " - " + od.getId());
+									System.err.println(od.getLot().getNumber() + ":\nStation: " + od.getLot().getProduct().getStation().getId() + "\nProduct: " + od.getLot().getProduct().getId() + "\nLot: " + od.getLot().getId() + "\nDelivery: " + od.getId());
 									if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
 									else d.getLot().getInDeliveries().add(od.getId());
 								}
