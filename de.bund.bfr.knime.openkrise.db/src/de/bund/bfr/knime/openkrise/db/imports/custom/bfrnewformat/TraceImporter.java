@@ -519,7 +519,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			focusS.setName(cs);
 			String address = getCellString(row.getCell(2));
 			focusS.setAddress(address);
-			focusS.setCountry(getCellString(row.getCell(6))); // oder 3 ... ???
+			focusS.setCountry(getCellString(row.getCell(3)));
 			focusS.addFlexibleField("Quelle", "Zeile 1");
 			int sID = genDbId(""+cs+address);
 			focusS.setId(""+sID);
