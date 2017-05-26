@@ -29,7 +29,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.OsmCanvas;
@@ -41,7 +41,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
  * 
  * @author Christian Thoens
  */
-public class RegionVisualizerNodeModel extends NodeModelWithoutInternals {
+public class RegionVisualizerNodeModel extends NoInternalsNodeModel {
 
 	private RegionVisualizerSettings set;
 

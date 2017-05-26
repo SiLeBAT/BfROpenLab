@@ -27,13 +27,13 @@ import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.port.PortType;
 
-public abstract class NodeModelWithoutInternals extends NodeModel {
+public abstract class NoInternalsNodeModel extends NodeModel {
 
-	protected NodeModelWithoutInternals(int nrInDataPorts, int nrOutDataPorts) {
+	protected NoInternalsNodeModel(int nrInDataPorts, int nrOutDataPorts) {
 		super(nrInDataPorts, nrOutDataPorts);
 	}
 
-	protected NodeModelWithoutInternals(PortType[] inPortTypes, PortType[] outPortTypes) {
+	protected NoInternalsNodeModel(PortType[] inPortTypes, PortType[] outPortTypes) {
 		super(inPortTypes, outPortTypes);
 	}
 

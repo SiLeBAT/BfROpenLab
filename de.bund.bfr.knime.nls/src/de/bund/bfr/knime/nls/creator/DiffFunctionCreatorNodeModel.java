@@ -34,7 +34,7 @@ import org.knime.core.node.port.PortType;
 
 import com.google.common.collect.Ordering;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
@@ -46,7 +46,7 @@ import de.bund.bfr.math.MathUtils;
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionCreatorNodeModel extends NodeModelWithoutInternals {
+public class DiffFunctionCreatorNodeModel extends NoInternalsNodeModel {
 
 	private DiffFunctionCreatorSettings set;
 

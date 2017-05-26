@@ -33,7 +33,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.pmmlite.core.PmmUtils;
 import de.bund.bfr.knime.pmmlite.core.common.Identifiable;
 import de.bund.bfr.knime.pmmlite.core.port.PmmPortObject;
@@ -44,7 +44,7 @@ import de.bund.bfr.knime.pmmlite.core.port.PmmPortObject;
  * 
  * @author Christian Thoens
  */
-public class FilterNodeModel extends NodeModelWithoutInternals {
+public class FilterNodeModel extends NoInternalsNodeModel {
 
 	/**
 	 * Constructor for the node model.

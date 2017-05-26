@@ -63,7 +63,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 
@@ -73,7 +73,7 @@ import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
  * 
  * @author Christian Thoens
  */
-public class ShapefileReaderNodeModel extends NodeModelWithoutInternals {
+public class ShapefileReaderNodeModel extends NoInternalsNodeModel {
 
 	protected static final String SHP_FILE = "FileName";
 

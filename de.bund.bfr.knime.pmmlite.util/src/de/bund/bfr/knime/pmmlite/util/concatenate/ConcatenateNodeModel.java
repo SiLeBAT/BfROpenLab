@@ -29,7 +29,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.pmmlite.core.common.Identifiable;
 import de.bund.bfr.knime.pmmlite.core.port.PmmPortObject;
 import de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSpec;
@@ -40,7 +40,7 @@ import de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSpec;
  * 
  * @author Christian Thoens
  */
-public class ConcatenateNodeModel extends NodeModelWithoutInternals {
+public class ConcatenateNodeModel extends NoInternalsNodeModel {
 
 	/**
 	 * Constructor for the node model.

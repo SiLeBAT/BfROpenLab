@@ -28,12 +28,12 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.Plotable;
 
-public abstract class ViewModel extends NodeModelWithoutInternals {
+public abstract class ViewModel extends NoInternalsNodeModel {
 
 	protected ViewSettings set;
 

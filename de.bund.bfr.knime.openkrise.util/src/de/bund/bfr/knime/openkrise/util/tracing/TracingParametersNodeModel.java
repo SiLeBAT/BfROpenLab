@@ -42,7 +42,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -60,7 +60,7 @@ import de.bund.bfr.knime.openkrise.common.Tracing;
  * 
  * @author Christian Thoens
  */
-public class TracingParametersNodeModel extends NodeModelWithoutInternals {
+public class TracingParametersNodeModel extends NoInternalsNodeModel {
 
 	private TracingParametersSettings set;
 

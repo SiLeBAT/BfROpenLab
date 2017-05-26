@@ -54,7 +54,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -72,7 +72,7 @@ import de.bund.bfr.math.OptimizationResult;
  * 
  * @author Christian Thoens
  */
-public class FittingNodeModel extends NodeModelWithoutInternals {
+public class FittingNodeModel extends NoInternalsNodeModel {
 
 	private static final PortType[] INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE };
 	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,

@@ -29,7 +29,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.pmmlite.core.models.Model;
 import de.bund.bfr.knime.pmmlite.core.models.PrimaryModelFormula;
 import de.bund.bfr.knime.pmmlite.core.models.TertiaryModelFormula;
@@ -43,7 +43,7 @@ import de.bund.bfr.knime.pmmlite.io.XlsReader;
  * 
  * @author Christian Thoens
  */
-public class XlsModelReaderNodeModel extends NodeModelWithoutInternals {
+public class XlsModelReaderNodeModel extends NoInternalsNodeModel {
 
 	private XlsModelReaderSettings set;
 

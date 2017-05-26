@@ -65,7 +65,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.Activator;
 import de.bund.bfr.knime.gis.GisUtils;
@@ -77,7 +77,7 @@ import net.minidev.json.JSONArray;
  * 
  * @author Christian Thoens
  */
-public class GeocodingNodeModel extends NodeModelWithoutInternals {
+public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 	public static final String URL_COLUMN = "GeocodingURL";
 	public static final String STREET_COLUMN = "GeocodingStreet";

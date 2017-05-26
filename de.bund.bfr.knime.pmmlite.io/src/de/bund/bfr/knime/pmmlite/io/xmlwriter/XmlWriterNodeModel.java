@@ -35,7 +35,7 @@ import org.knime.core.node.port.PortType;
 import com.google.common.io.Files;
 
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.pmmlite.core.EmfUtils;
 import de.bund.bfr.knime.pmmlite.core.PmmUtils;
 import de.bund.bfr.knime.pmmlite.core.common.Identifiable;
@@ -46,7 +46,7 @@ import de.bund.bfr.knime.pmmlite.core.port.PmmPortObject;
  * 
  * @author Christian Thoens
  */
-public class XmlWriterNodeModel extends NodeModelWithoutInternals {
+public class XmlWriterNodeModel extends NoInternalsNodeModel {
 
 	protected static final String CFG_OUT_PATH = "OutPath";
 

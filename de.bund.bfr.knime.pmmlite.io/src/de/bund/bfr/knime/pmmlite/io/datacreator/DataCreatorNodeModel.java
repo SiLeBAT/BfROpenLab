@@ -27,7 +27,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.pmmlite.core.port.PmmPortObject;
 import de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSpec;
 
@@ -37,7 +37,7 @@ import de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSpec;
  * 
  * @author Christian Thoens
  */
-public class DataCreatorNodeModel extends NodeModelWithoutInternals {
+public class DataCreatorNodeModel extends NoInternalsNodeModel {
 
 	private DataCreatorSettings set;
 

@@ -49,7 +49,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -63,7 +63,7 @@ import de.bund.bfr.knime.openkrise.TracingUtils;
  * 
  * @author BfR
  */
-public class DBSCANNodeModel extends NodeModelWithoutInternals {
+public class DBSCANNodeModel extends NoInternalsNodeModel {
 
 	private DBSCANNSettings set;
 

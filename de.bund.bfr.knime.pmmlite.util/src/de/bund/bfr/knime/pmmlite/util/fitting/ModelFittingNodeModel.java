@@ -34,7 +34,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.pmmlite.core.CombineUtils;
 import de.bund.bfr.knime.pmmlite.core.PmmUtils;
 import de.bund.bfr.knime.pmmlite.core.models.Model;
@@ -50,7 +50,7 @@ import de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSpec;
  * 
  * @author Christian Thoens
  */
-public class ModelFittingNodeModel extends NodeModelWithoutInternals {
+public class ModelFittingNodeModel extends NoInternalsNodeModel {
 
 	private static final int MAX_THREADS = 8;
 

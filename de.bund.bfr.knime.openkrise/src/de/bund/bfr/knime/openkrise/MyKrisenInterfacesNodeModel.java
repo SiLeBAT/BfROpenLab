@@ -78,7 +78,7 @@ import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -92,7 +92,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * 
  * @author draaw
  */
-public class MyKrisenInterfacesNodeModel extends NodeModelWithoutInternals {
+public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 
 	private static final ImmutableMap<String, TableField<?, Integer>> ID_COLUMNS = ImmutableMap.of(STATION.getName(),
 			STATION.ID, LIEFERUNGEN.getName(), LIEFERUNGEN.ID, CHARGEN.getName(), CHARGEN.ID, PRODUKTKATALOG.getName(),

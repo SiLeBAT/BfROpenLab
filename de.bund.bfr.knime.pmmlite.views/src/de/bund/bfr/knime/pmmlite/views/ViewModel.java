@@ -29,13 +29,13 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.sbml.jsbml.text.parser.ParseException;
 
-import de.bund.bfr.knime.NodeModelWithoutInternals;
+import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.pmmlite.core.UnitException;
 import de.bund.bfr.knime.pmmlite.core.port.PmmPortObject;
 import de.bund.bfr.knime.pmmlite.core.port.PmmPortObjectSpec;
 
-public abstract class ViewModel extends NodeModelWithoutInternals {
+public abstract class ViewModel extends NoInternalsNodeModel {
 
 	protected boolean isSelectionNode;
 	protected ViewSettings set;
