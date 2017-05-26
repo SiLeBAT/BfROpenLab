@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./FoodChainLab_transp.png" type="Manipulator" xmlns="http://knime.org/node/v2.10"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+	<name>To JSON</name>
+
+	<shortDescription>
+		Converts a FoodChain-Lab network to the JSON format of the FoodChain-Lab Web App.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Converts a FoodChain-Lab network to the JSON format of the FoodChain-Lab Web App.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Stations">
+			Table with Station data. Is provided by first out port of Supply
+			Chain Reader.
+		</inPort>
+		<inPort index="1" name="Deliveries">
+			Table with Delivery data. Is provided by second out port of Supply
+			Chain Reader.
+		</inPort>
+		<inPort index="1" name="Delivery Relations">
+			Table with Delivery Relations data. Is provided by third out port of
+			Supply Chain Reader.
+		</inPort>
+		<outPort index="0" name="JSON">
+			JSON format of FoodChain-Lab Web App.
+		</outPort>
+	</ports>
+</knimeNode>

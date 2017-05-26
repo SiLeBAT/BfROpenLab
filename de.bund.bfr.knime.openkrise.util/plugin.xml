@@ -11,6 +11,7 @@
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.shapefilereader.ShapefileReaderNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.tracing.TracingParametersNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.address.AddressCreatorNodeFactory"/>
+		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.json.ToJsonNodeFactory"/>
 		<node category-path="/foodchain/network" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
 	</extension>
 

@@ -40,6 +40,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.apache.commons.math3"/>
       <import plugin="org.knime.network.core"/>
       <import plugin="org.knime.network.base"/>
+      <import plugin="org.knime.json"/>
       <import plugin="org.eclipse.core.resources"/>
    </requires>
 
