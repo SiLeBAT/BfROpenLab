@@ -817,13 +817,16 @@ public class MainFrame extends JFrame {
 		try {
 			if (rs != null && rs.first()) {
 				do  {
-					Station s = new Station(rs.getString("Serial"), rs.getString("Name"));
+					String id = rs.getString("Serial");
+					if (id == null) id = rs.getString("ID");
+					Station s = new Station(id, rs.getString("Name"));
 					s.setCity(rs.getString("Ort"));
 					s.setCountry(rs.getString("Land"));
 					s.setDistrict(rs.getString("District"));
 					s.setState(rs.getString("Bundesland"));
 					s.setType(rs.getString("Betriebsart"));
 					s.setZipCode(rs.getString("PLZ"));
+					s.setAddress(rs.getString("Adresse"));
 					stations.add(s);
 				} while (rs.next());
 			}
@@ -835,10 +838,16 @@ public class MainFrame extends JFrame {
 	private void button13ActionPerformed(final ActionEvent e) {
 		List<String> businessTypes = getBusinessTypes();
 		
-		TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, false);		
-		dialog.setVisible(true);
+		List<String> business2Trace = null;
+		if (businessTypes.size() > 0) {
+			TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, false);		
+			dialog.setVisible(true);
+			if (dialog.isApproved()) {
+				business2Trace = dialog.getSelected();
+			}
+		}
 		
-		doTraceGeneration(dialog, false);
+		doTraceGeneration(business2Trace, false);
 	}
 	private List<String> getBusinessTypes() {
 		String sql = "Select DISTINCT(" + DBKernel.delimitL("Betriebsart") + ") from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("Betriebsart") + " IS NOT NULL";
@@ -855,41 +864,44 @@ public class MainFrame extends JFrame {
 		}
 		return businessTypes;
 	}
-	private void doTraceGeneration(TraceDialog dialog, boolean isForward) {
-		if (dialog.isApproved()) {
-			Locale oldLocale = JComponent.getDefaultLocale();
-			JComponent.setDefaultLocale(Locale.US);
-			JFileChooser chooser = new JFileChooser(); 
-			JComponent.setDefaultLocale(oldLocale);
-			String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
-		    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
-		    chooser.setDialogTitle("Select output folder");
-		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		    chooser.setAcceptAllFileFilterUsed(false);
-		    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
-		    	File f = chooser.getSelectedFile();
-		    	if (f.isFile()) f = f.getParentFile();
-		    	if (f.exists()) {
-					DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
-					DBKernel.prefs.prefsFlush();
-					this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-					new TraceGenerator(f, dialog.getSelected(), isForward, chooser);
-					this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
-		    	}
-		    	else {
-		    		JOptionPane.showMessageDialog(this, "Folder does not exist!", "Folder not there", JOptionPane.ERROR_MESSAGE);
-		    	}
-		    }
-		}
+	private void doTraceGeneration(List<String> business2Trace, boolean isForward) {		
+		Locale oldLocale = JComponent.getDefaultLocale();
+		JComponent.setDefaultLocale(Locale.US);
+		JFileChooser chooser = new JFileChooser(); 
+		JComponent.setDefaultLocale(oldLocale);
+		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
+	    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
+	    chooser.setDialogTitle("Select output folder");
+	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	    chooser.setAcceptAllFileFilterUsed(false);
+	    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
+	    	File f = chooser.getSelectedFile();
+	    	if (f.isFile()) f = f.getParentFile();
+	    	if (f.exists()) {
+				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
+				DBKernel.prefs.prefsFlush();
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
+				new TraceGenerator(f, business2Trace, isForward, chooser);
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
+	    	}
+	    	else {
+	    		JOptionPane.showMessageDialog(this, "Folder does not exist!", "Folder not there", JOptionPane.ERROR_MESSAGE);
+	    	}
+	    }
 	}
 	private void button14ActionPerformed(final ActionEvent e) {
 		List<String> businessTypes = getBusinessTypes();
-
-		TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, true);
 		
-		dialog.setVisible(true);
+		List<String> business2Trace = null;
+		if (businessTypes.size() > 0) {
+			TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, true);		
+			dialog.setVisible(true);
+			if (dialog.isApproved()) {
+				business2Trace = dialog.getSelected();
+			}
+		}
 		
-		doTraceGeneration(dialog, true);
+		doTraceGeneration(business2Trace, true);
 	}
 	private static class TraceDialog extends JDialog implements ActionListener {
 				

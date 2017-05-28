@@ -652,6 +652,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							if (CHARGENLINK >= 0) {
 								String key = getCellString(row.getCell(CHARGENLINK));
 								// hier nochmal überlegen, ob nicht besser bei leerer Zelle einfach importiert werden soll - ohne Verknüpfung
+								// Betriebsart, etc. in die Station properties mit rein
+								// Serial überall überprüfen!!!!! mit ID tauschen!!!!
+								// stationsspezifisches traceback jetzt nur noch für missing ingredients!!! Nicht mehr allunfassendes edit für die station möglich!!!
+								// wie soll ab jetzt eine station editiert werden können?
 								// nicht vergessen: verenglischen
 								Delivery od = null;
 								if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);

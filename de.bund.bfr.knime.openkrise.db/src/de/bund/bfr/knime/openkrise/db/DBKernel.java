@@ -1472,10 +1472,10 @@ public class DBKernel {
 				    }
 				});
 				*/
-				DBKernel.mainFrame.setAlwaysOnTop(true);
+				//DBKernel.mainFrame.setAlwaysOnTop(true);
 				DBKernel.mainFrame.toFront();
 				DBKernel.mainFrame.requestFocus();
-				DBKernel.mainFrame.setAlwaysOnTop(false);
+				//DBKernel.mainFrame.setAlwaysOnTop(false);
 			  }
 		}
 	}
