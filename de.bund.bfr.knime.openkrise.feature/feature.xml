@@ -42,6 +42,9 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.network.base"/>
       <import plugin="org.knime.json"/>
       <import plugin="org.eclipse.core.resources"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-core"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-databind"/>
+      <import plugin="com.github.fge.jackson-coreutils"/>
    </requires>
 
    <plugin

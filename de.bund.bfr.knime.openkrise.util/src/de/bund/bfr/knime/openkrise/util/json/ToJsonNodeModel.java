@@ -178,10 +178,10 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 	}
 
 	private static String createStationId(String id) {
-		return "S" + id;
+		return JsonConstants.STATION_ID_PREFIX + id;
 	}
 
 	private static String createDeliveryId(String id) {
-		return "D" + id;
+		return JsonConstants.DELIVERY_ID_PREFIX + id;
 	}
 }

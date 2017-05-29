@@ -22,7 +22,7 @@
 			Table with Delivery data. Is provided by second out port of Supply
 			Chain Reader.
 		</inPort>
-		<inPort index="1" name="Delivery Relations">
+		<inPort index="2" name="Delivery Relations">
 			Table with Delivery Relations data. Is provided by third out port of
 			Supply Chain Reader.
 		</inPort>

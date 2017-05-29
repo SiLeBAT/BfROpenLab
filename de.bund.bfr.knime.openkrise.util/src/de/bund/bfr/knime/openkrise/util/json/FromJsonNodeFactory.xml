@@ -23,7 +23,7 @@
 		<outPort index="1" name="Deliveries">
 			Table with Delivery data.
 		</outPort>
-		<outPort index="1" name="Delivery Relations">
+		<outPort index="2" name="Delivery Relations">
 			Table with Delivery Relations data.
 		</outPort>
 	</ports>
