@@ -219,7 +219,8 @@ public class DeliveryUtils {
 									r.getValue(LIEFERUNGEN.DD_DAY))
 							.arrival(r.getValue(LIEFERUNGEN.AD_YEAR), r.getValue(LIEFERUNGEN.AD_MONTH),
 									r.getValue(LIEFERUNGEN.AD_DAY))
-							.lot(lotNumber).amount(r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU),
+							.lot(lotNumber).lotId(r.getValue(CHARGEN.ID).toString())
+							.amount(r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU),
 									amountInKg1 != null ? amountInKg1 : amountInKg2));
 		}
 

@@ -50,6 +50,7 @@ public class Station {
 	private String city;
 	private String zipCode;
 	private String address;
+
 	public String getAddress() {
 		return address;
 	}
