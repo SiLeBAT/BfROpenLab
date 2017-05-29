@@ -95,7 +95,7 @@ public class TraceGenerator {
 		try {
 			int numFilesGenerated = 0;
 			try {
-				numFilesGenerated = isForward ? getFortraceRequests(outputFolder.getAbsolutePath(), business2Trace) : getBacktraceRequests(outputFolder.getAbsolutePath(), business2Trace, null);
+				numFilesGenerated = isForward ? getFortraceRequests(outputFolder.getAbsolutePath(), business2Trace, null) : getBacktraceRequests(outputFolder.getAbsolutePath(), business2Trace, null);
 			}
 			catch (Exception e) {e.printStackTrace();}
 
@@ -307,11 +307,63 @@ public class TraceGenerator {
 		return result;
 	}
 
-	private int getFortraceRequests(String outputFolder, List<String> business2Trace) throws SQLException, IOException {
+	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException {
+		int result = 0;
+		if (rs.getObject("Station.ID") != null) {
+			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_de.xlsx");
+			XSSFWorkbook workbook = new XSSFWorkbook(myxls);
+			XSSFSheet sheetTracing = workbook.getSheet("Herstellung - Vorwärtsverfolgun");
+
+			// Station in Focus
+			String sif = null;
+			Integer id = null;
+			XSSFRow row = sheetTracing.getRow(0);
+			XSSFCell cell;
+
+			id = rs.getInt("Station.ID");
+			sif = rs.getString("Station.Name");
+			cell = row.getCell(1); cell.setCellValue(sif);
+			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
+			cell = row.getCell(3); cell.setCellValue(rs.getString("Station.Land"));
+			
+			// Products Out
+			if (sif != null && sif.equals("Josef Wernke GmbH")) {
+				System.err.println("");
+			}
+			int rowIndex = 5;
+			String stationID = rs.getString("Station.ID");
+			do {
+				if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
+				copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+				row = sheetTracing.getRow(rowIndex);								
+				fillRowSimple(sheetTracing, rs, row, true);
+				rowIndex++;
+			} while (rs.next());
+			rs.previous();
+			
+			row = sheetTracing.getRow(rowIndex+4);
+			cell = row.getCell(0);			
+			cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+12) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
+			
+			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
+			if (save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + sif + "_" + id + ".xlsx")) {
+				result++;
+			}
+			myxls.close();
+		}
+		return result;
+	}
+	private int getFortraceRequests(String outputFolder, List<String> business2Trace, Integer stationId) throws SQLException, IOException {
 		int result = 0;
 		String tracingBusinessesSQL = "";
-		for (String s : business2Trace) {
-			tracingBusinessesSQL += " OR " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " = '" + s + "'";
+		if (business2Trace != null) {
+			for (String s : business2Trace) {
+				tracingBusinessesSQL += " OR " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " = '" + s + "'";
+			}				
+		}
+		String tracingIdSQL = "";
+		if (stationId != null) {
+			tracingIdSQL += " AND " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " = " + stationId;
 		}
 		String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
 				" LEFT JOIN " + MyDBI.delimitL("Chargen") +
@@ -324,132 +376,138 @@ public class TraceGenerator {
 				" ON " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") +
 				" WHERE " + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + " IS NULL " +
 				" AND (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + tracingBusinessesSQL + ")" +
+				tracingIdSQL +
 				" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Bezeichnung") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			do {
-				InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/BfR_Format_Fortrace_sug.xlsx");
-				XSSFWorkbook workbook = new XSSFWorkbook(myxls);
-				XSSFSheet sheetTracing = workbook.getSheet("FwdTracing");
-				XSSFSheet sheetStations = workbook.getSheet("Stations");
-				XSSFSheet sheetLookup = workbook.getSheet("LookUp");
-				FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-				fillStations(sheetStations, evaluator);
-				fillLookup(workbook, sheetLookup);
-				LinkedHashSet<String> le = getLotExtra();
-				LinkedHashSet<String> de = getDeliveryExtra();
+				if (doTheSimpleTemplates) {
+					result += getSimpleFwdStationRequests(outputFolder, rs);
+				}
+				else {
+					InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/BfR_Format_Fortrace_sug.xlsx");
+					XSSFWorkbook workbook = new XSSFWorkbook(myxls);
+					XSSFSheet sheetTracing = workbook.getSheet("FwdTracing");
+					XSSFSheet sheetStations = workbook.getSheet("Stations");
+					XSSFSheet sheetLookup = workbook.getSheet("LookUp");
+					FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+					fillStations(sheetStations, evaluator);
+					fillLookup(workbook, sheetLookup);
+					LinkedHashSet<String> le = getLotExtra();
+					LinkedHashSet<String> de = getDeliveryExtra();
 
-				// Station in Focus
-				XSSFRow row = sheetTracing.getRow(4);
-				XSSFCell cell;
-				String sid = null;
-				if (rs.getObject("Lieferungen.Empfänger") != null) {
-					sid = getStationLookup(rs.getString("Lieferungen.Empfänger"));
-					cell = row.getCell(1); cell.setCellValue(sid);
-					cell = row.getCell(2); evaluator.evaluateFormulaCell(cell);
-				}
-				
-				// Ingredients for Lot(s)
-				row = sheetTracing.getRow(7);
-				int j=0;
-				for (String e : de) {
-					if (e != null && !e.isEmpty()) {
-						cell = row.getCell(13+j);
-						if (cell == null) cell = row.createCell(13+j);
-						cell.setCellValue(e);
-						j++;
+					// Station in Focus
+					XSSFRow row = sheetTracing.getRow(4);
+					XSSFCell cell;
+					String sid = null;
+					if (rs.getObject("Lieferungen.Empfänger") != null) {
+						sid = getStationLookup(rs.getString("Lieferungen.Empfänger"));
+						cell = row.getCell(1); cell.setCellValue(sid);
+						cell = row.getCell(2); evaluator.evaluateFormulaCell(cell);
 					}
-				}
-				
-				XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheetTracing);
-				LinkedHashSet<String> deliveryNumbers = new LinkedHashSet<>();
-				int rowIndex = 9;
-				row = sheetTracing.getRow(rowIndex);
-				String dn = fillRow(dvHelper, sheetTracing, rs, row, de, true, null);
-				deliveryNumbers.add(dn);
-				
-				while (rs.next()) {
-					if (rs.getObject("Station.Serial") == null) break;
-					String sl = getStationLookup(rs);
-					if (!sl.equals(sid)) break;
-					rowIndex++;
-					row = copyRow(workbook, sheetTracing, 9, rowIndex);
-					dn = fillRow(dvHelper, sheetTracing, rs, row, de, true, null);
+					
+					// Ingredients for Lot(s)
+					row = sheetTracing.getRow(7);
+					int j=0;
+					for (String e : de) {
+						if (e != null && !e.isEmpty()) {
+							cell = row.getCell(13+j);
+							if (cell == null) cell = row.createCell(13+j);
+							cell.setCellValue(e);
+							j++;
+						}
+					}
+					
+					XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheetTracing);
+					LinkedHashSet<String> deliveryNumbers = new LinkedHashSet<>();
+					int rowIndex = 9;
+					row = sheetTracing.getRow(rowIndex);
+					String dn = fillRow(dvHelper, sheetTracing, rs, row, de, true, null);
 					deliveryNumbers.add(dn);
-				}
-				rs.previous();
-
-				// Lot Information
-				row = sheetTracing.getRow(rowIndex + 3);
-				j=0;
-				for (String e : le) {
-					if (e != null && !e.isEmpty()) {
-						cell = row.getCell(17+j);
-						if (cell == null) cell = row.createCell(17+j);
-						cell.setCellValue(e);
-						j++;
+					
+					while (rs.next()) {
+						if (rs.getObject("Station.Serial") == null) break;
+						String sl = getStationLookup(rs);
+						if (!sl.equals(sid)) break;
+						rowIndex++;
+						row = copyRow(workbook, sheetTracing, 9, rowIndex);
+						dn = fillRow(dvHelper, sheetTracing, rs, row, de, true, null);
+						deliveryNumbers.add(dn);
 					}
-				}
+					rs.previous();
 
-				rowIndex += 5;
-				int i=0;
-				row = sheetTracing.getRow(rowIndex);
-				for (String dns : deliveryNumbers) {
-					if (!dns.isEmpty()) {
-						if (i > 0) row = copyRow(workbook, sheetTracing, rowIndex, rowIndex + i);
-						//todo cell = row.getCell(4); cell.setCellValue(dns);
-						insertDecCondition(dvHelper, sheetTracing, rowIndex+i, 1);
-						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 2, "=Units");
-						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 15, "=Treatment");
-						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 16, "=Sampling");
-						i++;
+					// Lot Information
+					row = sheetTracing.getRow(rowIndex + 3);
+					j=0;
+					for (String e : le) {
+						if (e != null && !e.isEmpty()) {
+							cell = row.getCell(17+j);
+							if (cell == null) cell = row.createCell(17+j);
+							cell.setCellValue(e);
+							j++;
+						}
 					}
-				}
-				
-				Name reference = workbook.createName();
-				reference.setNameName("LotNumbers");
-				String referenceString = sheetTracing.getSheetName() + "!$A$" + (rowIndex+1) + ":$A$" + (rowIndex+i);
-				reference.setRefersToFormula(referenceString);				
-				
-				// Products Out
-				row = sheetTracing.getRow(rowIndex + i + 2);
-				j=0;
-				for (String e : de) {
-					if (e != null && !e.isEmpty()) {
-						cell = row.getCell(13+j);
-						if (cell == null) cell = row.createCell(13+j);
-						cell.setCellValue(e);
-						j++;
-					}
-				}
 
-				rowIndex += i+4;
-				for (i=0;i<86;i++) {
-					insertCondition(dvHelper, sheetTracing, rowIndex+i, 3, "1", "31");
-					insertCondition(dvHelper, sheetTracing, rowIndex+i, 4, "1", "12");
-					insertCondition(dvHelper, sheetTracing, rowIndex+i, 5, "1900", "3000");
-					insertCondition(dvHelper, sheetTracing, rowIndex+i, 6, "1", "31");
-					insertCondition(dvHelper, sheetTracing, rowIndex+i, 7, "1", "12");
-					insertCondition(dvHelper, sheetTracing, rowIndex+i, 8, "1900", "3000");
-					insertDecCondition(dvHelper, sheetTracing, rowIndex+i, 9);
-					insertDropBox(dvHelper, sheetTracing, rowIndex+i, 10, "=Units");
-					insertDropBox(dvHelper, sheetTracing, rowIndex+i, 11, "=StationIDs");
-					//row = sheetTracing.getRow(rowIndex+i);
-					//cell = row.getCell(12);
-					//cell.setCellFormula("INDEX(Companies,MATCH(L" + (row.getRowNum() + 1) + ",StationIDs,0),1)");
-					//evaluator.evaluateFormulaCell(cell);
-					insertDropBox(dvHelper, sheetTracing, rowIndex+i, 0, "=LotNumbers");
+					rowIndex += 5;
+					int i=0;
+					row = sheetTracing.getRow(rowIndex);
+					for (String dns : deliveryNumbers) {
+						if (!dns.isEmpty()) {
+							if (i > 0) row = copyRow(workbook, sheetTracing, rowIndex, rowIndex + i);
+							//todo cell = row.getCell(4); cell.setCellValue(dns);
+							insertDecCondition(dvHelper, sheetTracing, rowIndex+i, 1);
+							insertDropBox(dvHelper, sheetTracing, rowIndex+i, 2, "=Units");
+							insertDropBox(dvHelper, sheetTracing, rowIndex+i, 15, "=Treatment");
+							insertDropBox(dvHelper, sheetTracing, rowIndex+i, 16, "=Sampling");
+							i++;
+						}
+					}
+					
+					Name reference = workbook.createName();
+					reference.setNameName("LotNumbers");
+					String referenceString = sheetTracing.getSheetName() + "!$A$" + (rowIndex+1) + ":$A$" + (rowIndex+i);
+					reference.setRefersToFormula(referenceString);				
+					
+					// Products Out
+					row = sheetTracing.getRow(rowIndex + i + 2);
+					j=0;
+					for (String e : de) {
+						if (e != null && !e.isEmpty()) {
+							cell = row.getCell(13+j);
+							if (cell == null) cell = row.createCell(13+j);
+							cell.setCellValue(e);
+							j++;
+						}
+					}
+
+					rowIndex += i+4;
+					for (i=0;i<86;i++) {
+						insertCondition(dvHelper, sheetTracing, rowIndex+i, 3, "1", "31");
+						insertCondition(dvHelper, sheetTracing, rowIndex+i, 4, "1", "12");
+						insertCondition(dvHelper, sheetTracing, rowIndex+i, 5, "1900", "3000");
+						insertCondition(dvHelper, sheetTracing, rowIndex+i, 6, "1", "31");
+						insertCondition(dvHelper, sheetTracing, rowIndex+i, 7, "1", "12");
+						insertCondition(dvHelper, sheetTracing, rowIndex+i, 8, "1900", "3000");
+						insertDecCondition(dvHelper, sheetTracing, rowIndex+i, 9);
+						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 10, "=Units");
+						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 11, "=StationIDs");
+						//row = sheetTracing.getRow(rowIndex+i);
+						//cell = row.getCell(12);
+						//cell.setCellFormula("INDEX(Companies,MATCH(L" + (row.getRowNum() + 1) + ",StationIDs,0),1)");
+						//evaluator.evaluateFormulaCell(cell);
+						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 0, "=LotNumbers");
+					}
+					for (i=0;i<deliveryNumbers.size();i++) {
+						insertDropBox(dvHelper, sheetTracing, 9+i, 0, "=LotNumbers");
+					}
+					
+					//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
+					if (save(workbook, outputFolder + File.separator + "Fwdtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
+						result++;
+					}
+					myxls.close();
 				}
-				for (i=0;i<deliveryNumbers.size();i++) {
-					insertDropBox(dvHelper, sheetTracing, 9+i, 0, "=LotNumbers");
-				}
-				
-				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				if (save(workbook, outputFolder + File.separator + "Fwdtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
-					result++;
-				}
-				myxls.close();
 			} while (rs.next());
 		}
 		return result;
@@ -463,6 +521,7 @@ public class TraceGenerator {
 	}
 	
 	private int getFwdStationRequests(String outputFolder, Station station) throws SQLException, IOException {
+		if (doTheSimpleTemplates) return getFortraceRequests(outputFolder, null, Integer.parseInt(station.getId()));
 		int result = 0;
 		String sql = "Select * from " + MyDBI.delimitL("Station") + " AS " + MyDBI.delimitL("S") +
 				" LEFT JOIN " + MyDBI.delimitL("Lieferungen") +
@@ -1281,17 +1340,17 @@ public class TraceGenerator {
 		
 		// Delivery
 		cell = row.getCell(5);
-		if (rs.getObject("Lieferungen.ad_day") != null) cell.setCellValue(rs.getString("Lieferungen.ad_day"));
+		if (rs.getObject(isForward ? "Lieferungen.dd_day" : "Lieferungen.ad_day") != null) cell.setCellValue(isForward ? rs.getString("Lieferungen.dd_day") : rs.getString("Lieferungen.ad_day"));
 		else cell.setCellValue("");		
 		cell = row.getCell(6);
-		if (rs.getObject("Lieferungen.ad_month") != null) cell.setCellValue(rs.getString("Lieferungen.ad_month"));
+		if (rs.getObject(isForward ? "Lieferungen.dd_month" : "Lieferungen.ad_month") != null) cell.setCellValue(rs.getString(isForward ? "Lieferungen.dd_month" : "Lieferungen.ad_month"));
 		else cell.setCellValue("");		
 		cell = row.getCell(7);
-		if (rs.getObject("Lieferungen.ad_year") != null) cell.setCellValue(rs.getString("Lieferungen.ad_year"));
+		if (rs.getObject(isForward ? "Lieferungen.dd_year" : "Lieferungen.ad_year") != null) cell.setCellValue(rs.getString(isForward ? "Lieferungen.dd_year" : "Lieferungen.ad_year"));
 		else cell.setCellValue("");		
 		cell = row.getCell(8);
 		fillExtraCell(cell, "Lieferungen", "Amount", rs.getString("Lieferungen.ID"));
-		fillStationSimple(row.getCell(9), row.getCell(10), rs.getObject("Lieferungen.Empfänger"));
+		fillStationSimple(row.getCell(9), row.getCell(10), rs.getObject(isForward ? "Produktkatalog.Station" : "Lieferungen.Empfänger"));
 		cell = row.getCell(11);
 		if (rs.getObject("Lieferungen.Kommentar") != null) cell.setCellValue(rs.getString("Lieferungen.Kommentar"));
 		else cell.setCellValue("");		
