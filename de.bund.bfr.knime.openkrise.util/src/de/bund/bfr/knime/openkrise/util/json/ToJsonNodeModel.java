@@ -28,7 +28,10 @@ import java.util.Map;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.json.JSONCell;
+import org.knime.core.data.json.JSONCellFactory;
+import org.knime.core.data.json.JacksonConversions;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -36,6 +39,11 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NoSettingsNodeModel;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.fge.jackson.JacksonUtils;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -52,6 +60,15 @@ import de.bund.bfr.knime.openkrise.common.Delivery;
  * @author Christian Thoens
  */
 public class ToJsonNodeModel extends NoSettingsNodeModel {
+
+	private static final String STATIONS = "stations";
+	private static final String DELIVERIES = "deliveries";
+	private static final String DELIVERY_RELATIONS = "deliveriesRelations";
+	private static final String ID = "id";
+	private static final String NAME = "name";
+	private static final String SOURCE = "source";
+	private static final String TARGET = "target";
+	private static final String LOT = "lot";
 
 	/**
 	 * Constructor for the node model.
@@ -83,9 +100,39 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 				"Deliveries Relations Table: Row " + key.getString() + " skipped (" + value + ")"));
 
 		BufferedDataContainer container = exec.createDataContainer(configure(null)[0]);
+		JsonNodeFactory nodeFactory = JacksonUtils.nodeFactory();
+		ObjectNode rootNode = nodeFactory.objectNode();
+		ArrayNode stationsNode = rootNode.putArray(STATIONS);
+		ArrayNode deliveriesNode = rootNode.putArray(DELIVERIES);
+		ArrayNode deliveryRelationsNode = rootNode.putArray(DELIVERY_RELATIONS);
 
-		// TODO create JSON and write in one cell
+		for (GraphNode s : nodes.values()) {
+			ObjectNode node = stationsNode.addObject();
 
+			node.put(ID, createStationId(s.getId()));
+			addIfNotNull(node, NAME, (String) s.getProperties().get(TracingColumns.NAME));
+		}
+
+		for (Edge<GraphNode> d : edges) {
+			ObjectNode node = deliveriesNode.addObject();
+			Delivery dd = deliveries.get(d.getId());
+
+			node.put(ID, createDeliveryId(dd.getId()));
+			node.put(SOURCE, createStationId(dd.getSupplierId()));
+			node.put(TARGET, createStationId(dd.getRecipientId()));
+			addIfNotNull(node, NAME, (String) d.getProperties().get(TracingColumns.NAME));
+			addIfNotNull(node, LOT, dd.getLot());
+
+			for (String next : dd.getAllNextIds()) {
+				ObjectNode n = deliveryRelationsNode.addObject();
+
+				n.put(SOURCE, createDeliveryId(dd.getId()));
+				n.put(TARGET, createDeliveryId(next));
+			}
+		}
+
+		container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
+				JSONCellFactory.create(JacksonConversions.getInstance().toJSR353(rootNode))));
 		container.close();
 
 		return new BufferedDataTable[] { container.getTable() };
@@ -104,5 +151,19 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 	@Override
 	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
+	}
+
+	private static void addIfNotNull(ObjectNode node, String fieldName, String value) {
+		if (value != null) {
+			node.put(fieldName, value);
+		}
+	}
+
+	private static String createStationId(String id) {
+		return "S" + id;
+	}
+
+	private static String createDeliveryId(String id) {
+		return "D" + id;
 	}
 }
