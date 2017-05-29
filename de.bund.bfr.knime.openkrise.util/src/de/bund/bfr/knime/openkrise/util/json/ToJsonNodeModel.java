@@ -47,7 +47,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jackson.JacksonUtils;
-import com.google.common.collect.ImmutableSet;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -58,29 +57,9 @@ import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 
 /**
- * This is the model implementation of ToKnimeNetwork.
- * 
- *
  * @author Christian Thoens
  */
 public class ToJsonNodeModel extends NoSettingsNodeModel {
-
-	private static final String STATIONS = "stations";
-	private static final String DELIVERIES = "deliveries";
-	private static final String DELIVERY_RELATIONS = "deliveriesRelations";
-	private static final String ID = "id";
-	private static final String NAME = "name";
-	private static final String SOURCE = "source";
-	private static final String TARGET = "target";
-	private static final String LOT = "lot";
-	private static final String DATE = "date";
-
-	private static final ImmutableSet<String> STATION_COLUMNS = ImmutableSet.of("id", "name", "incoming", "outgoing",
-			"connections", "invisible", "contained", "contains", "selected", "observed", "forward", "backward",
-			"outbreak", "crossContamination", "score", "commonLink", "position", "positionRelativeTo", "properties");
-	private static final ImmutableSet<String> DELIVERY_COLUMNS = ImmutableSet.of("id", "name", "lot", "date", "source",
-			"target", "originalSource", "originalTarget", "invisible", "selected", "observed", "forward", "backward",
-			"score", "properties");
 
 	/**
 	 * Constructor for the node model.
@@ -114,19 +93,18 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 		BufferedDataContainer container = exec.createDataContainer(configure(null)[0]);
 		JsonNodeFactory nodeFactory = JacksonUtils.nodeFactory();
 		ObjectNode rootNode = nodeFactory.objectNode();
-		ArrayNode stationsNode = rootNode.putArray(STATIONS);
-		ArrayNode deliveriesNode = rootNode.putArray(DELIVERIES);
-		ArrayNode deliveryRelationsNode = rootNode.putArray(DELIVERY_RELATIONS);
+		ArrayNode stationsNode = rootNode.putArray(JsonConstants.STATIONS);
+		ArrayNode deliveriesNode = rootNode.putArray(JsonConstants.DELIVERIES);
+		ArrayNode deliveryRelationsNode = rootNode.putArray(JsonConstants.DELIVERY_RELATIONS);
 
 		for (GraphNode s : nodes.values()) {
 			ObjectNode node = stationsNode.addObject();
 
-			node.put(ID, createStationId(s.getId()));
-			addIfNotNull(node, NAME, s.getProperties().get(TracingColumns.NAME));
+			node.put(JsonConstants.ID, createStationId(s.getId()));
+			addIfNotNull(node, JsonConstants.NAME, s.getProperties().get(TracingColumns.NAME));
 
 			s.getProperties().forEach((name, value) -> {
-				if (!STATION_COLUMNS.contains(name) && !name.equals(TracingColumns.ID)
-						&& !name.equals(TracingColumns.NAME)) {
+				if (!JsonConstants.STATION_PROPERTIES.contains(name)) {
 					addIfNotNull(node, name, value);
 				}
 			});
@@ -135,25 +113,23 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 		for (Edge<GraphNode> d : edges) {
 			ObjectNode node = deliveriesNode.addObject();
 
-			node.put(ID, createDeliveryId(d.getId()));
-			node.put(SOURCE, createStationId(d.getFrom().getId()));
-			node.put(TARGET, createStationId(d.getTo().getId()));
-			addIfNotNull(node, NAME, d.getProperties().get(TracingColumns.NAME));
-			addIfNotNull(node, LOT, deliveries.get(d.getId()).getLot());
+			node.put(JsonConstants.ID, createDeliveryId(d.getId()));
+			node.put(JsonConstants.SOURCE, createStationId(d.getFrom().getId()));
+			node.put(JsonConstants.TARGET, createStationId(d.getTo().getId()));
+			addIfNotNull(node, JsonConstants.NAME, d.getProperties().get(TracingColumns.NAME));
+			addIfNotNull(node, JsonConstants.LOT, deliveries.get(d.getId()).getLot());
 
 			Integer year = deliveries.get(d.getId()).getDepartureYear();
 			Integer month = deliveries.get(d.getId()).getDepartureMonth();
 			Integer day = deliveries.get(d.getId()).getDepartureDay();
 
 			if (year != null && month != null && day != null) {
-				node.put(DATE,
+				node.put(JsonConstants.DATE,
 						LocalDate.of(year, Month.of(month), day).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 			}
 
 			d.getProperties().forEach((name, value) -> {
-				if (!DELIVERY_COLUMNS.contains(name) && !name.equals(TracingColumns.ID)
-						&& !name.equals(TracingColumns.NAME) && !name.equals(TracingColumns.FROM)
-						&& !name.equals(TracingColumns.TO)) {
+				if (!JsonConstants.DELIVERY_PROPERTIES.contains(name)) {
 					addIfNotNull(node, name, value);
 				}
 			});
@@ -161,8 +137,8 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 			for (String next : deliveries.get(d.getId()).getAllNextIds()) {
 				ObjectNode n = deliveryRelationsNode.addObject();
 
-				n.put(SOURCE, createDeliveryId(d.getId()));
-				n.put(TARGET, createDeliveryId(next));
+				n.put(JsonConstants.SOURCE, createDeliveryId(d.getId()));
+				n.put(JsonConstants.TARGET, createDeliveryId(next));
 			}
 		}
 
@@ -175,7 +151,8 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		return new DataTableSpec[] { new DataTableSpec(new DataColumnSpecCreator("JSON", JSONCell.TYPE).createSpec()) };
+		return new DataTableSpec[] {
+				new DataTableSpec(new DataColumnSpecCreator(JsonConstants.JSON_COLUMN, JSONCell.TYPE).createSpec()) };
 	}
 
 	@Override
@@ -190,7 +167,13 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 
 	private static void addIfNotNull(ObjectNode node, String fieldName, Object value) {
 		if (value != null) {
-			node.put(fieldName, value.toString());
+			if (value instanceof Number) {
+				node.put(fieldName, ((Number) value).doubleValue());
+			} else if (value instanceof Boolean) {
+				node.put(fieldName, ((Boolean) value).booleanValue());
+			} else {
+				node.put(fieldName, value.toString());
+			}
 		}
 	}
 
