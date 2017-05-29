@@ -21,6 +21,9 @@ package de.bund.bfr.knime.openkrise.util.json;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +47,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jackson.JacksonUtils;
+import com.google.common.collect.ImmutableSet;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -69,6 +73,14 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 	private static final String SOURCE = "source";
 	private static final String TARGET = "target";
 	private static final String LOT = "lot";
+	private static final String DATE = "date";
+
+	private static final ImmutableSet<String> STATION_COLUMNS = ImmutableSet.of("id", "name", "incoming", "outgoing",
+			"connections", "invisible", "contained", "contains", "selected", "observed", "forward", "backward",
+			"outbreak", "crossContamination", "score", "commonLink", "position", "positionRelativeTo", "properties");
+	private static final ImmutableSet<String> DELIVERY_COLUMNS = ImmutableSet.of("id", "name", "lot", "date", "source",
+			"target", "originalSource", "originalTarget", "invisible", "selected", "observed", "forward", "backward",
+			"score", "properties");
 
 	/**
 	 * Constructor for the node model.
@@ -110,23 +122,46 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 			ObjectNode node = stationsNode.addObject();
 
 			node.put(ID, createStationId(s.getId()));
-			addIfNotNull(node, NAME, (String) s.getProperties().get(TracingColumns.NAME));
+			addIfNotNull(node, NAME, s.getProperties().get(TracingColumns.NAME));
+
+			s.getProperties().forEach((name, value) -> {
+				if (!STATION_COLUMNS.contains(name) && !name.equals(TracingColumns.ID)
+						&& !name.equals(TracingColumns.NAME)) {
+					addIfNotNull(node, name, value);
+				}
+			});
 		}
 
 		for (Edge<GraphNode> d : edges) {
 			ObjectNode node = deliveriesNode.addObject();
-			Delivery dd = deliveries.get(d.getId());
 
-			node.put(ID, createDeliveryId(dd.getId()));
-			node.put(SOURCE, createStationId(dd.getSupplierId()));
-			node.put(TARGET, createStationId(dd.getRecipientId()));
-			addIfNotNull(node, NAME, (String) d.getProperties().get(TracingColumns.NAME));
-			addIfNotNull(node, LOT, dd.getLot());
+			node.put(ID, createDeliveryId(d.getId()));
+			node.put(SOURCE, createStationId(d.getFrom().getId()));
+			node.put(TARGET, createStationId(d.getTo().getId()));
+			addIfNotNull(node, NAME, d.getProperties().get(TracingColumns.NAME));
+			addIfNotNull(node, LOT, deliveries.get(d.getId()).getLot());
 
-			for (String next : dd.getAllNextIds()) {
+			Integer year = deliveries.get(d.getId()).getDepartureYear();
+			Integer month = deliveries.get(d.getId()).getDepartureMonth();
+			Integer day = deliveries.get(d.getId()).getDepartureDay();
+
+			if (year != null && month != null && day != null) {
+				node.put(DATE,
+						LocalDate.of(year, Month.of(month), day).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+			}
+
+			d.getProperties().forEach((name, value) -> {
+				if (!DELIVERY_COLUMNS.contains(name) && !name.equals(TracingColumns.ID)
+						&& !name.equals(TracingColumns.NAME) && !name.equals(TracingColumns.FROM)
+						&& !name.equals(TracingColumns.TO)) {
+					addIfNotNull(node, name, value);
+				}
+			});
+
+			for (String next : deliveries.get(d.getId()).getAllNextIds()) {
 				ObjectNode n = deliveryRelationsNode.addObject();
 
-				n.put(SOURCE, createDeliveryId(dd.getId()));
+				n.put(SOURCE, createDeliveryId(d.getId()));
 				n.put(TARGET, createDeliveryId(next));
 			}
 		}
@@ -153,9 +188,9 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private static void addIfNotNull(ObjectNode node, String fieldName, String value) {
+	private static void addIfNotNull(ObjectNode node, String fieldName, Object value) {
 		if (value != null) {
-			node.put(fieldName, value);
+			node.put(fieldName, value.toString());
 		}
 	}
 
