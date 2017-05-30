@@ -271,8 +271,8 @@ public class Station {
 	public Integer insertIntoDb(MyDBI mydbi) throws Exception {
 		if (alreadyInDb) return dbId;
 		//dbId = null;
-		String in = MyDBI.delimitL("ID");
-		String iv = Integer.parseInt(id)+"";
+		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Serial");
+		String iv = Integer.parseInt(id)+","+Integer.parseInt(id);
 		String[] feldnames = new String[]{"Name","Strasse","Land","Adresse","Betriebsart"};
 		String[] sFeldVals = new String[]{name,street,country,address,typeOfBusiness};
 

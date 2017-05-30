@@ -420,8 +420,8 @@ public class Delivery {
 		//dbId = null;
 		int lotId = this.getLot().insertIntoDb(mydbi);
 		int recId = this.getReceiver().insertIntoDb(mydbi);
-		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Charge") + "," + MyDBI.delimitL("Empfänger");
-		String iv = Integer.parseInt(id) + "," + lotId + "," + recId;
+		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Serial") + "," + MyDBI.delimitL("Charge") + "," + MyDBI.delimitL("Empfänger");
+		String iv = Integer.parseInt(id) + "," + Integer.parseInt(id) + "," + lotId + "," + recId;
 		String[] feldnames = new String[]{"ad_day","ad_month","ad_year"};
 		Integer[] iFeldVals = new Integer[]{arrivalDay,arrivalMonth,arrivalYear};
 

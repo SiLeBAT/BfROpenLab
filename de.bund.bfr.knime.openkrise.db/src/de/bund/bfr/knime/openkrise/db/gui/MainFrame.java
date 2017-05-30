@@ -66,6 +66,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 
 import quick.dbtable.Filter;
 
@@ -783,6 +784,22 @@ public class MainFrame extends JFrame {
 		
 		doStationGeneration(dialog, true);
 	}
+
+	private class FolderFilter extends javax.swing.filechooser.FileFilter {
+		private String descr = "";
+		private FolderFilter(String desc) {
+			descr = desc;
+		}
+		@Override
+		public boolean accept(File file) {
+			return file.isDirectory();
+		}
+
+		@Override
+		public String getDescription() {
+			return descr;//"We only take directories";
+		}
+	}
 	private void doStationGeneration(StationDialog dialog, boolean isForward) {
 		if (dialog.isApproved()) {
 			Locale oldLocale = JComponent.getDefaultLocale();
@@ -794,6 +811,11 @@ public class MainFrame extends JFrame {
 		    chooser.setDialogTitle("Select output folder");
 		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		    chooser.setAcceptAllFileFilterUsed(false);
+		    FileFilter ff16 = new FolderFilter("Format 2016");
+		    FileFilter ff17 = new FolderFilter("Format 2017");
+		    chooser.addChoosableFileFilter(ff16);
+		    //chooser.addChoosableFileFilter(ff17);
+		    chooser.setFileFilter(ff17);
 		    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 		    	File f = chooser.getSelectedFile();
 		    	if (f.isFile()) f = f.getParentFile();
@@ -801,7 +823,8 @@ public class MainFrame extends JFrame {
 					DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
 					DBKernel.prefs.prefsFlush();
 					this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-					new TraceGenerator(f, dialog.getSelected(), chooser, isForward);
+			    	boolean do2017Format = chooser.getFileFilter().getDescription().equals("Format 2017");
+					new TraceGenerator(f, dialog.getSelected(), chooser, isForward, do2017Format);
 					this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 		    	}
 		    	else {
@@ -874,6 +897,11 @@ public class MainFrame extends JFrame {
 	    chooser.setDialogTitle("Select output folder");
 	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    chooser.setAcceptAllFileFilterUsed(false);
+	    FileFilter ff16 = new FolderFilter("Format 2016");
+	    FileFilter ff17 = new FolderFilter("Format 2017");
+	    chooser.addChoosableFileFilter(ff16);
+	    //chooser.addChoosableFileFilter(ff17);
+	    chooser.setFileFilter(ff17);
 	    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 	    	File f = chooser.getSelectedFile();
 	    	if (f.isFile()) f = f.getParentFile();
@@ -881,7 +909,8 @@ public class MainFrame extends JFrame {
 				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
 				DBKernel.prefs.prefsFlush();
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-				new TraceGenerator(f, business2Trace, isForward, chooser);
+		    	boolean do2017Format = chooser.getFileFilter().getDescription().equals("Format 2017");
+				new TraceGenerator(f, business2Trace, isForward, chooser, do2017Format);
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 	    	}
 	    	else {

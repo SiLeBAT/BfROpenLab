@@ -33,7 +33,7 @@ import org.apache.http.protocol.HttpContext
 
 class DeployToBintray {
 
-	static USE_PROXY = true
+	static USE_PROXY = false
 	static PROXY = "webproxy"
 	static PORT = 8080
 
@@ -61,7 +61,7 @@ class DeployToBintray {
 
 		println "user:"
 		def user = new Scanner(System.in).nextLine()
-		println "password:"
+		println "API Key:"
 		def password = new Scanner(System.in).nextLine()
 		println ""
 

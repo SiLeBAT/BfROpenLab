@@ -659,6 +659,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								// wie soll ab jetzt eine station editiert werden können?
 								// nicht vergessen: verenglischen
 								// "Datei wurde bereits importtiert" einbauen!!!
+								// alter und neuer Import knn nicht "vermischt" werden... -> Serial ist ein großes Problem!
 								Delivery od = null;
 								if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);
 								else if (olddels.containsKey(key)) od = olddels.get(key);

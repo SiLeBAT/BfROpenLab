@@ -212,8 +212,8 @@ public class Lot {
 		if (alreadyInDb) return dbId;
 		//dbId = null;
 		int productId = this.getProduct().insertIntoDb(mydbi);
-		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Artikel");
-		String iv = id + "," + productId;
+		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Serial") + "," + MyDBI.delimitL("Artikel");
+		String iv = id + "," + id + "," + productId;
 		String[] feldnames = new String[]{"ChargenNr"};
 		String[] sFeldVals = new String[]{number};
 

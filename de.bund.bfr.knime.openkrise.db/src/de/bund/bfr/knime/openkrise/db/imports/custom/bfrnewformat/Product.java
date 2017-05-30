@@ -159,8 +159,8 @@ public class Product {
 		if (alreadyInDb) return dbId;
 		//dbId = null;
 		int stationId = this.getStation().insertIntoDb(mydbi);
-		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Station");
-		String iv = id + "," + stationId;
+		String in = MyDBI.delimitL("ID") + "," + MyDBI.delimitL("Station") + "," + MyDBI.delimitL("Serial");
+		String iv = id + "," + stationId + "," + id;
 		String[] feldnames = new String[]{"Bezeichnung"};
 		String[] sFeldVals = new String[]{name};
 
