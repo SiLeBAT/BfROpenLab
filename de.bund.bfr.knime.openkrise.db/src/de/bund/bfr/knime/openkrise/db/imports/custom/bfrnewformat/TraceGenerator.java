@@ -330,7 +330,7 @@ public class TraceGenerator {
 			if (sif != null && sif.equals("Josef Wernke GmbH")) {
 				System.err.println("");
 			}
-			int rowIndex = 5;
+			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");
 			do {
 				if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
@@ -343,7 +343,7 @@ public class TraceGenerator {
 			
 			row = sheetTracing.getRow(rowIndex+4);
 			cell = row.getCell(0);			
-			cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+12) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
+			cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 			if (save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + sif + "_" + id + ".xlsx")) {
@@ -728,7 +728,7 @@ public class TraceGenerator {
 			if (sif != null && sif.equals("Josef Wernke GmbH")) {
 				System.err.println("");
 			}
-			int rowIndex = 5;
+			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");
 			do {
 				if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
@@ -741,7 +741,7 @@ public class TraceGenerator {
 			
 			row = sheetTracing.getRow(rowIndex+4);
 			cell = row.getCell(0);
-			cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+12) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
+			cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 			if (save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + sif + "_" + id + ".xlsx")) {
@@ -1350,12 +1350,12 @@ public class TraceGenerator {
 		else cell.setCellValue("");		
 		cell = row.getCell(8);
 		fillExtraCell(cell, "Lieferungen", "Amount", rs.getString("Lieferungen.ID"));
-		fillStationSimple(row.getCell(9), row.getCell(10), rs.getObject(isForward ? "Produktkatalog.Station" : "Lieferungen.Empfänger"));
-		cell = row.getCell(11);
+		fillStationSimple(row.getCell(9), row.getCell(10), row.getCell(11), rs.getObject(isForward ? "Produktkatalog.Station" : "Lieferungen.Empfänger"));
+		cell = row.getCell(12);
 		if (rs.getObject("Lieferungen.Kommentar") != null) cell.setCellValue(rs.getString("Lieferungen.Kommentar"));
 		else cell.setCellValue("");		
 	}
-	private void fillStationSimple(XSSFCell cellName, XSSFCell cellAddress, Object stationID) throws SQLException {
+	private void fillStationSimple(XSSFCell cellName, XSSFCell cellAddress, XSSFCell countryAddress, Object stationID) throws SQLException {
 		cellName.setCellValue("");
 		cellAddress.setCellValue("");
 		if (stationID != null) {
@@ -1364,6 +1364,7 @@ public class TraceGenerator {
 			if (rs != null && rs.first()) {
 				if (rs.getObject("Name") != null) cellName.setCellValue(rs.getString("Name"));
 				if (rs.getObject("Adresse") != null) cellAddress.setCellValue(rs.getString("Adresse"));
+				if (rs.getObject("Land") != null) countryAddress.setCellValue(rs.getString("Land"));
 			}
 		}
 	}
