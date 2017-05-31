@@ -605,7 +605,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Integer f4 = getInt(getCellString(row.getCell(xlsD.getDayCol())));
 							Integer f5 = getInt(getCellString(row.getCell(xlsD.getMonthCol())));
 							Integer f6 = getInt(getCellString(row.getCell(xlsD.getYearCol())));
-							String f7 = getCellString(row.getCell(xlsD.getAmountCol()));
+							String f7 = xlsD.getAmountCol() >= 0 ? getCellString(row.getCell(xlsD.getAmountCol())) : null;
 							String f8 = getCellString(row.getCell(xlsD.getCommentCol()));
 							int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+(doPreCollect==backtracing?supplierS.getId():focusS.getId()));						
 							Delivery d = null;
@@ -615,7 +615,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								d.setArrivalDay(f4);
 								d.setArrivalMonth(f5);
 								d.setArrivalYear(f6);
-								d.addFlexibleField("Amount", f7);
+								if (f7 != null) d.addFlexibleField("Amount", f7);
 								d.setComment(f8);
 								if (doPreCollect) {
 									if (!backtracing) d.setReceiver(focusS);

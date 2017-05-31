@@ -7,7 +7,7 @@ public class XlsDelivery {
 	public static final String DAY = "Tag";
 	public static final String MONTH = "Monat";
 	public static final String YEAR = "Jahr";
-	public static final String AMOUNT = "abgegebene Menge\n(z.B. 4 Kartons a 10kg)".replaceAll("\\s+","");;
+	public static final String AMOUNT = "abgegebene Menge";//"abgegebene Menge\n(z.B. 4 Kartons a 10kg)".replaceAll("\\s+","");;
 	public static final String COMMENT = "Kommentar";
 
 	public void addField(String fieldname, int index) {
@@ -21,7 +21,7 @@ public class XlsDelivery {
 			else if (s.equals(DAY)) dayCol = index;
 			else if (s.equals(MONTH)) monthCol = index;
 			else if (s.equals(YEAR)) yearCol = index;
-			else if (s.equals(AMOUNT)) amountCol = index;
+			else if (s.startsWith(AMOUNT)) amountCol = index;
 			else if (s.equals(COMMENT)) commentCol = index;
 		}
 	}

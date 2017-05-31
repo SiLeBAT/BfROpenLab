@@ -5,7 +5,7 @@ public class XlsStation {
 	public static final String BLOCK_SUPPLIER = "Lieferant";
 
 	public static final String NAME = "Name";
-	public static final String ADDRESS = "Adresse\n(Straße Hausnummer, PLZ Ort)".replaceAll("\\s+","");
+	public static final String ADDRESS = "Adresse";//\n(Straße Hausnummer, PLZ Ort)".replaceAll("\\s+","");
 	public static final String COUNTRY = "Land";
 	public static final String TOB = "Betriebsart";
 	
@@ -13,7 +13,7 @@ public class XlsStation {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
 			if (s.equals(NAME)) nameCol = index;
-			else if (s.equals(ADDRESS)) addressCol = index;
+			else if (s.startsWith(ADDRESS)) addressCol = index;
 			else if (s.equals(COUNTRY)) countryCol = index;
 			else if (s.equals(TOB)) tobCol = index;
 		}

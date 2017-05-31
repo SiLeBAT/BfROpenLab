@@ -4,13 +4,13 @@ public class XlsLot {
 	public static final String BLOCK = "Lotinformation";
 
 	public static final String NUMBER = "Chargennummer";
-	public static final String MHD = "MHD oder Verbrauchsdatum".replaceAll("\\s+","");;
+	public static final String MHD = "MHD";// oder Verbrauchsdatum".replaceAll("\\s+","");;
 
 	public void addField(String fieldname, int index) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
 			if (s.equals(NUMBER)) lotCol = index;
-			else if (s.equals(MHD)) mhdCol = index;
+			else if (s.startsWith(MHD)) mhdCol = index;
 		}
 	}
 
