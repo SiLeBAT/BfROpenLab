@@ -73,7 +73,7 @@ class DeployToBintray {
 			client.setProxy(PROXY, PORT, null)
 
 		if (featuresDir.exists() && pluginsDir.exists()) {
-			def version = new SimpleDateFormat("yyyy_MM_dd").format(new Date())
+			def version = new SimpleDateFormat("yyyy_MM_dd_H_m").format(new Date())
 			createVersion(client, version)
 
 			for (File f : featuresDir.listFiles()) {
