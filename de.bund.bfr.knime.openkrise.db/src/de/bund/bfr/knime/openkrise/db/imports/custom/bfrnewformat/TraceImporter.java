@@ -666,10 +666,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							
 							if (xlsD.getChargenLinkCol() >= 0) {
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
-// Betriebsart, etc. in die Station properties mit rein
+// "Datei wurde bereits importtiert" einbauen!!!
 // stationsspezifisches traceback jetzt nur noch für missing ingredients!!! Nicht mehr allunfassendes edit für die station möglich!!! Bei den Tutorials berücksichtigen!!!!
 // wie soll ab jetzt eine station editiert werden können?
-// "Datei wurde bereits importtiert" einbauen!!!
+// Betriebsart, etc. in die Station properties mit rein
 // alter und neuer Import kann nicht "vermischt" werden... Entweder durchweg alte  Tenplates oder die neuen -> Serial ist ein großes Problem!  ----  oder ist das jetzt schon gefixt und klappt? durch automatisches Serial = ID???
 								Delivery od = null;
 								if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);
