@@ -1,17 +1,36 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
 public class XlsProduct {
-	public static final String BLOCK_PRODUCT = "Produkt";
-	public static final String BLOCK_INGREDIENT = "Zutat";
-
-	public static final String ITEM = "Bezeichnung";
-	public static final String EAN = "EAN";
+	public static String BLOCK_PRODUCT(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Produkt";
+		else if (lang.equals("en")) return "Product";
+		else return null;
+	}
+	public static String BLOCK_INGREDIENT(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Zutat";
+		else if (lang.equals("en")) return "Ingredient";
+		else return null;
+	}
+	public static String ITEM(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Bezeichnung";
+		else if (lang.equals("en")) return "Name";
+		else return null;
+	}
+	public static String EAN(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "EAN";
+		else if (lang.equals("en")) return "EAN";
+		else return null;
+	}
 	
-	public void addField(String fieldname, int index) {
+	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equals(ITEM)) nameCol = index;
-			else if (s.equals(EAN)) eanCol = index;
+			if (s.equals(ITEM(lang))) nameCol = index;
+			else if (s.equals(EAN(lang))) eanCol = index;
 		}
 	}
 

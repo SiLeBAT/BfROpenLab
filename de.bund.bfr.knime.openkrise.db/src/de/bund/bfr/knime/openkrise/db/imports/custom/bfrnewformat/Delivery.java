@@ -440,9 +440,11 @@ public class Delivery {
 		@SuppressWarnings("resource")
 		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
 		PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		//boolean newlyInserted = false;
 		try {
 			if (ps.executeUpdate() > 0) {
 				dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+				//newlyInserted = true;
 			}
 		}
 		catch (SQLException e) {

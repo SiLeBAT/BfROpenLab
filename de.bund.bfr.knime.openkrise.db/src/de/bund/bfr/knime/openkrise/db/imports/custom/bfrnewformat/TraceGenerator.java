@@ -312,9 +312,9 @@ public class TraceGenerator {
 	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
-			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_de.xlsx");
+			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_en.xlsx");
 			XSSFWorkbook workbook = new XSSFWorkbook(myxls);
-			XSSFSheet sheetTracing = workbook.getSheet("Herstellung - Vorwärtsverfolgun");
+			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("en"));//"Herstellung - Vorwärtsverfolgun");
 
 			// Station in Focus
 			String sif = null;
@@ -344,8 +344,9 @@ public class TraceGenerator {
 			rs.previous();
 			
 			row = sheetTracing.getRow(rowIndex+4);
-			cell = row.getCell(0);			
-			cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
+			cell = row.getCell(0);	
+			cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + ": please enter the line number of the Incoming Good being the ingredient of this product");
+			//cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 			if (save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + sif + "_" + id + ".xlsx")) {
@@ -523,7 +524,7 @@ public class TraceGenerator {
 	}
 	
 	private int getFwdStationRequests(String outputFolder, Station station) throws SQLException, IOException {
-		if (doTheSimpleTemplates) return getFortraceRequests(outputFolder, null, Integer.parseInt(station.getId()));
+		if (doTheSimpleTemplates) return getFortraceRequests(outputFolder, null, Integer.parseInt(station.getId2017()));
 		int result = 0;
 		String sql = "Select * from " + MyDBI.delimitL("Station") + " AS " + MyDBI.delimitL("S") +
 				" LEFT JOIN " + MyDBI.delimitL("Lieferungen") +
@@ -710,9 +711,9 @@ public class TraceGenerator {
 	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
-			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_de.xlsx");
+			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_en.xlsx");
 			XSSFWorkbook workbook = new XSSFWorkbook(myxls);
-			XSSFSheet sheetTracing = workbook.getSheet("Herstellung - Rückverfolgung");
+			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("en")); //"Herstellung - Rückverfolgung");
 
 			// Station in Focus
 			String sif = null;
@@ -743,7 +744,8 @@ public class TraceGenerator {
 			
 			row = sheetTracing.getRow(rowIndex+4);
 			cell = row.getCell(0);
-			cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
+			cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + ": please enter the line number of the Outgoing Good being the product of this ingredient");
+			//cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 			if (save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + sif + "_" + id + ".xlsx")) {
@@ -754,7 +756,7 @@ public class TraceGenerator {
 		return result;
 	}
 	private int getBackStationRequests(String outputFolder, Station station) throws SQLException, IOException {
-		if (doTheSimpleTemplates) return getBacktraceRequests(outputFolder, null, Integer.parseInt(station.getId()));
+		if (doTheSimpleTemplates) return getBacktraceRequests(outputFolder, null, Integer.parseInt(station.getId2017()));
 		int result = 0;
 		String sql = "Select * from " + MyDBI.delimitL("Station") +
 					" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +

@@ -1,28 +1,62 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
 public class XlsDelivery {
-	public static final String BLOCK = "Lieferung";
+	public static String BLOCK(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Lieferung";
+		else if (lang.equals("en")) return "Delivery";
+		else return null;
+	}
+	public static String DELIVERY_DATE(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Lieferdatum";
+		else if (lang.equals("en")) return "DeliveryDate";
+		else return null;
+	}
+	public static String DAY(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Tag";
+		else if (lang.equals("en")) return "Day";
+		else return null;
+	}
+	public static String MONTH(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Monat";
+		else if (lang.equals("en")) return "Month";
+		else return null;
+	}
+	public static String YEAR(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Jahr";
+		else if (lang.equals("en")) return "Year";
+		else return null;
+	}
+	public static String AMOUNT(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "abgegebeneMenge";
+		else if (lang.equals("en")) return "Amount";
+		else return null;
+	}
+	public static String COMMENT(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Kommentar";
+		else if (lang.equals("en")) return "Comments";
+		else return null;
+	}
 
-	public static final String DELIVERY_DATE = "Lieferdatum";
-	public static final String DAY = "Tag";
-	public static final String MONTH = "Monat";
-	public static final String YEAR = "Jahr";
-	public static final String AMOUNT = "abgegebene Menge";//"abgegebene Menge\n(z.B. 4 Kartons a 10kg)".replaceAll("\\s+","");;
-	public static final String COMMENT = "Kommentar";
-
-	public void addField(String fieldname, int index) {
+	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equals(DELIVERY_DATE)) {
+			if (s.equals(DELIVERY_DATE(lang))) {
 				dayCol = index;
 				monthCol = index+1;
 				yearCol = index+2;
 			}
-			else if (s.equals(DAY)) dayCol = index;
-			else if (s.equals(MONTH)) monthCol = index;
-			else if (s.equals(YEAR)) yearCol = index;
-			else if (s.startsWith(AMOUNT)) amountCol = index;
-			else if (s.equals(COMMENT)) commentCol = index;
+			else if (s.equals(DAY(lang))) dayCol = index;
+			else if (s.equals(MONTH(lang))) monthCol = index;
+			else if (s.equals(YEAR(lang))) yearCol = index;
+			else if (s.startsWith(AMOUNT(lang))) amountCol = index;
+			else if (s.equals(COMMENT(lang))) commentCol = index;
 		}
 	}
 

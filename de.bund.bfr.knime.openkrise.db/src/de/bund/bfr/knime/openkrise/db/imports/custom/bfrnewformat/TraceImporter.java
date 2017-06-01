@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.awt.Container;
+import java.awt.Cursor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -495,13 +497,24 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		
 		boolean backtracing = true;
 		boolean isProduction = false;
-		Sheet sheet = wb.getSheet(XlsStruct.BACK_SHEETNAME);
-		if (sheet == null) {sheet = wb.getSheet(XlsStruct.PROD_BACK_SHEETNAME); isProduction = true;}
+		boolean isEnglish = false;
+		// RKI Sheet - only backwards
+		Sheet sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("de"));
 		if (sheet == null) {
-			backtracing = false;
-			sheet = wb.getSheet(XlsStruct.FWD_SHEETNAME);
+			isProduction = true;
+			sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("de"));
+			if (sheet == null) {
+				backtracing = false;
+				sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("de"));
+			}
 		}
-		if (sheet == null) {sheet = wb.getSheet(XlsStruct.PROD_FWD_SHEETNAME); isProduction = true;}
+		if (sheet == null) {
+			isEnglish = true;
+			backtracing = true;
+			sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("en"));
+			if (sheet == null) sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("en")); else isProduction = false;
+			if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("en")); backtracing = false;}
+		}
 				
 		HashMap<Integer, Station> stations = new HashMap<>();
 		HashMap<Integer, Product> products = new HashMap<>();
@@ -518,7 +531,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			String address = getCellString(row.getCell(2));
 			focusS.setAddress(address);
 			focusS.setCountry(getCellString(row.getCell(3)));
-			focusS.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, XlsStruct.OUT_SOURCE_VAL + " " + 1);
+			focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + 1);
 			int sID = genDbId(""+cs+address);
 			focusS.setId(""+sID);
 			stations.put(sID, focusS);
@@ -536,7 +549,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					cs = getCellString(row.getCell(0));
 					String cs1 = getCellString(row.getCell(1));
 					if (cs != null || cs1 != null) {
-						if (cs != null && cs.startsWith(XlsStruct.TOP_END_LINE)) doPreCollect = false;
+						if (cs != null) doPreCollect = false; //  && cs.startsWith(XlsStruct.TOP_END_LINE)
 						if (doCollect || doPreCollect) {
 							//System.err.print(i+1);
 
@@ -546,7 +559,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Station supplierS = null;
 							if (stations.containsKey(sID)) {
 								supplierS = stations.get(sID);
-								supplierS.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, supplierS.getFlexible(XlsStruct.OUT_SOURCE_KEY) + "; " + XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), supplierS.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 							}
 							else {
 								supplierS = new Station();
@@ -554,7 +567,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								supplierS.setAddress(address);
 								if (xlsS.getCountryCol() >= 0) supplierS.setCountry(getCellString(row.getCell(xlsS.getCountryCol())));
 								if (xlsS.getTobCol() >= 0) supplierS.setTypeOfBusiness(getCellString(row.getCell(xlsS.getTobCol())));
-								supplierS.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								supplierS.setId(""+sID);
 								stations.put(sID, supplierS);
 							}
@@ -565,7 +578,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Product p = null;
 							if (products.containsKey(pID)) {
 								p = products.get(pID);
-								p.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, p.getFlexible(XlsStruct.OUT_SOURCE_KEY) + "; " + XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), p.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 							}
 							else {
 								p = new Product();
@@ -578,8 +591,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									else p.setStation(focusS);									
 								}
 								p.setName(f2);
-								p.addFlexibleField(XlsProduct.EAN, f3);
-								p.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, filename + " - " + XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+								p.addFlexibleField(XlsProduct.EAN(isEnglish ? "en":"de"), f3);
+								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								p.setId(pID);
 								products.put(pID, p);
 							}
@@ -590,14 +603,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Lot lot = null;
 							if (lots.containsKey(lID)) {
 								lot = lots.get(lID);
-								lot.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, lot.getFlexible(XlsStruct.OUT_SOURCE_KEY) + "; " + XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), lot.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 							}
 							else {
 								lot = new Lot();
 								lot.setProduct(p);
 								lot.setNumber(f2);
-								lot.addFlexibleField(XlsLot.MHD, f3);
-								lot.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, filename + " - " + XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+								lot.addFlexibleField(XlsLot.MHD(isEnglish ? "en":"de"), f3);
+								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								lot.setId(lID);
 								lots.put(lID, lot);
 							}
@@ -625,7 +638,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									if (!backtracing) d.setReceiver(supplierS);
 									else d.setReceiver(focusS);
 								}
-								d.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, filename + " - " + XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+								d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								d.setId(dID+"");
 								olddels.put((i+1)+"", d);
 								olddelsLot.put(d.getLot().getNumber(), d);
@@ -633,7 +646,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							else {
 								if (dels.containsKey(dID)) {
 									d = dels.get(dID);
-									d.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, d.getFlexible(XlsStruct.OUT_SOURCE_KEY) + "; " + XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), d.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								}
 								else {
 									d = new Delivery();
@@ -645,7 +658,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									d.setComment(f8);								
 									if (backtracing) d.setReceiver(focusS);
 									else d.setReceiver(supplierS);
-									d.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, filename + " - " + XlsStruct.OUT_SOURCE_VAL + " " + (i+1));
+									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 									d.setId(dID+"");
 									dels.put(dID, d);
 								}
@@ -653,13 +666,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							
 							if (xlsD.getChargenLinkCol() >= 0) {
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
-								// Betriebsart, etc. in die Station properties mit rein
-								// hier nochmal überlegen, ob nicht besser bei leerer Zelle einfach importiert werden soll - ohne Verknüpfung
-								// stationsspezifisches traceback jetzt nur noch für missing ingredients!!! Nicht mehr allunfassendes edit für die station möglich!!! Bei den Tutorials berücksichtigen!!!!
-								// wie soll ab jetzt eine station editiert werden können?
-								// nicht vergessen: verenglischen
-								// "Datei wurde bereits importtiert" einbauen!!!
-								// alter und neuer Import knn nicht "vermischt" werden... -> Serial ist ein großes Problem!
+// Betriebsart, etc. in die Station properties mit rein
+// stationsspezifisches traceback jetzt nur noch für missing ingredients!!! Nicht mehr allunfassendes edit für die station möglich!!! Bei den Tutorials berücksichtigen!!!!
+// wie soll ab jetzt eine station editiert werden können?
+// "Datei wurde bereits importtiert" einbauen!!!
+// alter und neuer Import kann nicht "vermischt" werden... Entweder durchweg alte  Tenplates oder die neuen -> Serial ist ein großes Problem!  ----  oder ist das jetzt schon gefixt und klappt? durch automatisches Serial = ID???
 								Delivery od = null;
 								if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);
 								else if (olddels.containsKey(key)) od = olddels.get(key);
@@ -684,8 +695,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							*/
 							
 						}
-						else if (backtracing && cs != null && (cs.trim().startsWith(XlsStruct.BACK_NEW_DATA_START) || cs.trim().startsWith(XlsStruct.PROD_NEW_DATA_START)) ||
-								!backtracing && cs != null && (cs.trim().startsWith(XlsStruct.FWD_NEW_DATA_START) || cs.trim().startsWith(XlsStruct.PROD_NEW_DATA_START)) ||
+						else if (backtracing && cs != null && (cs.trim().startsWith(XlsStruct.getBACK_NEW_DATA_START(isEnglish ? "en":"de")) || cs.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(isEnglish ? "en":"de"))) ||
+								!backtracing && cs != null && (cs.trim().startsWith(XlsStruct.getFWD_NEW_DATA_START(isEnglish ? "en":"de")) || cs.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(isEnglish ? "en":"de"))) ||
 								isProduction && i==3) {
 							xlsS = new XlsStation();
 							xlsP = new XlsProduct();
@@ -697,7 +708,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								String str = getCellString(row.getCell(ii));
 								if (str != null) {
 									str = str.trim();
-									if ((str.equalsIgnoreCase(XlsStation.BLOCK_RECIPIENT) || str.equalsIgnoreCase(XlsStation.BLOCK_SUPPLIER))) {
+									if ((str.equalsIgnoreCase(XlsStation.BLOCK_RECIPIENT(isEnglish ? "en":"de")) || str.equalsIgnoreCase(XlsStation.BLOCK_SUPPLIER(isEnglish ? "en":"de")))) {
 										xlsS.setStartCol(ii); ii++;										
 										while(true) {
 											String string = getCellString(row.getCell(ii));
@@ -707,7 +718,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 										} 
 										ii--; xlsS.setEndCol(ii);
 									}
-									else if ((str.equalsIgnoreCase(XlsProduct.BLOCK_INGREDIENT) || str.equalsIgnoreCase(XlsProduct.BLOCK_PRODUCT))) {
+									else if ((str.equalsIgnoreCase(XlsProduct.BLOCK_INGREDIENT(isEnglish ? "en":"de")) || str.equalsIgnoreCase(XlsProduct.BLOCK_PRODUCT(isEnglish ? "en":"de")))) {
 										xlsP.setStartCol(ii); ii++;
 										while(true) {
 											String string = getCellString(row.getCell(ii));
@@ -717,7 +728,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 										} 
 										ii--; xlsP.setEndCol(ii);
 									}
-									else if (str.equalsIgnoreCase(XlsLot.BLOCK)) {
+									else if (str.equalsIgnoreCase(XlsLot.BLOCK(isEnglish ? "en":"de"))) {
 										xlsL.setStartCol(ii); ii++;
 										while(true) {
 											String string = getCellString(row.getCell(ii));
@@ -727,7 +738,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 										} 
 										ii--; xlsL.setEndCol(ii);
 									}
-									else if (str.equalsIgnoreCase(XlsDelivery.BLOCK)) {
+									else if (str.equalsIgnoreCase(XlsDelivery.BLOCK(isEnglish ? "en":"de"))) {
 										xlsD.setStartCol(ii); ii++;
 										while(true) {
 											String string = getCellString(row.getCell(ii));
@@ -737,7 +748,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 										} 
 										ii--; xlsD.setEndCol(ii);
 									}
-									else if (str.equalsIgnoreCase(XlsDelivery.COMMENT)) {
+									else if (str.equalsIgnoreCase(XlsDelivery.COMMENT(isEnglish ? "en":"de"))) {
 										xlsD.setCommentCol(ii);
 									}
 								}
@@ -747,25 +758,25 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							row = sheet.getRow(i);
 							for (int ii=xlsS.getStartCol();ii<=xlsS.getEndCol();ii++) {
 								String str = getCellString(row.getCell(ii));
-								xlsS.addField(str, ii);
+								xlsS.addField(str, ii, isEnglish ? "en":"de");
 							}
 							for (int ii=xlsP.getStartCol();ii<=xlsP.getEndCol();ii++) {
 								String str = getCellString(row.getCell(ii));
-								xlsP.addField(str, ii);
+								xlsP.addField(str, ii, isEnglish ? "en":"de");
 							}
 							for (int ii=xlsL.getStartCol();ii<=xlsL.getEndCol();ii++) {
 								String str = getCellString(row.getCell(ii));
-								xlsL.addField(str, ii);
+								xlsL.addField(str, ii, isEnglish ? "en":"de");
 							}
 							for (int ii=xlsD.getStartCol();ii<=xlsD.getEndCol();ii++) {
 								String str = getCellString(row.getCell(ii));
-								xlsD.addField(str, ii);
+								xlsD.addField(str, ii, isEnglish ? "en":"de");
 							}
 							if (isProduction && i==4) {
 								xlsD.setChargenLinkCol(-1);
 								doPreCollect = true;
 							}
-							else if (cs.trim().startsWith(XlsStruct.PROD_NEW_DATA_START)) { // "Zeilennummer"
+							else if (cs.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(isEnglish ? "en":"de"))) { // "Zeilennummer"
 								xlsD.setChargenLinkCol(0);
 								doCollect = true;
 							}
@@ -787,7 +798,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 		try {
 			for (Station s: stations.values()) {
-				s.addFlexibleField(XlsStruct.OUT_SOURCE_KEY, filename + ": " + s.getFlexible(XlsStruct.OUT_SOURCE_KEY));
+				s.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + ": " + s.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")));
+			}
+			for (Delivery d : olddels.values()) {
+				d.insertIntoDb(mydbi);
+				//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+				if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			}
 			for (Delivery d : dels.values()) {
 				d.insertIntoDb(mydbi);
@@ -1399,8 +1415,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					Station.reset(); Lot.reset(); Delivery.reset();
 					warns = new HashMap<>();
 					//if (existsDBKernel()) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
-					
+										
+					if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					List<Exception> exceptions = doTheImport(wb, filename);
+					if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getDefaultCursor());
 					//List<Exception> exceptions = doTheSimpleImport(wb, filename);
 					
 					if (exceptions != null && exceptions.size() > 0) {

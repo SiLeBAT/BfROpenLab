@@ -841,8 +841,10 @@ public class MainFrame extends JFrame {
 			if (rs != null && rs.first()) {
 				do  {
 					String id = rs.getString("Serial");
-					if (id == null) id = rs.getString("ID");
+					String id2017 = rs.getString("ID");
+					if (id == null) id = id2017;
 					Station s = new Station(id, rs.getString("Name"));
+					s.setId2017(id2017);
 					s.setCity(rs.getString("Ort"));
 					s.setCountry(rs.getString("Land"));
 					s.setDistrict(rs.getString("District"));

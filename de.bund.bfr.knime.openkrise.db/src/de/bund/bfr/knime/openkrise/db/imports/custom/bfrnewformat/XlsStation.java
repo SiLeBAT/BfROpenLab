@@ -1,21 +1,50 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
 public class XlsStation {
-	public static final String BLOCK_RECIPIENT = "Empfänger";
-	public static final String BLOCK_SUPPLIER = "Lieferant";
-
-	public static final String NAME = "Name";
-	public static final String ADDRESS = "Adresse";//\n(Straße Hausnummer, PLZ Ort)".replaceAll("\\s+","");
-	public static final String COUNTRY = "Land";
-	public static final String TOB = "Betriebsart";
+	public static String BLOCK_RECIPIENT(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Empfänger";
+		else if (lang.equals("en")) return "Recipient";
+		else return null;
+	}
+	public static String BLOCK_SUPPLIER(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Lieferant";
+		else if (lang.equals("en")) return "Supplier";
+		else return null;
+	}
+	public static String NAME(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Name";
+		else if (lang.equals("en")) return "Name";
+		else return null;
+	}
+	public static String ADDRESS(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Adresse";
+		else if (lang.equals("en")) return "Address";
+		else return null;
+	}
+	public static String COUNTRY(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Land";
+		else if (lang.equals("en")) return "Country";
+		else return null;
+	}
+	public static String TOB(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Betriebsart";
+		else if (lang.equals("en")) return "TypeofBusiness";
+		else return null;
+	}
 	
-	public void addField(String fieldname, int index) {
+	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equals(NAME)) nameCol = index;
-			else if (s.startsWith(ADDRESS)) addressCol = index;
-			else if (s.equals(COUNTRY)) countryCol = index;
-			else if (s.equals(TOB)) tobCol = index;
+			if (s.equals(NAME(lang))) nameCol = index;
+			else if (s.startsWith(ADDRESS(lang))) addressCol = index;
+			else if (s.equals(COUNTRY(lang))) countryCol = index;
+			else if (s.equals(TOB(lang))) tobCol = index;
 		}
 	}
 	private int startCol = -1;

@@ -1,16 +1,30 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
 public class XlsLot {
-	public static final String BLOCK = "Lotinformation";
+	public static String BLOCK(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Lotinformation";
+		else if (lang.equals("en")) return "Lot Information";
+		else return null;
+	}
+	public static String NUMBER(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Chargennummer";
+		else if (lang.equals("en")) return "LotNumber";
+		else return null;
+	}
+	public static String MHD(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "MHD";
+		else if (lang.equals("en")) return "BestBefore";
+		else return null;
+	}
 
-	public static final String NUMBER = "Chargennummer";
-	public static final String MHD = "MHD";// oder Verbrauchsdatum".replaceAll("\\s+","");;
-
-	public void addField(String fieldname, int index) {
+	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equals(NUMBER)) lotCol = index;
-			else if (s.startsWith(MHD)) mhdCol = index;
+			if (s.equals(NUMBER(lang))) lotCol = index;
+			else if (s.startsWith(MHD(lang))) mhdCol = index;
 		}
 	}
 

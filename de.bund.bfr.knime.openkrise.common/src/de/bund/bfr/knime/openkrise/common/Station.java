@@ -29,7 +29,7 @@ public class Station {
 			.put("ID", getMethod("getId")).put("Name", getMethod("getName")).put("Business Type", getMethod("getType"))
 			.put("Zip Code", getMethod("getZipCode")).put("City", getMethod("getCity"))
 			.put("District", getMethod("getDistrict")).put("State", getMethod("getState"))
-			.put("Country", getMethod("getCountry")).put("Address", getMethod("getAddress")).build();
+			.put("Country", getMethod("getCountry")).put("Address", getMethod("getAddress")).put("ID2017", getMethod("getId2017")).build();
 
 	private static Method getMethod(String name) {
 		try {
@@ -41,6 +41,7 @@ public class Station {
 	}
 
 	private String id;
+	private String id2017;
 	private String name;
 
 	private String type;
@@ -66,6 +67,14 @@ public class Station {
 
 	public String getId() {
 		return id;
+	}
+
+	public String getId2017() {
+		return id2017;
+	}
+
+	public void setId2017(String id2017) {
+		this.id2017 = id2017;
 	}
 
 	public String getName() {
