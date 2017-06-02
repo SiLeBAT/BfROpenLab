@@ -17,7 +17,7 @@ public class XlsStruct {
 	public static String getPROD_FWD_SHEETNAME(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Herstellung - Vorwärtsverfolgun";
-		else if (lang.equals("en")) return "Production - FwdTrace";
+		else if (lang.equals("en")) return "Production - Fwdtrace";
 		else return null;
 	}
 	public static String getBACK_NEW_DATA_START(String lang) {

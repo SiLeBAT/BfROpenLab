@@ -666,6 +666,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							
 							if (xlsD.getChargenLinkCol() >= 0) {
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
+// DAtei AllInOne-Import muss noch geändert werden!!!!!! Bitte die ID entsprechend des neuen Imports durch den Hash erzeugen!!!!! Sonst wird die weitere Generierung von Templates nach einem allinone import zu unnötigen Dopplungen bei den Stationen und Deliveries etc führen!!!!!
 // "Datei wurde bereits importtiert" einbauen!!!
 // stationsspezifisches traceback jetzt nur noch für missing ingredients!!! Nicht mehr allunfassendes edit für die station möglich!!! Bei den Tutorials berücksichtigen!!!!
 // wie soll ab jetzt eine station editiert werden können?
@@ -675,7 +676,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);
 								else if (olddels.containsKey(key)) od = olddels.get(key);
 								if (od == null) {
-									exceptions.add(new Exception("Row number/Lot number in cell A" + (i+1) + " not valid!"));
+									//exceptions.add(new Exception("Row number/Lot number in cell A" + (i+1) + " not valid!"));
 								}
 								else {
 									System.err.println(od.getLot().getNumber() + ":\nStation: " + od.getLot().getProduct().getStation().getId() + "\nProduct: " + od.getLot().getProduct().getId() + "\nLot: " + od.getLot().getId() + "\nDelivery: " + od.getId());

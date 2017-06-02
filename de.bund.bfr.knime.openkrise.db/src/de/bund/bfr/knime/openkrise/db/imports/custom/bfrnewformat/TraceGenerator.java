@@ -345,7 +345,7 @@ public class TraceGenerator {
 			
 			row = sheetTracing.getRow(rowIndex+4);
 			cell = row.getCell(0);	
-			cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + ": please enter the line number of the Incoming Good being the ingredient of this product");
+			cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the product information in columns B to M.");
 			//cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
@@ -744,7 +744,7 @@ public class TraceGenerator {
 			
 			row = sheetTracing.getRow(rowIndex+4);
 			cell = row.getCell(0);
-			cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + ": please enter the line number of the Outgoing Good being the product of this ingredient");
+			cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the ingredient information in columns B to M.");
 			//cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
