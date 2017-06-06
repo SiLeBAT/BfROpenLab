@@ -1504,17 +1504,17 @@ public class TraceGenerator {
 		if (rs.getObject("Chargen.ChargenNr") != null) cell.setCellValue(rs.getString("Chargen.ChargenNr"));
 		else cell.setCellValue("");
 		cell = row.getCell(4);
-		fillExtraCell(cell, "Chargen", "BestBefore", rs.getString("Chargen.ID")); // MHD
+		fillExtraCell(cell, "Chargen", "BestBefore", rs.getString("Chargen.ID")); // MHD  BestBefore
 		
 		// Delivery
 		cell = row.getCell(5);
-		if (rs.getObject(isForward ? "Lieferungen.dd_day" : "Lieferungen.ad_day") != null) cell.setCellValue(isForward ? rs.getString("Lieferungen.dd_day") : rs.getString("Lieferungen.ad_day"));
+		if (rs.getObject(isForward ? "Lieferungen.ad_day" : "Lieferungen.ad_day") != null) cell.setCellValue(isForward ? rs.getString("Lieferungen.ad_day") : rs.getString("Lieferungen.ad_day"));
 		else cell.setCellValue("");		
 		cell = row.getCell(6);
-		if (rs.getObject(isForward ? "Lieferungen.dd_month" : "Lieferungen.ad_month") != null) cell.setCellValue(rs.getString(isForward ? "Lieferungen.dd_month" : "Lieferungen.ad_month"));
+		if (rs.getObject(isForward ? "Lieferungen.ad_month" : "Lieferungen.ad_month") != null) cell.setCellValue(rs.getString(isForward ? "Lieferungen.ad_month" : "Lieferungen.ad_month"));
 		else cell.setCellValue("");		
 		cell = row.getCell(7);
-		if (rs.getObject(isForward ? "Lieferungen.dd_year" : "Lieferungen.ad_year") != null) cell.setCellValue(rs.getString(isForward ? "Lieferungen.dd_year" : "Lieferungen.ad_year"));
+		if (rs.getObject(isForward ? "Lieferungen.ad_year" : "Lieferungen.ad_year") != null) cell.setCellValue(rs.getString(isForward ? "Lieferungen.ad_year" : "Lieferungen.ad_year"));
 		else cell.setCellValue("");		
 		cell = row.getCell(8);
 		fillExtraCell(cell, "Lieferungen", "Amount", rs.getString("Lieferungen.ID"));

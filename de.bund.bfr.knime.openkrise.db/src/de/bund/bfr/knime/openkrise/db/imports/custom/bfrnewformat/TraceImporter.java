@@ -632,7 +632,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								products.put(pID, p);
 							}
 
-							f2 = getCellString(row.getCell(xlsL.getLotCol()));
+							f2 = getCellString(row.getCell(xlsL.getLotCol()), true);
 							f3 = getCellString(row.getCell(xlsL.getMhdCol()), true);
 							int lID = genDbId(""+p.getId() + f2 + f3);
 							Lot lot = null;
