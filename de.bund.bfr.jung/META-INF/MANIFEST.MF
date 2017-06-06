@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JUNG Utils
 Bundle-SymbolicName: de.bund.bfr.jung;singleton:=true
-Bundle-Version: 1.1.20.qualifier
+Bundle-Version: 1.1.21.qualifier
 Bundle-Activator: de.bund.bfr.jung.Activator
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
  edu.uci.ics.jung;visibility:=reexport
