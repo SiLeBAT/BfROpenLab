@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -502,8 +503,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			Station s=p.getStation();			
 			s.setAddress(generateAddress(s));
 			if (s.getDbId() == null) s.setDbId(genDbId(""+s.getName()+s.getAddress()));	
-			if (p.getDbId() == null) p.setDbId(genDbId(""+s.getDbId()+p.getName()+p.getFlexible("EAN")));	
-			if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + l.getNumber()+l.getFlexible("MHD")));
+			if (p.getDbId() == null) p.setDbId(genDbId(""+s.getDbId()+p.getName()+p.getFlexible(XlsProduct.EAN("en"))));	
+			if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + l.getNumber()+l.getFlexible(XlsLot.MHD("en"))));
 			Station r = d.getReceiver();
 			r.setAddress(generateAddress(r));
 			if (r.getDbId() == null) r.setDbId(genDbId(""+r.getName()+r.getAddress()));	
@@ -555,8 +556,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		HashMap<Integer, Product> products = new HashMap<>();
 		HashMap<Integer, Lot> lots = new HashMap<>();
 		HashMap<Integer, Delivery> dels = new HashMap<>();
-		HashMap<String, Delivery> olddels = new HashMap<>();
-		HashMap<String, Delivery> olddelsLot = new HashMap<>();
+		LinkedHashMap<String, Delivery> olddels = new LinkedHashMap<>();
+		LinkedHashMap<String, Delivery> olddelsLot = new LinkedHashMap<>();
 
 		if (sheet != null) {
 			Station focusS = new Station();
@@ -566,7 +567,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			String address = getCellString(row.getCell(2));
 			focusS.setAddress(address);
 			focusS.setCountry(getCellString(row.getCell(3)));
-			focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + 1);
+			focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + 1);
 			int sID = genDbId(""+cs+address);
 			focusS.setId(""+sID);
 			stations.put(sID, focusS);
@@ -594,7 +595,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Station supplierS = null;
 							if (stations.containsKey(sID)) {
 								supplierS = stations.get(sID);
-								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), supplierS.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), supplierS.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 							}
 							else {
 								supplierS = new Station();
@@ -602,7 +603,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								supplierS.setAddress(address);
 								if (xlsS.getCountryCol() >= 0) supplierS.setCountry(getCellString(row.getCell(xlsS.getCountryCol())));
 								if (xlsS.getTobCol() >= 0) supplierS.setTypeOfBusiness(getCellString(row.getCell(xlsS.getTobCol())));
-								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								supplierS.setId(""+sID);
 								stations.put(sID, supplierS);
 							}
@@ -613,7 +614,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Product p = null;
 							if (products.containsKey(pID)) {
 								p = products.get(pID);
-								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), p.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), p.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 							}
 							else {
 								p = new Product();
@@ -626,8 +627,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									else p.setStation(focusS);									
 								}
 								p.setName(f2);
-								p.addFlexibleField(XlsProduct.EAN(isEnglish ? "en":"de"), f3);
-								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+								p.addFlexibleField(XlsProduct.EAN("en"), f3);
+								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								p.setId(pID);
 								products.put(pID, p);
 							}
@@ -639,12 +640,17 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Integer f6 = getInt(getCellString(row.getCell(xlsD.getYearCol())));
 							String f7 = xlsD.getAmountCol() >= 0 ? getCellString(row.getCell(xlsD.getAmountCol())) : null;
 							String f8 = getCellString(row.getCell(xlsD.getCommentCol()));
-							if (isProduction && f2 == null && f3 == null) {
+							if (f2 == null && f3 == null) {
 								if (f4 == null && f5 == null && f6 == null && f7 == null && supplierS.getName() == null) {
 									exceptions.add(new Exception("You have no lot information at all in Row " + (i+1) + "."));
 								}
 								else if (f4 == null && f5 == null && f6 == null && f7 == null) {
-									f2 = "[" + (backtracing==doPreCollect ? "receiver" : "supplier") + " " + supplierS.getName() + "]";
+									if (isProduction && backtracing && doPreCollect) f2 = "[receiver: " + supplierS.getName() + "]";
+									if (isProduction && backtracing && !doPreCollect) f2 = "[supplier: " + supplierS.getName() + "]";
+									if (isProduction && !backtracing && doPreCollect) f2 = "[supplier: " + supplierS.getName() + "]";
+									if (isProduction && !backtracing && !doPreCollect) f2 = "[receiver: " + supplierS.getName() + "]";
+									if (!isProduction && backtracing) f2 = "[receiver: " + focusS.getName() + "]";
+									if (!isProduction && !backtracing) f2 = "[supplier: " + focusS.getName() + "]";
 								}
 								else {
 									f2 = "[delivery " + (f6==null ? "" : f6) + "" + (f5==null ? "" : f5) + "" + (f4==null ? "" : f4) + "" + (f7==null ? "" : "_"+f7) + "]";
@@ -654,14 +660,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Lot lot = null;
 							if (lots.containsKey(lID)) {
 								lot = lots.get(lID);
-								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), lot.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), lot.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 							}
 							else {
 								lot = new Lot();
 								lot.setProduct(p);
 								lot.setNumber(f2);
-								lot.addFlexibleField(XlsLot.MHD(isEnglish ? "en":"de"), f3);
-								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+								lot.addFlexibleField(XlsLot.MHD("en"), f3);
+								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								lot.setId(lID);
 								lots.put(lID, lot);
 							}
@@ -684,7 +690,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									if (!backtracing) d.setReceiver(supplierS);
 									else d.setReceiver(focusS);
 								}
-								d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+								d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								d.setId(dID+"");
 								olddels.put((i+1)+"", d);
 								olddelsLot.put(d.getLot().getNumber(), d);
@@ -692,7 +698,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							else {
 								if (dels.containsKey(dID)) {
 									d = dels.get(dID);
-									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), d.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), d.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")) + "; " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								}
 								else {
 									d = new Delivery();
@@ -704,7 +710,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									d.setComment(f8);								
 									if (backtracing) d.setReceiver(focusS);
 									else d.setReceiver(supplierS);
-									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
+									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 									d.setId(dID+"");
 									if (dels.put(dID, d) != null) {
 										System.err.println("did doppelt???");
@@ -720,6 +726,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 // Betriebsart, etc. in die Station properties mit rein
 // alter und neuer Import kann nicht "vermischt" werden... Entweder durchweg alte  Tenplates oder die neuen -> Serial ist ein großes Problem!  ----  oder ist das jetzt schon gefixt und klappt? durch automatisches Serial = ID???
 // DAtei AllInOne-Import muss noch geändert werden!!!!!! Bitte die ID entsprechend des neuen Imports durch den Hash erzeugen!!!!! Sonst wird die weitere Generierung von Templates nach einem allinone import zu unnötigen Dopplungen bei den Stationen und Deliveries etc führen!!!!!
+							//System.err.println(i + " -> " + lID + " -> " + dID);
 							if (xlsD.getChargenLinkCol() >= 0) {
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
 								if (key != null) {
@@ -732,9 +739,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									else {
 										//System.err.println(od.getLot().getNumber() + ":\nStation: " + od.getLot().getProduct().getStation().getId() + "\nProduct: " + od.getLot().getProduct().getId() + "\nLot: " + od.getLot().getId() + "\nDelivery: " + od.getId());
 										if (backtracing) {
+											//System.err.println(i + " -> " + key + " -> " + d.getId() + " -> " + od.getLot().getId());
 											d.addTargetLotId(od.getLot().getId()+"");
 										}
-										else d.getLot().getInDeliveries().add(od.getId());
+										else {
+											d.getLot().getInDeliveries().add(od.getId());
+										}
 									}
 								}
 							}
@@ -853,9 +863,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 		try {
 			for (Station s: stations.values()) {
-				s.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + ": " + s.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")));
+				s.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + ": " + s.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")));
 			}
 			for (Delivery d : olddels.values()) {
+				System.err.println(d.getId());
 				d.insertIntoDb(mydbi);
 				//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 				if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());

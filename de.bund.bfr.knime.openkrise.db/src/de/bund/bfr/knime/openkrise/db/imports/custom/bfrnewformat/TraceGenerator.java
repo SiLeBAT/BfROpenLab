@@ -75,6 +75,7 @@ public class TraceGenerator {
 	private boolean do2017Format = false;
 	private boolean generateAllData = false;
 	private boolean hasTOB = true;
+	private String lang = "en";
 
 	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward, boolean do2017Format, boolean generateAllData) {
 		this.parent = parent;
@@ -328,7 +329,10 @@ public class TraceGenerator {
 	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException, InvalidFormatException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
-			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_en.xlsx");
+			String template;
+			if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_de.xlsx";
+			else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_en.xlsx";
+			InputStream myxls = this.getClass().getResourceAsStream(template);
 			File file = getResourceAsFile(myxls);
 			myxls.close();
 			OPCPackage opcPackage = OPCPackage.open(file.getAbsolutePath());
@@ -336,7 +340,7 @@ public class TraceGenerator {
 
 //			XSSFWorkbook workbook = new XSSFWorkbook(myxls);
 //			save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + (generateAllData ? "_all":"") + "_temp.xlsx", true);
-			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("en"));//"Herstellung - Vorwärtsverfolgun");
+			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_FWD_SHEETNAME(lang));//"Herstellung - Vorwärtsverfolgun");
 
 			// Station in Focus
 			String sif = null;
@@ -375,8 +379,8 @@ public class TraceGenerator {
 			
 			row = sheetTracing.getRow(rowIndex+4);
 			cell = row.getCell(0);	
-			cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the product information in columns B to M.");
-			//cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
+			if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+11) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the product information in columns B to M.");
+			else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 			if (generateAllData) {
@@ -391,7 +395,7 @@ public class TraceGenerator {
 						" ORDER BY " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
 				ResultSet rs2 = DBKernel.getResultSet(sql, false);
 				if (rs2 != null && rs2.first()) {
-					rowIndex += 10;
+					rowIndex += lang.equals("en") ? 10 : 12;
 					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
 					do {
 						//System.err.println(rs2.getString("Station.Name"));
@@ -410,7 +414,7 @@ public class TraceGenerator {
 									fillRowSimple(sheetTracing, rs2, row, false);
 								}
 								cell = row.getCell(0);
-								cell.setCellValue(tli);
+								cell.setCellValue(tli+"");
 								afterFirst = true;
 							}
 						}
@@ -418,7 +422,9 @@ public class TraceGenerator {
 					} while (rs2.next());
 				}
 			}
-			if (save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx")) {
+			String fn = "StationFwdtrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			if (lang.equals("de")) fn = "Vorwaertsverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			if (save(workbook, outputFolder + File.separator + fn)) {
 				result++;
 			}
 			myxls.close();
@@ -463,7 +469,7 @@ public class TraceGenerator {
 				(do2017Format && generateAllData ? "" : MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + " IS NULL AND ") +
 				" (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + tracingBusinessesSQL + ")" +
 				tracingIdSQL +
-				" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Bezeichnung") + " ASC";
+				" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
@@ -813,8 +819,15 @@ public class TraceGenerator {
 	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
-			String template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_en.xlsx";
-			if (hasTOB) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_tob_en.xlsx";
+			String template;
+			if (hasTOB) {				
+				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_tob_de.xlsx";
+				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_tob_en.xlsx";
+			}
+			else {
+				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_de.xlsx";
+				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_en.xlsx";
+			}
 			InputStream myxls = this.getClass().getResourceAsStream(template);
 			File file = getResourceAsFile(myxls);
 			myxls.close();
@@ -822,7 +835,7 @@ public class TraceGenerator {
 			XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
 			//XSSFWorkbook workbook = new XSSFWorkbook(myxls);
 			//save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + (generateAllData ? "_all":"") + "_temp.xlsx", true);
-			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("en")); //"Herstellung - Rückverfolgung");
+			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_BACK_SHEETNAME(lang)); //"Herstellung - Rückverfolgung");
 
 			// Station in Focus
 			String sif = null;
@@ -857,14 +870,15 @@ public class TraceGenerator {
 					Integer key = rs.getInt("ChargenVerbindungen.Zutat");
 					if (!furtherDels.containsKey(key)) furtherDels.put(key, new HashSet<>());
 					furtherDels.get(key).add(rowIndex);
+					System.err.println(key + " -> " + rowIndex);
 				}
 			} while (rs.next());
 			rs.previous();
 			
 			row = sheetTracing.getRow(rowIndex+4);
 			cell = row.getCell(0);
-			cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the ingredient information in columns B to M.");
-			//cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
+			if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+11) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the ingredient information in columns B to M.");
+			else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 			
@@ -880,7 +894,7 @@ public class TraceGenerator {
 						" ORDER BY " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
 				ResultSet rs2 = DBKernel.getResultSet(sql, false);
 				if (rs2 != null && rs2.first()) {
-					rowIndex += 10;
+					rowIndex += lang.equals("en") ? 10 : 12;
 					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
 					do {
 						//System.err.println(rs2.getString("Station.Name"));
@@ -900,7 +914,7 @@ public class TraceGenerator {
 									fillRowSimple(sheetTracing, rs2, row, true);
 								}
 								cell = row.getCell(0);
-								cell.setCellValue(tli);
+								cell.setCellValue(tli+"");
 								afterFirst = true;
 							}
 						}
@@ -908,7 +922,9 @@ public class TraceGenerator {
 					} while (rs2.next());
 				}
 			}
-			if (save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx")) {
+			String fn = "StationBacktrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			if (lang.equals("de")) fn = "Rueckverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			if (save(workbook, outputFolder + File.separator + fn)) {
 				result++;
 			}
 			//myxls.close();
@@ -1166,7 +1182,7 @@ public class TraceGenerator {
 					(do2017Format && generateAllData ? "" : MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") + " IS NULL AND ") +
 					" (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + backtracingBusinessesSQL + ")" +
 					backtracingIdSQL +
-					" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
+					" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
@@ -1497,14 +1513,14 @@ public class TraceGenerator {
 		if (rs.getObject("Produktkatalog.Bezeichnung") != null) cell.setCellValue(rs.getString("Produktkatalog.Bezeichnung"));
 		else cell.setCellValue("");
 		cell = row.getCell(2);
-		fillExtraCell(cell, "Produktkatalog", "EAN", rs.getString("Produktkatalog.ID"));
+		fillExtraCell(cell, "Produktkatalog", XlsProduct.EAN("en"), rs.getString("Produktkatalog.ID"));
 		
 		// Charge
 		cell = row.getCell(3);
 		if (rs.getObject("Chargen.ChargenNr") != null) cell.setCellValue(rs.getString("Chargen.ChargenNr"));
 		else cell.setCellValue("");
 		cell = row.getCell(4);
-		fillExtraCell(cell, "Chargen", "BestBefore", rs.getString("Chargen.ID")); // MHD  BestBefore
+		fillExtraCell(cell, "Chargen", XlsLot.MHD("en"), rs.getString("Chargen.ID"));
 		
 		// Delivery
 		cell = row.getCell(5);
