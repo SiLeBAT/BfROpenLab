@@ -2,7 +2,7 @@
 <feature
       id="de.bund.bfr.knime.nls.feature"
       label="KNIME Nodes for Nonlinear Regression"
-      version="1.1.21.qualifier"
+      version="1.1.22.qualifier"
       provider-name="German Federal Institute for Risk Assessment (BfR)">
 
    <description url="http://www.example.com/description">
