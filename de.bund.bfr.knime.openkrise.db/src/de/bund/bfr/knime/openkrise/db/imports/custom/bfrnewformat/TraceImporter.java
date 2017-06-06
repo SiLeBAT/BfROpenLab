@@ -634,6 +634,22 @@ public class TraceImporter extends FileFilter implements MyImporter {
 
 							f2 = getCellString(row.getCell(xlsL.getLotCol()), true);
 							f3 = getCellString(row.getCell(xlsL.getMhdCol()), true);
+							Integer f4 = getInt(getCellString(row.getCell(xlsD.getDayCol())));
+							Integer f5 = getInt(getCellString(row.getCell(xlsD.getMonthCol())));
+							Integer f6 = getInt(getCellString(row.getCell(xlsD.getYearCol())));
+							String f7 = xlsD.getAmountCol() >= 0 ? getCellString(row.getCell(xlsD.getAmountCol())) : null;
+							String f8 = getCellString(row.getCell(xlsD.getCommentCol()));
+							if (isProduction && f2 == null && f3 == null) {
+								if (f4 == null && f5 == null && f6 == null && f7 == null && supplierS.getName() == null) {
+									exceptions.add(new Exception("You have no lot information at all in Row " + (i+1) + "."));
+								}
+								else if (f4 == null && f5 == null && f6 == null && f7 == null) {
+									f2 = "[" + (backtracing==doPreCollect ? "receiver" : "supplier") + " " + supplierS.getName() + "]";
+								}
+								else {
+									f2 = "[delivery " + (f6==null ? "" : f6) + "" + (f5==null ? "" : f5) + "" + (f4==null ? "" : f4) + "" + (f7==null ? "" : "_"+f7) + "]";
+								}
+							}
 							int lID = genDbId(""+p.getId() + f2 + f3);
 							Lot lot = null;
 							if (lots.containsKey(lID)) {
@@ -650,11 +666,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								lots.put(lID, lot);
 							}
 
-							Integer f4 = getInt(getCellString(row.getCell(xlsD.getDayCol())));
-							Integer f5 = getInt(getCellString(row.getCell(xlsD.getMonthCol())));
-							Integer f6 = getInt(getCellString(row.getCell(xlsD.getYearCol())));
-							String f7 = xlsD.getAmountCol() >= 0 ? getCellString(row.getCell(xlsD.getAmountCol())) : null;
-							String f8 = getCellString(row.getCell(xlsD.getCommentCol()));
 							int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+(doPreCollect==backtracing?supplierS.getId():focusS.getId()));						
 							Delivery d = null;
 							if (doPreCollect) {
@@ -695,7 +706,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									else d.setReceiver(supplierS);
 									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 									d.setId(dID+"");
-									dels.put(dID, d);
+									if (dels.put(dID, d) != null) {
+										System.err.println("did doppelt???");
+									};
 								}
 							}
 							
@@ -717,8 +730,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 										//exceptions.add(new Exception("Row number/Lot number in cell A" + (i+1) + " not valid!"));
 									}
 									else {
-										System.err.println(od.getLot().getNumber() + ":\nStation: " + od.getLot().getProduct().getStation().getId() + "\nProduct: " + od.getLot().getProduct().getId() + "\nLot: " + od.getLot().getId() + "\nDelivery: " + od.getId());
-										if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
+										//System.err.println(od.getLot().getNumber() + ":\nStation: " + od.getLot().getProduct().getStation().getId() + "\nProduct: " + od.getLot().getProduct().getId() + "\nLot: " + od.getLot().getId() + "\nDelivery: " + od.getId());
+										if (backtracing) {
+											d.addTargetLotId(od.getLot().getId()+"");
+										}
 										else d.getLot().getInDeliveries().add(od.getId());
 									}
 								}
