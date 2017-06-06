@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Tracing Nodes (Util)
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise.util; singleton:=true
-Bundle-Version: 1.1.17.qualifier
+Bundle-Version: 1.1.18.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.openkrise.util.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
