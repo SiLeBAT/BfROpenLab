@@ -725,6 +725,7 @@ public class MainFrame extends JFrame {
 		button14.setEnabled(isEnabable);
 		button15.setEnabled(isEnabable);
 		button16.setEnabled(isEnabable);
+		missingOnlys.setEnabled(isEnabable);
 		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isKNIME && !DBKernel.isServerConnection);
 		super.setVisible(doVisible);
 	}
@@ -824,7 +825,7 @@ public class MainFrame extends JFrame {
 					DBKernel.prefs.prefsFlush();
 					this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
 			    	boolean do2017Format = chooser.getFileFilter().getDescription().equals("Format 2017");
-					new TraceGenerator(f, dialog.getSelected(), chooser, isForward, do2017Format);
+					new TraceGenerator(f, dialog.getSelected(), chooser, isForward, do2017Format, !missingOnlys.isSelected());
 					this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 		    	}
 		    	else {
@@ -912,7 +913,7 @@ public class MainFrame extends JFrame {
 				DBKernel.prefs.prefsFlush();
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
 		    	boolean do2017Format = chooser.getFileFilter().getDescription().equals("Format 2017");
-				new TraceGenerator(f, business2Trace, isForward, chooser, do2017Format);
+				new TraceGenerator(f, business2Trace, isForward, chooser, do2017Format, !missingOnlys.isSelected());
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 	    	}
 	    	else {
@@ -1023,6 +1024,7 @@ public class MainFrame extends JFrame {
 		button14 = new JButton();
 		button15 = new JButton();
 		button16 = new JButton();
+		missingOnlys = new JCheckBox();
 		progressBar1 = new JProgressBar();
 		splitPane1 = new JSplitPane();
 		panel2 = new JPanel();
@@ -1129,8 +1131,10 @@ public class MainFrame extends JFrame {
 			});
 			toolBar1.add(button11);
 
+			toolBar1.addSeparator();
+
 			//---- button13 ----
-			button13.setToolTipText("Generate backward tracing templates for missing data");
+			button13.setToolTipText("Generate backward tracing templates - for a specific type of business (or all)");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_back.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button13.setIcon(ico);
@@ -1144,7 +1148,7 @@ public class MainFrame extends JFrame {
 			toolBar1.add(button13);
 			
 			//---- button15 ----
-			button15.setToolTipText("Generate backward tracing templates for specific station");
+			button15.setToolTipText("Generate backward tracing templates - for a specific station");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_station_back.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button15.setIcon(ico);
@@ -1155,9 +1159,13 @@ public class MainFrame extends JFrame {
 				}
 			});
 			toolBar1.add(button15);
-			
+
+			missingOnlys.setToolTipText("Generate only the missing data (not checked: all data will be generated)");
+			missingOnlys.setSelected(true);
+			toolBar1.add(missingOnlys);
+
 			//---- button16 ----
-			button16.setToolTipText("Generate forward tracing templates for specific station");
+			button16.setToolTipText("Generate forward tracing templates - for a specific station");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_station.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button16.setIcon(ico);
@@ -1170,7 +1178,7 @@ public class MainFrame extends JFrame {
 			toolBar1.add(button16);
 			
 			//---- button14 ----
-			button14.setToolTipText("Generate forward tracing templates for missing data");
+			button14.setToolTipText("Generate forward tracing templates - for a specific type of business (or all)");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button14.setIcon(ico);
@@ -1229,6 +1237,7 @@ public class MainFrame extends JFrame {
 	private JButton button14;
 	private JButton button15;
 	private JButton button16;
+	private JCheckBox missingOnlys;
 	private JProgressBar progressBar1;
 	private JSplitPane splitPane1;
 	private JPanel panel2;

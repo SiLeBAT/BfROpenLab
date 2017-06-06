@@ -1,6 +1,13 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.util.HashMap;
+
 public class XlsDelivery {
+	private HashMap<Integer, String> extraVals = new HashMap<>();	
+	public HashMap<Integer, String> getExtraVals() {
+		return extraVals;
+	}
+
 	public static String BLOCK(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Lieferung";
@@ -47,16 +54,17 @@ public class XlsDelivery {
 	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equals(DELIVERY_DATE(lang))) {
+			if (s.equalsIgnoreCase(DELIVERY_DATE(lang))) {
 				dayCol = index;
 				monthCol = index+1;
 				yearCol = index+2;
 			}
-			else if (s.equals(DAY(lang))) dayCol = index;
-			else if (s.equals(MONTH(lang))) monthCol = index;
-			else if (s.equals(YEAR(lang))) yearCol = index;
-			else if (s.startsWith(AMOUNT(lang))) amountCol = index;
-			else if (s.equals(COMMENT(lang))) commentCol = index;
+			else if (s.equalsIgnoreCase(DAY(lang))) dayCol = index;
+			else if (s.equalsIgnoreCase(MONTH(lang))) monthCol = index;
+			else if (s.equalsIgnoreCase(YEAR(lang))) yearCol = index;
+			else if (s.toLowerCase().startsWith(AMOUNT(lang).toLowerCase())) amountCol = index;
+			else if (s.equalsIgnoreCase(COMMENT(lang))) commentCol = index;
+			else extraVals.put(index, s);
 		}
 	}
 

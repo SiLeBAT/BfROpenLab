@@ -30,6 +30,7 @@ import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import java.util.Set;
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -301,6 +303,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				exceptions.add(e);
 			}
 			if (miDbId == null) exceptions.add(new Exception("File already imported"));
+			
+			// Predefine DB IDs for Format_2017
+			predefineIDs(deliveries.values());
+
 			for (Delivery d : deliveries.values()) {
 				try {
 					d.getID(miDbId, false, mydbi);
@@ -461,6 +467,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			exceptions.add(e);
 		}
 		if (miDbId == null) exceptions.add(new Exception("File already imported"));
+		
 		if (isForTracing)
 			try {
 				insertForIntoDb(exceptions, miDbId, inDeliveries, outDeliveries);
@@ -475,6 +482,34 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		
 		return exceptions;
+	}
+	private String generateAddress(Station s) {
+		String ad = s.getStreet()==null?"":s.getStreet();
+		ad += (ad.isEmpty() ? "" : " ") + (s.getNumber()==null?"":s.getNumber());
+		ad = ad.trim();
+		ad += (ad.isEmpty() ? "" : ", ") + (s.getZip()==null?"":s.getZip());
+		ad = ad.trim();
+		ad += (ad.isEmpty() ? "" : " ") + (s.getCity()==null?"":s.getCity());
+		ad = ad.trim();
+		if (ad.endsWith(",")) ad.substring(0, ad.length() - 1).trim();
+		if (ad.isEmpty()) ad = null;
+		return ad;
+	}
+	private void predefineIDs(Collection<Delivery> deliveries) {
+		for (Delivery d : deliveries) {
+			Lot l = d.getLot();
+			Product p = l.getProduct();
+			Station s=p.getStation();			
+			s.setAddress(generateAddress(s));
+			if (s.getDbId() == null) s.setDbId(genDbId(""+s.getName()+s.getAddress()));	
+			if (p.getDbId() == null) p.setDbId(genDbId(""+s.getDbId()+p.getName()+p.getFlexible("EAN")));	
+			if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + l.getNumber()+l.getFlexible("MHD")));
+			Station r = d.getReceiver();
+			r.setAddress(generateAddress(r));
+			if (r.getDbId() == null) r.setDbId(genDbId(""+r.getName()+r.getAddress()));	
+			d.addFlexibleField("Amount", d.getUnitNumber() + " " + d.getUnitUnit());
+			if (d.getDbId() == null) d.setDbId(genDbId(""+l.getDbId() + d.getDepartureDay()+d.getDepartureMonth()+d.getDepartureYear()+d.getFlexible("Amount")+d.getComment()+r.getDbId()));
+		}
 	}
 	private String getCellString(Cell cell) {
 		return getCellString(cell, false);
@@ -664,24 +699,28 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 							}
 							
-							if (xlsD.getChargenLinkCol() >= 0) {
-								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
-// DAtei AllInOne-Import muss noch geändert werden!!!!!! Bitte die ID entsprechend des neuen Imports durch den Hash erzeugen!!!!! Sonst wird die weitere Generierung von Templates nach einem allinone import zu unnötigen Dopplungen bei den Stationen und Deliveries etc führen!!!!!
-// "Datei wurde bereits importtiert" einbauen!!!
-// stationsspezifisches traceback jetzt nur noch für missing ingredients!!! Nicht mehr allunfassendes edit für die station möglich!!! Bei den Tutorials berücksichtigen!!!!
+// extra fields in das template mit integrieren!!!
+
+// Verhalten ändern bei Generator "1": all Infos according to this station listen?
+// stationsspezifisches traceback jetzt nur noch für missing ingredients!!! Nicht mehr allumfassendes edit für die station möglich!!! Bei den Tutorials berücksichtigen!!!!
 // wie soll ab jetzt eine station editiert werden können?
 // Betriebsart, etc. in die Station properties mit rein
 // alter und neuer Import kann nicht "vermischt" werden... Entweder durchweg alte  Tenplates oder die neuen -> Serial ist ein großes Problem!  ----  oder ist das jetzt schon gefixt und klappt? durch automatisches Serial = ID???
-								Delivery od = null;
-								if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);
-								else if (olddels.containsKey(key)) od = olddels.get(key);
-								if (od == null) {
-									//exceptions.add(new Exception("Row number/Lot number in cell A" + (i+1) + " not valid!"));
-								}
-								else {
-									System.err.println(od.getLot().getNumber() + ":\nStation: " + od.getLot().getProduct().getStation().getId() + "\nProduct: " + od.getLot().getProduct().getId() + "\nLot: " + od.getLot().getId() + "\nDelivery: " + od.getId());
-									if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
-									else d.getLot().getInDeliveries().add(od.getId());
+// DAtei AllInOne-Import muss noch geändert werden!!!!!! Bitte die ID entsprechend des neuen Imports durch den Hash erzeugen!!!!! Sonst wird die weitere Generierung von Templates nach einem allinone import zu unnötigen Dopplungen bei den Stationen und Deliveries etc führen!!!!!
+							if (xlsD.getChargenLinkCol() >= 0) {
+								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
+								if (key != null) {
+									Delivery od = null;
+									if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);
+									else if (olddels.containsKey(key)) od = olddels.get(key);
+									if (od == null) {
+										//exceptions.add(new Exception("Row number/Lot number in cell A" + (i+1) + " not valid!"));
+									}
+									else {
+										System.err.println(od.getLot().getNumber() + ":\nStation: " + od.getLot().getProduct().getStation().getId() + "\nProduct: " + od.getLot().getProduct().getId() + "\nLot: " + od.getLot().getId() + "\nDelivery: " + od.getId());
+										if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
+										else d.getLot().getInDeliveries().add(od.getId());
+									}
 								}
 							}
 							/*
@@ -814,6 +853,16 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		} catch (Exception e) {
 			exceptions.add(e);
 		}
+
+		MetaInfo mi = new MetaInfo();
+		mi.setFilename(filename);		
+		Integer miDbId = null;
+		try {
+			miDbId = mi.getID(mydbi);
+		} catch (Exception e) {
+			exceptions.add(e);
+		}
+		if (miDbId == null) exceptions.add(new Exception("File already imported"));
 
 		return exceptions;
 	}
@@ -1387,6 +1436,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			public void run() {
 				System.err.println("Importing " + filename);
 				InputStream is = null;
+				//File file;
 				try {
 					if (progress != null) {
 						progress.setVisible(true);
@@ -1399,10 +1449,15 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						URL url = new URL(filename);
 						URLConnection uc = url.openConnection();
 						is = uc.getInputStream();
+						//file = TraceGenerator.getResourceAsFile(is);
+						//is.close();
 					} else if (filename.startsWith("/de/bund/bfr/knime/openkrise/db/")) {
 						is = getClass().getResourceAsStream(filename);
+						//file = TraceGenerator.getResourceAsFile(is);
+						//is.close();
 					} else {
 						is = new FileInputStream(filename);
+						//file = new File(filename);
 					}
 
 					// warnsBeforeImport erkennen
@@ -1412,6 +1467,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 
 
 					XSSFWorkbook wb = new XSSFWorkbook(is);
+					//OPCPackage opcPackage = OPCPackage.open(file.getAbsolutePath());
+					//XSSFWorkbook wb = new XSSFWorkbook(opcPackage);
 
 					Station.reset(); Lot.reset(); Delivery.reset();
 					warns = new HashMap<>();
@@ -1441,9 +1498,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						}
 						logMessages += "</ul>";
 						if (progress != null) progress.setVisible(false);
+						
 						try {
 							is.close();
 						} catch (IOException e1) {}
+						
 					}
 					else {
 						importResult = true;
@@ -1484,9 +1543,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					}
 					logMessages += "<h1 id=\"error\">'" + filename + "'</h1><ul><li>" + e.getMessage() + "</li></ul>";
 					MyLogger.handleException(e);
+					
 					try {
 						is.close();
 					} catch (IOException e1) {}
+					
 				}
 				System.err.println("Importing - Fin");
 				//logMessages += "Importing - Fin" + "\n";

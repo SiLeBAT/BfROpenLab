@@ -1,6 +1,13 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.util.HashMap;
+
 public class XlsStation {
+	private HashMap<Integer, String> extraVals = new HashMap<>();	
+	public HashMap<Integer, String> getExtraVals() {
+		return extraVals;
+	}
+	
 	public static String BLOCK_RECIPIENT(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Empfänger";
@@ -41,10 +48,11 @@ public class XlsStation {
 	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equals(NAME(lang))) nameCol = index;
-			else if (s.startsWith(ADDRESS(lang))) addressCol = index;
-			else if (s.equals(COUNTRY(lang))) countryCol = index;
-			else if (s.equals(TOB(lang))) tobCol = index;
+			if (s.equalsIgnoreCase(NAME(lang))) nameCol = index;
+			else if (s.toLowerCase().startsWith(ADDRESS(lang).toLowerCase())) addressCol = index;
+			else if (s.equalsIgnoreCase(COUNTRY(lang))) countryCol = index;
+			else if (s.equalsIgnoreCase(TOB(lang))) tobCol = index;
+			else extraVals.put(index, s);
 		}
 	}
 	private int startCol = -1;

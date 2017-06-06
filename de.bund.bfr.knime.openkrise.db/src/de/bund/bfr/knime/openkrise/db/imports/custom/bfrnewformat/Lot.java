@@ -41,7 +41,7 @@ public class Lot {
 	private HashMap<String, String> flexibles = new HashMap<>();
 	public String getFlexible(String key) {
 		if (flexibles.containsKey(key)) return flexibles.get(key);
-		else return "";
+		else return null;
 	}
 	private HashSet<String> inDeliveries = new HashSet<>();
 	private List<Exception> exceptions = new ArrayList<>();
@@ -117,12 +117,13 @@ public class Lot {
 			lotId = product.getStation().getId() + "_" + product.getName() + "_" + number;			
 		}
 		if (lotId != null && gathereds.get(lotId) != null && gathereds.get(lotId).getDbId() != null) dbId = gathereds.get(lotId).getDbId();
-		if (dbId != null) {
+		if (alreadyInDb) { // if (dbId != null) {
 			handleFlexibles(mydbi);
 			return dbId;
 		}
 		Integer retId = getID(product,number,unitNumber,unitUnit, miDbId, mydbi);
 		dbId = retId;
+		alreadyInDb = true;
 		if (lotId != null && gathereds.get(lotId) != null) gathereds.get(lotId).setDbId(dbId);
 		
 		if (retId != null) {
@@ -195,7 +196,7 @@ public class Lot {
 			else DBKernel.sendRequest(sql, false);
 		}
 		else if (!iv.isEmpty()) {
-			sql = "INSERT INTO " + MyDBI.delimitL("Chargen") + " (" + in + ") VALUES (" + iv + ")";
+			sql = "INSERT INTO " + MyDBI.delimitL("Chargen") + " (" + MyDBI.delimitL("ID") + "," + in + ") VALUES (" + getDbId() + "," + iv + ")";
 			@SuppressWarnings("resource")
 			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);

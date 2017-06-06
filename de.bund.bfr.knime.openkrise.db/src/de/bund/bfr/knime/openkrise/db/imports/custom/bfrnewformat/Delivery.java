@@ -40,7 +40,7 @@ public class Delivery {
 	private HashMap<String, String> flexibles = new HashMap<>();
 	public String getFlexible(String key) {
 		if (flexibles.containsKey(key)) return flexibles.get(key);
-		else return "";
+		else return null;
 	}
 	private List<Exception> exceptions = new ArrayList<>();
 	private boolean newlyGeneratedID = false;
@@ -165,13 +165,14 @@ public class Delivery {
 	
 	public Integer getID(Integer miDbId, boolean dataMayhaveChanged, MyDBI mydbi) throws Exception {
 		if (id != null && gathereds.get(id) != null && gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
-		if (dbId != null) {
+		if (alreadyInDb) { // if (dbId != null) {
 			handleFlexibles(mydbi);
 			return dbId;
 		}
 		Integer retId = getID(lot,receiver,new String[]{"dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU","Serial"}, // "Charge","Empfänger",
 				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId, dataMayhaveChanged, mydbi);
 		dbId = retId;
+		alreadyInDb = true;
 		if (id != null && gathereds.get(id) != null) gathereds.get(id).setDbId(dbId);
 		
 		if (retId != null) {
@@ -348,6 +349,7 @@ public class Delivery {
 				if (feldnames[i+1+j].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
 			}
 		}
+		/*
 		int intId = 0;
 		try {
 			intId = Integer.parseInt(sFeldVals[sFeldVals.length-1]);
@@ -358,7 +360,7 @@ public class Delivery {
 			}
 		}
 		catch (Exception e) {}
-
+*/
 		ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 		if (rs != null && rs.first()) {
 			result = rs.getInt(1);
@@ -371,7 +373,7 @@ public class Delivery {
 			else DBKernel.sendRequest(sql, false);
 		}
 		else if (!iv.isEmpty()) {
-			sql = "INSERT INTO " + MyDBI.delimitL("Lieferungen") + " (" + in + ") VALUES (" + iv + ")";
+			sql = "INSERT INTO " + MyDBI.delimitL("Lieferungen") + " (" + MyDBI.delimitL("ID") + "," + in + ") VALUES (" + getDbId() + "," + iv + ")";
 			@SuppressWarnings("resource")
 			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -393,7 +395,7 @@ public class Delivery {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) throw new Exception("Delivery ID " + intId + " is already assigned\n" + e.toString() + "\n" + sql);
+				if (e.getMessage().startsWith("integrity constraint violation")) ;//throw new Exception("Delivery ID is already assigned\n" + e.toString() + "\n" + sql); //  " + intId + "
 				else throw e;
 			}
 		}

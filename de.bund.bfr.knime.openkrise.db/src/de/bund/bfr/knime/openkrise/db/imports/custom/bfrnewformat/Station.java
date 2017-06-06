@@ -40,7 +40,7 @@ public class Station {
 	private boolean alreadyInDb = false;
 	public String getFlexible(String key) {
 		if (flexibles.containsKey(key)) return flexibles.get(key);
-		else return "";
+		else return null;
 	}
 
 	private List<Exception> exceptions = new ArrayList<>();
@@ -157,13 +157,16 @@ public class Station {
 	
 	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		if (gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
-		if (dbId != null) {
+		
+		if (alreadyInDb) { // dbId != null
 			handleFlexibles(mydbi, true, false);
 			return dbId;
 		}
-		Integer retId = getID(new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","District","Bundesland","Land","Betriebsart","Serial"},
-				new String[]{name,street,number,zip,city,district,state,country,typeOfBusiness,id}, miDbId, mydbi);
+		
+		Integer retId = getID(new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","District","Bundesland","Land","Betriebsart","Serial","Adresse"},
+				new String[]{name,street,number,zip,city,district,state,country,typeOfBusiness,id,address}, miDbId, mydbi);
 		dbId = retId;
+		alreadyInDb = true;
 		gathereds.get(id).setDbId(dbId);
 		
 		if (retId != null) {
@@ -213,6 +216,7 @@ public class Station {
 				if (feldnames[i].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
 			}
 		}
+		/*
 		int intId = 0;
 		try {
 			intId = Integer.parseInt(feldVals[feldVals.length-1]);
@@ -223,7 +227,7 @@ public class Station {
 			}
 		}
 		catch (Exception e) {}
-
+*/
 		ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 
 		if (rs != null && rs.first()) {
@@ -237,9 +241,10 @@ public class Station {
 			else DBKernel.sendRequest(sql, false);
 		}
 		else if (!iv.isEmpty()) {
-			sql = "INSERT INTO " + MyDBI.delimitL("Station") + " (" + in + ") VALUES (" + iv + ")";
+			sql = "INSERT INTO " + MyDBI.delimitL("Station") + " (" + MyDBI.delimitL("ID") + "," + in + ") VALUES (" + getDbId() + "," + iv + ")";
 			@SuppressWarnings("resource")
 			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+			//System.err.println(sql);
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			//System.err.println(in + "\t" + iv);
 			try {
@@ -260,7 +265,7 @@ public class Station {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) throw new Exception("Station ID " + intId + " is already assigned");
+				if (e.getMessage().startsWith("integrity constraint violation")) ;//throw new Exception("Station ID is already assigned"); //  " + intId + "
 				else throw e;
 			}
 		}

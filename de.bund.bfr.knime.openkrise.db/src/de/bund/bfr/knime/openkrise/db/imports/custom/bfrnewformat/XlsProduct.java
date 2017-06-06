@@ -1,6 +1,13 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.util.HashMap;
+
 public class XlsProduct {
+	private HashMap<Integer, String> extraVals = new HashMap<>();	
+	public HashMap<Integer, String> getExtraVals() {
+		return extraVals;
+	}
+
 	public static String BLOCK_PRODUCT(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Produkt";
@@ -29,8 +36,9 @@ public class XlsProduct {
 	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equals(ITEM(lang))) nameCol = index;
-			else if (s.equals(EAN(lang))) eanCol = index;
+			if (s.equalsIgnoreCase(ITEM(lang))) nameCol = index;
+			else if (s.equalsIgnoreCase(EAN(lang))) eanCol = index;
+			else extraVals.put(index, s);
 		}
 	}
 

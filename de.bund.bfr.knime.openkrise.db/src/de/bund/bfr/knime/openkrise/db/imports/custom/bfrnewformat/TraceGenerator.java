@@ -23,11 +23,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,10 +41,13 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import org.apache.poi.POIXMLProperties;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.util.Nullable;
 import org.apache.poi.ss.usermodel.DataValidationConstraint.OperatorType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Name;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -55,6 +62,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import com.sun.org.apache.bcel.internal.util.ClassLoader;
+
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 
@@ -63,9 +72,11 @@ import de.bund.bfr.knime.openkrise.common.Station;
 public class TraceGenerator {
 
 	private JComponent parent;
-	private boolean doTheSimpleTemplates = false;
-	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward, boolean do2017Format) {
-		doTheSimpleTemplates = do2017Format;
+	private boolean do2017Format = false;
+	private boolean generateAllData = false;
+	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward, boolean do2017Format, boolean generateAllData) {
+		this.do2017Format = do2017Format;
+		this.generateAllData = generateAllData;
 		this.parent = parent;
 		try {
 			int numFilesGenerated = 0;
@@ -75,7 +86,7 @@ public class TraceGenerator {
 			catch (Exception e) {e.printStackTrace();}
 
 			String message = "";
-			if (numFilesGenerated == 0) message = "No new Template generated. Maybe the selected station '" + station.getName() + "' has " + (isForward ? "no incoming deliveries?" : "no lots?");
+			if (numFilesGenerated == 0) message = "No new Template generated. Maybe the selected station '" + station.getName() + "' has " + (isForward ? "no incoming deliveries going into lots?" : "no lots without ingredients?");
 			else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + outputFolder.getAbsolutePath() + "'";
 
 			IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -91,8 +102,9 @@ public class TraceGenerator {
 			e.printStackTrace();
 		}
 	}
-	public TraceGenerator(File outputFolder, List<String> business2Trace, boolean isForward, JComponent parent, boolean do2017Format) {
-		doTheSimpleTemplates = do2017Format;
+	public TraceGenerator(File outputFolder, List<String> business2Trace, boolean isForward, JComponent parent, boolean do2017Format, boolean generateAllData) {
+		this.do2017Format = do2017Format;
+		this.generateAllData = generateAllData;
 		this.parent = parent;
 		try {
 			int numFilesGenerated = 0;
@@ -309,11 +321,17 @@ public class TraceGenerator {
 		return result;
 	}
 
-	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException {
+	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException, InvalidFormatException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
 			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_en.xlsx");
-			XSSFWorkbook workbook = new XSSFWorkbook(myxls);
+			File file = getResourceAsFile(myxls);
+			myxls.close();
+			OPCPackage opcPackage = OPCPackage.open(file.getAbsolutePath());
+			XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+
+//			XSSFWorkbook workbook = new XSSFWorkbook(myxls);
+//			save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + (generateAllData ? "_all":"") + "_temp.xlsx", true);
 			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("en"));//"Herstellung - Vorwärtsverfolgun");
 
 			// Station in Focus
@@ -329,17 +347,25 @@ public class TraceGenerator {
 			cell = row.getCell(3); cell.setCellValue(rs.getString("Station.Land"));
 			
 			// Products Out
-			if (sif != null && sif.equals("Josef Wernke GmbH")) {
-				System.err.println("");
-			}
 			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");
+			HashMap<Integer, HashSet<Integer>> furtherLots = new HashMap<>();
+			HashSet<Integer> alreadyUsedDels = new HashSet<>();
 			do {
 				if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
-				copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
-				row = sheetTracing.getRow(rowIndex);								
-				fillRowSimple(sheetTracing, rs, row, true);
-				rowIndex++;
+				Integer did = rs.getInt("Lieferungen.ID");
+				if (!alreadyUsedDels.contains(did)) {
+					alreadyUsedDels.add(did);
+					copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+					row = sheetTracing.getRow(rowIndex);								
+					fillRowSimple(sheetTracing, rs, row, true);
+					rowIndex++;
+					if (generateAllData) {
+						Integer key = rs.getInt("ChargenVerbindungen.Produkt");
+						if (!furtherLots.containsKey(key)) furtherLots.put(key, new HashSet<>());
+						furtherLots.get(key).add(rowIndex);
+					}
+				}
 			} while (rs.next());
 			rs.previous();
 			
@@ -349,24 +375,66 @@ public class TraceGenerator {
 			//cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-			if (save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + sif + "_" + id + ".xlsx")) {
+			if (generateAllData) {
+				String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
+						" LEFT JOIN " + MyDBI.delimitL("Chargen") +
+						" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
+						" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +
+						" ON " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("Artikel") +
+						" LEFT JOIN " + MyDBI.delimitL("Station") +
+						" ON " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Station") +
+						" WHERE " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + stationID +
+						" ORDER BY " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
+				ResultSet rs2 = DBKernel.getResultSet(sql, false);
+				if (rs2 != null && rs2.first()) {
+					rowIndex += 10;
+					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
+					do {
+						//System.err.println(rs2.getString("Station.Name"));
+						//copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+						//row = sheetTracing.getRow(rowIndex);								
+			            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+						fillRowSimple(sheetTracing, rs2, row, false);
+						Integer cid = rs2.getInt("Chargen.ID");
+						if (furtherLots.containsKey(cid)) {
+							HashSet<Integer> tl = furtherLots.get(cid);
+							boolean afterFirst = false;
+							for (int tli : tl) {
+								if (afterFirst) {
+									rowIndex++;
+						            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+									fillRowSimple(sheetTracing, rs2, row, false);
+								}
+								cell = row.getCell(0);
+								cell.setCellValue(tli);
+								afterFirst = true;
+							}
+						}
+						rowIndex++;
+					} while (rs2.next());
+				}
+			}
+			if (save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx")) {
 				result++;
 			}
 			myxls.close();
 		}
 		return result;
 	}
-	private int getFortraceRequests(String outputFolder, List<String> business2Trace, Integer stationId) throws SQLException, IOException {
+	private int getFortraceRequests(String outputFolder, List<String> business2Trace, Integer stationId) throws SQLException, IOException, InvalidFormatException {
 		int result = 0;
 		String tracingBusinessesSQL = "";
-		if (business2Trace != null) {
-			for (String s : business2Trace) {
-				tracingBusinessesSQL += " OR " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " = '" + s + "'";
-			}				
-		}
 		String tracingIdSQL = "";
 		if (stationId != null) {
 			tracingIdSQL += " AND " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " = " + stationId;
+			tracingBusinessesSQL = " OR TRUE ";
+		}
+		else {
+			if (business2Trace != null) {
+				for (String s : business2Trace) {
+					tracingBusinessesSQL += " OR " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " = '" + s + "'";
+				}				
+			}
 		}
 		String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
 				" LEFT JOIN " + MyDBI.delimitL("Chargen") +
@@ -377,15 +445,16 @@ public class TraceGenerator {
 				" ON " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Empfänger") +
 				" LEFT JOIN " + MyDBI.delimitL("ChargenVerbindungen") +
 				" ON " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") +
-				" WHERE " + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + " IS NULL " +
-				" AND (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + tracingBusinessesSQL + ")" +
+				" WHERE " +
+				(do2017Format && generateAllData ? "" : MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + " IS NULL AND ") +
+				" (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + tracingBusinessesSQL + ")" +
 				tracingIdSQL +
 				" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Bezeichnung") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			do {
-				if (doTheSimpleTemplates) {
+				if (do2017Format) {
 					result += getSimpleFwdStationRequests(outputFolder, rs);
 				}
 				else {
@@ -523,8 +592,8 @@ public class TraceGenerator {
 		return sdf.format(resultdate);		
 	}
 	
-	private int getFwdStationRequests(String outputFolder, Station station) throws SQLException, IOException {
-		if (doTheSimpleTemplates) return getFortraceRequests(outputFolder, null, Integer.parseInt(station.getId2017()));
+	private int getFwdStationRequests(String outputFolder, Station station) throws SQLException, IOException, NumberFormatException, InvalidFormatException {
+		if (do2017Format) return getFortraceRequests(outputFolder, null, Integer.parseInt(station.getId2017()));
 		int result = 0;
 		String sql = "Select * from " + MyDBI.delimitL("Station") + " AS " + MyDBI.delimitL("S") +
 				" LEFT JOIN " + MyDBI.delimitL("Lieferungen") +
@@ -708,11 +777,35 @@ public class TraceGenerator {
 		return result;
 	}
 	
-	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException {
+	public static File getResourceAsFile(InputStream in) {
+	    try {
+	        File tempFile = File.createTempFile(String.valueOf(in.hashCode()), ".tmp");
+	        tempFile.deleteOnExit();
+
+	        try (FileOutputStream out = new FileOutputStream(tempFile)) {
+	            //copy stream
+	            byte[] buffer = new byte[1024];
+	            int bytesRead;
+	            while ((bytesRead = in.read(buffer)) != -1) {
+	                out.write(buffer, 0, bytesRead);
+	            }
+	        }
+	        return tempFile;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
+	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
 			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_en.xlsx");
-			XSSFWorkbook workbook = new XSSFWorkbook(myxls);
+			File file = getResourceAsFile(myxls);
+			myxls.close();
+			OPCPackage opcPackage = OPCPackage.open(file.getAbsolutePath());
+			XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+			//XSSFWorkbook workbook = new XSSFWorkbook(myxls);
+			//save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + (generateAllData ? "_all":"") + "_temp.xlsx", true);
 			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("en")); //"Herstellung - Rückverfolgung");
 
 			// Station in Focus
@@ -728,17 +821,26 @@ public class TraceGenerator {
 			cell = row.getCell(3); cell.setCellValue(rs.getString("Station.Land"));
 			
 			// Products Out
-			if (sif != null && sif.equals("Josef Wernke GmbH")) {
-				System.err.println("");
-			}
 			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");
+			HashMap<Integer, HashSet<Integer>> furtherDels = new HashMap<>();
+			HashSet<Integer> alreadyUsedDels = new HashSet<>();
 			do {
+				//System.err.println(rowIndex);
 				if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
-				copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
-				row = sheetTracing.getRow(rowIndex);								
-				fillRowSimple(sheetTracing, rs, row, false);
-				rowIndex++;
+				Integer did = rs.getInt("Lieferungen.ID");
+				if (!alreadyUsedDels.contains(did)) {
+					alreadyUsedDels.add(did);
+					copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+					row = sheetTracing.getRow(rowIndex);								
+					fillRowSimple(sheetTracing, rs, row, false);
+					rowIndex++;
+				}
+				if (generateAllData) {
+					Integer key = rs.getInt("ChargenVerbindungen.Zutat");
+					if (!furtherDels.containsKey(key)) furtherDels.put(key, new HashSet<>());
+					furtherDels.get(key).add(rowIndex);
+				}
 			} while (rs.next());
 			rs.previous();
 			
@@ -748,15 +850,56 @@ public class TraceGenerator {
 			//cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-			if (save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + sif + "_" + id + ".xlsx")) {
+			
+			if (generateAllData) {
+				String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
+						" LEFT JOIN " + MyDBI.delimitL("Chargen") +
+						" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
+						" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +
+						" ON " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("Artikel") +
+						" LEFT JOIN " + MyDBI.delimitL("Station") +
+						" ON " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Station") +
+						" WHERE " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Empfänger") + "=" + stationID +
+						" ORDER BY " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
+				ResultSet rs2 = DBKernel.getResultSet(sql, false);
+				if (rs2 != null && rs2.first()) {
+					rowIndex += 10;
+					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
+					do {
+						//System.err.println(rs2.getString("Station.Name"));
+						//copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+						//row = sheetTracing.getRow(rowIndex);								
+			            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+
+						fillRowSimple(sheetTracing, rs2, row, true);
+						Integer lid = rs2.getInt("Lieferungen.ID");
+						if (furtherDels.containsKey(lid)) {
+							HashSet<Integer> tl = furtherDels.get(lid);
+							boolean afterFirst = false;
+							for (int tli : tl) {
+								if (afterFirst) {
+									rowIndex++;
+						            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+									fillRowSimple(sheetTracing, rs2, row, true);
+								}
+								cell = row.getCell(0);
+								cell.setCellValue(tli);
+								afterFirst = true;
+							}
+						}
+						rowIndex++;
+					} while (rs2.next());
+				}
+			}
+			if (save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx")) {
 				result++;
 			}
-			myxls.close();
+			//myxls.close();
 		}
 		return result;
 	}
-	private int getBackStationRequests(String outputFolder, Station station) throws SQLException, IOException {
-		if (doTheSimpleTemplates) return getBacktraceRequests(outputFolder, null, Integer.parseInt(station.getId2017()));
+	private int getBackStationRequests(String outputFolder, Station station) throws SQLException, IOException, NumberFormatException, InvalidFormatException, URISyntaxException {
+		if (do2017Format) return getBacktraceRequests(outputFolder, null, Integer.parseInt(station.getId2017()));
 		int result = 0;
 		String sql = "Select * from " + MyDBI.delimitL("Station") +
 					" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +
@@ -977,37 +1120,41 @@ public class TraceGenerator {
 		//evaluator.evaluateFormulaCell(cell);
 		insertDropBox(dvHelper, sheetTracing, rowIndex, 0, "=LotNumbers");		
 	}
-	private int getBacktraceRequests(String outputFolder, List<String> business2Backtrace, Integer stationId) throws SQLException, IOException {
+	private int getBacktraceRequests(String outputFolder, List<String> business2Backtrace, Integer stationId) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
 		int result = 0;
 		String sql;
 			String backtracingBusinessesSQL = "";
-			if (business2Backtrace != null) {
-				for (String s : business2Backtrace) {
-					backtracingBusinessesSQL += " OR " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " = '" + s + "'";
-				}				
-			}
 			String backtracingIdSQL = "";
 			if (stationId != null) {
 				backtracingIdSQL += " AND " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " = " + stationId;
+				backtracingBusinessesSQL = " OR TRUE ";
+			}
+			else {
+				if (business2Backtrace != null) {
+					for (String s : business2Backtrace) {
+						backtracingBusinessesSQL += " OR " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " = '" + s + "'";
+					}				
+				}
 			}
 			sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
 					" LEFT JOIN " + MyDBI.delimitL("Chargen") +
 					" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
-					" LEFT JOIN " + MyDBI.delimitL("ChargenVerbindungen") +
-					" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") +
 					" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +
 					" ON " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("Artikel") +
 					" LEFT JOIN " + MyDBI.delimitL("Station") +
 					" ON " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Station") +
-					" WHERE " + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") + " IS NULL " +
-					" AND (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + backtracingBusinessesSQL + ")" +
+					" LEFT JOIN " + MyDBI.delimitL("ChargenVerbindungen") +
+					" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") +
+					" WHERE " +
+					(do2017Format && generateAllData ? "" : MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") + " IS NULL AND ") +
+					" (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + backtracingBusinessesSQL + ")" +
 					backtracingIdSQL +
 					" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			do {
-				if (doTheSimpleTemplates) {
+				if (do2017Format) {
 					result += getSimpleBackStationRequests(outputFolder, rs);
 				}
 				else {
@@ -1441,9 +1588,12 @@ public class TraceGenerator {
 	        return newRow;
 	    }
 	   private boolean save(XSSFWorkbook workbook, String filename) {
+		   return save(workbook, filename, false);
+	   }
+	   private boolean save(XSSFWorkbook workbook, String filename, boolean forceOverwrite) {
 		try {
 			File f = new File(filename);
-			if (f.exists()) {
+			if (!forceOverwrite && f.exists()) {
 				int returnVal = JOptionPane.showConfirmDialog(parent, "Replace file '" + filename + "'?", "Excel file '" + filename + "' exists already", JOptionPane.YES_NO_OPTION);
 				if (returnVal == JOptionPane.NO_OPTION) return false;
 				else if (returnVal == JOptionPane.YES_OPTION) ;
@@ -1454,7 +1604,10 @@ public class TraceGenerator {
 			coreProp.setCreated(new Nullable<Date>(new Date(System.currentTimeMillis())));
 			// Write the workbook in file system
 			FileOutputStream out = new FileOutputStream(f);
+			System.err.println("outb" + System.currentTimeMillis());
 			workbook.write(out);
+			System.err.println("outa" + System.currentTimeMillis());
+			out.flush();
 			out.close();
 			System.out.println(filename + " written successfully on disk.");
 		} catch (Exception e) {

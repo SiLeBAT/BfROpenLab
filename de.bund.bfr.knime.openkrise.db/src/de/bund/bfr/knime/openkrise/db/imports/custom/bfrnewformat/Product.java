@@ -40,7 +40,7 @@ public class Product {
 	private HashMap<String, String> flexibles = new HashMap<>();
 	public String getFlexible(String key) {
 		if (flexibles.containsKey(key)) return flexibles.get(key);
-		else return "";
+		else return null;
 	}
 	private Integer id;
 
@@ -83,9 +83,11 @@ public class Product {
 	}
 
 	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
-		if (dbId != null) return dbId;
+		if (alreadyInDb)  // dbId != null
+			return dbId;
 		Integer retId = station == null ? null : getID(station,new String[]{"Bezeichnung"}, new String[]{name}, miDbId, mydbi);
 		dbId = retId;
+		alreadyInDb = true;
 		return retId;
 	}
 	private Integer getID(Station station, String[] feldnames, String[] feldVals, Integer miDbId, MyDBI mydbi) throws Exception {
@@ -122,7 +124,7 @@ public class Product {
 			else DBKernel.sendRequest(sql, false);
 		}
 		else if (!iv.isEmpty()) {
-			sql = "INSERT INTO " + MyDBI.delimitL("Produktkatalog") + " (" + in + ") VALUES (" + iv + ")";
+			sql = "INSERT INTO " + MyDBI.delimitL("Produktkatalog") + " (" + MyDBI.delimitL("ID") + "," + in + ") VALUES (" + getDbId() + "," + iv + ")";
 			@SuppressWarnings("resource")
 			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);

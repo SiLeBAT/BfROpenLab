@@ -1,6 +1,13 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.util.HashMap;
+
 public class XlsLot {
+	private HashMap<Integer, String> extraVals = new HashMap<>();	
+	public HashMap<Integer, String> getExtraVals() {
+		return extraVals;
+	}
+
 	public static String BLOCK(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Lotinformation";
@@ -23,8 +30,9 @@ public class XlsLot {
 	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equals(NUMBER(lang))) lotCol = index;
-			else if (s.startsWith(MHD(lang))) mhdCol = index;
+			if (s.equalsIgnoreCase(NUMBER(lang))) lotCol = index;
+			else if (s.toLowerCase().startsWith(MHD(lang).toLowerCase())) mhdCol = index;
+			else extraVals.put(index, s);
 		}
 	}
 
