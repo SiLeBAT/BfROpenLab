@@ -74,10 +74,13 @@ public class TraceGenerator {
 	private JComponent parent;
 	private boolean do2017Format = false;
 	private boolean generateAllData = false;
+	private boolean hasTOB = true;
+
 	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward, boolean do2017Format, boolean generateAllData) {
+		this.parent = parent;
 		this.do2017Format = do2017Format;
 		this.generateAllData = generateAllData;
-		this.parent = parent;
+		hasTOB = getHasTOB();
 		try {
 			int numFilesGenerated = 0;
 			try {
@@ -103,9 +106,10 @@ public class TraceGenerator {
 		}
 	}
 	public TraceGenerator(File outputFolder, List<String> business2Trace, boolean isForward, JComponent parent, boolean do2017Format, boolean generateAllData) {
+		this.parent = parent;
 		this.do2017Format = do2017Format;
 		this.generateAllData = generateAllData;
-		this.parent = parent;
+		hasTOB = getHasTOB();
 		try {
 			int numFilesGenerated = 0;
 			try {
@@ -418,6 +422,16 @@ public class TraceGenerator {
 				result++;
 			}
 			myxls.close();
+		}
+		return result;
+	}
+	private boolean getHasTOB() {
+		boolean result = false;
+		ResultSet rsTOB = DBKernel.getResultSet("Select * from " + MyDBI.delimitL("Station") + " WHERE " + MyDBI.delimitL("Betriebsart") + " IS NOT NULL", false);
+		try {
+			if (rsTOB != null && rsTOB.first()) result = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return result;
 	}
@@ -799,7 +813,9 @@ public class TraceGenerator {
 	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
-			InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_en.xlsx");
+			String template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_en.xlsx";
+			if (hasTOB) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_tob_en.xlsx";
+			InputStream myxls = this.getClass().getResourceAsStream(template);
 			File file = getResourceAsFile(myxls);
 			myxls.close();
 			OPCPackage opcPackage = OPCPackage.open(file.getAbsolutePath());
@@ -819,6 +835,7 @@ public class TraceGenerator {
 			cell = row.getCell(1); cell.setCellValue(sif);
 			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
 			cell = row.getCell(3); cell.setCellValue(rs.getString("Station.Land"));
+			if (hasTOB) cell = row.getCell(4); cell.setCellValue(rs.getString("Station.Betriebsart"));
 			
 			// Products Out
 			int rowIndex = 6;
@@ -1487,7 +1504,7 @@ public class TraceGenerator {
 		if (rs.getObject("Chargen.ChargenNr") != null) cell.setCellValue(rs.getString("Chargen.ChargenNr"));
 		else cell.setCellValue("");
 		cell = row.getCell(4);
-		fillExtraCell(cell, "Chargen", "MHD", rs.getString("Chargen.ID"));
+		fillExtraCell(cell, "Chargen", "BestBefore", rs.getString("Chargen.ID")); // MHD
 		
 		// Delivery
 		cell = row.getCell(5);
@@ -1501,12 +1518,12 @@ public class TraceGenerator {
 		else cell.setCellValue("");		
 		cell = row.getCell(8);
 		fillExtraCell(cell, "Lieferungen", "Amount", rs.getString("Lieferungen.ID"));
-		fillStationSimple(row.getCell(9), row.getCell(10), row.getCell(11), rs.getObject(isForward ? "Produktkatalog.Station" : "Lieferungen.Empfänger"));
-		cell = row.getCell(12);
+		fillStationSimple(row.getCell(9), row.getCell(10), row.getCell(11), hasTOB ? row.getCell(12) : null, rs.getObject(isForward ? "Produktkatalog.Station" : "Lieferungen.Empfänger"));
+		cell = row.getCell(hasTOB ? 13 : 12);
 		if (rs.getObject("Lieferungen.Kommentar") != null) cell.setCellValue(rs.getString("Lieferungen.Kommentar"));
 		else cell.setCellValue("");		
 	}
-	private void fillStationSimple(XSSFCell cellName, XSSFCell cellAddress, XSSFCell countryAddress, Object stationID) throws SQLException {
+	private void fillStationSimple(XSSFCell cellName, XSSFCell cellAddress, XSSFCell countryAddress, XSSFCell cellTOB, Object stationID) throws SQLException {
 		cellName.setCellValue("");
 		cellAddress.setCellValue("");
 		if (stationID != null) {
@@ -1516,6 +1533,8 @@ public class TraceGenerator {
 				if (rs.getObject("Name") != null) cellName.setCellValue(rs.getString("Name"));
 				if (rs.getObject("Adresse") != null) cellAddress.setCellValue(rs.getString("Adresse"));
 				if (rs.getObject("Land") != null) countryAddress.setCellValue(rs.getString("Land"));
+				if (cellTOB != null && rs.getObject("Betriebsart") != null) cellTOB.setCellValue(rs.getString("Station.Betriebsart"));
+
 			}
 		}
 	}
