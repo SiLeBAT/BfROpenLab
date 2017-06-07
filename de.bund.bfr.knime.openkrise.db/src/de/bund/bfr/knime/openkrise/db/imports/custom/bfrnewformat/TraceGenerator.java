@@ -44,6 +44,7 @@ import org.apache.poi.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.util.Nullable;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataValidationConstraint.OperatorType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Name;
@@ -76,7 +77,11 @@ public class TraceGenerator {
 	private boolean generateAllData = false;
 	private boolean hasTOB = true;
 	private String lang = "en";
-
+	/*
+- bis schlachthof zurück: z.b. bochumer fleischhandelsges.
+- rki neue fälle: was konsumiert?
+- überlegen wie verpacken, falls die KOBs nochmal in dieselbe firma ausrücken müssen
+*/
 	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward, boolean do2017Format, boolean generateAllData) {
 		this.parent = parent;
 		this.do2017Format = do2017Format;
@@ -352,7 +357,17 @@ public class TraceGenerator {
 			sif = rs.getString("Station.Name");
 			cell = row.getCell(1); cell.setCellValue(sif);
 			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
-			cell = row.getCell(3); cell.setCellValue(rs.getString("Station.Land"));
+			int countryCellNum = 3;
+			  for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
+			        CellRangeAddress region = sheetTracing.getMergedRegion(i);
+			        int rowNum = region.getFirstRow();
+			        int colIndex = region.getFirstColumn();
+			        if (rowNum == 0 && colIndex == 2) {
+			        	countryCellNum = region.getLastColumn() + 1;
+			        }
+			    }
+			  if (rs.getString("Station.Land") == null)  row.getCell(countryCellNum).setCellValue("");
+			  else row.getCell(countryCellNum).setCellValue(rs.getString("Station.Land"));
 			
 			// Products Out
 			int rowIndex = 6;
@@ -847,8 +862,17 @@ public class TraceGenerator {
 			sif = rs.getString("Station.Name");
 			cell = row.getCell(1); cell.setCellValue(sif);
 			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
-			cell = row.getCell(3); cell.setCellValue(rs.getString("Station.Land"));
-			if (hasTOB) cell = row.getCell(4); cell.setCellValue(rs.getString("Station.Betriebsart"));
+			int countryCellNum = 3;
+			  for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
+			        CellRangeAddress region = sheetTracing.getMergedRegion(i);
+			        int rowNum = region.getFirstRow();
+			        int colIndex = region.getFirstColumn();
+			        if (rowNum == 0 && colIndex == 2) {
+			        	countryCellNum = region.getLastColumn() + 1;
+			        }
+			    }
+			  if (rs.getString("Station.Land") == null)  row.getCell(countryCellNum).setCellValue("");
+			  else row.getCell(countryCellNum).setCellValue(rs.getString("Station.Land"));
 			
 			// Products Out
 			int rowIndex = 6;

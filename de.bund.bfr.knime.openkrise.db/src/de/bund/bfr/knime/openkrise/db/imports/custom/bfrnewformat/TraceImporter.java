@@ -51,6 +51,7 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.gisgraphy.addressparser.Address;
@@ -566,7 +567,16 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			focusS.setName(cs);
 			String address = getCellString(row.getCell(2));
 			focusS.setAddress(address);
-			focusS.setCountry(getCellString(row.getCell(3)));
+			int countryCellNum = 3;
+		    for (int i = 0; i < sheet.getNumMergedRegions(); i++) {
+		        CellRangeAddress region = sheet.getMergedRegion(i);
+		        int rowNum = region.getFirstRow();
+		        int colIndex = region.getFirstColumn();
+		        if (rowNum == 0 && colIndex == 2) {
+		        	countryCellNum = region.getLastColumn() + 1;
+		        }
+		    }
+			focusS.setCountry(getCellString(row.getCell(countryCellNum)));
 			focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + 1);
 			int sID = genDbId(""+cs+address);
 			focusS.setId(""+sID);
