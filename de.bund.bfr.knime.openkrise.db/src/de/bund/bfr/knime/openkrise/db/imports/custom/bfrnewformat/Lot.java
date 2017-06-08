@@ -200,9 +200,15 @@ public class Lot {
 			@SuppressWarnings("resource")
 			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			if (ps.executeUpdate() > 0) {
-				result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
-				//System.err.println(result);
+			try {
+				if (ps.executeUpdate() > 0) {
+					result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+					//System.err.println(result);
+				}
+			}
+			catch (SQLException e) {
+				if (e.getMessage().startsWith("integrity constraint violation")) result = dbId; // Format_2017;//throw new Exception("Station ID is already assigned"); //  " + intId + "
+				else throw e;
 			}
 		}
 

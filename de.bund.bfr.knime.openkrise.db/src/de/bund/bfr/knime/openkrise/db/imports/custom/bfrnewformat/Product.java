@@ -128,9 +128,15 @@ public class Product {
 			@SuppressWarnings("resource")
 			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			if (ps.executeUpdate() > 0) {
-				result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
-				if (result != null) handleFlexibles(mydbi);
+			try {
+				if (ps.executeUpdate() > 0) {
+					result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+					if (result != null) handleFlexibles(mydbi);
+				}
+			}
+			catch (SQLException e) {
+				if (e.getMessage().startsWith("integrity constraint violation")) result = dbId; // Format_2017;//throw new Exception("Station ID is already assigned"); //  " + intId + "
+				else throw e;
 			}
 		}
 

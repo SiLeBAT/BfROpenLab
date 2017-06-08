@@ -265,7 +265,7 @@ public class Station {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) ;//throw new Exception("Station ID is already assigned"); //  " + intId + "
+				if (e.getMessage().startsWith("integrity constraint violation")) result = dbId; // Format_2017;//throw new Exception("Station ID is already assigned"); //  " + intId + "
 				else throw e;
 			}
 		}

@@ -395,7 +395,7 @@ public class Delivery {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) ;//throw new Exception("Delivery ID is already assigned\n" + e.toString() + "\n" + sql); //  " + intId + "
+				if (e.getMessage().startsWith("integrity constraint violation")) result = dbId; // Format_2017;//throw new Exception("Delivery ID is already assigned\n" + e.toString() + "\n" + sql); //  " + intId + "
 				else throw e;
 			}
 		}
