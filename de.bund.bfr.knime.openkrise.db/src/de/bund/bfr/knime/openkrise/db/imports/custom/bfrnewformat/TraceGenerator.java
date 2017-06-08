@@ -397,6 +397,7 @@ public class TraceGenerator {
 				}
 			} while (rs.next());
 			rs.previous();
+			//copyStyle(workbook, sheetTracing, 6, 9);
 			
 			row = sheetTracing.getRow(rowIndex+4);
 			cell = row.getCell(0);	
@@ -897,10 +898,12 @@ public class TraceGenerator {
 					rowIndex++;
 				}
 				if (generateAllData) {
-					Integer key = rs.getInt("ChargenVerbindungen.Zutat");
-					if (!furtherDels.containsKey(key)) furtherDels.put(key, new HashSet<>());
-					furtherDels.get(key).add(rowIndex);
-					System.err.println(key + " -> " + rowIndex);
+					if (rs.getObject("ChargenVerbindungen.Zutat") != null) {
+						Integer key = rs.getInt("ChargenVerbindungen.Zutat");
+						if (!furtherDels.containsKey(key)) furtherDels.put(key, new HashSet<>());
+						furtherDels.get(key).add(rowIndex);
+						//System.err.println(key + " -> " + rowIndex);
+					}
 				}
 			} while (rs.next());
 			rs.previous();
@@ -1606,6 +1609,19 @@ public class TraceGenerator {
 			}	
 		}		
 	}
+	/*
+	private void copyStyle(XSSFWorkbook workbook, XSSFSheet worksheet, int sourceRow, int lastRow) {
+		
+        // Copy style from old cell and apply to new cell
+		XSSFRow row = worksheet.getRow(sourceRow);
+		
+        XSSFCellStyle newCellStyle = workbook.createCellStyle();
+        newCellStyle.cloneStyleFrom(oldCell.getCellStyle());
+        
+        newCell.setCellStyle(newCellStyle);
+
+	}
+	*/
 	   private XSSFRow copyRow(XSSFWorkbook workbook, XSSFSheet worksheet, int sourceRowNum, int destinationRowNum) {
 	        XSSFRow sourceRow = worksheet.getRow(sourceRowNum);
             worksheet.shiftRows(destinationRowNum, worksheet.getLastRowNum(), 1, true, false);
@@ -1623,15 +1639,10 @@ public class TraceGenerator {
 	                continue;
 	            }
 
-	            // Copy style from old cell and apply to new cell
-	            XSSFCellStyle newCellStyle = workbook.createCellStyle();
-	            newCellStyle.cloneStyleFrom(oldCell.getCellStyle());
-	            
-	            newCell.setCellStyle(newCellStyle);
+	            newCell.setCellStyle(oldCell.getCellStyle());
 
 	            // Set the cell data type
 	            newCell.setCellType(oldCell.getCellType());
-
 	        }
 
 	        // If there are are any merged regions in the source row, copy to new row

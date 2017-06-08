@@ -852,6 +852,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								xlsD.setChargenLinkCol(-1);
 								doCollect = true;
 							}
+							if (!isProduction && xlsS.getTobCol() >= 0) {
+								Row row0 = sheet.getRow(0);
+								focusS.setTypeOfBusiness(getCellString(row0.getCell(5)));
+							}
 							i++;
 							continue;
 						}
