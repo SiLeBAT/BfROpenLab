@@ -8,6 +8,12 @@ public class XlsStruct {
 		else if (lang.equals("en")) return "Backtracing";
 		else return null;
 	}
+	public static String getFWD_SHEETNAME(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Vorwärtsverfolgung";
+		else if (lang.equals("en")) return "Fwdtracing";
+		else return null;
+	}
 	public static String getPROD_BACK_SHEETNAME(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Herstellung - Rückverfolgung";

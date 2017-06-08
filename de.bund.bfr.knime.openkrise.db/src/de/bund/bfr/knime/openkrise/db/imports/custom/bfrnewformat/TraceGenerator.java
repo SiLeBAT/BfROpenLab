@@ -335,8 +335,14 @@ public class TraceGenerator {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
 			String template;
-			if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_de.xlsx";
-			else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_en.xlsx";
+			if (hasTOB) {				
+				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_de.xlsx";
+				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_tob_en.xlsx";
+			}
+			else {
+				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_de.xlsx";
+				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_simple_en.xlsx";
+			}
 			InputStream myxls = this.getClass().getResourceAsStream(template);
 			File file = getResourceAsFile(myxls);
 			myxls.close();

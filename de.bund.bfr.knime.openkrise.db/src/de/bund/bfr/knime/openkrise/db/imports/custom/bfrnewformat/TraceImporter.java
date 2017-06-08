@@ -535,23 +535,16 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		boolean backtracing = true;
 		boolean isProduction = false;
 		boolean isEnglish = false;
-		// RKI Sheet - only backwards
+
 		Sheet sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("de"));
-		if (sheet == null) {
-			isProduction = true;
-			sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("de"));
-			if (sheet == null) {
-				backtracing = false;
-				sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("de"));
-			}
-		}
-		if (sheet == null) {
-			isEnglish = true;
-			backtracing = true;
-			sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("en"));
-			if (sheet == null) sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("en")); else isProduction = false;
-			if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("en")); backtracing = false;}
-		}
+		if (sheet != null) {isEnglish = false; isProduction = false; backtracing = true;}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getFWD_SHEETNAME("de")); if (sheet != null) {isEnglish = false; isProduction = false; backtracing = false;}}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("de")); if (sheet != null) {isEnglish = false; isProduction = true; backtracing = true;}}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("de")); if (sheet != null) {isEnglish = false; isProduction = true; backtracing = false;}}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("en")); if (sheet != null) {isEnglish = true; isProduction = false; backtracing = true;}}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getFWD_SHEETNAME("en")); if (sheet != null) {isEnglish = true; isProduction = false; backtracing = false;}}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("en")); if (sheet != null) {isEnglish = true; isProduction = true; backtracing = true;}}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("en")); if (sheet != null) {isEnglish = true; isProduction = true; backtracing = false;}}
 				
 		HashMap<Integer, Station> stations = new HashMap<>();
 		HashMap<Integer, Product> products = new HashMap<>();
