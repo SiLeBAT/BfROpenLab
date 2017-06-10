@@ -179,7 +179,7 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
 
 		if (vertex != null) {
-			if (allowMovingNodes) {
+			if (allowMovingNodes && down != null) {
 				Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
 				Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
 				Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
@@ -197,9 +197,11 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 			down = e.getPoint();
 		} else if (edge != null) {
 			down = e.getPoint();
-		} else {
+		} else if (down != null) {
 			rect.setFrameFromDiagonal(down, e.getPoint());
 			vv.drawRect(rect);
+		} else {
+			down = e.getPoint();
 		}
 	}
 
