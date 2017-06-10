@@ -350,8 +350,8 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void setTransform(Transform transform) {
 		this.transform = transform;
-		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
-				.setTransform(transform.toAffineTransform());
+		viewer.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.LAYOUT,
+				new MutableAffineTransformer(transform.toAffineTransform()));
 		applyTransform();
 		viewer.repaint();
 	}
