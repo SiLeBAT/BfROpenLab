@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -99,6 +100,9 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 			PRODUKTKATALOG.ID);
 
 	private MyKrisenInterfacesSettings set;
+	
+	private HashMap<String, String> extraFieldS;
+	private HashMap<String, String> extraFieldD;
 
 	/**
 	 * Constructor for the node model.
@@ -106,6 +110,8 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 	protected MyKrisenInterfacesNodeModel() {
 		super(0, 3);
 		set = new MyKrisenInterfacesSettings();
+		extraFieldS = new HashMap<>();
+		extraFieldD = new HashMap<>();
 	}
 
 	/**
@@ -117,14 +123,15 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 		try (Connection conn = set.isUseExternalDb()
 				? createLocalConnection(KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
 				: DBKernel.getLocalConn(true)) {
-			boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.hasUniqueSerials(conn);
+			boolean isFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(conn); // check if format is earlier than Format2017. Starting with 2017 negative IDs are more than probable. Now, please ignore SerialIDs!!!!!
+			boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.hasUniqueSerials(conn) && !isFormat2017;
 			Map<Integer, String> stationIds = DeliveryUtils.getStationIds(conn, useSerialAsID);
 			Map<Integer, String> deliveryIds = DeliveryUtils.getDeliveryIds(conn, useSerialAsID);
 			SetMultimap<String, String> warnings = LinkedHashMultimap.create();
 
 			List<Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
-			BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID);
-			BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec, useSerialAsID);
+			BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID, isFormat2017);
+			BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec, useSerialAsID, isFormat2017);
 			BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, deliveryTable, exec);
 
 			if (!warnings.isEmpty()) {
@@ -186,7 +193,7 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 		return path;
 	}
 
-	private DataTableSpec getStationSpec(Connection conn, boolean useSerialAsId) {
+	private DataTableSpec getStationSpec(Connection conn, boolean useSerialAsId, boolean isFormat2017) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
@@ -194,24 +201,28 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 		addSpecIf(set.isLotBased(), columns, TracingColumns.LOT_NUMBER, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.STATION_ID, StringCell.TYPE);
-		addSpecIf(!useSerialAsId, columns, BackwardUtils.STATION_SERIAL, StringCell.TYPE);
+		if (!isFormat2017) addSpecIf(!useSerialAsId, columns, BackwardUtils.STATION_SERIAL, StringCell.TYPE);
 		addSpecIf(!set.isLotBased(), columns, TracingColumns.NAME, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.STATION_NAME, StringCell.TYPE);
+		if (!isFormat2017) {
+			addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.STRASSE), columns,
+					TracingColumns.STATION_STREET, StringCell.TYPE);
+			addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.HAUSNUMMER), columns,
+					TracingColumns.STATION_HOUSENO, StringCell.TYPE);
+			addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.PLZ), columns,
+					TracingColumns.STATION_ZIP, StringCell.TYPE);
+			addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.ORT), columns,
+					TracingColumns.STATION_CITY, StringCell.TYPE);
+			addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.DISTRICT), columns,
+					TracingColumns.STATION_DISTRICT, StringCell.TYPE);
+			addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.BUNDESLAND), columns,
+					TracingColumns.STATION_STATE, StringCell.TYPE);
+		}
 
-		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.STRASSE), columns,
-				TracingColumns.STATION_STREET, StringCell.TYPE);
-		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.HAUSNUMMER), columns,
-				TracingColumns.STATION_HOUSENO, StringCell.TYPE);
-		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.PLZ), columns,
-				TracingColumns.STATION_ZIP, StringCell.TYPE);
-		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.ORT), columns,
-				TracingColumns.STATION_CITY, StringCell.TYPE);
-		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.DISTRICT), columns,
-				TracingColumns.STATION_DISTRICT, StringCell.TYPE);
-		addSpecIf(set.isEnsureBackwardCompatibility() || hasValues(conn, STATION.BUNDESLAND), columns,
-				TracingColumns.STATION_STATE, StringCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.ADRESSE), columns, TracingColumns.ADDRESS, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_COUNTRY, StringCell.TYPE);
+
+		addSpecIf(hasValues(conn, STATION.BETRIEBSART), columns, TracingColumns.STATION_TOB, StringCell.TYPE);
 
 		addSpecIf(!set.isLotBased(), columns, TracingColumns.STATION_SIMPLESUPPLIER, BooleanCell.TYPE);
 		addSpecIf(!set.isLotBased(), columns, TracingColumns.STATION_DEADSTART, BooleanCell.TYPE);
@@ -220,12 +231,11 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 		addSpecIf(set.isLotBased() && hasValues(conn, PRODUKTKATALOG.ARTIKELNUMMER), columns,
 				TracingColumns.PRODUCT_NUMBER, StringCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.VATNUMBER), columns, BackwardUtils.STATION_VAT, StringCell.TYPE);
-		addSpecIf(hasValues(conn, STATION.BETRIEBSART), columns, TracingColumns.STATION_TOB, StringCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.ANZAHLFAELLE), columns, BackwardUtils.STATION_NUMCASES, IntCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.DATUMBEGINN), columns, BackwardUtils.STATION_DATESTART, StringCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.DATUMHOEHEPUNKT), columns, BackwardUtils.STATION_DATEPEAK, StringCell.TYPE);
 		addSpecIf(hasValues(conn, STATION.DATUMENDE), columns, BackwardUtils.STATION_DATEEND, StringCell.TYPE);
-		addSpecIf(hasValues(conn, STATION.IMPORTSOURCES), columns, TracingColumns.FILESOURCES, StringCell.TYPE);
+		if (!isFormat2017) addSpecIf(hasValues(conn, STATION.IMPORTSOURCES), columns, TracingColumns.FILESOURCES, StringCell.TYPE);
 
 		addSpecIf(set.isEnsureBackwardCompatibility(), columns, BackwardUtils.STATION_NODE, StringCell.TYPE);
 		addSpecIf(set.isEnsureBackwardCompatibility(), columns, BackwardUtils.STATION_COUNTY, StringCell.TYPE);
@@ -233,7 +243,14 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 		if (!set.isLotBased()) {
 			for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).selectDistinct(EXTRAFIELDS.ATTRIBUTE)
 					.from(EXTRAFIELDS).where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()))) {
-				addSpec(columns, "_" + r.value1(), StringCell.TYPE);
+				String betterName = "_" + r.value1();
+				if (isFormat2017) {
+					if (betterName.equals("_Source")) {betterName = "Source"; extraFieldS.put("Source", "_Source");}
+					else addSpec(columns, betterName, StringCell.TYPE);
+				}
+				else {
+					addSpec(columns, betterName, StringCell.TYPE);
+				}
 			}
 		} else {
 			for (Record2<String, String> r : DSL.using(conn, SQLDialect.HSQLDB)
@@ -248,12 +265,12 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
 
-	private DataTableSpec getDeliverySpec(Connection conn, boolean useSerialAsId) {
+	private DataTableSpec getDeliverySpec(Connection conn, boolean useSerialAsId, boolean isFormat2017) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
 		addSpecIf(set.isLotBased(), columns, TracingColumns.DELIVERY_ID, StringCell.TYPE);
-		addSpecIf(!useSerialAsId, columns, BackwardUtils.DELIVERY_SERIAL, StringCell.TYPE);
+		if (!isFormat2017) addSpecIf(!useSerialAsId, columns, BackwardUtils.DELIVERY_SERIAL, StringCell.TYPE);
 
 		addSpec(columns, TracingColumns.FROM, StringCell.TYPE);
 		addSpec(columns, TracingColumns.TO, StringCell.TYPE);
@@ -263,7 +280,7 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 
 		addSpecIf(set.isEnsureBackwardCompatibility() || !set.isLotBased(), columns, TracingColumns.LOT_NUMBER,
 				StringCell.TYPE);
-		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
+		if (!isFormat2017) addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_ARRIVAL, StringCell.TYPE);
 
 		addSpecIf(
@@ -277,9 +294,9 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 				BackwardUtils.DELIVERY_DATEEXP, StringCell.TYPE);
 		addSpecIf(hasValues(conn, CHARGEN.PD_DAY, CHARGEN.PD_MONTH, CHARGEN.PD_YEAR), columns,
 				BackwardUtils.DELIVERY_DATEMANU, StringCell.TYPE);
-		addSpecIf(hasValues(conn, LIEFERUNGEN.UNITMENGE), columns, TracingColumns.DELIVERY_AMOUNT, DoubleCell.TYPE);
+		if (!isFormat2017) addSpecIf(hasValues(conn, LIEFERUNGEN.UNITMENGE), columns, TracingColumns.DELIVERY_AMOUNT, DoubleCell.TYPE);
 
-		if (hasValues(conn, LIEFERUNGEN.NUMPU)) {
+		if (!isFormat2017 && hasValues(conn, LIEFERUNGEN.NUMPU)) {
 			addSpec(columns, TracingColumns.DELIVERY_NUM_PU, DoubleCell.TYPE);
 			addSpecIf(hasValues(conn, LIEFERUNGEN.TYPEPU), columns, TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE);
 		}
@@ -294,7 +311,7 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 				StringCell.TYPE);
 		addSpecIf(hasValues(conn, CHARGEN.MICROBIOSAMPLE), columns, BackwardUtils.DELIVERY_MICROSAMPLE,
 				StringCell.TYPE);
-		addSpecIf(hasValues(conn, LIEFERUNGEN.IMPORTSOURCES), columns, TracingColumns.FILESOURCES, StringCell.TYPE);
+		if (!isFormat2017) addSpecIf(hasValues(conn, LIEFERUNGEN.IMPORTSOURCES), columns, TracingColumns.FILESOURCES, StringCell.TYPE);
 
 		addSpecIf(set.isEnsureBackwardCompatibility(), columns, BackwardUtils.DELIVERY_CHARGENUM, StringCell.TYPE);
 
@@ -304,7 +321,19 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 					.where(EXTRAFIELDS.TABLENAME.equal(LIEFERUNGEN.getName()))
 					.or(EXTRAFIELDS.TABLENAME.equal(CHARGEN.getName()))
 					.or(EXTRAFIELDS.TABLENAME.equal(PRODUKTKATALOG.getName()))) {
-				addSpec(columns, "_" + r.value1() + "." + r.value2(), StringCell.TYPE);
+				String origName = "_" + r.value1() + "." + r.value2();
+				if (isFormat2017) {
+					String betterName = origName;
+					if (betterName.equals("_Chargen.BestBefore")) {betterName = "BestBefore"; extraFieldD.put("BestBefore", "_Chargen.BestBefore"); addSpec(columns, betterName, StringCell.TYPE);}
+					else if (betterName.equals("_Lieferungen.Amount")) {betterName = "Amount"; extraFieldD.put("Amount", "_Lieferungen.Amount"); addSpec(columns, betterName, StringCell.TYPE);}
+					else if (betterName.equals("_Produktkatalog.Source")) {betterName = "Product_Source"; extraFieldD.put("Product_Source", "_Produktkatalog.Source");}
+					else if (betterName.equals("_Chargen.Source")) {betterName = "Lot_Source"; extraFieldD.put("Lot_Source", "_Chargen.Source");}
+					else if (betterName.equals("_Lieferungen.Source")) {betterName = "Deliveries_Source"; extraFieldD.put("Deliveries_Source", "_Lieferungen.Source");}
+					else addSpec(columns, betterName, StringCell.TYPE);
+				}
+				else {
+					addSpec(columns, origName, StringCell.TYPE);
+				}
 			}
 		} else {
 			for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).selectDistinct(EXTRAFIELDS.ATTRIBUTE)
@@ -317,7 +346,7 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 	}
 
 	private BufferedDataTable getStationTable(Connection conn, Map<Integer, String> stationIds,
-			Collection<Delivery> deliveries, ExecutionContext exec, boolean useSerialAsId)
+			Collection<Delivery> deliveries, ExecutionContext exec, boolean useSerialAsId, boolean isFormat2017)
 			throws CanceledExecutionException {
 		SetMultimap<String, String> deliversTo = LinkedHashMultimap.create();
 		SetMultimap<String, String> receivesFrom = LinkedHashMultimap.create();
@@ -327,7 +356,7 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 			receivesFrom.put(d.getRecipientId(), d.getSupplierId());
 		}
 
-		DataTableSpec spec = getStationSpec(conn, useSerialAsId);
+		DataTableSpec spec = getStationSpec(conn, useSerialAsId, isFormat2017);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		long index = 0;
 		SelectJoinStep<Record> select = DSL.using(conn, SQLDialect.HSQLDB).select().from(STATION);
@@ -394,11 +423,12 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 			}
 
 			for (String column : spec.getColumnNames()) {
-				if (column.startsWith("_")) {
+				if (column.startsWith("_") || extraFieldS.containsKey(column) && extraFieldS.get(column).startsWith("_")) {
 					Result<Record1<String>> result;
 
 					if (!set.isLotBased()) {
-						String attribute = column.substring(1);
+						String c = extraFieldS.containsKey(column) ? extraFieldS.get(column) : column;
+						String attribute = c.substring(1);
 
 						result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE).from(EXTRAFIELDS)
 								.where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()),
@@ -431,9 +461,9 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 	}
 
 	private BufferedDataTable getDeliveryTable(Connection conn, Map<Integer, String> stationIds,
-			Map<Integer, String> deliveryIds, ExecutionContext exec, boolean useSerialAsId)
+			Map<Integer, String> deliveryIds, ExecutionContext exec, boolean useSerialAsId, boolean isFormat2017)
 			throws CanceledExecutionException {
-		DataTableSpec spec = getDeliverySpec(conn, useSerialAsId);
+		DataTableSpec spec = getDeliverySpec(conn, useSerialAsId, isFormat2017);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		int index = 0;
 		Set<String> ids = new LinkedHashSet<>();
@@ -504,12 +534,13 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
 
 			for (String column : spec.getColumnNames()) {
-				if (column.startsWith("_")) {
+				if (column.startsWith("_") || extraFieldD.containsKey(column) && extraFieldD.get(column).startsWith("_")) {
 					Result<Record1<String>> result;
 
 					if (!set.isLotBased()) {
-						String table = column.substring(1, column.indexOf("."));
-						String attribute = column.substring(column.indexOf(".") + 1);
+						String c = extraFieldD.containsKey(column) ? extraFieldD.get(column) : column;
+						String table = c.substring(1, c.indexOf("."));
+						String attribute = c.substring(c.indexOf(".") + 1);
 
 						result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE).from(EXTRAFIELDS)
 								.where(EXTRAFIELDS.TABLENAME.equal(table),

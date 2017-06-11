@@ -79,6 +79,17 @@ public class DeliveryUtils {
 
 		return true;
 	}
+	public static boolean hasOnlyPositiveIDs(Connection conn) {
+		for (Record1<Integer> r : DSL.using(conn, SQLDialect.HSQLDB).select(STATION.ID).from(STATION)) {
+			if (r.value1() < 0) return false;
+		}
+
+		for (Record1<Integer> r : DSL.using(conn, SQLDialect.HSQLDB).select(LIEFERUNGEN.ID).from(LIEFERUNGEN)) {
+			if (r.value1() < 0) return false;
+		}
+
+		return true;
+	}
 
 	public static Map<Integer, String> getStationIds(Connection conn, boolean useSerialAsID) {
 		Map<Integer, String> stationIds = new LinkedHashMap<>();

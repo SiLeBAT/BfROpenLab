@@ -550,8 +550,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		HashMap<Integer, Product> products = new HashMap<>();
 		HashMap<Integer, Lot> lots = new HashMap<>();
 		HashMap<Integer, Delivery> dels = new HashMap<>();
-		LinkedHashMap<String, Delivery> olddels = new LinkedHashMap<>();
-		LinkedHashMap<String, Delivery> olddelsLot = new LinkedHashMap<>();
+		LinkedHashMap<String, Delivery> olddelsRow = new LinkedHashMap<>();
+		LinkedHashMap<String, HashSet<Delivery>> olddelsLot = new LinkedHashMap<>();
 
 		if (sheet != null) {
 			Station focusS = new Station();
@@ -614,6 +614,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							String f2 = getCellString(row.getCell(xlsP.getNameCol()));
 							String f3 = getCellString(row.getCell(xlsP.getEanCol()));
 							int pID = genDbId(""+(backtracing==doPreCollect?focusS.getId():supplierS.getId()) + f2 + f3);
+							//System.err.println(pID + " - " + f2 + " - " + f3 + " - " + focusS.getId() + " - " + supplierS.getId() + " - " + backtracing + " - " + doPreCollect);
 							Product p = null;
 							if (products.containsKey(pID)) {
 								p = products.get(pID);
@@ -695,8 +696,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 								d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + (i+1));
 								d.setId(dID+"");
-								olddels.put((i+1)+"", d);
-								olddelsLot.put(d.getLot().getNumber(), d);
+								olddelsRow.put((i+1)+"", d);
+								if (!olddelsLot.containsKey(d.getLot().getNumber())) olddelsLot.put(d.getLot().getNumber(), new HashSet<>());
+								olddelsLot.get(d.getLot().getNumber()).add(d);
 							}
 							else {
 								if (dels.containsKey(dID)) {
@@ -733,20 +735,22 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							if (xlsD.getChargenLinkCol() >= 0) {
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
 								if (key != null) {
-									Delivery od = null;
-									if (olddelsLot.containsKey(key)) od = olddelsLot.get(key);
-									else if (olddels.containsKey(key)) od = olddels.get(key);
-									if (od == null) {
-										//exceptions.add(new Exception("Row number/Lot number in cell A" + (i+1) + " not valid!"));
-									}
-									else {
-										//System.err.println(od.getLot().getNumber() + ":\nStation: " + od.getLot().getProduct().getStation().getId() + "\nProduct: " + od.getLot().getProduct().getId() + "\nLot: " + od.getLot().getId() + "\nDelivery: " + od.getId());
-										if (backtracing) {
-											//System.err.println(i + " -> " + key + " -> " + d.getId() + " -> " + od.getLot().getId());
-											d.addTargetLotId(od.getLot().getId()+"");
+									if (olddelsLot.containsKey(key)) {
+										HashSet<Delivery> odhs = olddelsLot.get(key);
+										if (odhs != null) {
+											for (Delivery od : odhs) {
+												if (od != null) {
+													if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
+													else d.getLot().getInDeliveries().add(od.getId());											
+												}
+											}
 										}
-										else {
-											d.getLot().getInDeliveries().add(od.getId());
+									}
+									else if (olddelsRow.containsKey(key)) {
+										Delivery od = olddelsRow.get(key);
+										if (od != null) {
+											if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
+											else d.getLot().getInDeliveries().add(od.getId());											
 										}
 									}
 								}
@@ -872,7 +876,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			for (Station s: stations.values()) {
 				s.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + ": " + s.getFlexible(XlsStruct.getOUT_SOURCE_KEY(isEnglish ? "en":"de")));
 			}
-			for (Delivery d : olddels.values()) {
+			for (Delivery d : olddelsRow.values()) {
 				System.err.println(d.getId());
 				d.insertIntoDb(mydbi);
 				//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";

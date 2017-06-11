@@ -81,6 +81,7 @@ public class TraceGenerator {
 - bis schlachthof zurück: z.b. bochumer fleischhandelsges.
 - rki neue fälle: was konsumiert?
 - überlegen wie verpacken, falls die KOBs nochmal in dieselbe firma ausrücken müssen
+Erinnerung an die alten Template inhaber senden?
 */
 	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward, boolean do2017Format, boolean generateAllData) {
 		this.parent = parent;
@@ -95,7 +96,7 @@ public class TraceGenerator {
 			catch (Exception e) {e.printStackTrace();}
 
 			String message = "";
-			if (numFilesGenerated == 0) message = "No new Template generated. Maybe the selected station '" + station.getName() + "' has " + (isForward ? "no incoming deliveries going into lots?" : "no lots without ingredients?");
+			if (numFilesGenerated == 0) message = "No new Template generated. Maybe the selected station '" + station.getName() + "' has " + (isForward ? "no incoming deliveries? Or they are all already connected to outgoing lots?" : "no ougoing lots? Or they are all already connected to incoming deliveries?");
 			else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + outputFolder.getAbsolutePath() + "'";
 
 			IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
