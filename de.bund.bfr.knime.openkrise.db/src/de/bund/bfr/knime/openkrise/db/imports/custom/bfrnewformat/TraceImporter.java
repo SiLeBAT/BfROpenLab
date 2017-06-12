@@ -1395,7 +1395,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				result = Integer.parseInt(val);
 			}
 			catch (Exception e) {
-				result = (int) Double.parseDouble(val);
+				try {
+					result = (int) Double.parseDouble(val);
+				}
+				catch (Exception e2) {}
 			}
 		}
 		return result;
