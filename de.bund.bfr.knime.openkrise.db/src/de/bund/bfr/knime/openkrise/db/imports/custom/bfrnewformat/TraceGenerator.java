@@ -388,7 +388,7 @@ Erinnerung an die alten Template inhaber senden?
 					alreadyUsedDels.add(did);
 					copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
 					row = sheetTracing.getRow(rowIndex);								
-					fillRowSimple(sheetTracing, rs, row, true);
+					fillRowSimple(sheetTracing, rs, row, true, false);
 					rowIndex++;
 					if (generateAllData) {
 						Integer key = rs.getInt("ChargenVerbindungen.Produkt");
@@ -422,10 +422,10 @@ Erinnerung an die alten Template inhaber senden?
 					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
 					do {
 						//System.err.println(rs2.getString("Station.Name"));
-						//copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
-						//row = sheetTracing.getRow(rowIndex);								
-			            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
-						fillRowSimple(sheetTracing, rs2, row, false);
+						copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+						row = sheetTracing.getRow(rowIndex);								
+			            //row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+						fillRowSimple(sheetTracing, rs2, row, false, false);
 						Integer cid = rs2.getInt("Chargen.ID");
 						if (furtherLots.containsKey(cid)) {
 							HashSet<Integer> tl = furtherLots.get(cid);
@@ -434,7 +434,7 @@ Erinnerung an die alten Template inhaber senden?
 								if (afterFirst) {
 									rowIndex++;
 						            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
-									fillRowSimple(sheetTracing, rs2, row, false);
+									fillRowSimple(sheetTracing, rs2, row, false, false);
 								}
 								cell = row.getCell(0);
 								cell.setCellValue(tli+"");
@@ -839,13 +839,14 @@ Erinnerung an die alten Template inhaber senden?
 	        return null;
 	    }
 	}
-	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
+	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs, boolean startTracing) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
 			String template;
 			if (hasTOB) {				
 				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_tob_de.xlsx";
 				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_tob_en.xlsx";
+				if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_simple_tob_en.xlsx";
 			}
 			else {
 				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_simple_de.xlsx";
@@ -858,7 +859,7 @@ Erinnerung an die alten Template inhaber senden?
 			XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
 			//XSSFWorkbook workbook = new XSSFWorkbook(myxls);
 			//save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + (generateAllData ? "_all":"") + "_temp.xlsx", true);
-			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_BACK_SHEETNAME(lang)); //"Herstellung - Rückverfolgung");
+			XSSFSheet sheetTracing = workbook.getSheet(startTracing ? XlsStruct.getBACK_SHEETNAME(lang) : XlsStruct.getPROD_BACK_SHEETNAME(lang)); //"Herstellung - Rückverfolgung");
 
 			// Station in Focus
 			String sif = null;
@@ -866,57 +867,66 @@ Erinnerung an die alten Template inhaber senden?
 			XSSFRow row = sheetTracing.getRow(0);
 			XSSFCell cell;
 
+			int countryCellNum = 3;
+			for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
+				CellRangeAddress region = sheetTracing.getMergedRegion(i);
+				int rowNum = region.getFirstRow();
+				int colIndex = region.getFirstColumn();
+				if (rowNum == 0 && colIndex == 2) {
+					countryCellNum = region.getLastColumn() + 1;
+				}
+			}
 			id = rs.getInt("Station.ID");
 			sif = rs.getString("Station.Name");
 			cell = row.getCell(1); cell.setCellValue(sif);
 			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
-			int countryCellNum = 3;
-			  for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
-			        CellRangeAddress region = sheetTracing.getMergedRegion(i);
-			        int rowNum = region.getFirstRow();
-			        int colIndex = region.getFirstColumn();
-			        if (rowNum == 0 && colIndex == 2) {
-			        	countryCellNum = region.getLastColumn() + 1;
-			        }
-			    }
-			  if (rs.getString("Station.Land") == null)  row.getCell(countryCellNum).setCellValue("");
-			  else row.getCell(countryCellNum).setCellValue(rs.getString("Station.Land"));
-			
-			// Products Out
+			if (rs.getString("Station.Land") == null)  row.getCell(countryCellNum).setCellValue("");
+			else row.getCell(countryCellNum).setCellValue(rs.getString("Station.Land"));
+			if (startTracing) {
+				if (rs.getString("Station.Betriebsart") == null)  row.getCell(countryCellNum+1).setCellValue("");
+				else row.getCell(countryCellNum+1).setCellValue(rs.getString("Station.Betriebsart"));
+			}
+
 			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");
 			HashMap<Integer, HashSet<Integer>> furtherDels = new HashMap<>();
 			HashSet<Integer> alreadyUsedDels = new HashSet<>();
-			do {
-				//System.err.println(rowIndex);
-				if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
-				Integer did = rs.getInt("Lieferungen.ID");
-				if (!alreadyUsedDels.contains(did)) {
-					alreadyUsedDels.add(did);
-					copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
-					row = sheetTracing.getRow(rowIndex);								
-					fillRowSimple(sheetTracing, rs, row, false);
-					rowIndex++;
-				}
-				if (generateAllData) {
-					if (rs.getObject("ChargenVerbindungen.Zutat") != null) {
-						Integer key = rs.getInt("ChargenVerbindungen.Zutat");
-						if (!furtherDels.containsKey(key)) furtherDels.put(key, new HashSet<>());
-						furtherDels.get(key).add(rowIndex);
-						//System.err.println(key + " -> " + rowIndex);
+			if (startTracing) {
+				rowIndex = 0;
+			}
+			else {
+				// Products Out
+				do {
+					//System.err.println(rowIndex);
+					if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
+					Integer did = rs.getInt("Lieferungen.ID");
+					if (!alreadyUsedDels.contains(did)) {
+						alreadyUsedDels.add(did);
+						copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+						row = sheetTracing.getRow(rowIndex);								
+						fillRowSimple(sheetTracing, rs, row, false, false);
+						rowIndex++;
 					}
-				}
-			} while (rs.next());
-			rs.previous();
+					if (generateAllData) {
+						if (rs.getObject("ChargenVerbindungen.Zutat") != null) {
+							Integer key = rs.getInt("ChargenVerbindungen.Zutat");
+							if (!furtherDels.containsKey(key)) furtherDels.put(key, new HashSet<>());
+							furtherDels.get(key).add(rowIndex);
+							//System.err.println(key + " -> " + rowIndex);
+						}
+					}
+				} while (rs.next());
+				rs.previous();
+				
+				row = sheetTracing.getRow(rowIndex+4);
+				cell = row.getCell(0);
+				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+11) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the ingredient information in columns B to M.");
+				else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
+				
+				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
+			}
 			
-			row = sheetTracing.getRow(rowIndex+4);
-			cell = row.getCell(0);
-			if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+11) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the ingredient information in columns B to M.");
-			else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
-			
-			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-			
-			if (generateAllData) {
+			if (generateAllData || startTracing) {
 				String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
 						" LEFT JOIN " + MyDBI.delimitL("Chargen") +
 						" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
@@ -936,20 +946,22 @@ Erinnerung an die alten Template inhaber senden?
 						//row = sheetTracing.getRow(rowIndex);								
 			            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
 
-						fillRowSimple(sheetTracing, rs2, row, true);
-						Integer lid = rs2.getInt("Lieferungen.ID");
-						if (furtherDels.containsKey(lid)) {
-							HashSet<Integer> tl = furtherDels.get(lid);
-							boolean afterFirst = false;
-							for (int tli : tl) {
-								if (afterFirst) {
-									rowIndex++;
-						            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
-									fillRowSimple(sheetTracing, rs2, row, true);
+						fillRowSimple(sheetTracing, rs2, row, true, startTracing);
+						if (!startTracing) {
+							Integer lid = rs2.getInt("Lieferungen.ID");
+							if (furtherDels.containsKey(lid)) {
+								HashSet<Integer> tl = furtherDels.get(lid);
+								boolean afterFirst = false;
+								for (int tli : tl) {
+									if (afterFirst) {
+										rowIndex++;
+							            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+										fillRowSimple(sheetTracing, rs2, row, true, false);
+									}
+									cell = row.getCell(0);
+									cell.setCellValue(tli+"");
+									afterFirst = true;
 								}
-								cell = row.getCell(0);
-								cell.setCellValue(tli+"");
-								afterFirst = true;
 							}
 						}
 						rowIndex++;
@@ -1219,10 +1231,17 @@ Erinnerung an die alten Template inhaber senden?
 					" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
+		boolean startTracing = false;
+		if (do2017Format && generateAllData && (rs == null || !rs.first())) {
+			sql = "Select * from " + MyDBI.delimitL("Station") +
+			" WHERE " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + stationId + backtracingBusinessesSQL;	
+			rs = DBKernel.getResultSet(sql, false);
+			startTracing = true;
+		}
 		if (rs != null && rs.first()) {
 			do {
 				if (do2017Format) {
-					result += getSimpleBackStationRequests(outputFolder, rs);
+					result += getSimpleBackStationRequests(outputFolder, rs, startTracing);
 				}
 				else {
 					InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/BfR_Format_Backtrace_sug.xlsx");
@@ -1539,36 +1558,36 @@ Erinnerung an die alten Template inhaber senden?
 			}
 		}		
 	}
-	private void fillRowSimple(XSSFSheet sheetTracing, ResultSet rs, XSSFRow row, Boolean isForward) throws SQLException {
+	private void fillRowSimple(XSSFSheet sheetTracing, ResultSet rs, XSSFRow row, Boolean isForward, boolean startTracing) throws SQLException {
 		XSSFCell cell;
 		
 		// Product
-		cell = row.getCell(1);
+		cell = row.getCell(1+(startTracing?3:0));
 		if (rs.getObject("Produktkatalog.Bezeichnung") != null) cell.setCellValue(rs.getString("Produktkatalog.Bezeichnung"));
 		else cell.setCellValue("");
-		cell = row.getCell(2);
+		cell = row.getCell(2+(startTracing?3:0));
 		fillExtraCell(cell, "Produktkatalog", XlsProduct.EAN("en"), rs.getString("Produktkatalog.ID"));
 		
 		// Charge
-		cell = row.getCell(3);
+		cell = row.getCell(3+(startTracing?3:0));
 		if (rs.getObject("Chargen.ChargenNr") != null) cell.setCellValue(rs.getString("Chargen.ChargenNr"));
 		else cell.setCellValue("");
-		cell = row.getCell(4);
+		cell = row.getCell(4+(startTracing?3:0));
 		fillExtraCell(cell, "Chargen", XlsLot.MHD("en"), rs.getString("Chargen.ID"));
 		
 		// Delivery
-		cell = row.getCell(5);
+		cell = row.getCell(5+(startTracing?3:0));
 		if (rs.getObject(isForward ? "Lieferungen.ad_day" : "Lieferungen.ad_day") != null) cell.setCellValue(isForward ? rs.getString("Lieferungen.ad_day") : rs.getString("Lieferungen.ad_day"));
 		else cell.setCellValue("");		
-		cell = row.getCell(6);
+		cell = row.getCell(6+(startTracing?3:0));
 		if (rs.getObject(isForward ? "Lieferungen.ad_month" : "Lieferungen.ad_month") != null) cell.setCellValue(rs.getString(isForward ? "Lieferungen.ad_month" : "Lieferungen.ad_month"));
 		else cell.setCellValue("");		
-		cell = row.getCell(7);
+		cell = row.getCell(7+(startTracing?3:0));
 		if (rs.getObject(isForward ? "Lieferungen.ad_year" : "Lieferungen.ad_year") != null) cell.setCellValue(rs.getString(isForward ? "Lieferungen.ad_year" : "Lieferungen.ad_year"));
 		else cell.setCellValue("");		
-		cell = row.getCell(8);
+		cell = row.getCell(8+(startTracing?3:0));
 		fillExtraCell(cell, "Lieferungen", "Amount", rs.getString("Lieferungen.ID"));
-		fillStationSimple(row.getCell(9), row.getCell(10), row.getCell(11), hasTOB ? row.getCell(12) : null, rs.getObject(isForward ? "Produktkatalog.Station" : "Lieferungen.Empfänger"));
+		fillStationSimple(row.getCell(startTracing?0:9), row.getCell(startTracing?1:10), row.getCell(startTracing?2:11), hasTOB ? row.getCell(startTracing?3:12) : null, rs.getObject(isForward ? "Produktkatalog.Station" : "Lieferungen.Empfänger"));
 		cell = row.getCell(hasTOB ? 13 : 12);
 		if (rs.getObject("Lieferungen.Kommentar") != null) cell.setCellValue(rs.getString("Lieferungen.Kommentar"));
 		else cell.setCellValue("");		
