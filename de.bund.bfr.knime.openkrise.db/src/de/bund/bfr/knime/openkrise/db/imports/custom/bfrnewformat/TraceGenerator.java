@@ -970,6 +970,7 @@ Erinnerung an die alten Template inhaber senden?
 			}
 			String fn = "StationBacktrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
 			if (lang.equals("de")) fn = "Rueckverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			if (startTracing) fn = "Start_Tracing_" + sif + ".xlsx";
 			if (save(workbook, outputFolder + File.separator + fn)) {
 				result++;
 			}

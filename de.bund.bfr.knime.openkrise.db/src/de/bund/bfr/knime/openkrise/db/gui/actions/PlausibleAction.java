@@ -37,6 +37,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.MyTable;
@@ -56,6 +57,7 @@ public class PlausibleAction extends AbstractAction {
 	private static final long serialVersionUID = 5441488921384865553L;
 	private MyDBTable myDB;
 	private boolean useLevenshtein = false;
+	private boolean isFormat2017 = false;
 
 	public PlausibleAction(final String name, final Icon icon, final String toolTip, final JProgressBar progressBar1, final MyDBTable myDB) {
 	  	this.myDB = myDB;
@@ -67,7 +69,8 @@ public class PlausibleAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-	  	final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(DBKernel.mainFrame); 
+		isFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
+	  	final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(DBKernel.mainFrame, isFormat2017); 
 	  	pd4.setVisible(true);
 	  	if (pd4.okPressed) {
 		  	Runnable runnable = new Runnable() {
@@ -112,13 +115,24 @@ public class PlausibleAction extends AbstractAction {
 			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			myDB.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			myDB.getMyDBPanel().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			
-			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 =
-					pd4.cs.isSelected() ?
-							checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"},
-								new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue()}, null, null, null) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
-							:
-							null;
+						
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1;
+			if (isFormat2017) {
+				vals1 =
+						pd4.cs.isSelected() ?
+								checkTable4ISM("Station", new String[]{"Name","Adresse"},
+									new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue()}, null, null, null) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+								:
+								null;
+			}
+			else {
+				vals1 =
+						pd4.cs.isSelected() ?
+								checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"},
+									new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue()}, null, null, null) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+								:
+								null;
+			}
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 =
 					pd4.cp.isSelected() ?
@@ -134,12 +148,22 @@ public class PlausibleAction extends AbstractAction {
 							:
 							null;
 
-			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 =
-					pd4.cd.isSelected() ?
-							checkTable4ISM("Lieferungen", new String[]{"Charge","dd_day","dd_month","dd_year","Empfänger"},
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4;
+			if (isFormat2017) {
+				vals4 = pd4.cd.isSelected() ?
+							checkTable4ISM("Lieferungen", new String[]{"Charge","ad_day","ad_month","ad_year","Empfänger"},
 								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null)
 							:
 							null;
+			}
+			else {
+				vals4 = pd4.cd.isSelected() ?
+						checkTable4ISM("Lieferungen", new String[]{"Charge","dd_day","dd_month","dd_year","Empfänger"},
+							new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null)
+						:
+						null;
+			}
+					
 							/*
 							if (pd4.selS.isSelected() && DBKernel.mainFrame.getTopTable().getActualTable().getTablename().equals("Station")) {
 								Integer stationId = DBKernel.mainFrame.getTopTable().getSelectedID();

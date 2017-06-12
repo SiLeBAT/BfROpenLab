@@ -40,8 +40,11 @@ public class PlausibleDialog4Krise extends JDialog {
 	 */
 	private static final long serialVersionUID = 4250627311147927549L;
 	public boolean okPressed = false;
-	public PlausibleDialog4Krise(Frame owner) {
+	private boolean isFormat2017;
+	
+	public PlausibleDialog4Krise(Frame owner, boolean isFormat2017) {
 		super(owner);
+		this.isFormat2017 = isFormat2017;
 		okPressed = false;
 		initComponents();
 	}
@@ -158,41 +161,53 @@ public class PlausibleDialog4Krise extends JDialog {
 				sn.setModel(new SpinnerNumberModel(90, 0, 100, 10));
 				contentPanel.add(sn, CC.xy(9, 1));
 
-				//---- lz ----
-				lz.setText("Zip:");
-				lz.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(lz, CC.xy(11, 1));
+				if (isFormat2017) {
+					//---- address ----
+					lz.setText("Address:");
+					lz.setHorizontalAlignment(SwingConstants.RIGHT);
+					contentPanel.add(lz, CC.xy(11, 1));
 
-				//---- sz ----
-				sz.setModel(new SpinnerNumberModel(90, 0, 100, 10));
-				contentPanel.add(sz, CC.xy(13, 1));
+					//---- sz ----
+					sz.setModel(new SpinnerNumberModel(90, 0, 100, 10));
+					contentPanel.add(sz, CC.xy(13, 1));
+				}
+				else {
+					//---- lz ----
+					lz.setText("Zip:");
+					lz.setHorizontalAlignment(SwingConstants.RIGHT);
+					contentPanel.add(lz, CC.xy(11, 1));
 
-				//---- label7 ----
-				label7.setText("Street:");
-				label7.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label7, CC.xy(15, 1));
+					//---- sz ----
+					sz.setModel(new SpinnerNumberModel(90, 0, 100, 10));
+					contentPanel.add(sz, CC.xy(13, 1));
 
-				//---- ss ----
-				ss.setModel(new SpinnerNumberModel(90, 0, 100, 10));
-				contentPanel.add(ss, CC.xy(17, 1));
+					//---- label7 ----
+					label7.setText("Street:");
+					label7.setHorizontalAlignment(SwingConstants.RIGHT);
+					contentPanel.add(label7, CC.xy(15, 1));
 
-				//---- label8 ----
-				label8.setText("Number:");
-				label8.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label8, CC.xy(19, 1));
+					//---- ss ----
+					ss.setModel(new SpinnerNumberModel(90, 0, 100, 10));
+					contentPanel.add(ss, CC.xy(17, 1));
 
-				//---- snum ----
-				snum.setModel(new SpinnerNumberModel(0, 0, 100, 10));
-				contentPanel.add(snum, CC.xy(21, 1));
+					//---- label8 ----
+					label8.setText("Number:");
+					label8.setHorizontalAlignment(SwingConstants.RIGHT);
+					contentPanel.add(label8, CC.xy(19, 1));
 
-				//---- label9 ----
-				label9.setText("City:");
-				label9.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label9, CC.xy(23, 1));
+					//---- snum ----
+					snum.setModel(new SpinnerNumberModel(0, 0, 100, 10));
+					contentPanel.add(snum, CC.xy(21, 1));
 
-				//---- sc ----
-				sc.setModel(new SpinnerNumberModel(90, 0, 100, 10));
-				contentPanel.add(sc, CC.xy(25, 1));
+					//---- label9 ----
+					label9.setText("City:");
+					label9.setHorizontalAlignment(SwingConstants.RIGHT);
+					contentPanel.add(label9, CC.xy(23, 1));
+
+					//---- sc ----
+					sc.setModel(new SpinnerNumberModel(90, 0, 100, 10));
+					contentPanel.add(sc, CC.xy(25, 1));
+				}
 
 				//---- separator12 ----
 				separator12.setForeground(Color.black);
