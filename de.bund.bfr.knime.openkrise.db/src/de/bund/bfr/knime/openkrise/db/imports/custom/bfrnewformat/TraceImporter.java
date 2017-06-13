@@ -279,7 +279,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				if (d == null) break;
 				if (deliveries.containsKey(d.getId())) exceptions.add(new Exception("Delivery defined twice -> in Row " + (classRowIndex+1) + " and in Row " + deliveryRows.get(d.getId()) + "; Delivery Id: '" + d.getId() + "'"));
 				else deliveryRows.put(d.getId(), classRowIndex+1);
-				if (d.getReceiver() != null) deliveries.put(d.getId(), d);
+				deliveries.put(d.getId(), d);
 			}
 			
 			// load Recipes
@@ -508,11 +508,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + l.getNumber()+l.getFlexible(XlsLot.MHD("en"))));
 			d.addFlexibleField("Amount", d.getUnitNumber() + " " + d.getUnitUnit());
 			Station r = d.getReceiver();
-			if (r != null) {
+			//if (r != null) {
 				r.setAddress(generateAddress(r));
 				if (r.getDbId() == null) r.setDbId(genDbId(""+r.getName()+r.getAddress()));					
 				if (d.getDbId() == null) d.setDbId(genDbId(""+l.getDbId() + d.getDepartureDay()+d.getDepartureMonth()+d.getDepartureYear()+d.getFlexible("Amount")+d.getComment()+r.getDbId()));
-			}
+			//}
 		}
 	}
 	private String getCellString(Cell cell) {

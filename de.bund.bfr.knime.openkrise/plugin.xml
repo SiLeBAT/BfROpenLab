@@ -7,6 +7,7 @@
 
 	<extension point="org.knime.workbench.repository.nodes">
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"/>  		
-	</extension>
+	<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.FCL_DB_WriterNodeFactory" id="de.bund.bfr.knime.openkrise.FCL_DB_WriterNodeFactory"/>
+</extension>
 
 </plugin>

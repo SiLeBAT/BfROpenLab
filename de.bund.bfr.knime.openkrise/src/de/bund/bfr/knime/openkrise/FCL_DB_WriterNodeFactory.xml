@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./default.png" type="Sink" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>FCL_DB_Writer</name>
+    
+    <ports>
+        <inPort index="0" name="Stations">Stations, the following fields are supported: ID, Name, Address, Country, type of business
+        </inPort>
+        <inPort index="1" name="Deliveries">Deliveries, the following fields are supported: ID, from, to, Name, EAN, Lot Number, BBD, Date Delivery - Day, Date Delivery - Month, Date Delivery - Year, Amount, Comment");
+        </inPort>
+        <inPort index="2" name="Relations">Relations, the following fields are supported: from, to
+        </inPort>
+    </ports>    
+</knimeNode>
