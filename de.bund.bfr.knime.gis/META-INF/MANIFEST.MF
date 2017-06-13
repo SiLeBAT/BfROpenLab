@@ -3,7 +3,7 @@ Eclipse-ExtensibleAPI: true
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME GIS Nodes
 Bundle-SymbolicName: de.bund.bfr.knime.gis;singleton:=true
-Bundle-Version: 1.1.27.qualifier
+Bundle-Version: 1.1.28.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.gis.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
