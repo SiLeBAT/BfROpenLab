@@ -101,6 +101,22 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 					// Lot
 					f2 = IO.getCleanString(row.getCell(lotIndex));
 					f3 = mhdIndex < 0 ? null : IO.getCleanString(row.getCell(mhdIndex));
+					Integer f4 = ddIndex < 0 ? null : IO.getInt(row.getCell(ddIndex));
+					Integer f5 = dmIndex < 0 ? null : IO.getInt(row.getCell(dmIndex));
+					Integer f6 = dyIndex < 0 ? null : IO.getInt(row.getCell(dyIndex));
+					String f7 = amountIndex < 0 ? null : IO.getCleanString(row.getCell(amountIndex));
+					String f8 = commentIndex < 0 ? null : IO.getCleanString(row.getCell(commentIndex));
+					if (f2 == null && f3 == null) {
+						if (f4 == null && f5 == null && f6 == null && f7 == null && stationMap.get(to).getName() == null) {
+							;//exceptions.add(new Exception("You have no lot information at all in Row " + (i+1) + "."));
+						}
+						else if (f4 == null && f5 == null && f6 == null && f7 == null) {
+							f2 = "[receiver: " + stationMap.get(to).getName() + "]";
+						}
+						else {
+							f2 = "[delivery " + (f6==null ? "" : f6) + "" + (f5==null ? "" : f5) + "" + (f4==null ? "" : f4) + "" + (f7==null ? "" : "_"+f7) + "]";
+						}
+					}
 					Lot lot = new Lot();
 					lot.setProduct(p);
 					lot.setNumber(f2);
@@ -108,11 +124,6 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 					int lID = genDbId(""+p.getId() + f2 + f3);
 					lot.setId(lID);
 					// Delivery
-					int f4 = ddIndex < 0 ? null : IO.getInt(row.getCell(ddIndex));
-					int f5 = dmIndex < 0 ? null : IO.getInt(row.getCell(dmIndex));
-					int f6 = dyIndex < 0 ? null : IO.getInt(row.getCell(dyIndex));
-					String f7 = amountIndex < 0 ? null : IO.getCleanString(row.getCell(amountIndex));
-					String f8 = commentIndex < 0 ? null : IO.getCleanString(row.getCell(commentIndex));
 					Delivery d = new Delivery();
 					d = new Delivery();
 					d.setLot(lot);

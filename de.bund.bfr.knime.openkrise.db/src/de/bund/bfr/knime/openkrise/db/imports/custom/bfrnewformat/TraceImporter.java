@@ -652,11 +652,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 								else if (f4 == null && f5 == null && f6 == null && f7 == null) {
 									if (isProduction && backtracing && doPreCollect) f2 = "[receiver: " + supplierS.getName() + "]";
-									if (isProduction && backtracing && !doPreCollect) f2 = "[supplier: " + supplierS.getName() + "]";
-									if (isProduction && !backtracing && doPreCollect) f2 = "[supplier: " + supplierS.getName() + "]";
+									if (isProduction && backtracing && !doPreCollect) f2 = "[receiver: " + focusS.getName() + "]";
+									if (isProduction && !backtracing && doPreCollect) f2 = "[receiver: " + focusS.getName() + "]";
 									if (isProduction && !backtracing && !doPreCollect) f2 = "[receiver: " + supplierS.getName() + "]";
 									if (!isProduction && backtracing) f2 = "[receiver: " + focusS.getName() + "]";
-									if (!isProduction && !backtracing) f2 = "[supplier: " + focusS.getName() + "]";
+									if (!isProduction && !backtracing) f2 = "[receiver: " + supplierS.getName() + "]";
 								}
 								else {
 									f2 = "[delivery " + (f6==null ? "" : f6) + "" + (f5==null ? "" : f5) + "" + (f4==null ? "" : f4) + "" + (f7==null ? "" : "_"+f7) + "]";
