@@ -363,6 +363,7 @@ Erinnerung an die alten Template inhaber senden?
 			id = rs.getInt("Station.ID");
 			sif = rs.getString("Station.Name");
 			cell = row.getCell(1); cell.setCellValue(sif);
+			XSSFCellStyle greyStyle = null;
 			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
 			int countryCellNum = 3;
 			  for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
@@ -389,6 +390,7 @@ Erinnerung an die alten Template inhaber senden?
 					copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
 					row = sheetTracing.getRow(rowIndex);								
 					fillRowSimple(sheetTracing, rs, row, true, false);
+					if (greyStyle == null) greyStyle = row.getCell(0).getCellStyle();
 					rowIndex++;
 					if (generateAllData) {
 						Integer key = rs.getInt("ChargenVerbindungen.Produkt");
@@ -422,9 +424,9 @@ Erinnerung an die alten Template inhaber senden?
 					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
 					do {
 						//System.err.println(rs2.getString("Station.Name"));
-						copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
-						row = sheetTracing.getRow(rowIndex);								
-			            //row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+						//copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+						//row = sheetTracing.getRow(rowIndex);								
+			            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) {cell = row.createCell(ii); cell.setCellStyle(greyStyle);}
 						fillRowSimple(sheetTracing, rs2, row, false, false);
 						Integer cid = rs2.getInt("Chargen.ID");
 						if (furtherLots.containsKey(cid)) {
@@ -433,7 +435,7 @@ Erinnerung an die alten Template inhaber senden?
 							for (int tli : tl) {
 								if (afterFirst) {
 									rowIndex++;
-						            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+						            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) {cell = row.createCell(ii); cell.setCellStyle(greyStyle);}
 									fillRowSimple(sheetTracing, rs2, row, false, false);
 								}
 								cell = row.getCell(0);
@@ -889,6 +891,7 @@ Erinnerung an die alten Template inhaber senden?
 
 			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");
+			XSSFCellStyle greyStyle = null;
 			HashMap<Integer, HashSet<Integer>> furtherDels = new HashMap<>();
 			HashSet<Integer> alreadyUsedDels = new HashSet<>();
 			if (startTracing) {
@@ -903,8 +906,9 @@ Erinnerung an die alten Template inhaber senden?
 					if (!alreadyUsedDels.contains(did)) {
 						alreadyUsedDels.add(did);
 						copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
-						row = sheetTracing.getRow(rowIndex);								
+						row = sheetTracing.getRow(rowIndex);	
 						fillRowSimple(sheetTracing, rs, row, false, false);
+						if (greyStyle == null) greyStyle = row.getCell(0).getCellStyle();
 						rowIndex++;
 					}
 					if (generateAllData) {
@@ -944,7 +948,7 @@ Erinnerung an die alten Template inhaber senden?
 						//System.err.println(rs2.getString("Station.Name"));
 						//copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
 						//row = sheetTracing.getRow(rowIndex);								
-			            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+			            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) {cell = row.createCell(ii); cell.setCellStyle(greyStyle);}
 
 						fillRowSimple(sheetTracing, rs2, row, true, startTracing);
 						if (!startTracing) {
@@ -955,7 +959,7 @@ Erinnerung an die alten Template inhaber senden?
 								for (int tli : tl) {
 									if (afterFirst) {
 										rowIndex++;
-							            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) row.createCell(ii);
+							            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) {cell = row.createCell(ii); cell.setCellStyle(greyStyle);}
 										fillRowSimple(sheetTracing, rs2, row, true, false);
 									}
 									cell = row.getCell(0);
