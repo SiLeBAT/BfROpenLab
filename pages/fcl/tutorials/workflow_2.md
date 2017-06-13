@@ -1,5 +1,5 @@
 ---
-title: How to create a Workflow (Part 2)?
+title: Creating a Workflow in FoodChain-Lab 2
 sidebar: fcl_sidebar
 permalink: fcl_workflow_2.html
 folder: fcl
@@ -14,7 +14,7 @@ folder: fcl
 {% include heading.html text="Step 1" %}
 
  * This is the second part of the tutorial.
- * You can either do the first part to create this workflow or download it from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/MyFirstWorkflow.zip).
+ * You can either do the first part to create this workflow or download it from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/MyFirstWorkflow.zip).
  * Double click on the **Tracing View** to open its dialog.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_workflow_2/1.png" %}
@@ -94,3 +94,4 @@ folder: fcl
  * Then activate "Join Deliveries" to simplify the graph. Deliveries with the same supplier and recipient are joined now.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_workflow_2/12.png" %}
+

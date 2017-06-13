@@ -1,5 +1,5 @@
 ---
-title: Geo-Clustering
+title: Geo-Clustering in FoodChain-Lab
 sidebar: fcl_sidebar
 permalink: fcl_geocluster.html
 folder: fcl
@@ -7,14 +7,14 @@ folder: fcl
 
 {% include heading.html text="Tasks" %}
 
- * Perform a clustering using the following workflow: [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip)
+ * Perform a clustering using the following workflow: [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip)
  * Cluster all French primary producers by using the **GIS Cluster** node.
  * Use a **Max Neighborhood Distance** of 100km.
  * That means two stations are put into the same cluster if their distance is less than 100km.
 
 {% include heading.html text="Step 1" %}
 
- * Import the Example Workflow from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
+ * Import the Example Workflow from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_geocluster/1.png" %}
 
@@ -131,3 +131,4 @@ folder: fcl
  * The area is in Southern France.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_geocluster/18.png" %}
+

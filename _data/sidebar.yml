@@ -17,22 +17,30 @@ entries:
   items:
   - title: FoodChain-Lab
     url: fcl_home.html
-  - title: Tutorials
+  - title: Basic Tutorials
     subitems:
     - title: Installation
       url: fcl_installation.html
     - title: Introduction
       url: fcl_overview.html
-    - title: Data Collection (Part 1)
-      url: fcl_datacollecting_1.html
-    - title: Data Collection (Part 2)
-      url: fcl_datacollecting_2.html
     - title: How to import workflows?
       url: fcl_import.html
     - title: How to create a Workflow (Part 1)?
       url: fcl_workflow_1.html
     - title: How to create a Workflow (Part 2)?
       url: fcl_workflow_2.html
+  - title: Data Collection/Import
+    subitems:
+    - title: Data Collection (Part 1)
+      url: fcl_datacollecting_1.html
+    - title: Data Collection (Part 2)
+      url: fcl_datacollecting_2.html
+    - title: Data Import with Template
+      url: fcl_datatemplate.html
+    - title: Data Import
+      url: fcl_import_data.html
+  - title: Data Analysis
+    subitems:
     - title: Tracing
       url: fcl_tracing.html
     - title: Highlighting

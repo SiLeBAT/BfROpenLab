@@ -1,5 +1,5 @@
 ---
-title: Tracing
+title: Tracing in FoodChain-Lab
 sidebar: fcl_sidebar
 permalink: fcl_tracing.html
 folder: fcl
@@ -7,13 +7,13 @@ folder: fcl
 
 {% include heading.html text="Tasks" %}
 
- * Use the example workflow from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
+ * Use the example workflow from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
  * Visualize the forward and backward trace of a station via the **Tracing View**.
  * Deactivate "Cross Contamination" for the black station and see how the trace changes.
 
 {% include heading.html text="Step 1" %}
 
- * Import the Example Workflow from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
+ * Import the Example Workflow from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
  * Open the **Tracing View** by double-clicking on it.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_tracing/1.png" %}
@@ -71,3 +71,4 @@ folder: fcl
  * Now two of **Outbreak** stations, that were striped before, cannot be reached anymore.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_tracing/9.png" %}
+

@@ -1,5 +1,5 @@
 ---
-title: Installation
+title: FoodChain-Lab Installation
 sidebar: fcl_sidebar
 permalink: fcl_installation.html
 folder: fcl
@@ -7,7 +7,7 @@ folder: fcl
 
 {% include heading.html text="Step 1" %}
 
- * The "KNIME Analytics Platform" must be installed before you can install FoodChain-Lab. Installation Instructions can be found at [https://tech.knime.org/installation-0](https://tech.knime.org/installation-0).
+ * The "KNIME Analytics Platform" must be installed before you can install FoodChain-Lab. Installation instructions can be found at [https://tech.knime.org/installation-0](https://tech.knime.org/installation-0).
  * When starting KNIME for the first time the interface looks like this.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_installation/1.png" %}
@@ -67,3 +67,4 @@ folder: fcl
  * When the KNIME interface has shown up, you should be able to see an item "FoodChain-Lab" in the **Node Repository** view in the bottom-left corner.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_installation/10.png" %}
+

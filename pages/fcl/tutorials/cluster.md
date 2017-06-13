@@ -1,5 +1,5 @@
 ---
-title: Clustering
+title: Clustering in FoodChain-Lab
 sidebar: fcl_sidebar
 permalink: fcl_cluster.html
 folder: fcl
@@ -7,13 +7,13 @@ folder: fcl
 
 {% include heading.html text="Tasks" %}
 
- * Perform a clustering using the following workflow: [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip)
+ * Perform a clustering using the following workflow: [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip)
  * Cluster all French primary producers based on their city.
  * That means all stations from the same city should be put into one meta-station.
 
 {% include heading.html text="Step 1" %}
 
- * Import the Example Workflow from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
+ * Import the Example Workflow from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
  * Open the **Tracing View** by double-clicking on it.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_cluster/1.png" %}
@@ -123,3 +123,4 @@ folder: fcl
  * Press **Switch to GIS** to see the city and its relations on a map.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_cluster/17.png" %}
+

@@ -1,5 +1,5 @@
 ---
-title: Geo-Visualization
+title: Geo-Visualization in FoodChain-Lab
 sidebar: fcl_sidebar
 permalink: fcl_geoview.html
 folder: fcl
@@ -7,13 +7,13 @@ folder: fcl
 
 {% include heading.html text="Tasks" %}
 
- * Use the following workflow: [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
+ * Use the following workflow: [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
  * Visualize the delivery network in the GIS mode of the **Tracing View**.
  * Select all stations in Poland and check out where these stations are located in the Graph mode.
 
 {% include heading.html text="Step 1" %}
 
- * Import the Example Workflow from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
+ * Import the Example Workflow from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/FCL_Example.zip).
  * Open the **Tracing View** by double-clicking on it.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_geoview/1.png" %}
@@ -68,3 +68,4 @@ folder: fcl
  * As you can see the stations of the cluster are located all over France.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_geoview/8.png" %}
+

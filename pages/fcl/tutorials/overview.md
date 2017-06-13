@@ -1,5 +1,5 @@
 ---
-title: Introduction
+title: FoodChain-Lab Introduction
 sidebar: fcl_sidebar
 permalink: fcl_overview.html
 folder: fcl
@@ -7,7 +7,7 @@ folder: fcl
 
 {% include heading.html text="FoodChain-Lab Concepts 1" %}
 
- * **Delivery**: Something send from A to B at a certain date. A delivery can have preceding and subsequent deliveries (e.g. strawberry-delivery -> strawberry-cake-delivery).
+ * **Delivery**: Something sent from A to B at a certain date. A delivery can have preceding and subsequent deliveries (e.g. strawberry-delivery -> strawberry-cake-delivery).
  * **Station**: Any food business operator, that sends and/or receives deliveries.
  * **Trace**: The path a contamination can take. A station/delivery "B" is on the **forward trace** of a station/delivery "A", if a contamination at "A" can spread to "B" via the food chain network. If "B" is on the **forward trace** of "A", then "A" is on the **backward trace** of "B".
 
@@ -41,8 +41,8 @@ folder: fcl
  * A workflow is built by dragging nodes from the **Node Repository** onto the **Workflow Editor** and connecting them ([https://tech.knime.org/workbench](https://tech.knime.org/workbench)).
  * Nodes are processing units with input- and/or output ports.
  * Data is transferred over a connection from an out-port to the in-port of another node.
- * A comprehensive KNIME quickstart guide can be found at [https://tech.knime.org/files/KNIME_qu...](https://tech.knime.org/files/KNIME_quickstart.pdf).
- * An introduction video is available at [https://www.youtube.com/watch?v=ft7Ks...](https://www.youtube.com/watch?v=ft7Ksgss3Tc).
+ * A comprehensive KNIME quickstart guide can be found at [https://tech.knime.org/files/KNIME_q...](https://tech.knime.org/files/KNIME_quickstart.pdf).
+ * An introduction video is available at [https://www.youtube.com/watch?v=ft7K...](https://www.youtube.com/watch?v=ft7Ksgss3Tc).
 
 {% include heading.html text="Available Nodes" %}
 

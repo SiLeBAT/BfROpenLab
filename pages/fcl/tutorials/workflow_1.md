@@ -1,5 +1,5 @@
 ---
-title: How to create a Workflow (Part 1)?
+title: Creating a Workflow in FoodChain-Lab 1
 sidebar: fcl_sidebar
 permalink: fcl_workflow_1.html
 folder: fcl
@@ -8,7 +8,7 @@ folder: fcl
 {% include heading.html text="Tasks" %}
 
  * Import the Example XLS template to FoodChain-Lab.
- * You can download it from here: [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/FCL_Example.xlsx)
+ * You can download it from here: [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/FCL_Example.xlsx)
  * Via the **Tracing** node assign weights of "1" to the supermarkets in Hamburg, Karlsruhe, Ingolstadt and Hanover to mark them as outbreak locations.
  * Use the **Tracing View** to look at the delivery network.
 
@@ -39,7 +39,7 @@ folder: fcl
 
 {% include heading.html text="Step 5" %}
 
- * Download the example file from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/FCL_Example.xlsx).
+ * Download the example file from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/FCL_Example.xlsx).
  * Select the file in the dialog and press **Open**.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_workflow_1/5.png" %}
@@ -169,3 +169,4 @@ folder: fcl
  * Now you open the **Tracing View** and analyze the data. This will be shown in the second part of this tutorial.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_workflow_1/23.png" %}
+

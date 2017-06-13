@@ -1,5 +1,5 @@
 ---
-title: Geocoding
+title: Geocoding in FoodChain-Lab
 sidebar: fcl_sidebar
 permalink: fcl_geocoding.html
 folder: fcl
@@ -7,13 +7,13 @@ folder: fcl
 
 {% include heading.html text="Tasks" %}
 
- * Perform a geocoding by using the Geocoding workflow from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/Geocoding.zip).
+ * Perform a geocoding by using the Geocoding workflow from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/Geocoding.zip).
  * Use "Street", "HouseNumber", "City" and "Country" as input parameters.
  * Do the geocoding by using the MapQuest Geocoding Service.
 
 {% include heading.html text="Step 1" %}
 
- * Import the Geocoding workflow from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/Geocoding.zip).
+ * Import the Geocoding workflow from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/Geocoding.zip).
  * In this tutorial we are using the MapQuest Open Geocoding service.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_geocoding/1.png" %}
@@ -134,3 +134,4 @@ folder: fcl
  * Some geocoding requests were not successful. MapQuest returned US coordinates, although all addresses are in Germany.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_geocoding/18.png" %}
+

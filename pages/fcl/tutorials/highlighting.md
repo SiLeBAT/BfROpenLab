@@ -1,5 +1,5 @@
 ---
-title: Highlighting
+title: Highlighting in FoodChain-Lab
 sidebar: fcl_sidebar
 permalink: fcl_highlighting.html
 folder: fcl
@@ -7,13 +7,13 @@ folder: fcl
 
 {% include heading.html text="Tasks" %}
 
- * Open the following workflow: [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/Small_Example.zip).
+ * Open the following workflow: [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/Small_Example.zip).
  * Change the color of **Outbreak** stations in the **Tracing View** from red to turquoise.
  * Add the label "node" to each station.
 
 {% include heading.html text="Step 1" %}
 
- * Import the Small Example Workflow from [https://github.com/SiLeBAT/BfROpenLab...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/Small_Example.zip).
+ * Import the Small Example Workflow from [https://github.com/SiLeBAT/BfROpenLa...](https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/workflows/Small_Example.zip).
  * Open the **Tracing View** by double-clicking on it.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_highlighting/1.png" %}
@@ -101,7 +101,7 @@ folder: fcl
 {% include heading.html text="Step 14" %}
 
  * Set the **Name** to "Labeling" (just for documentation).
- * Uncheck **Use Color**, since we just want to create labels with coloring.
+ * Uncheck **Use Color**, since we just want to create labels without coloring.
  * Set the **Label** to "node", since that is the column with station names.
  * Press **OK** to create the highlight condition.
 
@@ -123,6 +123,7 @@ folder: fcl
 {% include heading.html text="Step 17" %}
 
  * FoodChain-Lab also allows to color or label deliveries the same way.
- * To open the dialog for editing delivery highlight conditions right click in the graph and select **Delivery Highlighting > Edit**.
+ * To open the dialog for editing delivery highlight conditions right click in the graph, select **Delivery Highlighting > Edit** and proceed in the same way as you have just done with the stations.
 
 {% include screenshot.html img="https://github.com/SiLeBAT/BfROpenLabResources/raw/master/GitHubPages/documents/foodchainlab_highlighting/17.png" %}
+
