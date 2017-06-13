@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pmm-Lab-Lite Core Generated
 Bundle-SymbolicName: de.bund.bfr.knime.pmmlite.core.generated;singleton:=true
-Bundle-Version: 1.1.29.qualifier
+Bundle-Version: 1.1.30.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: Christian Thoens
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

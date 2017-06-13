@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Network Utils Tests
 Bundle-SymbolicName: de.bund.bfr.knime.network.test
-Bundle-Version: 1.1.29.qualifier
+Bundle-Version: 1.1.30.qualifier
 Bundle-ClassPath: .
 Fragment-Host: de.bund.bfr.knime.network
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
