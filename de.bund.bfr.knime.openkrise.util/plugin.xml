@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?><plugin>
 
 	<extension point="org.knime.workbench.repository.categories">
-		<category icon="icons/FoodChainLab.png" level-id="network" name="Network" path="/foodchain" />
+		<category icon="icons/FoodChainLab.png" level-id="convert" name="Convert" path="/foodchain" />
 	</extension>
 
 	<extension point="org.knime.workbench.repository.nodes">
@@ -11,9 +11,9 @@
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.shapefilereader.ShapefileReaderNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.tracing.TracingParametersNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.address.AddressCreatorNodeFactory"/>
-		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.json.ToJsonNodeFactory"/>
-		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.json.FromJsonNodeFactory"/>
-		<node category-path="/foodchain/network" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
+		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.json.ToJsonNodeFactory"/>
+		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.json.FromJsonNodeFactory"/>
+		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
 	</extension>
 
 </plugin>
