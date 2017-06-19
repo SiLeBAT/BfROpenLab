@@ -23,15 +23,12 @@ import java.util.stream.Stream;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.AbstractOsmTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
 
 public enum GisType {
 	SHAPEFILE("Shapefile", null),
 
 	MAPNIK("Mapnik", new AbstractOsmTileSource("Mapnik", "http://a.tile.openstreetmap.org", "MAPNIK") {
 	}),
-
-	BING_AERIAL("Bing Aerial", new BingAerialTileSource()),
 
 	WIKIMEDIA("Wikimedia", new AbstractOsmTileSource("Wikimedia", "https://maps.wikimedia.org/osm-intl", "WIKIMEDIA") {
 	}),
