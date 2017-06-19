@@ -39,7 +39,7 @@
 <entry key="node-bundle-name" type="xstring" value="FCL Basic"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="de.bund.bfr.knime.openkrise"/>
 <entry key="node-bundle-vendor" type="xstring" value="German Federal Institute for Risk Assessment (BfR)"/>
-<entry key="node-bundle-version" type="xstring" value="1.1.10.qualifier"/>
+<entry key="node-bundle-version" type="xstring" value="1.1.30.qualifier"/>
 <entry key="node-feature-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-symbolic-name" type="xstring" isnull="true" value=""/>
 <entry key="node-feature-vendor" type="xstring" isnull="true" value=""/>
