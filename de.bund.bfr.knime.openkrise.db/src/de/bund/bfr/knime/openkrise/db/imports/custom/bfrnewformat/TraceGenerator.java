@@ -1239,7 +1239,7 @@ Erinnerung an die alten Template inhaber senden?
 		boolean startTracing = false;
 		if (do2017Format && generateAllData && (rs == null || !rs.first())) {
 			sql = "Select * from " + MyDBI.delimitL("Station") +
-			" WHERE " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + stationId + backtracingBusinessesSQL;	
+			" WHERE " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + stationId + (stationId == null ? backtracingBusinessesSQL : "");	
 			rs = DBKernel.getResultSet(sql, false);
 			startTracing = true;
 		}

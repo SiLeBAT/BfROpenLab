@@ -280,7 +280,7 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 
 		addSpecIf(set.isEnsureBackwardCompatibility() || !set.isLotBased(), columns, TracingColumns.LOT_NUMBER,
 				StringCell.TYPE);
-		if (!isFormat2017) addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
+		addSpec(columns, TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE);
 		addSpec(columns, TracingColumns.DELIVERY_ARRIVAL, StringCell.TYPE);
 
 		addSpecIf(

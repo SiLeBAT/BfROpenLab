@@ -141,6 +141,7 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 			}
 		}
 		for (Delivery d : deliveryMap.values()) {
+			//System.out.println(d.getLot().getProduct().getStation().getId());
 			d.insertIntoDb(null);
 		}
 

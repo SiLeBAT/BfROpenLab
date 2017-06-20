@@ -506,7 +506,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (s.getDbId() == null) s.setDbId(genDbId(""+s.getName()+s.getAddress()));	
 			if (p.getDbId() == null) p.setDbId(genDbId(""+s.getDbId()+p.getName()+p.getFlexible(XlsProduct.EAN("en"))));	
 			if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + l.getNumber()+l.getFlexible(XlsLot.MHD("en"))));
-			d.addFlexibleField("Amount", d.getUnitNumber() + " " + d.getUnitUnit());
+			if (d.getUnitNumber() != null && d.getUnitUnit() != null) d.addFlexibleField("Amount", d.getUnitNumber() + " " + d.getUnitUnit());
+			else if (d.getUnitNumber() != null) d.addFlexibleField("Amount", d.getUnitNumber()+"");
 			Station r = d.getReceiver();
 			//if (r != null) {
 				r.setAddress(generateAddress(r));
@@ -1413,7 +1414,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private static String getStr(String val) {
 		if (val == null) return null;
 		if (val.trim().isEmpty()) return null;
-		return val;
+		return val.trim();
 	}
 	private boolean fillLot(List<Exception> exceptions, Row row, Station sif, HashMap<String, Lot> outLots, Row titleRow, HashMap<String, Delivery> outDeliveries, int rowIndex, boolean isNewFormat_151105) {
 		Lot l = null;
