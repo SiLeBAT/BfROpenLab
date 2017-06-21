@@ -647,7 +647,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							Integer f6 = getInt(getCellString(row.getCell(xlsD.getYearCol())));
 							String f7 = xlsD.getAmountCol() >= 0 ? getCellString(row.getCell(xlsD.getAmountCol())) : null;
 							String f8 = getCellString(row.getCell(xlsD.getCommentCol()));
-							if (f2 == null && f3 == null) {
+							int lID;
+							if (f2 != null) {
+								lID = genDbId(""+p.getId() + f2);
+							}
+							else if (f3 != null) {
+								lID = genDbId(""+p.getId() + f3);
+							}
+							else {
 								if (f4 == null && f5 == null && f6 == null && f7 == null && supplierS.getName() == null) {
 									exceptions.add(new Exception("You have no lot information at all in Row " + (i+1) + "."));
 								}
@@ -662,8 +669,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								else {
 									f2 = "[delivery " + (f6==null ? "" : f6) + "" + (f5==null ? "" : f5) + "" + (f4==null ? "" : f4) + "" + (f7==null ? "" : "_"+f7) + "]";
 								}
+								lID = genDbId(""+p.getId() + f2);
 							}
-							int lID = genDbId(""+p.getId() + f2 + f3);
 							Lot lot = null;
 							if (lots.containsKey(lID)) {
 								lot = lots.get(lID);

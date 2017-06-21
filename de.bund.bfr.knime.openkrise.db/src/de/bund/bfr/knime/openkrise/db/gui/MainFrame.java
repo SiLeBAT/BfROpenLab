@@ -53,6 +53,7 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -726,6 +727,7 @@ public class MainFrame extends JFrame {
 		button15.setEnabled(isEnabable);
 		button16.setEnabled(isEnabable);
 		missingOnlys.setEnabled(isEnabable);
+		language.setEnabled(isEnabable);
 		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isKNIME && !DBKernel.isServerConnection);
 		super.setVisible(doVisible);
 	}
@@ -825,7 +827,7 @@ public class MainFrame extends JFrame {
 					DBKernel.prefs.prefsFlush();
 					this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
 			    	boolean do2017Format = chooser.getFileFilter().getDescription().equals("Format 2017");
-					new TraceGenerator(f, dialog.getSelected(), chooser, isForward, do2017Format, !missingOnlys.isSelected());
+					new TraceGenerator(f, dialog.getSelected(), chooser, isForward, do2017Format, !missingOnlys.isSelected(), language.getSelectedItem().toString());
 					this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 		    	}
 		    	else {
@@ -913,7 +915,7 @@ public class MainFrame extends JFrame {
 				DBKernel.prefs.prefsFlush();
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
 		    	boolean do2017Format = chooser.getFileFilter().getDescription().equals("Format 2017");
-				new TraceGenerator(f, business2Trace, isForward, chooser, do2017Format, !missingOnlys.isSelected());
+				new TraceGenerator(f, business2Trace, isForward, chooser, do2017Format, !missingOnlys.isSelected(), language.getSelectedItem().toString());
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 	    	}
 	    	else {
@@ -1025,6 +1027,8 @@ public class MainFrame extends JFrame {
 		button15 = new JButton();
 		button16 = new JButton();
 		missingOnlys = new JCheckBox();
+		language = new JComboBox<String>(new String[]{"en","de"});
+		language.setMaximumSize(new Dimension(70,50));
 		progressBar1 = new JProgressBar();
 		splitPane1 = new JSplitPane();
 		panel2 = new JPanel();
@@ -1163,6 +1167,10 @@ public class MainFrame extends JFrame {
 			missingOnlys.setToolTipText("Generate only the missing data (not checked: all data will be generated)");
 			missingOnlys.setSelected(true);
 			toolBar1.add(missingOnlys);
+			
+			language.setToolTipText("Choose language of generated templates");
+			language.setSelectedItem("en");
+			toolBar1.add(language);
 
 			//---- button16 ----
 			button16.setToolTipText("Generate forward tracing templates - for a specific station");
@@ -1238,6 +1246,7 @@ public class MainFrame extends JFrame {
 	private JButton button15;
 	private JButton button16;
 	private JCheckBox missingOnlys;
+	private JComboBox<String> language;
 	private JProgressBar progressBar1;
 	private JSplitPane splitPane1;
 	private JPanel panel2;

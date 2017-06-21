@@ -83,10 +83,11 @@ public class TraceGenerator {
 - überlegen wie verpacken, falls die KOBs nochmal in dieselbe firma ausrücken müssen
 Erinnerung an die alten Template inhaber senden?
 */
-	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward, boolean do2017Format, boolean generateAllData) {
+	public TraceGenerator(File outputFolder, Station station, JComponent parent, boolean isForward, boolean do2017Format, boolean generateAllData, String lang) {
 		this.parent = parent;
 		this.do2017Format = do2017Format;
 		this.generateAllData = generateAllData;
+		this.lang = lang;
 		hasTOB = getHasTOB();
 		try {
 			int numFilesGenerated = 0;
@@ -112,10 +113,11 @@ Erinnerung an die alten Template inhaber senden?
 			e.printStackTrace();
 		}
 	}
-	public TraceGenerator(File outputFolder, List<String> business2Trace, boolean isForward, JComponent parent, boolean do2017Format, boolean generateAllData) {
+	public TraceGenerator(File outputFolder, List<String> business2Trace, boolean isForward, JComponent parent, boolean do2017Format, boolean generateAllData, String lang) {
 		this.parent = parent;
 		this.do2017Format = do2017Format;
 		this.generateAllData = generateAllData;
+		this.lang = lang;
 		hasTOB = getHasTOB();
 		try {
 			int numFilesGenerated = 0;
