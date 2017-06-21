@@ -69,6 +69,10 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 			double oy = ip.getY() - p.getY();
 
 			if (shape.contains(ox, oy)) {
+				if (vv.getPickedVertexState().isPicked(v)) {
+					return v;
+				}
+
 				Rectangle2D bounds = shape.getBounds2D();
 				double dx = bounds.getCenterX() - ox;
 				double dy = bounds.getCenterY() - oy;
