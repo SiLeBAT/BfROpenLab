@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -53,9 +54,11 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFDataValidation;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -334,13 +337,14 @@ Erinnerung an die alten Template inhaber senden?
 		return result;
 	}
 
-	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs) throws SQLException, IOException, InvalidFormatException {
+	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs, boolean startTracing) throws SQLException, IOException, InvalidFormatException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
 			String template;
 			if (hasTOB) {				
 				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_de.xlsx";
 				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_en.xlsx";
+				if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_en.xlsx";
 			}
 			else {
 				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_de.xlsx";
@@ -354,7 +358,7 @@ Erinnerung an die alten Template inhaber senden?
 
 //			XSSFWorkbook workbook = new XSSFWorkbook(myxls);
 //			save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + (generateAllData ? "_all":"") + "_temp.xlsx", true);
-			XSSFSheet sheetTracing = workbook.getSheet(XlsStruct.getPROD_FWD_SHEETNAME(lang));//"Herstellung - Vorwärtsverfolgun");
+			XSSFSheet sheetTracing = workbook.getSheet(startTracing ? XlsStruct.getFWD_SHEETNAME(lang) : XlsStruct.getPROD_FWD_SHEETNAME(lang));
 
 			// Station in Focus
 			String sif = null;
@@ -362,55 +366,69 @@ Erinnerung an die alten Template inhaber senden?
 			XSSFRow row = sheetTracing.getRow(0);
 			XSSFCell cell;
 
+			int countryCellNum = 3;
+			for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
+				CellRangeAddress region = sheetTracing.getMergedRegion(i);
+				int rowNum = region.getFirstRow();
+				int colIndex = region.getFirstColumn();
+				if (rowNum == 0 && colIndex == 2) {
+					countryCellNum = region.getLastColumn() + 1;
+				}
+			}
 			id = rs.getInt("Station.ID");
 			sif = rs.getString("Station.Name");
 			cell = row.getCell(1); cell.setCellValue(sif);
-			XSSFCellStyle greyStyle = null;
 			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
-			int countryCellNum = 3;
-			  for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
-			        CellRangeAddress region = sheetTracing.getMergedRegion(i);
-			        int rowNum = region.getFirstRow();
-			        int colIndex = region.getFirstColumn();
-			        if (rowNum == 0 && colIndex == 2) {
-			        	countryCellNum = region.getLastColumn() + 1;
-			        }
-			    }
-			  if (rs.getString("Station.Land") == null)  row.getCell(countryCellNum).setCellValue("");
-			  else row.getCell(countryCellNum).setCellValue(rs.getString("Station.Land"));
 			
-			// Products Out
+			if (rs.getString("Station.Land") == null)  row.getCell(countryCellNum).setCellValue("");
+			else row.getCell(countryCellNum).setCellValue(rs.getString("Station.Land"));
+			if (startTracing) {
+				if (rs.getString("Station.Betriebsart") == null)  row.getCell(countryCellNum+1).setCellValue("");
+				else row.getCell(countryCellNum+1).setCellValue(rs.getString("Station.Betriebsart"));
+			}
+			
 			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");
+			XSSFCellStyle greyStyle = null;
 			HashMap<Integer, HashSet<Integer>> furtherLots = new HashMap<>();
 			HashSet<Integer> alreadyUsedDels = new HashSet<>();
-			do {
-				if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
-				Integer did = rs.getInt("Lieferungen.ID");
-				if (!alreadyUsedDels.contains(did)) {
-					alreadyUsedDels.add(did);
-					copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
-					row = sheetTracing.getRow(rowIndex);								
-					fillRowSimple(sheetTracing, rs, row, true, false);
-					if (greyStyle == null) greyStyle = row.getCell(0).getCellStyle();
-					rowIndex++;
-					if (generateAllData) {
-						Integer key = rs.getInt("ChargenVerbindungen.Produkt");
-						if (!furtherLots.containsKey(key)) furtherLots.put(key, new HashSet<>());
-						furtherLots.get(key).add(rowIndex);
-					}
+			if (startTracing) {
+				rowIndex = -1;
+				if (greyStyle == null) {
+					row = sheetTracing.getRow(0);
+					greyStyle = row.getCell(5).getCellStyle();
 				}
-			} while (rs.next());
-			rs.previous();
-			//copyStyle(workbook, sheetTracing, 6, 9);
-			
-			row = sheetTracing.getRow(rowIndex+4);
-			cell = row.getCell(0);	
-			if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+11) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the product information in columns B to M.");
-			else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
+			}
+			else {
+				// Products In
+				do {
+					if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
+					Integer did = rs.getInt("Lieferungen.ID");
+					if (!alreadyUsedDels.contains(did)) {
+						alreadyUsedDels.add(did);
+						copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
+						row = sheetTracing.getRow(rowIndex);								
+						fillRowSimple(sheetTracing, rs, row, true, false);
+						if (greyStyle == null) greyStyle = row.getCell(0).getCellStyle();
+						rowIndex++;
+						if (generateAllData) {
+							Integer key = rs.getInt("ChargenVerbindungen.Produkt");
+							if (!furtherLots.containsKey(key)) furtherLots.put(key, new HashSet<>());
+							furtherLots.get(key).add(rowIndex);
+						}
+					}
+				} while (rs.next());
+				rs.previous();
+				//copyStyle(workbook, sheetTracing, 6, 9);
+				
+				row = sheetTracing.getRow(rowIndex+4);
+				cell = row.getCell(0);	
+				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+11) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the product information in columns B to M.");
+				else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
+			}
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-			if (generateAllData) {
+			if (generateAllData || startTracing) {
 				String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
 						" LEFT JOIN " + MyDBI.delimitL("Chargen") +
 						" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
@@ -429,20 +447,23 @@ Erinnerung an die alten Template inhaber senden?
 						//copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
 						//row = sheetTracing.getRow(rowIndex);								
 			            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) {cell = row.createCell(ii); cell.setCellStyle(greyStyle);}
-						fillRowSimple(sheetTracing, rs2, row, false, false);
-						Integer cid = rs2.getInt("Chargen.ID");
-						if (furtherLots.containsKey(cid)) {
-							HashSet<Integer> tl = furtherLots.get(cid);
-							boolean afterFirst = false;
-							for (int tli : tl) {
-								if (afterFirst) {
-									rowIndex++;
-						            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) {cell = row.createCell(ii); cell.setCellStyle(greyStyle);}
-									fillRowSimple(sheetTracing, rs2, row, false, false);
+						fillRowSimple(sheetTracing, rs2, row, false, startTracing);
+						
+						if (!startTracing) {
+							Integer cid = rs2.getInt("Chargen.ID");
+							if (furtherLots.containsKey(cid)) {
+								HashSet<Integer> tl = furtherLots.get(cid);
+								boolean afterFirst = false;
+								for (int tli : tl) {
+									if (afterFirst) {
+										rowIndex++;
+							            row = sheetTracing.createRow(rowIndex); for (int ii=0;ii<numCols;ii++) {cell = row.createCell(ii); cell.setCellStyle(greyStyle);}
+										fillRowSimple(sheetTracing, rs2, row, false, false);
+									}
+									cell = row.getCell(0);
+									cell.setCellValue(tli+"");
+									afterFirst = true;
 								}
-								cell = row.getCell(0);
-								cell.setCellValue(tli+"");
-								afterFirst = true;
 							}
 						}
 						rowIndex++;
@@ -451,6 +472,7 @@ Erinnerung an die alten Template inhaber senden?
 			}
 			String fn = "StationFwdtrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
 			if (lang.equals("de")) fn = "Vorwaertsverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			if (startTracing) fn = "Start_Tracing_Fwd_" + sif + ".xlsx";
 			if (save(workbook, outputFolder + File.separator + fn)) {
 				result++;
 			}
@@ -499,10 +521,17 @@ Erinnerung an die alten Template inhaber senden?
 				" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
+		boolean startTracing = false;
+		if (do2017Format && generateAllData && (rs == null || !rs.first())) {
+			sql = "Select * from " + MyDBI.delimitL("Station") +
+			" WHERE " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + stationId + (stationId == null ? tracingBusinessesSQL : "");	
+			rs = DBKernel.getResultSet(sql, false);
+			startTracing = true;
+		}
 		if (rs != null && rs.first()) {
 			do {
 				if (do2017Format) {
-					result += getSimpleFwdStationRequests(outputFolder, rs);
+					result += getSimpleFwdStationRequests(outputFolder, rs, startTracing);
 				}
 				else {
 					InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/BfR_Format_Fortrace_sug.xlsx");
@@ -898,6 +927,10 @@ Erinnerung an die alten Template inhaber senden?
 			HashSet<Integer> alreadyUsedDels = new HashSet<>();
 			if (startTracing) {
 				rowIndex = 0;
+				if (greyStyle == null) {
+					row = sheetTracing.getRow(0);
+					greyStyle = row.getCell(5).getCellStyle();
+				}
 			}
 			else {
 				// Products Out
@@ -1595,7 +1628,11 @@ Erinnerung an die alten Template inhaber senden?
 		cell = row.getCell(8+(startTracing?3:0));
 		fillExtraCell(cell, "Lieferungen", "Amount", rs.getString("Lieferungen.ID"));
 		fillStationSimple(row.getCell(startTracing?0:9), row.getCell(startTracing?1:10), row.getCell(startTracing?2:11), hasTOB ? row.getCell(startTracing?3:12) : null, rs.getObject(isForward ? "Produktkatalog.Station" : "Lieferungen.Empfänger"));
-		cell = row.getCell(hasTOB ? 13 : 12);
+		// Comment
+		int commentCol = 12;
+		if (hasTOB) commentCol = 13;
+		if (startTracing) commentCol--;
+		cell = row.getCell(commentCol);
 		if (rs.getObject("Lieferungen.Kommentar") != null) cell.setCellValue(rs.getString("Lieferungen.Kommentar"));
 		else cell.setCellValue("");		
 	}
