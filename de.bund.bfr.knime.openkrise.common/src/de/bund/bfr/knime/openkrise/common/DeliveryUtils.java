@@ -274,9 +274,9 @@ public class DeliveryUtils {
 				Delivery next = deliveries.get(nextId);
 
 				if (!d.isBefore(next)) {
-					warnings.put(INCONSISTENT_DATES, "In: \"" + d.getId() + "\" ("
+					warnings.put(INCONSISTENT_DATES, "In: \"" + d.getLot() + "\" ("
 							+ formatDate(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ") vs. Out: \""
-							+ next.getId() + "\" ("
+							+ next.getLot() + "\" ("
 							+ formatDate(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
 							+ ")");
 				}

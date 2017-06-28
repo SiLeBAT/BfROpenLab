@@ -77,7 +77,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private String logWarnings = "";
 	private Map<String, Set<String>> warns = new HashMap<>();
 	private Map<String, Set<String>> warnsBeforeImport = new HashMap<>();
-	private DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
+	private DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
 	
 	public Map<String, Set<String>> getLastWarnings() {
 		return warns;
@@ -532,6 +532,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return null;
 	}
+	private boolean rowEmpty(Row row) {
+		for (int i=0;i<row.getPhysicalNumberOfCells();i++) {
+			String cs = getCellString(row.getCell(i));
+			if (cs != null) return false;
+		}
+		return true;
+	}
 	private List<Exception> doTheSimpleImport(Workbook wb, String filename) { //  throws Exception
 		List<Exception> exceptions = new ArrayList<>();
 		
@@ -588,9 +595,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			for (int i=1;i<numRows;i++) {
 				row = sheet.getRow(i);
 				if (row != null) {
-					cs = getCellString(row.getCell(0));
-					String cs1 = getCellString(row.getCell(1));
-					if (cs != null || cs1 != null) {
+					if (!rowEmpty(row)) {
+						cs = getCellString(row.getCell(0));
 						if (cs != null) doPreCollect = false; //  && cs.startsWith(XlsStruct.TOP_END_LINE)
 						if (doCollect || doPreCollect) {
 							//System.err.print(i+1);
