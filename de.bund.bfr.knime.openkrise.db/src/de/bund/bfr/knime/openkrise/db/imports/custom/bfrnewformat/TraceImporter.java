@@ -566,20 +566,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (sheet != null) {
 			Station focusS = new Station();
 			Row row = sheet.getRow(0);
-			String cs = getCellString(row.getCell(1));
+			HashMap<String, Integer> hmS = TraceGenerator.getFirstRow(sheet);
+			String cs = getCellString(row.getCell(hmS.get("name")));
 			focusS.setName(cs);
-			String address = getCellString(row.getCell(2));
+			String address = getCellString(row.getCell(hmS.get("address")));
 			focusS.setAddress(address);
-			int countryCellNum = 3;
-		    for (int i = 0; i < sheet.getNumMergedRegions(); i++) {
-		        CellRangeAddress region = sheet.getMergedRegion(i);
-		        int rowNum = region.getFirstRow();
-		        int colIndex = region.getFirstColumn();
-		        if (rowNum == 0 && colIndex == 2) {
-		        	countryCellNum = region.getLastColumn() + 1;
-		        }
-		    }
-			focusS.setCountry(getCellString(row.getCell(countryCellNum)));
+			focusS.setCountry(getCellString(row.getCell(hmS.get("country"))));
 			focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(isEnglish ? "en":"de") + " " + 1);
 			int sID = genDbId(""+cs+address);
 			focusS.setId(""+sID);

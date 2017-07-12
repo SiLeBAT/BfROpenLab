@@ -435,28 +435,32 @@ public class Delivery {
 			}
 		}
 		if (comment != null) {
-			in += "," + MyDBI.delimitL("Kommentar");
-			iv += "," + "'" + comment + "'";
+              in += "," + MyDBI.delimitL("Kommentar");
+              iv += ",?";//"," + "'" + comment + "'";
 		}
-		String sql = "INSERT INTO " + MyDBI.delimitL("Lieferungen") + " (" + in + ") VALUES (" + iv + ")";
-		@SuppressWarnings("resource")
-		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
-		PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-		//boolean newlyInserted = false;
-		try {
-			if (ps.executeUpdate() > 0) {
-				dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
-				//newlyInserted = true;
-			}
-		}
-		catch (SQLException e) {
-			if (e.getMessage().startsWith("integrity constraint violation")) {
-				dbId = Integer.parseInt(id);
-				//throw new Exception("Delivery ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
-			}
-			else throw e;
-		}
-		handleFlexibles(mydbi);
+	      String sql = "INSERT INTO " + MyDBI.delimitL("Lieferungen") + " (" + in + ") VALUES (" + iv + ")";
+	      @SuppressWarnings("resource")
+	      Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+	      PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+	      if (comment != null) ps.setString(1, comment);
+	      //boolean newlyInserted = false;
+	      try {
+	              if (ps.executeUpdate() > 0) {
+	                      dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+	                      //newlyInserted = true;
+	              }
+	      }
+	      catch (SQLException e) {
+              if (e.getMessage().startsWith("integrity constraint violation")) {
+                      dbId = Integer.parseInt(id);
+                      //throw new Exception("Delivery ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
+              }
+              else {
+                      System.err.println(sql);
+                      throw e;
+              }
+	      }
+	      handleFlexibles(mydbi);
 		for (String tLotId : targetLotIds) {
 			insertD2D(mydbi, dbId+"", tLotId);
 		}

@@ -795,7 +795,7 @@ public class MainFrame extends JFrame {
 		}
 		@Override
 		public boolean accept(File file) {
-			return file.isDirectory();
+			return file.isDirectory() || file.getName().endsWith(".xlsx");
 		}
 
 		@Override
@@ -812,7 +812,7 @@ public class MainFrame extends JFrame {
 			String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
 		    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
 		    chooser.setDialogTitle("Select output folder");
-		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		    //chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		    chooser.setAcceptAllFileFilterUsed(false);
 		    FileFilter ff16 = new FolderFilter("Format 2016");
 		    FileFilter ff17 = new FolderFilter("Format 2017");
@@ -900,7 +900,7 @@ public class MainFrame extends JFrame {
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
 	    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
 	    chooser.setDialogTitle("Select output folder");
-	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	    //chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    chooser.setAcceptAllFileFilterUsed(false);
 	    FileFilter ff16 = new FolderFilter("Format 2016");
 	    FileFilter ff17 = new FolderFilter("Format 2017");
