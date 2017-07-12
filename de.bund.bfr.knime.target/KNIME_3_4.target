@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="KNIME 3.4 TP" sequenceNumber="22">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
+<unit id="org.knime.features.base.feature.group" version="0.0.0"/>
+<repository location="http://update.knime.org/analytics-platform/3.4/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.knime.features.ext.svg.feature.group" version="3.4.0.v201702101156"/>
+<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.5.0.v201706211051"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.4.0.v201707100844"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.4.0.v201707082033"/>
+<unit id="org.knime.features.base.filehandling.feature.group" version="3.4.0.v201705031347"/>
+<unit id="org.knime.features.rest.feature.group" version="3.4.0.v201705241329"/>
+<unit id="org.knime.features.quickform.legacy.feature.group" version="3.4.0.v201702101159"/>
+<unit id="org.knime.features.core.streaming.feature.group" version="3.4.0.v201702101156"/>
+<unit id="org.knime.features.ext.osm.feature.group" version="3.4.0.v201702101156"/>
+<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.4.0.v201702101156"/>
+<unit id="org.knime.features.network.feature.group" version="3.4.0.v201707070945"/>
+<unit id="org.knime.product.desktop" version="3.4.0.v201707101013"/>
+<unit id="com.knime.features.reporting.designer.feature.group" version="3.4.0.v201706091217"/>
+<repository location="http://update.knime.org/analytics-platform/3.4/"/>
+</location>
+</locations>
+<targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+<launcherArgs>
+<vmArgs>-Xmx2048m
+-server
+-Dsun.java2d.d3d=false
+-Dosgi.classloader.lock=classname
+-XX:+UnlockDiagnosticVMOptions
+-XX:+UnsyncloadClass 
+-Dknime.enable.fastload=true
+-ea
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-Dorg.eclipse.swt.internal.gtk.useCairo=false
+-Dorg.eclipse.swt.browser.IEVersion=10001</vmArgs>
+</launcherArgs>
+</target>
