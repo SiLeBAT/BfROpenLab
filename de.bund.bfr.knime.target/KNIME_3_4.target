@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.4 TP" sequenceNumber="22">
+<?pde version="3.8"?><target name="KNIME 3.4 TP" sequenceNumber="24">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -15,11 +15,13 @@
 <unit id="org.knime.features.rest.feature.group" version="3.4.0.v201705241329"/>
 <unit id="org.knime.features.quickform.legacy.feature.group" version="3.4.0.v201702101159"/>
 <unit id="org.knime.features.core.streaming.feature.group" version="3.4.0.v201702101156"/>
+<unit id="org.knime.features.ext.textprocessing.feature.group" version="3.4.0.v201707051948"/>
 <unit id="org.knime.features.ext.osm.feature.group" version="3.4.0.v201702101156"/>
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="3.4.0.v201702101156"/>
 <unit id="org.knime.features.network.feature.group" version="3.4.0.v201707070945"/>
 <unit id="org.knime.product.desktop" version="3.4.0.v201707101013"/>
 <unit id="com.knime.features.reporting.designer.feature.group" version="3.4.0.v201706091217"/>
+<unit id="org.knime.features.r.feature.group" version="3.4.0.v201707082105"/>
 <repository location="http://update.knime.org/analytics-platform/3.4/"/>
 </location>
 </locations>
