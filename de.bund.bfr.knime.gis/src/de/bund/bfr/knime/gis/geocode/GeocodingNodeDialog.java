@@ -129,6 +129,12 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 
 			set.setCountryCodeColumn(countryCodeBox.getSelectedColumnName());
 			set.setGisgraphyServer(serverField.getText().trim());
+		} else if (set.getServiceProvider() == GeocodingSettings.Provider.PHOTON) {
+			if (serverField.getText().trim().isEmpty()) {
+				throw new InvalidSettingsException("No Server specified");
+			}
+
+			set.setPhotonServer(serverField.getText().trim());
 		}
 
 		set.saveSettings(settings);
@@ -144,6 +150,9 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		if (providerBox.getSelectedItem() == GeocodingSettings.Provider.GISGRAPHY) {
 			addressLabels.add(new JLabel("Country Code:"));
 			addressBoxes.add(countryCodeBox);
+			otherLabels.add(0, new JLabel("Server Address:"));
+			otherFields.add(0, serverField);
+		} else if (providerBox.getSelectedItem() == GeocodingSettings.Provider.PHOTON) {
 			otherLabels.add(0, new JLabel("Server Address:"));
 			otherFields.add(0, serverField);
 		}
