@@ -100,7 +100,15 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 
 		addressBox.setSelectedColumnName(set.getAddressColumn());
 		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
-		serverField.setText(set.getGisgraphyServer() != null ? set.getGisgraphyServer() : "");
+		if (set.getServiceProvider() == GeocodingSettings.Provider.GISGRAPHY) {
+			serverField.setText(set.getGisgraphyServer() != null ? set.getGisgraphyServer() : "");
+		}
+		else if (set.getServiceProvider() == GeocodingSettings.Provider.PHOTON) {
+			serverField.setText(set.getPhotonServer() != null ? set.getPhotonServer() : "");
+		}
+		else {
+			serverField.setText("");
+		}
 
 		updatePanel();
 	}
