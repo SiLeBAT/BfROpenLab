@@ -812,8 +812,13 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void clearCollapsedNodesItemClicked() {
-		nodeSaveMap.keySet().removeAll(collapsedNodes.keySet());
-		collapsedNodes.clear();
+		Set<String> selectedIds = getSelectedNodeIds();
+		Set<String> selectedMetaIds = new LinkedHashSet<>(Sets.intersection(selectedIds, collapsedNodes.keySet()));
+		
+		// Only collapsed nodes that are selected are removed
+		nodeSaveMap.keySet().removeAll(selectedMetaIds);
+		collapsedNodes.keySet().removeAll(selectedMetaIds);
+		
 		applyChanges();
 		popup.setNodeSelectionEnabled(false);
 		call(l -> l.collapsedNodesAndPickingChanged(this));
