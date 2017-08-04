@@ -34,8 +34,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -810,6 +813,95 @@ public abstract class Canvas<V extends Node> extends JPanel
 		call(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 
+	@Override 
+	public void collapseSimpleChainsItemClicked() {
+		// collect simple chains
+		ArrayList<ArrayList<String>> SCL = getSimpleChains();
+		
+		Set<String> newCollapsedIds = new LinkedHashSet<>();
+
+		SCL.forEach(sc -> {
+			// for each simple chain add a new collapsed node
+			String newId = KnimeUtils.createNewValue("SC_" + sc.get(0).toString() + "_" + sc.get(sc.size()-1).toString(), nodeSaveMap.keySet());
+
+			collapsedNodes.put(newId,new HashSet<String>(sc));      
+			newCollapsedIds.add(newId);
+		});
+
+		applyChanges();
+		setSelectedNodeIdsWithoutListener(newCollapsedIds);
+		call(l -> l.collapsedNodesAndPickingChanged(this));
+	
+	}
+	/* *
+	 * @return list of nodeId - lists. Each nodeId list represents a simple chain.
+	 */
+	private ArrayList<ArrayList<String>> getSimpleChains() {
+		// create Neighbour structures
+		// fromNeighbours contains for each station X all stations station X gets a delivery from
+		// toNeighbours contains for each station X all stations which gets a delivery from station X
+		Map<String, Set<String>> fromNeighbours = new LinkedHashMap<>();
+		Map<String, Set<String>> toNeighbours = new LinkedHashMap<>();
+		edges.forEach(e -> {
+			if(fromNeighbours.containsKey(e.getTo().getId())) {
+				fromNeighbours.get(e.getTo().getId()).add(e.getFrom().getId());
+			} else {
+				fromNeighbours.put(e.getTo().getId(), new HashSet<>(Arrays.asList(e.getFrom().getId()))); 
+			}
+			if(toNeighbours.containsKey(e.getFrom().getId())) {
+				toNeighbours.get(e.getFrom().getId()).add(e.getTo().getId());
+			} else {
+				toNeighbours.put(e.getFrom().getId(), new HashSet<>(Arrays.asList(e.getTo().getId())));
+			}
+		});
+		// collect node sets which can start or end a simple chain
+		// be aware that an inner node is a potential start node and a potential end node
+		Set<String> scEndings = new HashSet<String>(); 
+		Set<String> scStarter = new HashSet<String>(); 
+		fromNeighbours.forEach((key, value) -> {
+			if(value.size()==1 && !value.contains(key)) scEndings.add(key);
+		});
+		toNeighbours.forEach((key, value) -> {
+			if(value.size()==1 && !value.contains(key)) scStarter.add(key); 
+		});
+		// collect the nodes that are already contained in other collapsed sets
+		Set<String> containedNodes = new HashSet<String>(); 
+		collapsedNodes.values().forEach(nS -> containedNodes.addAll(nS));
+		
+		// remove the already contained nodes and the collapsed nodes from the simple chain nodes
+		scEndings.removeAll(containedNodes);
+		scEndings.removeAll(collapsedNodes.keySet());
+		scStarter.removeAll(containedNodes);
+		scStarter.removeAll(collapsedNodes.keySet());
+		
+		// nodes that are already covered
+		Set<String> coveredNodes = new HashSet<String>();
+		ArrayList<ArrayList<String>> res = new ArrayList<ArrayList<String>>();
+		
+		scStarter.forEach(k -> {
+			if(!coveredNodes.contains(k)) {
+				// this is a new chain (although it might be be to short)
+				String s = k;
+				// go to the head of the chain
+				while(scEndings.contains(s)) s = fromNeighbours.get(s).iterator().next();
+				
+				ArrayList<String> sc = new ArrayList<String>();
+				sc.add(s);
+				while(scStarter.contains(s)) {
+					// traverse the chain and collect the traversed nodes
+					s = toNeighbours.get(s).iterator().next();
+					sc.add(s);
+				}
+				// mark the chain nodes as covered
+				coveredNodes.addAll(sc);
+				// add the chain if it contains at least 2 nodes
+				if(sc.size()>1) res.add(sc);
+			}
+		});
+		return res;
+	}
+	
+	
 	@Override
 	public void clearCollapsedNodesItemClicked() {
 		Set<String> selectedIds = getSelectedNodeIds();
