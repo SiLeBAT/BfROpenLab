@@ -441,9 +441,6 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	}
 
 	private static String createMapQuestUrl(String address, String key) throws UnsupportedEncodingException {
-		/*return "https://open.mapquestapi.com/geocoding/v1/address?key="
-				+ URLEncoder.encode(key, StandardCharsets.UTF_8.name()) + "&location="
-				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());*/
 		return URL_PATTERN_MAPQUEST.replace(
 				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
 			    PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));
@@ -451,32 +448,27 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 	private static String createGisgraphyUrl(String server, String address, String countryCode)
 			throws UnsupportedEncodingException {
-		/*return server + "?address=" + URLEncoder.encode(address, StandardCharsets.UTF_8.name()) + "&country="
-				+ URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name()) + "&format=json";*/
 		return URL_PATTERN_GISGRAPHY.replace(
-				PATTERN_CODE_SERVER, server).replace(
+				PATTERN_CODE_SERVER, postprocessServer(server)).replace(
 			    PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name())).replace(
 			    PATTERN_CODE_COUNTRY, URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name()));
 						
 	}
 
 	private static String createBkgUrl(String address, String key) throws UnsupportedEncodingException {
-		/*return "https://sg.geodatenzentrum.de/gdz_geokodierung__"
-				+ URLEncoder.encode(key, StandardCharsets.UTF_8.name()) + "/geosearch?query="
-				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());*/
 		return URL_PATTERN_BKG.replace(
 				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
 				PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));		
 	}
 	
 	private static String createPhotonUrl(String server, String address) throws UnsupportedEncodingException {
-		 // "http://vm-maslxknime01.bfr.bund.de:2322/api?q="
-		/*return server + "api?q=" 
-				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name())
-				+ "&osm_tag=highway:residential&limit=2";*/
 		return URL_PATTERN_PHOTON.replace(
-				PATTERN_CODE_SERVER, server).replace(
+				PATTERN_CODE_SERVER, postprocessServer(server)).replace(
 				PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));
+	}
+	
+	private static String postprocessServer(String server) {
+		return (server.endsWith("/") ? server : server + "/");
 	}
 
 	private static String read(DocumentContext doc, String path) {
