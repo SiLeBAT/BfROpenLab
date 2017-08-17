@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@ public class CanvasPopupMenu extends JPopupMenu {
 	private JMenuItem collapseToNodeItem;
 	private JMenuItem expandFromNodeItem;
 	private JMenuItem collapseByPropertyItem;
+	private JMenuItem collapseSimpleChainsItem;
 	private JMenuItem clearCollapsedNodesItem;
 
 	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges, boolean allowLayout, boolean allowCollapse) {
@@ -147,6 +148,7 @@ public class CanvasPopupMenu extends JPopupMenu {
 		if (allowCollapse) {
 			add(new JSeparator());
 			add(collapseByPropertyItem);
+			add(collapseSimpleChainsItem);
 			add(clearCollapsedNodesItem);
 		}
 	}
@@ -214,6 +216,7 @@ public class CanvasPopupMenu extends JPopupMenu {
 		expandFromNodeItem = createItem("Expand from Meta " + owner.getNaming().Node(),
 				ClickListener::expandFromNodeItemClicked);
 		collapseByPropertyItem = createItem("Collapse by Property", ClickListener::collapseByPropertyItemClicked);
+		collapseSimpleChainsItem = createItem("Collapse Simple Chains", ClickListener::collapseSimpleChainsItemClicked);
 		clearCollapsedNodesItem = createItem("Clear Collapsed " + owner.getNaming().Nodes(),
 				ClickListener::clearCollapsedNodesItemClicked);
 
@@ -287,7 +290,10 @@ public class CanvasPopupMenu extends JPopupMenu {
 		void expandFromNodeItemClicked();
 
 		void collapseByPropertyItemClicked();
+		
+		void collapseSimpleChainsItemClicked();
 
 		void clearCollapsedNodesItemClicked();
+
 	}
 }

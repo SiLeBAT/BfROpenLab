@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,17 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 	private static final String DE = "DE";
 	private static final String NO_KEY = "XXXXXX";
-
+	
+	private static final String PATTERN_CODE_SERVER = "<SERVER>";
+	private static final String PATTERN_CODE_KEY = "<KEY>";
+	private static final String PATTERN_CODE_ADDRESS = "<ADDRESS>";
+	private static final String PATTERN_CODE_COUNTRY = "<COUNTRY>";
+	
+	private static final String URL_PATTERN_MAPQUEST = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS;
+	private static final String URL_PATTERN_BKG = "https://sg.geodatenzentrum.de/gdz_geokodierung__" + PATTERN_CODE_KEY + "/geosearch?query=" + PATTERN_CODE_ADDRESS;
+	private static final String URL_PATTERN_GISGRAPHY = PATTERN_CODE_SERVER + "?address=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY + "&format=json";
+	private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&osm_tag=highway:residential&limit=2";
+	
 	private GeocodingSettings set;
 
 	/**
@@ -148,6 +158,9 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 				break;
 			case BKG:
 				result = performBkgGeocoding(address);
+				break;
+			case PHOTON:
+				result = performPhotonGeocoding(address);
 				break;
 			default:
 				throw new RuntimeException("Unknown service provider");
@@ -356,6 +369,52 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 		}
 	}
 
+	private GeocodingResult performPhotonGeocoding(String address) 
+		throws IOException, InvalidSettingsException, CanceledExecutionException {
+		
+		if (address == null) {
+			return new GeocodingResult();
+		}
+
+		String url = createPhotonUrl(set.getPhotonServer(), address);
+
+		try (BufferedReader buffer = new BufferedReader(
+				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
+			String json = buffer.lines().collect(Collectors.joining("\n"));
+
+			if (Strings.isNullOrEmpty(json)) {
+				return new GeocodingResult(url);
+			}
+
+			JSONArray jsonResults = JsonPath.parse(json).read("$.features[*]");
+			List<GeocodingResult> results = new ArrayList<>();
+
+			for (Object jsonResult : jsonResults) {
+				DocumentContext r = JsonPath.parse(jsonResult);
+
+				results.add(new GeocodingResult(url, read(r, "$.properties.name"),   // the osm_tag highway seems to cause that the name is set as the street 
+						read(r, "$.properties.city"), null, read(r, "$.properties.state"),
+						read(r, "$.properties.country"), read(r, "$.properties.postcode"), readDouble(r, "$.geometry.coordinates[1]"),
+						readDouble(r, "$.geometry.coordinates[0]")));
+			}
+
+			return getIndex(address, results, new GeocodingResult(url));
+		} catch (IOException e) {
+			JOptionPane options = new JOptionPane(e.getMessage() + "\nDo you want to continue?",
+					JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
+			JDialog dialog = options.createDialog("Error");
+
+			dialog.setAlwaysOnTop(true);
+			dialog.setVisible(true);
+
+			if (options.getValue() instanceof Integer && (Integer) options.getValue() == JOptionPane.YES_OPTION) {
+				return new GeocodingResult(url);
+			} else {
+				throw e;
+			}
+		}
+	}
+	
 	private GeocodingResult getIndex(String address, List<GeocodingResult> choices, GeocodingResult defaultValue)
 			throws CanceledExecutionException {
 		if (choices.size() == 0) {
@@ -382,21 +441,34 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	}
 
 	private static String createMapQuestUrl(String address, String key) throws UnsupportedEncodingException {
-		return "https://open.mapquestapi.com/geocoding/v1/address?key="
-				+ URLEncoder.encode(key, StandardCharsets.UTF_8.name()) + "&location="
-				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
+		return URL_PATTERN_MAPQUEST.replace(
+				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
+			    PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));
 	}
 
 	private static String createGisgraphyUrl(String server, String address, String countryCode)
 			throws UnsupportedEncodingException {
-		return server + "?address=" + URLEncoder.encode(address, StandardCharsets.UTF_8.name()) + "&country="
-				+ URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name()) + "&format=json";
+		return URL_PATTERN_GISGRAPHY.replace(
+				PATTERN_CODE_SERVER, postprocessServer(server)).replace(
+			    PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name())).replace(
+			    PATTERN_CODE_COUNTRY, URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name()));
+						
 	}
 
 	private static String createBkgUrl(String address, String key) throws UnsupportedEncodingException {
-		return "https://sg.geodatenzentrum.de/gdz_geokodierung__"
-				+ URLEncoder.encode(key, StandardCharsets.UTF_8.name()) + "/geosearch?query="
-				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
+		return URL_PATTERN_BKG.replace(
+				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
+				PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));		
+	}
+	
+	private static String createPhotonUrl(String server, String address) throws UnsupportedEncodingException {
+		return URL_PATTERN_PHOTON.replace(
+				PATTERN_CODE_SERVER, postprocessServer(server)).replace(
+				PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));
+	}
+	
+	private static String postprocessServer(String server) {
+		return (server.endsWith("/") ? server : server + "/");
 	}
 
 	private static String read(DocumentContext doc, String path) {

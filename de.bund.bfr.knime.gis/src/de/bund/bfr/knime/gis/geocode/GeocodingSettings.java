@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import de.bund.bfr.knime.gis.BackwardUtils;
 public class GeocodingSettings extends NodeSettings {
 
 	public static enum Provider {
-		MAPQUEST("MapQuest"), GISGRAPHY("Gisgraphy"), BKG("Bundesamt für Kartographie und Geodäsie");
+		MAPQUEST("MapQuest"), GISGRAPHY("Gisgraphy"), BKG("Bundesamt für Kartographie und Geodäsie"), PHOTON("Photon");
 
 		private String name;
 
@@ -65,6 +65,7 @@ public class GeocodingSettings extends NodeSettings {
 	private static final String CFG_ADDRESS_COLUMN = "AddressColumn";
 	private static final String CFG_COUNTRY_CODE_COLUMN = "CountryCodeColumn";
 	private static final String CFG_GISGRAPHY_SERVER = "GisgraphyServer";
+	private static final String CFG_PHOTON_SERVER = "PhotonServer";
 	private static final String CFG_REQUEST_DELAY = "RequestDelay";
 	private static final String CFG_MULTIPLE_RESULTS = "UseMultiple";
 
@@ -72,6 +73,7 @@ public class GeocodingSettings extends NodeSettings {
 	private String addressColumn;
 	private String countryCodeColumn;
 	private String gisgraphyServer;
+	private String photonServer;
 	private int requestDelay;
 	private Multiple multipleResults;
 
@@ -80,6 +82,7 @@ public class GeocodingSettings extends NodeSettings {
 		addressColumn = DEFAULT_ADDRESS_COLUMN;
 		countryCodeColumn = DEFAULT_COUNTRY_COLUMN;
 		gisgraphyServer = null;
+		photonServer = null;
 		requestDelay = 500;
 		multipleResults = Multiple.DO_NOT_USE;
 	}
@@ -109,6 +112,11 @@ public class GeocodingSettings extends NodeSettings {
 			gisgraphyServer = settings.getString(CFG_GISGRAPHY_SERVER);
 		} catch (InvalidSettingsException e) {
 		}
+		
+		try {
+			photonServer = settings.getString(CFG_PHOTON_SERVER);
+		} catch (InvalidSettingsException e) {
+		}
 
 		try {
 			requestDelay = settings.getInt(CFG_REQUEST_DELAY);
@@ -131,6 +139,7 @@ public class GeocodingSettings extends NodeSettings {
 		settings.addString(CFG_ADDRESS_COLUMN, addressColumn);
 		settings.addString(CFG_COUNTRY_CODE_COLUMN, countryCodeColumn);
 		settings.addString(CFG_GISGRAPHY_SERVER, gisgraphyServer);
+		settings.addString(CFG_PHOTON_SERVER, photonServer);
 		settings.addInt(CFG_REQUEST_DELAY, requestDelay);
 		settings.addString(CFG_MULTIPLE_RESULTS, multipleResults.name());
 	}
@@ -165,6 +174,14 @@ public class GeocodingSettings extends NodeSettings {
 
 	public void setGisgraphyServer(String gisgraphyServer) {
 		this.gisgraphyServer = gisgraphyServer;
+	}
+	
+	public String getPhotonServer() {
+		return photonServer;
+	}
+
+	public void setPhotonServer(String photonServer) {
+		this.photonServer = photonServer;
 	}
 
 	public int getRequestDelay() {

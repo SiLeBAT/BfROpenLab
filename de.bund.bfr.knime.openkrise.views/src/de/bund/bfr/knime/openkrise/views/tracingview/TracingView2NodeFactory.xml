@@ -252,7 +252,7 @@
 				be collapsed to the same meta station.
 			</option>
 			<option name="Clear Collapsed Stations">
-				Expands all meta stations.
+				Expands selected meta stations.
 			</option>
 			<option name="Set default Highlighting">
 				Default highlight conditions for stations and deliveries are automatically

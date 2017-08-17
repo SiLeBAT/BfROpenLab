@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,7 +100,15 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 
 		addressBox.setSelectedColumnName(set.getAddressColumn());
 		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
-		serverField.setText(set.getGisgraphyServer() != null ? set.getGisgraphyServer() : "");
+		if (set.getServiceProvider() == GeocodingSettings.Provider.GISGRAPHY) {
+			serverField.setText(set.getGisgraphyServer() != null ? set.getGisgraphyServer() : "");
+		}
+		else if (set.getServiceProvider() == GeocodingSettings.Provider.PHOTON) {
+			serverField.setText(set.getPhotonServer() != null ? set.getPhotonServer() : "");
+		}
+		else {
+			serverField.setText("");
+		}
 
 		updatePanel();
 	}
@@ -129,6 +137,12 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 
 			set.setCountryCodeColumn(countryCodeBox.getSelectedColumnName());
 			set.setGisgraphyServer(serverField.getText().trim());
+		} else if (set.getServiceProvider() == GeocodingSettings.Provider.PHOTON) {
+			if (serverField.getText().trim().isEmpty()) {
+				throw new InvalidSettingsException("No Server specified");
+			}
+
+			set.setPhotonServer(serverField.getText().trim());
 		}
 
 		set.saveSettings(settings);
@@ -144,6 +158,9 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		if (providerBox.getSelectedItem() == GeocodingSettings.Provider.GISGRAPHY) {
 			addressLabels.add(new JLabel("Country Code:"));
 			addressBoxes.add(countryCodeBox);
+			otherLabels.add(0, new JLabel("Server Address:"));
+			otherFields.add(0, serverField);
+		} else if (providerBox.getSelectedItem() == GeocodingSettings.Provider.PHOTON) {
 			otherLabels.add(0, new JLabel("Server Address:"));
 			otherFields.add(0, serverField);
 		}

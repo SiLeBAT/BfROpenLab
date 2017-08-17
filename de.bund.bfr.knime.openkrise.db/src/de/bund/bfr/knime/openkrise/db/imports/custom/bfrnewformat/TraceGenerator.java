@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataValidationConstraint.OperatorType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Name;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
@@ -337,6 +338,24 @@ Erinnerung an die alten Template inhaber senden?
 		return result;
 	}
 
+	public static HashMap<String, Integer> getFirstRow(Sheet sheet) {
+		// Betrieb, Adresse, Land, Betriebsart
+		HashMap<Integer, Integer> hm = new HashMap<>();
+		for(int i = 0; i < sheet.getNumMergedRegions(); i++) {
+			CellRangeAddress region = sheet.getMergedRegion(i);
+			int rowNum = region.getFirstRow();
+			if (rowNum == 0) {
+				hm.put(region.getFirstColumn(), region.getLastColumn());
+			}
+		}
+		HashMap<String, Integer> hmS = new HashMap<>();
+		int ec=0;
+		ec = hm.containsKey(ec) ? hm.get(ec)+1 : ec+1; hmS.put("name", ec);
+		ec = hm.containsKey(ec) ? hm.get(ec)+1 : ec+1; hmS.put("address", ec);
+		ec = hm.containsKey(ec) ? hm.get(ec)+1 : ec+1; hmS.put("country", ec);
+		ec = hm.containsKey(ec) ? hm.get(ec)+1 : ec+1; hmS.put("tob", ec);
+		return hmS;
+	}
 	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs, boolean startTracing) throws SQLException, IOException, InvalidFormatException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
@@ -366,27 +385,17 @@ Erinnerung an die alten Template inhaber senden?
 			XSSFRow row = sheetTracing.getRow(0);
 			XSSFCell cell;
 
-			int countryCellNum = 3;
-			for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
-				CellRangeAddress region = sheetTracing.getMergedRegion(i);
-				int rowNum = region.getFirstRow();
-				int colIndex = region.getFirstColumn();
-				if (rowNum == 0 && colIndex == 2) {
-					countryCellNum = region.getLastColumn() + 1;
-				}
-			}
+			HashMap<String, Integer> hmS = TraceGenerator.getFirstRow(sheetTracing);
+			
 			id = rs.getInt("Station.ID");
 			sif = rs.getString("Station.Name");
-			cell = row.getCell(1); cell.setCellValue(sif);
-			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
-			
-			if (rs.getString("Station.Land") == null)  row.getCell(countryCellNum).setCellValue("");
-			else row.getCell(countryCellNum).setCellValue(rs.getString("Station.Land"));
-			if (startTracing) {
-				if (rs.getString("Station.Betriebsart") == null)  row.getCell(countryCellNum+1).setCellValue("");
-				else row.getCell(countryCellNum+1).setCellValue(rs.getString("Station.Betriebsart"));
-			}
-			
+			cell = row.getCell(hmS.get("name")); cell.setCellValue(sif);
+			cell = row.getCell(hmS.get("address")); cell.setCellValue(rs.getString("Station.Adresse"));
+			if (rs.getString("Station.Land") == null)  row.getCell(hmS.get("country")).setCellValue("");
+			else row.getCell(hmS.get("country")).setCellValue(rs.getString("Station.Land"));
+			if (rs.getString("Station.Betriebsart") == null)  row.getCell(hmS.get("tob")).setCellValue("");
+			else row.getCell(hmS.get("tob")).setCellValue(rs.getString("Station.Betriebsart"));
+						
 			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");
 			XSSFCellStyle greyStyle = null;
@@ -900,25 +909,16 @@ Erinnerung an die alten Template inhaber senden?
 			XSSFRow row = sheetTracing.getRow(0);
 			XSSFCell cell;
 
-			int countryCellNum = 3;
-			for(int i = 0; i < sheetTracing.getNumMergedRegions(); i++) {
-				CellRangeAddress region = sheetTracing.getMergedRegion(i);
-				int rowNum = region.getFirstRow();
-				int colIndex = region.getFirstColumn();
-				if (rowNum == 0 && colIndex == 2) {
-					countryCellNum = region.getLastColumn() + 1;
-				}
-			}
+			HashMap<String, Integer> hmS = getFirstRow(sheetTracing);
+
 			id = rs.getInt("Station.ID");
 			sif = rs.getString("Station.Name");
-			cell = row.getCell(1); cell.setCellValue(sif);
-			cell = row.getCell(2); cell.setCellValue(rs.getString("Station.Adresse"));
-			if (rs.getString("Station.Land") == null)  row.getCell(countryCellNum).setCellValue("");
-			else row.getCell(countryCellNum).setCellValue(rs.getString("Station.Land"));
-			if (startTracing) {
-				if (rs.getString("Station.Betriebsart") == null)  row.getCell(countryCellNum+1).setCellValue("");
-				else row.getCell(countryCellNum+1).setCellValue(rs.getString("Station.Betriebsart"));
-			}
+			cell = row.getCell(hmS.get("name")); cell.setCellValue(sif);
+			cell = row.getCell(hmS.get("address")); cell.setCellValue(rs.getString("Station.Adresse"));
+			if (rs.getString("Station.Land") == null)  row.getCell(hmS.get("country")).setCellValue("");
+			else row.getCell(hmS.get("country")).setCellValue(rs.getString("Station.Land"));
+			if (rs.getString("Station.Betriebsart") == null)  row.getCell(hmS.get("tob")).setCellValue("");
+			else row.getCell(hmS.get("tob")).setCellValue(rs.getString("Station.Betriebsart"));
 
 			int rowIndex = 6;
 			String stationID = rs.getString("Station.ID");

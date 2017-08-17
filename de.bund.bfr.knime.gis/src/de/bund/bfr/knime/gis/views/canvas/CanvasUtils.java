@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -533,12 +533,17 @@ public class CanvasUtils {
 
 		g.setSVGCanvasSize(new Dimension(width, height));
 
+		if (canvas.length>0) {
 		for (ICanvas<?> c : canvas) {
 			VisualizationImageServer<?, ?> server = c.getVisualizationServer(true);
 
 			g.translate(x, 0);
 			server.paint(g);
 			x += c.getCanvasSize().width;
+		} 
+		} else {
+			//
+			g.drawString("Image not available.", width*2, height*2);
 		}
 
 		g.dispose();
@@ -546,10 +551,35 @@ public class CanvasUtils {
 
 		return document;
 	}
+	
+	/**
+	 * Return a Non-Empty SVGDocument, with a string out of image bounds (not visible)
+	 * 
+	 */
+	private static SVGDocument getPseudoEmptySvgDocument() {
+		int width = 1;
+		int height = 1;
+		SVGDocument document = (SVGDocument) new SVGDOMImplementation().createDocument(null, "svg", null);
+		SVGGraphics2D g = new SVGGraphics2D(document);
+		int x = 0;
 
+		g.setSVGCanvasSize(new Dimension(width, height));
+
+		g.drawString("Image not available.", width*2, height*2);
+		
+
+		g.dispose();
+		document.replaceChild(g.getRoot(), document.getDocumentElement());
+
+		return document;
+	}
+	
 	public static ImagePortObject getImage(boolean asSvg, ICanvas<?>... canvas) throws IOException {
 		if (asSvg) {
-			return new ImagePortObject(new SvgImageContent(CanvasUtils.getSvgDocument(canvas)),
+			// if canvas list is empty create an empty create an pseudo empty svg document otherwise the SVGImageContent constructor throws an error
+			// because it checks whether were is at least something on the image 
+			// With this setting the image view show not anymore an invalid svg file 
+			return new ImagePortObject(new SvgImageContent((canvas.length>0?CanvasUtils.getSvgDocument(canvas):getPseudoEmptySvgDocument())),
 					new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
 			try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {

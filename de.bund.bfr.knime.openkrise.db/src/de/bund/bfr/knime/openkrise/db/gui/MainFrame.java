@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -813,6 +813,7 @@ public class MainFrame extends JFrame {
 		    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
 		    chooser.setDialogTitle("Select output folder");
 		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		    chooser.setFileHidingEnabled(true);
 		    chooser.setAcceptAllFileFilterUsed(false);
 		    FileFilter ff16 = new FolderFilter("Format 2016");
 		    FileFilter ff17 = new FolderFilter("Format 2017");
@@ -821,6 +822,7 @@ public class MainFrame extends JFrame {
 		    chooser.setFileFilter(ff17);
 		    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 		    	File f = chooser.getSelectedFile();
+		    	if (!f.exists()) f = f.getParentFile();
 		    	if (f.isFile()) f = f.getParentFile();
 		    	if (f.exists()) {
 					DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
@@ -909,6 +911,7 @@ public class MainFrame extends JFrame {
 	    chooser.setFileFilter(ff17);
 	    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 	    	File f = chooser.getSelectedFile();
+	    	if (!f.exists()) f = f.getParentFile();
 	    	if (f.isFile()) f = f.getParentFile();
 	    	if (f.exists()) {
 				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
