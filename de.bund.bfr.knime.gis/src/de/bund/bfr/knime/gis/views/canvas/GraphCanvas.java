@@ -229,8 +229,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
-		Layout<GraphNode, Edge<GraphNode>> layout = layoutType.create(viewer.getGraphLayout().getGraph(),
-				viewer.getSize());
+		Layout<GraphNode, Edge<GraphNode>> layout = 
+				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout!=nodes)?
+				new FRLayout(viewer.getGraphLayout().getGraph(), viewer.getSize(),true):
+				layoutType.create(viewer.getGraphLayout().getGraph(), viewer.getSize()));
 		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
@@ -287,8 +289,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
-			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), PointUtils.getBounds(layoutResult.values()),
-					null));
+			if(nodes==nodesForLayout) {
+			  setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), PointUtils.getBounds(layoutResult.values()),
+					  null));
+			} else {
+			  setTransform(Transform.IDENTITY_TRANSFORM);
+			}
 		} else {
 			setTransform(Transform.IDENTITY_TRANSFORM);
 		}
