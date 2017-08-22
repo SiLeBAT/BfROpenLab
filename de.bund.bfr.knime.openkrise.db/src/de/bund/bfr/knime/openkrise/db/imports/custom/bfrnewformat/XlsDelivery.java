@@ -81,10 +81,15 @@ public class XlsDelivery {
 			else if (s.equalsIgnoreCase(DAY(lang))) dayCol = index;
 			else if (s.equalsIgnoreCase(MONTH(lang))) monthCol = index;
 			else if (s.equalsIgnoreCase(YEAR(lang))) yearCol = index;
-			else if (s.toLowerCase().startsWith(AMOUNT(lang).toLowerCase())) amountCol = index;
+			else if (isAmount(s, lang)) amountCol = index;
 			else if (s.equalsIgnoreCase(COMMENT(lang))) commentCol = index;
 			else extraVals.put(index, s);
 		}
+	}
+	private boolean isAmount(String parameter, String lang) {
+		boolean result = parameter.toLowerCase().startsWith(AMOUNT(lang).toLowerCase());
+		if (!result && lang.equals("de")) result = parameter.toLowerCase().startsWith("menge");
+		return result;
 	}
 
 	private int startCol = -1;

@@ -45,6 +45,12 @@ public class XlsStruct {
 		else if (lang.equals("en")) return "Production - Fwdtrace";
 		else return null;
 	}
+	public static String getAiO_SHEETNAME(String lang) { // all in one
+		if (lang == null) return null;
+		if (lang.equals("de")) return "Daten";
+		else if (lang.equals("en")) return "Data";
+		else return null;
+	}
 	public static String getBACK_NEW_DATA_START(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Lieferant";

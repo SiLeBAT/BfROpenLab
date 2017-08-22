@@ -307,6 +307,8 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 				StringCell.TYPE);
 		addSpecIf(hasValues(conn, LIEFERUNGEN.CONTACT_QUESTIONS_REMARKS), columns, BackwardUtils.DELIVERY_REMARKS,
 				StringCell.TYPE);
+		addSpecIf(hasValues(conn, LIEFERUNGEN.KOMMENTAR), columns, BackwardUtils.DELIVERY_COMMENTS,
+				StringCell.TYPE);
 		addSpecIf(hasValues(conn, LIEFERUNGEN.FURTHER_TRACEBACK), columns, BackwardUtils.DELIVERY_FURTHERTB,
 				StringCell.TYPE);
 		addSpecIf(hasValues(conn, CHARGEN.MICROBIOSAMPLE), columns, BackwardUtils.DELIVERY_MICROSAMPLE,
@@ -526,6 +528,8 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 					createCell(r.getValue(LIEFERUNGEN.EXPLANATION_ENDCHAIN)));
 			fillCell(spec, cells, BackwardUtils.DELIVERY_REMARKS,
 					createCell(r.getValue(LIEFERUNGEN.CONTACT_QUESTIONS_REMARKS)));
+			fillCell(spec, cells, BackwardUtils.DELIVERY_COMMENTS,
+					createCell(r.getValue(LIEFERUNGEN.KOMMENTAR)));
 			fillCell(spec, cells, BackwardUtils.DELIVERY_FURTHERTB,
 					createCell(r.getValue(LIEFERUNGEN.FURTHER_TRACEBACK)));
 			fillCell(spec, cells, BackwardUtils.DELIVERY_MICROSAMPLE, createCell(r.getValue(CHARGEN.MICROBIOSAMPLE)));

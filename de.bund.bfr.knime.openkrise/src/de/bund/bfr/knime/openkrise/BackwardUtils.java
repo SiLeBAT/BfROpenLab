@@ -46,6 +46,7 @@ public class BackwardUtils {
 	public static final String DELIVERY_ENDCHAIN = "EndChain";
 	public static final String DELIVERY_ENDCHAINWHY = "ExplanationEndChain";
 	public static final String DELIVERY_REMARKS = "Contact_Questions_Remarks";
+	public static final String DELIVERY_COMMENTS = "Comments";
 	public static final String DELIVERY_FURTHERTB = "FurtherTB";
 	public static final String DELIVERY_MICROSAMPLE = "MicroSample";
 	public static final String DELIVERY_PROCESSING = "Processing";
