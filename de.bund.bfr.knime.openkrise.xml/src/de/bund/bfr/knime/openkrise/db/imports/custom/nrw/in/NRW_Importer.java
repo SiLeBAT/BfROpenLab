@@ -88,7 +88,7 @@ public class NRW_Importer {
 						try {
 							se = sp.getEnvelope();
 						}
-						catch (Exception e) {System.err.println(fne + " ist nicht korrekt formatiert...");}
+						catch (Exception e) {System.err.println(fne + " ist nicht korrekt formatiert...\n");e.printStackTrace();}
 						if (se != null) {
 							SOAPBody body = se.getBody();
 							NodeList nl = body.getChildNodes();
@@ -108,6 +108,11 @@ public class NRW_Importer {
 										fall = faelle.get(fn);
 
 										System.out.println(fn + " - " + kpm.getBetrieb().getBetriebsname() + " - " + kpm.getMeldung().getNummer() + " - " + kpm.getMeldung().getMeldungVom());
+										/*
+										if (kpm.getBetrieb().getBetriebsname().equals("Josef Degens")) {
+											System.err.println(f.getAbsolutePath());
+										}
+										*/
 										fall.addKPM(kpm);
 									}
 									catch (Exception e) {System.err.println(fne + " ist nicht korrekt formatiert...");}

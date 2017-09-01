@@ -255,6 +255,18 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		File tempDir = null;
 		String xmlFolder = set.getXmlPath();
 		if (set.isBusstop()) {
+		    javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
+		    	    new javax.net.ssl.HostnameVerifier() {
+
+		    	        public boolean verify(String hostname,
+		    	                javax.net.ssl.SSLSession sslSession) {
+		    	        	System.err.println(hostname);
+		    	            //if (hostname.equals("localhost")) {
+		    	                return true;
+		    	            //}
+		    	            //return false;
+		    	        }
+		    	    });
 		    ClientConfig config = new ClientConfig();
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
