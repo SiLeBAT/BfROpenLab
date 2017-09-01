@@ -255,8 +255,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		File tempDir = null;
 		String xmlFolder = set.getXmlPath();
 		if (set.isBusstop()) {
-		    javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
-		    	    new javax.net.ssl.HostnameVerifier() {
+			javax.net.ssl.HostnameVerifier hnv = new javax.net.ssl.HostnameVerifier() {
 
 		    	        public boolean verify(String hostname,
 		    	                javax.net.ssl.SSLSession sslSession) {
@@ -266,11 +265,11 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    	            //}
 		    	            //return false;
 		    	        }
-		    	    });
+		    	    };
 		    ClientConfig config = new ClientConfig();
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
-		    JerseyClient client = new JerseyClientBuilder().withConfig(config).build();
+		    JerseyClient client = new JerseyClientBuilder().withConfig(config).hostnameVerifier(hnv).build();
 		    client.register(HttpAuthenticationFeature.basic("user", "pass"));
 		    JerseyWebTarget service = client.target(set.getServer());
 		    if (caseNumber == null) {

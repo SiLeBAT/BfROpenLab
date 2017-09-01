@@ -27,11 +27,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,6 +41,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
@@ -739,26 +742,45 @@ public class TracingDelegate<V extends Node> {
 			int iw1 = logo1.getOrigWidth() * logoHeight / logo1.getOrigHeight();
 			BfrLogo logo2 = new BfrLogo();
 			int iw2 = logo2.getOrigWidth() * logoHeight / logo2.getOrigHeight();
-			String s3 = "/";
-			int sw3 = (int) font.getStringBounds(s3, g.getFontRenderContext()).getWidth();
-			IdvLogo logo3 = new IdvLogo();
-			int iw3 = logo3.getOrigWidth() * logoHeight / logo3.getOrigHeight();
-
+			
+			// Additional Logos
+			int swSlash = (int) font.getStringBounds("/", g.getFontRenderContext()).getWidth();
+			int iwTotal = 0;
+			
+			List<Icon> logoArr = new ArrayList<>();
+			/*
+			IdvLogo idv = new IdvLogo();
+			int iw3 = idv.getOrigWidth() * logoHeight / idv.getOrigHeight();
+			idv.setDimension(new Dimension(iw3, logoHeight));
+			logoArr.add(idv);
+			iwTotal += iw3;
+			
+			idv = new IdvLogo();
+			iw3 = idv.getOrigWidth() * logoHeight / idv.getOrigHeight();
+			idv.setDimension(new Dimension(iw3, logoHeight));
+			logoArr.add(idv);
+			iwTotal += iw3;
+			*/
 			
 			g.setColor(ZoomingPaintable.BACKGROUND);
 			
-			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - sw3 - iw3 - 7 * dx, h - height, sw1 + iw1 + sw2 + iw2 + sw3 + iw3 + 7 * dx, height);
+			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - swSlash*logoArr.size() - iwTotal - (5+2*logoArr.size()) * dx, h - height, sw1 + iw1 + sw2 + iw2 + swSlash*logoArr.size() + iwTotal + (5+2*logoArr.size()) * dx, height);
 			g.setColor(Color.BLACK);
-			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - sw3 - iw3 - 7 * dx, h - height, sw1 + iw1 + sw2 + iw2 + sw3 + iw3 + 7 * dx - 1, height - 1);
+			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - swSlash*logoArr.size() - iwTotal - (5+2*logoArr.size()) * dx, h - height, sw1 + iw1 + sw2 + iw2 + swSlash*logoArr.size() + iwTotal + (5+2*logoArr.size()) * dx - 1, height - 1);
 			g.setFont(font);
 			
-			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - sw3 - iw3 - 6 * dx, h - fontHeight - dFont + fontAscent);
+			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - swSlash*logoArr.size() - iwTotal - (4+2*logoArr.size()) * dx, h - fontHeight - dFont + fontAscent);
 			logo1.setDimension(new Dimension(iw1, logoHeight));
-			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - sw3 - iw3 - 5 * dx, h - logoHeight - dLogo);
+			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - swSlash*logoArr.size() - iwTotal - (3+2*logoArr.size()) * dx, h - logoHeight - dLogo);
 			
-			g.drawString(s3, w - sw2 - iw2 - sw3 - iw3 - 4 * dx, h - fontHeight - dFont + fontAscent);
-			logo3.setDimension(new Dimension(iw3, logoHeight));
-			logo3.paintIcon(null, g, w - sw2 - iw2 - sw3 - iw3 - 3 * dx, h - logoHeight - dLogo);
+			int ddx = 0, diwTotal = 0, dSlash = 0;
+			for (Icon i : logoArr) {
+				g.drawString("/", w - sw2 - iw2 - swSlash*logoArr.size() + dSlash - iwTotal + diwTotal - (2+2*logoArr.size()) * dx + ddx, h - fontHeight - dFont + fontAscent);
+				i.paintIcon(null, g, w - sw2 - iw2 - swSlash*logoArr.size() + dSlash - iwTotal + diwTotal - (1+2*logoArr.size()) * dx + ddx, h - logoHeight - dLogo);
+				ddx += 2*dx;
+				diwTotal += i.getIconWidth();
+				dSlash += swSlash;
+			}
 			
 			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont + fontAscent);
 			logo2.setDimension(new Dimension(iw2, logoHeight));
