@@ -22,6 +22,8 @@ package de.bund.bfr.knime.openkrise;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -29,6 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
 import javax.ws.rs.core.MediaType;
 import javax.xml.soap.SOAPException;
 
@@ -255,10 +262,31 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		File tempDir = null;
 		String xmlFolder = set.getXmlPath();
 		if (set.isBusstop()) {
-			javax.net.ssl.HostnameVerifier hnv = new javax.net.ssl.HostnameVerifier() {
+		    TrustManager[] trustAllCerts = new TrustManager[] {
+		            new javax.net.ssl.X509TrustManager() {
+		                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+		                    return null;
+		                }
 
-		    	        public boolean verify(String hostname,
-		    	                javax.net.ssl.SSLSession sslSession) {
+		                public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+		                    String authType) {}
+
+		                public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+		                    String authType) {}
+		            }
+		        };
+
+		        SSLContext context = null;
+				try {
+					context = SSLContext.getInstance("TLS");
+			        context.init(null, trustAllCerts, new SecureRandom());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+		        HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+			HostnameVerifier hnv = new HostnameVerifier() {
+
+		    	        public boolean verify(String hostname, SSLSession sslSession) {
 		    	        	System.err.println(hostname);
 		    	            //if (hostname.equals("localhost")) {
 		    	                return true;
@@ -269,7 +297,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    ClientConfig config = new ClientConfig();
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
-		    JerseyClient client = new JerseyClientBuilder().withConfig(config).hostnameVerifier(hnv).build();
+		    JerseyClient client = new JerseyClientBuilder().withConfig(config).hostnameVerifier(hnv).sslContext(context).build();
 		    client.register(HttpAuthenticationFeature.basic("user", "pass"));
 		    JerseyWebTarget service = client.target(set.getServer());
 		    if (caseNumber == null) {
