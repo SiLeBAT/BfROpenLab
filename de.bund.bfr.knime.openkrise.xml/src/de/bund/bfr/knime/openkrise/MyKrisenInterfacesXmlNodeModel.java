@@ -287,8 +287,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 			HostnameVerifier hnv = new HostnameVerifier() {
 
 		    	        public boolean verify(String hostname, SSLSession sslSession) {
-		    	        	System.err.println(hostname);
-		    	            //if (hostname.equals("localhost")) {
+		    	        	//System.err.println(hostname); 
+		    	            //if (hostname.equals("localhost")) { if (hostname.startsWith("foodrisklabs.bfr.")
 		    	                return true;
 		    	            //}
 		    	            //return false;
