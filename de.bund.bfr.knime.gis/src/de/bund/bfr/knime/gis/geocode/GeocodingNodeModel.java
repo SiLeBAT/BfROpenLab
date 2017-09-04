@@ -139,6 +139,9 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 			}
 
 			int addressIndex = spec.findColumnIndex(set.getAddressColumn());
+			int streetIndex = spec.findColumnIndex(set.getStreetColumn());
+			int cityIndex = spec.findColumnIndex(set.getCityColumn());
+			int zipIndex = spec.findColumnIndex(set.getZipColumn());
 			int countryCodeIndex = spec.findColumnIndex(set.getCountryCodeColumn());
 			String address = null;
 			String street = null;
@@ -148,6 +151,18 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 			if (addressIndex != -1) {
 				address = IO.getCleanString(row.getCell(addressIndex));
+			}
+
+			if (streetIndex != -1) {
+				street = IO.getCleanString(row.getCell(streetIndex));
+			}
+
+			if (cityIndex != -1) {
+				city = IO.getCleanString(row.getCell(cityIndex));
+			}
+
+			if (zipIndex != -1) {
+				zip = IO.getCleanString(row.getCell(zipIndex));
 			}
 
 			if (countryCodeIndex != -1) {
@@ -268,7 +283,7 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 		}
 
 		String url, urlWithoutKey;
-		if (address == null) {
+		if (street != null || city != null || zip != null || country != null) {
 			url = createMapQuest5BoxUrl(street, city, zip, country, mapQuestKey);
 			urlWithoutKey = createMapQuest5BoxUrl(street, city, zip, country, NO_KEY);
 		}
@@ -462,10 +477,10 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	private static String createMapQuest5BoxUrl(String street, String city, String zip, String country, String key) throws UnsupportedEncodingException {
 		return URL_PATTERN_MAPQUEST5BOX.replace(
 				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
-				PATTERN_CODE_STREET, URLEncoder.encode(street, StandardCharsets.UTF_8.name())).replace(
-				PATTERN_CODE_CITY, URLEncoder.encode(city, StandardCharsets.UTF_8.name())).replace(
-				PATTERN_CODE_ZIP, URLEncoder.encode(zip, StandardCharsets.UTF_8.name())).replace(
-				PATTERN_CODE_COUNTRY, URLEncoder.encode(country, StandardCharsets.UTF_8.name()));
+				PATTERN_CODE_STREET, street == null ? "" : URLEncoder.encode(street, StandardCharsets.UTF_8.name())).replace(
+				PATTERN_CODE_CITY, city == null ? "" : URLEncoder.encode(city, StandardCharsets.UTF_8.name())).replace(
+				PATTERN_CODE_ZIP, zip == null ? "" : URLEncoder.encode(zip, StandardCharsets.UTF_8.name())).replace(
+				PATTERN_CODE_COUNTRY, country == null ? "" : URLEncoder.encode(country, StandardCharsets.UTF_8.name()));
 	}
 
 	private static String createGisgraphyUrl(String server, String address, String countryCode)

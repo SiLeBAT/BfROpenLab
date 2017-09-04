@@ -59,10 +59,16 @@ public class GeocodingSettings extends NodeSettings {
 	}
 
 	public static final String DEFAULT_ADDRESS_COLUMN = "Address";
+	public static final String DEFAULT_STREET_COLUMN = "Street";
+	public static final String DEFAULT_CITY_COLUMN = "City";
+	public static final String DEFAULT_ZIP_COLUMN = "Zip";
 	public static final String DEFAULT_COUNTRY_COLUMN = "Country";
 
 	private static final String CFG_SERVICE_PROVIDER = "ServiceProvider";
 	private static final String CFG_ADDRESS_COLUMN = "AddressColumn";
+	private static final String CFG_STREET_COLUMN = "StreetColumn";
+	private static final String CFG_CITY_COLUMN = "CityColumn";
+	private static final String CFG_ZIP_COLUMN = "ZipColumn";
 	private static final String CFG_COUNTRY_CODE_COLUMN = "CountryCodeColumn";
 	private static final String CFG_GISGRAPHY_SERVER = "GisgraphyServer";
 	private static final String CFG_PHOTON_SERVER = "PhotonServer";
@@ -71,6 +77,9 @@ public class GeocodingSettings extends NodeSettings {
 
 	private Provider serviceProvider;
 	private String addressColumn;
+	private String streetColumn;
+	private String cityColumn;
+	private String zipColumn;
 	private String countryCodeColumn;
 	private String gisgraphyServer;
 	private String photonServer;
@@ -80,6 +89,9 @@ public class GeocodingSettings extends NodeSettings {
 	public GeocodingSettings() {
 		serviceProvider = Provider.MAPQUEST;
 		addressColumn = DEFAULT_ADDRESS_COLUMN;
+		streetColumn = DEFAULT_STREET_COLUMN;
+		cityColumn = DEFAULT_CITY_COLUMN;
+		zipColumn = DEFAULT_ZIP_COLUMN;
 		countryCodeColumn = DEFAULT_COUNTRY_COLUMN;
 		gisgraphyServer = null;
 		photonServer = null;
@@ -100,6 +112,21 @@ public class GeocodingSettings extends NodeSettings {
 
 		try {
 			addressColumn = settings.getString(CFG_ADDRESS_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			streetColumn = settings.getString(CFG_STREET_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			cityColumn = settings.getString(CFG_CITY_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			zipColumn = settings.getString(CFG_ZIP_COLUMN);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -137,6 +164,9 @@ public class GeocodingSettings extends NodeSettings {
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFG_SERVICE_PROVIDER, serviceProvider.name());
 		settings.addString(CFG_ADDRESS_COLUMN, addressColumn);
+		settings.addString(CFG_STREET_COLUMN, streetColumn);
+		settings.addString(CFG_CITY_COLUMN, cityColumn);
+		settings.addString(CFG_ZIP_COLUMN, zipColumn);
 		settings.addString(CFG_COUNTRY_CODE_COLUMN, countryCodeColumn);
 		settings.addString(CFG_GISGRAPHY_SERVER, gisgraphyServer);
 		settings.addString(CFG_PHOTON_SERVER, photonServer);
@@ -158,6 +188,30 @@ public class GeocodingSettings extends NodeSettings {
 
 	public void setAddressColumn(String addressColumn) {
 		this.addressColumn = addressColumn;
+	}
+
+	public String getStreetColumn() {
+		return streetColumn;
+	}
+
+	public void setStreetColumn(String streetColumn) {
+		this.streetColumn = streetColumn;
+	}
+
+	public String getCityColumn() {
+		return cityColumn;
+	}
+
+	public void setCityColumn(String cityColumn) {
+		this.cityColumn = cityColumn;
+	}
+
+	public String getZipColumn() {
+		return zipColumn;
+	}
+
+	public void setZipColumn(String zipColumn) {
+		this.zipColumn = zipColumn;
 	}
 
 	public String getCountryCodeColumn() {

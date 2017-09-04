@@ -748,15 +748,19 @@ public class TracingDelegate<V extends Node> {
 			int iwTotal = 0;
 			
 			List<Icon> logoArr = new ArrayList<>();
+			List<Integer> logoLeft = new ArrayList<>();
+			List<Integer> logoTop = new ArrayList<>();
 			
 			IdvLogo idv = new IdvLogo();
 			int iw3 = idv.getOrigWidth() * logoHeight / idv.getOrigHeight();
+			logoLeft.add(11); logoTop.add(0);
 			idv.setDimension(new Dimension(iw3, logoHeight));
 			logoArr.add(idv);
 			iwTotal += iw3;
 			/*
 			CgiLogo cgi = new CgiLogo();
 			iw3 = cgi.getOrigWidth() * logoHeight / cgi.getOrigHeight();
+			logoLeft.add(0); logoTop.add(-8);
 			cgi.setDimension(new Dimension(iw3, logoHeight));
 			logoArr.add(cgi);
 			iwTotal += iw3;
@@ -774,12 +778,14 @@ public class TracingDelegate<V extends Node> {
 			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - swSlash*logoArr.size() - iwTotal - (3+2*logoArr.size()) * dx, h - logoHeight - dLogo);
 			
 			int ddx = 0, diwTotal = 0, dSlash = 0;
+			int ii = 0;
 			for (Icon i : logoArr) {
-				g.drawString("/", w - sw2 - iw2 - swSlash*logoArr.size() + dSlash - iwTotal + diwTotal - (2+2*logoArr.size()) * dx + ddx, h - fontHeight - dFont + fontAscent);
-				i.paintIcon(null, g, w - sw2 - iw2 - swSlash*logoArr.size() + dSlash - iwTotal + diwTotal - (1+2*logoArr.size()) * dx + ddx, h - logoHeight - dLogo);
+				g.drawString("/", w - sw2 - iw2 - swSlash*logoArr.size() + dSlash - iwTotal + diwTotal - (2+2*logoArr.size()) * dx + ddx, h - fontHeight - dFont + fontAscent - 2);
+				i.paintIcon(null, g, w - sw2 - iw2 - swSlash*logoArr.size() + dSlash - iwTotal + diwTotal - (1+2*logoArr.size()) * dx + ddx + logoLeft.get(ii), h - logoHeight - dLogo + logoTop.get(ii));
 				ddx += 2*dx;
 				diwTotal += i.getIconWidth();
 				dSlash += swSlash;
+				ii++;
 			}
 			
 			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont + fontAscent);

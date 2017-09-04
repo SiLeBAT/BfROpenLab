@@ -58,6 +58,9 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 	private JComboBox<GeocodingSettings.Multiple> multipleBox;
 
 	private ColumnComboBox addressBox;
+	private ColumnComboBox streetBox;
+	private ColumnComboBox cityBox;
+	private ColumnComboBox zipBox;
 	private ColumnComboBox countryCodeBox;
 	private JTextField serverField;
 
@@ -74,6 +77,9 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		multipleBox = new JComboBox<>(GeocodingSettings.Multiple.values());
 
 		addressBox = new ColumnComboBox(false);
+		streetBox = new ColumnComboBox(true);
+		cityBox = new ColumnComboBox(true);
+		zipBox = new ColumnComboBox(true);
 		countryCodeBox = new ColumnComboBox(false);
 		serverField = new JTextField();
 
@@ -85,10 +91,16 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
 		addressBox.removeAllColumns();
+		streetBox.removeAllColumns();
+		cityBox.removeAllColumns();
+		zipBox.removeAllColumns();
 		countryCodeBox.removeAllColumns();
 
 		for (DataColumnSpec column : IO.getColumns(specs[0], StringCell.TYPE)) {
 			addressBox.addColumn(column);
+			streetBox.addColumn(column);
+			cityBox.addColumn(column);
+			zipBox.addColumn(column);
 			countryCodeBox.addColumn(column);
 		}
 
@@ -99,6 +111,9 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		multipleBox.setSelectedItem(set.getMultipleResults());
 
 		addressBox.setSelectedColumnName(set.getAddressColumn());
+		streetBox.setSelectedColumnName(set.getStreetColumn());
+		cityBox.setSelectedColumnName(set.getCityColumn());
+		zipBox.setSelectedColumnName(set.getZipColumn());
 		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
 		if (set.getServiceProvider() == GeocodingSettings.Provider.GISGRAPHY) {
 			serverField.setText(set.getGisgraphyServer() != null ? set.getGisgraphyServer() : "");
@@ -143,6 +158,10 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 			}
 
 			set.setPhotonServer(serverField.getText().trim());
+		} else if (set.getServiceProvider() == GeocodingSettings.Provider.MAPQUEST) {
+			set.setStreetColumn(streetBox.getSelectedColumnName());
+			set.setCityColumn(cityBox.getSelectedColumnName());
+			set.setZipColumn(zipBox.getSelectedColumnName());
 		}
 
 		set.saveSettings(settings);
@@ -163,6 +182,11 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		} else if (providerBox.getSelectedItem() == GeocodingSettings.Provider.PHOTON) {
 			otherLabels.add(0, new JLabel("Server Address:"));
 			otherFields.add(0, serverField);
+		} else if (providerBox.getSelectedItem() == GeocodingSettings.Provider.MAPQUEST) {
+			addressLabels.add(new JLabel("Street:")); addressBoxes.add(streetBox);
+			addressLabels.add(new JLabel("City:")); addressBoxes.add(cityBox);
+			addressLabels.add(new JLabel("Zip:")); addressBoxes.add(zipBox);
+			addressLabels.add(new JLabel("Country Code:")); addressBoxes.add(countryCodeBox);
 		}
 
 		panel.removeAll();
