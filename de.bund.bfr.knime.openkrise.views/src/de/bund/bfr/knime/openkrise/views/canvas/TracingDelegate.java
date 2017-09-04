@@ -748,17 +748,17 @@ public class TracingDelegate<V extends Node> {
 			int iwTotal = 0;
 			
 			List<Icon> logoArr = new ArrayList<>();
-			/*
+			
 			IdvLogo idv = new IdvLogo();
 			int iw3 = idv.getOrigWidth() * logoHeight / idv.getOrigHeight();
 			idv.setDimension(new Dimension(iw3, logoHeight));
 			logoArr.add(idv);
 			iwTotal += iw3;
-			
-			idv = new IdvLogo();
-			iw3 = idv.getOrigWidth() * logoHeight / idv.getOrigHeight();
-			idv.setDimension(new Dimension(iw3, logoHeight));
-			logoArr.add(idv);
+			/*
+			CgiLogo cgi = new CgiLogo();
+			iw3 = cgi.getOrigWidth() * logoHeight / cgi.getOrigHeight();
+			cgi.setDimension(new Dimension(iw3, logoHeight));
+			logoArr.add(cgi);
 			iwTotal += iw3;
 			*/
 			

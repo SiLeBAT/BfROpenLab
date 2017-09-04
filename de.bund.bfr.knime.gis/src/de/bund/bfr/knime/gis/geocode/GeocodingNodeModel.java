@@ -98,9 +98,13 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	private static final String PATTERN_CODE_SERVER = "<SERVER>";
 	private static final String PATTERN_CODE_KEY = "<KEY>";
 	private static final String PATTERN_CODE_ADDRESS = "<ADDRESS>";
+	private static final String PATTERN_CODE_STREET = "<STREET>";
+	private static final String PATTERN_CODE_CITY = "<CITY>";
+	private static final String PATTERN_CODE_ZIP = "<ZIP>";
 	private static final String PATTERN_CODE_COUNTRY = "<COUNTRY>";
 	
 	private static final String URL_PATTERN_MAPQUEST = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS;
+	private static final String URL_PATTERN_MAPQUEST5BOX = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&street=" + PATTERN_CODE_STREET + "&city=" + PATTERN_CODE_CITY + "&postalCode=" + PATTERN_CODE_ZIP + "&country=" + PATTERN_CODE_COUNTRY;
 	private static final String URL_PATTERN_BKG = "https://sg.geodatenzentrum.de/gdz_geokodierung__" + PATTERN_CODE_KEY + "/geosearch?query=" + PATTERN_CODE_ADDRESS;
 	private static final String URL_PATTERN_GISGRAPHY = PATTERN_CODE_SERVER + "?address=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY + "&format=json";
 	private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&osm_tag=highway:residential&limit=2";
@@ -137,6 +141,9 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 			int addressIndex = spec.findColumnIndex(set.getAddressColumn());
 			int countryCodeIndex = spec.findColumnIndex(set.getCountryCodeColumn());
 			String address = null;
+			String street = null;
+			String city = null;
+			String zip = null;
 			String countryCode = null;
 
 			if (addressIndex != -1) {
@@ -151,7 +158,7 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 			switch (set.getServiceProvider()) {
 			case MAPQUEST:
-				result = performMapQuestGeocoding(address);
+				result = performMapQuestGeocoding(address, street, city, zip, countryCode);
 				break;
 			case GISGRAPHY:
 				result = performGisgraphyGeocoding(address, countryCode);
@@ -246,9 +253,9 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
-	private GeocodingResult performMapQuestGeocoding(String address)
+	private GeocodingResult performMapQuestGeocoding(String address, String street, String city, String zip, String country)
 			throws IOException, InvalidSettingsException, CanceledExecutionException {
-		if (address == null) {
+		if (address == null && street == null && city == null && zip == null && country == null) {
 			return new GeocodingResult();
 		}
 
@@ -260,8 +267,15 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 					"MapQuest key in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		String url = createMapQuestUrl(address, mapQuestKey);
-		String urlWithoutKey = createMapQuestUrl(address, NO_KEY);
+		String url, urlWithoutKey;
+		if (address == null) {
+			url = createMapQuest5BoxUrl(street, city, zip, country, mapQuestKey);
+			urlWithoutKey = createMapQuest5BoxUrl(street, city, zip, country, NO_KEY);
+		}
+		else {
+			url = createMapQuestUrl(address, mapQuestKey);
+			urlWithoutKey = createMapQuestUrl(address, NO_KEY);
+		}
 
 		try (BufferedReader buffer = new BufferedReader(
 				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
@@ -444,6 +458,14 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 		return URL_PATTERN_MAPQUEST.replace(
 				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
 			    PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));
+	}
+	private static String createMapQuest5BoxUrl(String street, String city, String zip, String country, String key) throws UnsupportedEncodingException {
+		return URL_PATTERN_MAPQUEST5BOX.replace(
+				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
+				PATTERN_CODE_STREET, URLEncoder.encode(street, StandardCharsets.UTF_8.name())).replace(
+				PATTERN_CODE_CITY, URLEncoder.encode(city, StandardCharsets.UTF_8.name())).replace(
+				PATTERN_CODE_ZIP, URLEncoder.encode(zip, StandardCharsets.UTF_8.name())).replace(
+				PATTERN_CODE_COUNTRY, URLEncoder.encode(country, StandardCharsets.UTF_8.name()));
 	}
 
 	private static String createGisgraphyUrl(String server, String address, String countryCode)
