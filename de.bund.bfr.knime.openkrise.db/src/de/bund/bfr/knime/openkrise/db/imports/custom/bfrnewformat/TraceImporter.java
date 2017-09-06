@@ -553,7 +553,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		boolean backtracing = true;
 		boolean isProduction = false;
 		String lang = null;
-		boolean isAiO = false;
+		boolean isAiO = false; // All in One Template introduced for Fipronil
 
 		Sheet sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("de"));
 		if (sheet != null) {lang = "de"; isProduction = false; backtracing = true;}
@@ -588,6 +588,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				address = getCellString(row.getCell(hmS.get("address")));
 				focusS.setAddress(address);
 				focusS.setCountry(getCellString(row.getCell(hmS.get("country"))));
+				if (!isProduction && hmS.get("tob") >= 0) {
+					focusS.setTypeOfBusiness(getCellString(row.getCell(hmS.get("tob"))));
+				}
 				focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + 1);
 				sID = genDbId(""+cs+address);
 				focusS.setId(""+sID);
@@ -1015,9 +1018,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								String str = getCellString(row.getCell(ii));
 								xlsD.addField(str, ii, lang);
 							}
-							for (int ii=xlsO.getStartCol();ii<=xlsO.getEndCol();ii++) {
-								String str = getCellString(row.getCell(ii));
-								xlsO.addField(str, ii, lang);
+							if (xlsO.getStartCol() >= 0 && xlsO.getEndCol() >= 0) {
+								for (int ii=xlsO.getStartCol();ii<=xlsO.getEndCol();ii++) {
+									String str = getCellString(row.getCell(ii));
+									xlsO.addField(str, ii, lang);
+								}								
 							}
 							
 							if (isProduction && i==4) {
@@ -1031,10 +1036,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							else { // Simple Start Template or AiO
 								xlsD.setChargenLinkCol(-1);
 								doCollect = true;
-							}
-							if (focusS != null && !isProduction && xlsS.getTobCol() >= 0) {
-								Row row0 = sheet.getRow(0);
-								focusS.setTypeOfBusiness(getCellString(row0.getCell(5)));
 							}
 							if (!isAiO) i++;
 							continue;
