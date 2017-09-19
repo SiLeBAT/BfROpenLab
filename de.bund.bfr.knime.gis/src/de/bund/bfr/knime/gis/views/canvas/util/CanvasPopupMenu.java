@@ -74,8 +74,10 @@ public class CanvasPopupMenu extends JPopupMenu {
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem collapseSimpleChainsItem;
 	private JMenuItem clearCollapsedNodesItem;
+	
+	private JMenuItem openExplosionViewItem;
 
-	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges, boolean allowLayout, boolean allowCollapse) {
+	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges, boolean allowLayout, boolean allowCollapse, boolean allowOpenExplosionView) {
 		init(owner);
 
 		add(resetLayoutItem);
@@ -151,6 +153,10 @@ public class CanvasPopupMenu extends JPopupMenu {
 			add(collapseSimpleChainsItem);
 			add(clearCollapsedNodesItem);
 		}
+		if (allowOpenExplosionView) {
+			add(new JSeparator());
+			add(this.openExplosionViewItem);
+		}
 	}
 
 	public void addClickListener(ClickListener listener) {
@@ -167,6 +173,10 @@ public class CanvasPopupMenu extends JPopupMenu {
 
 	public void setEdgeSelectionEnabled(boolean enabled) {
 		edgeSelectionMenu.setEnabled(enabled);
+	}
+	
+	public void setOpenExplosionViewEnabled(boolean enabled) {
+		this.openExplosionViewItem.setEnabled(enabled);
 	}
 
 	private void init(Canvas<?> owner) {
@@ -219,7 +229,8 @@ public class CanvasPopupMenu extends JPopupMenu {
 		collapseSimpleChainsItem = createItem("Collapse Simple Chains", ClickListener::collapseSimpleChainsItemClicked);
 		clearCollapsedNodesItem = createItem("Clear Collapsed " + owner.getNaming().Nodes(),
 				ClickListener::clearCollapsedNodesItemClicked);
-
+		this.openExplosionViewItem = createItem("Show Contained Nodes", ClickListener::openExplosionViewItemClicked);
+		
 		layoutItems = new ArrayList<>();
 
 		for (LayoutType layoutType : LayoutType.values()) {
@@ -294,6 +305,8 @@ public class CanvasPopupMenu extends JPopupMenu {
 		void collapseSimpleChainsItemClicked();
 
 		void clearCollapsedNodesItemClicked();
+		
+		void openExplosionViewItemClicked();
 
 	}
 }

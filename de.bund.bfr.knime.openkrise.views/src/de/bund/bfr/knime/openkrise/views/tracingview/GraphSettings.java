@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.geom.Point2D;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -71,61 +72,57 @@ public class GraphSettings extends NodeSettings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		this.loadSettings(settings, "");
+	}
+
+	public void loadSettings(NodeSettingsRO settings, String prefix) {
 		try {
-			transform = new Transform(settings.getDouble(CFG_SCALE_X), settings.getDouble(CFG_SCALE_Y),
-					settings.getDouble(CFG_TRANSLATION_X), settings.getDouble(CFG_TRANSLATION_Y));
+			transform = new Transform(settings.getDouble(prefix + CFG_SCALE_X), settings.getDouble(prefix + CFG_SCALE_Y),
+					settings.getDouble(prefix + CFG_TRANSLATION_X), settings.getDouble(prefix + CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodePositions = (Map<String, Point2D>) SERIALIZER.fromXml(settings.getString(CFG_NODE_POSITIONS));
+			nodePositions = (Map<String, Point2D>) SERIALIZER.fromXml(settings.getString(prefix + CFG_NODE_POSITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeSize = settings.getInt(CFG_NODE_SIZE);
+			nodeSize = settings.getInt(prefix + CFG_NODE_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeMaxSize = minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
+			nodeMaxSize = minusOneToNull(settings.getInt(prefix + CFG_NODE_MAX_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeThickness = settings.getInt(CFG_EDGE_THICKNESS);
+			edgeThickness = settings.getInt(prefix + CFG_EDGE_THICKNESS);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeMaxThickness = minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
+			edgeMaxThickness = minusOneToNull(settings.getInt(prefix + CFG_EDGE_MAX_THICKNESS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			fontSize = settings.getInt(CFG_FONT_SIZE);
+			fontSize = settings.getInt(prefix + CFG_FONT_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			fontBold = settings.getBoolean(CFG_FONT_BOLD);
+			fontBold = settings.getBoolean(prefix + CFG_FONT_BOLD);
 		} catch (InvalidSettingsException e) {
 		}
 	}
 
+	
+	
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addDouble(CFG_SCALE_X, transform.getScaleX());
-		settings.addDouble(CFG_SCALE_Y, transform.getScaleY());
-		settings.addDouble(CFG_TRANSLATION_X, transform.getTranslationX());
-		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
-		settings.addString(CFG_NODE_POSITIONS, SERIALIZER.toXml(nodePositions));
-		settings.addInt(CFG_NODE_SIZE, nodeSize);
-		settings.addInt(CFG_NODE_MAX_SIZE, nullToMinusOne(nodeMaxSize));
-		settings.addInt(CFG_EDGE_THICKNESS, edgeThickness);
-		settings.addInt(CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
-		settings.addInt(CFG_FONT_SIZE, fontSize);
-		settings.addBoolean(CFG_FONT_BOLD, fontBold);
+		this.saveSettings(settings, "");
 	}
 
 	public void setFromCanvas(GraphCanvas canvas) {
@@ -156,5 +153,20 @@ public class GraphSettings extends NodeSettings {
 		} else {
 			canvas.initLayout();
 		}
+	}
+
+	public void saveSettings(NodeSettingsWO settings, String prefix) {
+		// TODO Auto-generated method stub
+		settings.addDouble(prefix + CFG_SCALE_X, transform.getScaleX());
+		settings.addDouble(prefix + CFG_SCALE_Y, transform.getScaleY());
+		settings.addDouble(prefix + CFG_TRANSLATION_X, transform.getTranslationX());
+		settings.addDouble(prefix + CFG_TRANSLATION_Y, transform.getTranslationY());
+		settings.addString(prefix + CFG_NODE_POSITIONS, SERIALIZER.toXml(nodePositions));
+		settings.addInt(prefix + CFG_NODE_SIZE, nodeSize);
+		settings.addInt(prefix + CFG_NODE_MAX_SIZE, nullToMinusOne(nodeMaxSize));
+		settings.addInt(prefix + CFG_EDGE_THICKNESS, edgeThickness);
+		settings.addInt(prefix + CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
+		settings.addInt(prefix + CFG_FONT_SIZE, fontSize);
+		settings.addBoolean(prefix + CFG_FONT_BOLD, fontBold);
 	}
 }

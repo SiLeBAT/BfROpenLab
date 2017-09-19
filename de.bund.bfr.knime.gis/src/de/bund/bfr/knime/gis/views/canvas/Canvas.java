@@ -176,7 +176,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 			this.transform = transformValid ? new Transform(transform) : Transform.IDENTITY_TRANSFORM;
 			applyTransform();
 		});
-
+			
 		BetterGraphMouse<V, Edge<V>> graphMouse = new BetterGraphMouse<>(createPickingPlugin(), createScalingPlugin());
 
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
@@ -276,9 +276,16 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void setSelectedNodeIdsWithoutListener(Set<String> selectedNodeIds) {
 		viewer.getPickedVertexState().clear();
-		nodes.stream().filter(n -> selectedNodeIds.contains(n.getId()))
-				.forEach(n -> viewer.getPickedVertexState().pick(n, true));
+		this.nodes.stream().filter(n -> selectedNodeIds.contains(n.getId())).forEach(n -> viewer.getPickedVertexState().pick(n, true));
+		this.updateNodeSelectionSensitiveMenuItemAccess();
+		//popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
+	}
+	
+	
+	private void updateNodeSelectionSensitiveMenuItemAccess() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
+		popup.setOpenExplosionViewEnabled(!viewer.getPickedVertexState().getPicked().isEmpty() && 
+				viewer.getPickedVertexState().getPicked().stream().filter(n -> this.collapsedNodes.containsKey(n.getId())).count()==1);
 	}
 
 	@Override
@@ -370,14 +377,16 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void pickingFinished() {
-		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
+		//popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
+		this.updateNodeSelectionSensitiveMenuItemAccess();
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
 		call(l -> l.selectionChanged(this));
 	}
 
 	@Override
 	public void nodePickingFinished() {
-		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
+		this.updateNodeSelectionSensitiveMenuItemAccess();
+		//popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 		call(l -> l.nodeSelectionChanged(this));
 	}
 
@@ -812,6 +821,19 @@ public abstract class Canvas<V extends Node> extends JPanel
 		setSelectedNodeIdsWithoutListener(newCollapsedIds);
 		call(l -> l.collapsedNodesAndPickingChanged(this));
 	}
+	
+	@Override
+	public void openExplosionViewItemClicked() {
+		Set<String> selectedNodeIds = getSelectedNodeIds();
+		
+		// exactly one node must be selected
+		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
+		// this node has to be a metanode
+		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
+		if(!collapsedNodes.keySet().contains(selectedNodeId)) return;
+		
+		call(l -> l.openExplosionViewRequested(this, selectedNodeId, this.collapsedNodes.get(selectedNodeId)));
+	}
 
 	@Override 
 	public void collapseSimpleChainsItemClicked() {
@@ -833,6 +855,8 @@ public abstract class Canvas<V extends Node> extends JPanel
 		call(l -> l.collapsedNodesAndPickingChanged(this));
 	
 	}
+	
+	
 	/* *
 	 * @return list of nodeId - lists. Each nodeId list represents a simple chain.
 	 */
@@ -902,6 +926,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 	
 	
+	
 	@Override
 	public void clearCollapsedNodesItemClicked() {
 		Set<String> selectedIds = getSelectedNodeIds();
@@ -913,9 +938,10 @@ public abstract class Canvas<V extends Node> extends JPanel
 		
 		applyChanges();
 		popup.setNodeSelectionEnabled(false);
+		this.popup.setOpenExplosionViewEnabled(false);
 		call(l -> l.collapsedNodesAndPickingChanged(this));
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void editingModeChanged() {

@@ -54,6 +54,13 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 				true);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
+	
+	public TracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, boolean allowCollapse) {
+		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING,
+				allowCollapse);
+		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
+	}
 
 	@Override
 	public void addTracingListener(TracingListener listener) {

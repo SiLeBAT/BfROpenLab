@@ -20,14 +20,20 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
+
+import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.BackwardUtils;
@@ -36,11 +42,13 @@ import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
@@ -97,6 +105,7 @@ public class TracingViewCanvasCreator {
 	}
 
 	public boolean hasGisCoordinates() {
+		
 		int latIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN);
 
@@ -110,12 +119,18 @@ public class TracingViewCanvasCreator {
 			return false;
 		}
 
+		int intIDIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
+		Set<String> filterNodes = (this.set.getExplosionSettingsList().getActiveExplosionSettings()==null?null:this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
+		
 		for (DataRow row : nodeTable) {
-			Double lat = IO.getDouble(row.getCell(latIndex));
-			Double lon = IO.getDouble(row.getCell(lonIndex));
+			if(filterNodes==null || filterNodes.contains(IO.getToCleanString(row.getCell(intIDIndex))))
+			{
+				Double lat = IO.getDouble(row.getCell(latIndex));
+				Double lon = IO.getDouble(row.getCell(lonIndex));
 
-			if (lat != null && lon != null) {
-				return true;
+				if (lat != null && lon != null) {
+					return true;
+				}
 			}
 		}
 
@@ -129,6 +144,55 @@ public class TracingViewCanvasCreator {
 				skippedDeliveryRelationRows);
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
 				edgeSchema, deliveries, lotBased);
+
+		canvas.setPerformTracing(false);
+		set.setToCanvas(canvas);
+		set.getGraphSettings().setToCanvas(canvas);
+		canvas.setPerformTracing(true);
+
+		return canvas;
+	}
+	
+	private void filterExplosionData(Map<String, ? extends Node> nodes, List<? extends Edge<? extends Node>> edges, Map<String, Delivery> deliveries) {
+		// filter relevant edges, nodes, deliveries
+		ExplosionSettings objES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
+		Set<String> filterNodes = new HashSet<>(new ArrayList<>(objES.getContainedNodes()));
+		
+		// remove edges which are not connected with one of the exploded nodes
+		edges.removeAll(edges.stream()
+				.filter(e -> !(filterNodes.contains(e.getFrom().getId()) || filterNodes.contains(e.getTo().getId())))
+				.collect(Collectors.toList()));
+		
+		// remove deliveries which are to received or supplied by one of the exploded stations
+		deliveries.keySet().removeAll(deliveries.entrySet().stream()
+				.filter(e -> !(filterNodes.contains(e.getValue().getRecipientId()) || filterNodes.contains(e.getValue().getSupplierId())))
+				.map(e -> e.getKey())
+				.collect(Collectors.toList()));
+		
+		// add boundary nodes (neighbours of the exploded nodes which are not in the set itself)
+		filterNodes.addAll(edges.stream().map(e -> e.getFrom().getId()).collect(Collectors.toSet()));
+		filterNodes.addAll(edges.stream().map(e -> e.getTo().getId()).collect(Collectors.toSet()));
+		
+		nodes.keySet().retainAll(filterNodes);
+		//nodes.keySet().removeAll(Sets.difference(nodes.keySet(), filterNodes));
+	}
+	
+	public TracingGraphCanvas createExplosionGraphCanvas() throws NotConfigurableException {
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+				skippedDeliveryRelationRows);
+		
+		
+		this.filterExplosionData(nodes, edges, deliveries);
+		//Map<String, ? extends Node> t1 = nodes;
+		//List<? extends Edge<? extends Node>> t2 = edges;
+		//Set<String> borderNodes = Sets.difference(nodes.keySet(), this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
+		
+		TracingGraphCanvas canvas = new ExplosionTracingGraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
+				edgeSchema, deliveries, lotBased, 
+				this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(),
+				this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
 
 		canvas.setPerformTracing(false);
 		set.setToCanvas(canvas);
@@ -162,7 +226,35 @@ public class TracingViewCanvasCreator {
 
 		return canvas;
 	}
+	
+	public ITracingGisCanvas<?> createExplosionGisCanvas() throws NotConfigurableException {
+		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashMap<>(),
+				false);
+		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+				skippedDeliveryRelationRows);
+		ITracingGisCanvas<?> canvas;
 
+		this.filterExplosionData(nodes, edges, deliveries);
+		
+		if (set.getGisType() == GisType.SHAPEFILE) {
+			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased);
+		} else {
+			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries,
+					lotBased);
+			((TracingOsmCanvas) canvas).setTileSource(set.getGisType().getTileSource());
+		}
+
+		canvas.setPerformTracing(false);
+		set.setToCanvas(canvas);
+		set.getGisSettings().setToCanvas(canvas);
+		canvas.setPerformTracing(true);
+
+		return canvas;
+	}
+
+	
 	public Map<RowKey, String> getSkippedDeliveryRows() {
 		return skippedDeliveryRows;
 	}

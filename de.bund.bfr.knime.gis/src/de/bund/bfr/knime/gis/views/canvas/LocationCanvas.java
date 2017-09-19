@@ -69,7 +69,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 		invalidArea = null;
 		lastScaleX = null;
 
-		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true, true));
 		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(
 				getOptionsPanel().getNodeSize(), getOptionsPanel().getNodeMaxSize(), null, null));

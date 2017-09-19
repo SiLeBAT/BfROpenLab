@@ -48,6 +48,10 @@ import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 public class TracingChange implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	public enum ExplosionViewAction {
+		None, Opened, Closed
+	}
 
 	public static class Builder implements Serializable {
 
@@ -101,14 +105,20 @@ public class TracingChange implements Serializable {
 
 		private Pair<Integer, Integer> borderAlphaDiff;
 		private boolean avoidOverlayChanged;
+		
 
 		public static TracingChange createViewChange(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore,
-				GisType gisTypeAfter) {
+				GisType gisTypeAfter, ExplosionSettings objExplosionSettingsBefore, ExplosionSettings objExplosionSettingsAfter, ExplosionViewAction enmExplosionViewAction) {
 			Builder builder = new Builder();
 
-			builder.viewDiff = new ViewDiff(showGisBefore, showGisAfter, gisTypeBefore, gisTypeAfter);
+			builder.viewDiff = new ViewDiff(showGisBefore, showGisAfter, gisTypeBefore, gisTypeAfter, objExplosionSettingsBefore, objExplosionSettingsAfter, enmExplosionViewAction);
 
 			return builder.build();
+		}
+		
+		public static TracingChange createViewChange(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore,
+				GisType gisTypeAfter) {
+			return createViewChange(showGisBefore,showGisAfter, gisTypeBefore, gisTypeAfter, null, null, ExplosionViewAction.None);
 		}
 
 		public Builder() {
@@ -557,14 +567,21 @@ public class TracingChange implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private boolean showGisChanged;
+		//private boolean gbolExplosionViewOpenedORClosed;
 
 		private GisType gisTypeBefore;
 		private GisType gisTypeAfter;
-
-		public ViewDiff(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore, GisType gisTypeAfter) {
-			showGisChanged = showGisBefore != showGisAfter;
+		private ExplosionSettings gobjExplosionSettingsBefore;
+		private ExplosionSettings gobjExplosionSettingsAfter;
+		private ExplosionViewAction genmExplosionViewAction;
+		
+		public ViewDiff(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore, GisType gisTypeAfter, ExplosionSettings objExplosionSettingsBefore, ExplosionSettings objExplosionSettingsAfter, ExplosionViewAction enmExplosionViewAction) {
+			this.showGisChanged = showGisBefore != showGisAfter;	
 			this.gisTypeBefore = gisTypeBefore;
 			this.gisTypeAfter = gisTypeAfter;
+			this.gobjExplosionSettingsBefore = objExplosionSettingsBefore;
+			this.gobjExplosionSettingsAfter = objExplosionSettingsAfter;
+			this.genmExplosionViewAction = enmExplosionViewAction;
 		}
 
 		public void undoRedo(TracingViewSettings set, boolean undo) {
@@ -573,10 +590,22 @@ public class TracingChange implements Serializable {
 			}
 
 			set.setGisType(undo ? gisTypeBefore : gisTypeAfter);
+			
+			if(this.genmExplosionViewAction!=ExplosionViewAction.None) {
+				if(!undo ^ this.genmExplosionViewAction==ExplosionViewAction.Closed) {
+					set.getExplosionSettingsList().setActiveExplosionSettings(
+							(undo || this.genmExplosionViewAction==ExplosionViewAction.Closed) ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
+									true);
+				} else {
+					set.getExplosionSettingsList().setActiveExplosionSettings(
+							(undo || this.genmExplosionViewAction==ExplosionViewAction.Closed) ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
+									set.getExplosionSettingsList().getActiveExplosionSettings());
+				}
+			}
 		}
 
 		public boolean isIdentity() {
-			return !showGisChanged && gisTypeBefore == gisTypeAfter;
+			return !showGisChanged && gisTypeBefore == gisTypeAfter && this.gobjExplosionSettingsBefore==this.gobjExplosionSettingsAfter;
 		}
 	}
 

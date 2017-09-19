@@ -64,7 +64,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 			EdgePropertySchema edgeSchema, Naming naming, boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
-		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
 		viewer.getPickedVertexState().addItemListener(e -> {
 			flushImage();

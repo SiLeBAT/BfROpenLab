@@ -70,67 +70,12 @@ public class GisSettings extends NodeSettings {
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
-		try {
-			transform = new Transform(settings.getDouble(CFG_SCALE_X), settings.getDouble(CFG_SCALE_Y),
-					settings.getDouble(CFG_TRANSLATION_X), settings.getDouble(CFG_TRANSLATION_Y));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			nodeSize = settings.getInt(CFG_NODE_SIZE);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			nodeMaxSize = minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			edgeThickness = settings.getInt(CFG_EDGE_THICKNESS);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			edgeMaxThickness = minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			fontSize = settings.getInt(CFG_FONT_SIZE);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			fontBold = settings.getBoolean(CFG_FONT_BOLD);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			borderAlpha = settings.getInt(CFG_BORDER_ALPHA);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			avoidOverlay = settings.getBoolean(CFG_AVOID_OVERLAY);
-		} catch (InvalidSettingsException e) {
-		}
+		this.loadSettings(settings, "");
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addDouble(CFG_SCALE_X, transform.getScaleX());
-		settings.addDouble(CFG_SCALE_Y, transform.getScaleY());
-		settings.addDouble(CFG_TRANSLATION_X, transform.getTranslationX());
-		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
-		settings.addInt(CFG_NODE_SIZE, nodeSize);
-		settings.addInt(CFG_NODE_MAX_SIZE, nullToMinusOne(nodeMaxSize));
-		settings.addInt(CFG_EDGE_THICKNESS, edgeThickness);
-		settings.addInt(CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
-		settings.addInt(CFG_FONT_SIZE, fontSize);
-		settings.addBoolean(CFG_FONT_BOLD, fontBold);
-		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
-		settings.addBoolean(CFG_AVOID_OVERLAY, avoidOverlay);
+		this.saveSettings(settings, "");
 	}
 
 	public void setFromCanvas(IGisCanvas<?> canvas) {
@@ -158,5 +103,70 @@ public class GisSettings extends NodeSettings {
 		if (transform.isValid()) {
 			canvas.setTransform(transform);
 		}
+	}
+
+	public void loadSettings(NodeSettingsRO settings, String prefix) {
+		// TODO Auto-generated method stub
+		try {
+			transform = new Transform(settings.getDouble(prefix + CFG_SCALE_X), settings.getDouble(prefix + CFG_SCALE_Y),
+					settings.getDouble(prefix + CFG_TRANSLATION_X), settings.getDouble(prefix + CFG_TRANSLATION_Y));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeSize = settings.getInt(prefix + CFG_NODE_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeMaxSize = minusOneToNull(settings.getInt(prefix + CFG_NODE_MAX_SIZE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeThickness = settings.getInt(prefix + CFG_EDGE_THICKNESS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeMaxThickness = minusOneToNull(settings.getInt(prefix + CFG_EDGE_MAX_THICKNESS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			fontSize = settings.getInt(prefix + CFG_FONT_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			fontBold = settings.getBoolean(prefix + CFG_FONT_BOLD);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			borderAlpha = settings.getInt(prefix + CFG_BORDER_ALPHA);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			avoidOverlay = settings.getBoolean(prefix + CFG_AVOID_OVERLAY);
+		} catch (InvalidSettingsException e) {
+		}
+	}
+
+	public void saveSettings(NodeSettingsWO settings, String prefix) {
+		// TODO Auto-generated method stub
+		settings.addDouble(prefix + CFG_SCALE_X, transform.getScaleX());
+		settings.addDouble(prefix + CFG_SCALE_Y, transform.getScaleY());
+		settings.addDouble(prefix + CFG_TRANSLATION_X, transform.getTranslationX());
+		settings.addDouble(prefix + CFG_TRANSLATION_Y, transform.getTranslationY());
+		settings.addInt(prefix + CFG_NODE_SIZE, nodeSize);
+		settings.addInt(prefix + CFG_NODE_MAX_SIZE, nullToMinusOne(nodeMaxSize));
+		settings.addInt(prefix + CFG_EDGE_THICKNESS, edgeThickness);
+		settings.addInt(prefix + CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
+		settings.addInt(prefix + CFG_FONT_SIZE, fontSize);
+		settings.addBoolean(prefix + CFG_FONT_BOLD, fontBold);
+		settings.addInt(prefix + CFG_BORDER_ALPHA, borderAlpha);
+		settings.addBoolean(prefix + CFG_AVOID_OVERLAY, avoidOverlay);
 	}
 }

@@ -74,15 +74,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			EdgePropertySchema edgeSchema, Naming naming, boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
-		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
+		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse,true));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(
 				getOptionsPanel().getNodeSize(), getOptionsPanel().getNodeMaxSize(), null, null));
 	}
 
 	public void initLayout() {
-		if (!nodes.isEmpty()) {
-			applyLayout(LayoutType.ISOM_LAYOUT, nodes, false);
+		if (!this.getLayoutableNodes().isEmpty()) {
+			applyLayout(LayoutType.ISOM_LAYOUT, this.getLayoutableNodes(), false);
 		}
 	}
 
@@ -173,14 +173,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				nodesForLayout = selectedNodes;
 				break;
 			case NO:
-				nodesForLayout = nodes;
+				nodesForLayout = this.getLayoutableNodes();
 				break;
 			case CANCEL:
 			default:
 				return;
 			}
 		} else {
-			nodesForLayout = nodes;
+			nodesForLayout = this.getLayoutableNodes();
 		}
 
 		if (nodesForLayout.size() < 2) {
@@ -227,8 +227,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		return newNode;
 	}
+	
+	protected Set<GraphNode> getLayoutableNodes() { return this.nodes; }
 
-	private void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
+	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog, boolean signalLayoutProcessFinish) {
 		Layout<GraphNode, Edge<GraphNode>> layout = 
 				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout!=nodes)?
 				new FRLayout(viewer.getGraphLayout().getGraph(), viewer.getSize(),true):
@@ -288,8 +290,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
+//		if(useIdentityTransform) {
+//			setTransform(Transform.IDENTITY_TRANSFORM);
+//		} else {
+//			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), PointUtils.getBounds(layoutResult.values()), null));
+//		}
+		
+		 
 		if (layoutType == LayoutType.FR_LAYOUT) {
-			if(nodes==nodesForLayout) {
+			if(this.getLayoutableNodes()==nodesForLayout) {
 			  setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), PointUtils.getBounds(layoutResult.values()),
 					  null));
 			} else {
@@ -299,7 +308,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			setTransform(Transform.IDENTITY_TRANSFORM);
 		}
 
-		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
+		if(signalLayoutProcessFinish) Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
+		
+	}
+	
+	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
+		this.applyLayout(layoutType, nodesForLayout, showProgressDialog, true);
 	}
 
 	private void updatePositionsOfCollapsedNodes() {

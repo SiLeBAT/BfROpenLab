@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.util.EventListener;
+import java.util.Set;
 
 public interface CanvasListener extends EventListener {
 
@@ -68,4 +69,10 @@ public interface CanvasListener extends EventListener {
 	void borderAlphaChanged(ICanvas<?> source);
 
 	void avoidOverlayChanged(ICanvas<?> source);
+	
+	void nodeSubsetChanged(ICanvas<?> source);
+	
+	void openExplosionViewRequested(ICanvas<?> source, String strKey, Set<String> containedNodes);
+	
+	void closeExplosionViewRequested(ICanvas<?> source);
 }

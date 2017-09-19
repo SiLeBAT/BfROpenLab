@@ -20,18 +20,24 @@
 package de.bund.bfr.jung;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 
+import com.google.common.collect.Sets;
+
 import de.bund.bfr.knime.PointUtils;
+//import de.bund.bfr.jung.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -45,6 +51,7 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	protected E edge;
 
 	private boolean allowMovingNodes;
+	private Set<V> gobjDenyMoveNodes;
 
 	private Rectangle2D rect = new Rectangle2D.Float();
 
@@ -55,9 +62,19 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	public BetterPickingGraphMousePlugin(boolean allowMovingNodes) {
 		super(0);
 		this.allowMovingNodes = allowMovingNodes;
+		this.gobjDenyMoveNodes = new HashSet<>();
 		listeners = new EventListenerList();
 	}
+	
+//	public BetterPickingGraphMousePlugin(Set<V> denyMoveNodes) {
+//		super(0);
+//		this.allowMovingNodes = true;
+//		this.gobjDenyMoveNodes = denyMoveNodes;
+//		listeners = new EventListenerList();
+//	}
 
+	public void setNotMovables(Set<V> notMovable) { this.gobjDenyMoveNodes = notMovable; }
+	
 	public void addChangeListener(JungListener listener) {
 		listeners.add(JungListener.class, listener);
 	}
@@ -177,21 +194,26 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	@SuppressWarnings("unchecked")
 	public void mouseDragged(MouseEvent e) {
 		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
-
+        
 		if (vertex != null) {
 			if (allowMovingNodes && down != null) {
 				Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
 				Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
 				Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
 				Layout<V, E> layout = vv.getGraphLayout();
+				//Layout<V,E>
 				PickedState<V> ps = vv.getPickedVertexState();
 
-				for (V v : ps.getPicked()) {
-					layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+				for (V v : Sets.difference(ps.getPicked(), this.gobjDenyMoveNodes)) {
+					if(!layout.isLocked(v)) {
+					//if(layout.isMovable(v))
+						layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+						nodesMoved = true;
+					}
 				}
 
-				nodesMoved = true;
-				vv.repaint();
+				//nodesMoved = true;
+				if(nodesMoved) vv.repaint();
 			}
 
 			down = e.getPoint();

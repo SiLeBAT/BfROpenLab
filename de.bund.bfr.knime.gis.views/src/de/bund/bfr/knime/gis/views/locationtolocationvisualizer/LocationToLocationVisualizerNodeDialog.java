@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.Set;
 
 import javax.swing.JSplitPane;
 
@@ -320,5 +321,23 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 		splitPane.setResizeWeight(0.5);
 		panel.add(splitPane, BorderLayout.CENTER);
 		panel.revalidate();
+	}
+
+	@Override
+	public void nodeSubsetChanged(ICanvas<?> source) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void openExplosionViewRequested(ICanvas<?> source, String strKey, Set<String> containedNodes) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void closeExplosionViewRequested(ICanvas<?> source) {
+		// TODO Auto-generated method stub
+		
 	}
 }
