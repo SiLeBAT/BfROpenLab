@@ -24,6 +24,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
@@ -40,6 +41,8 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class TracingShapefileCanvas extends LocationCanvas implements ITracingGisCanvas<LocationNode> {
 
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	private static final long serialVersionUID = 1L;
 
 	private TracingDelegate<LocationNode> tracing;
@@ -223,7 +226,9 @@ public class TracingShapefileCanvas extends LocationCanvas implements ITracingGi
 
 	@Override
 	public void applyChanges() {
+		logger.finest("entered");
 		tracing.applyChanges();
+		logger.finest("leaving");
 	}
 
 	@Override

@@ -57,10 +57,14 @@ import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.ui.Dialogs;
 
+import java.util.logging.Logger;
+
 /**
  * @author Christian Thoens
  */
 public class GraphCanvas extends Canvas<GraphNode> {
+	
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	private static final long serialVersionUID = 1L;
 	private static final boolean USE_FR_LAYOUT_TO_PLACE_NEW_NODES = true;
@@ -73,17 +77,20 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeSchema,
 			EdgePropertySchema edgeSchema, Naming naming, boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
-
+		logger.finest("entered");
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse,true));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(
 				getOptionsPanel().getNodeSize(), getOptionsPanel().getNodeMaxSize(), null, null));
+		logger.finest("leaving");
 	}
 
 	public void initLayout() {
+		logger.finest("entered");
 		if (!this.getLayoutableNodes().isEmpty()) {
 			applyLayout(LayoutType.ISOM_LAYOUT, this.getLayoutableNodes(), false);
 		}
+		logger.finest("leaving");
 	}
 
 	public Map<String, Point2D> getNodePositions() {
@@ -93,6 +100,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
+		logger.finest("entered");
 		List<GraphNode> nodesWithoutPos = new ArrayList<>();
 
 		for (GraphNode node : nodeSaveMap.values()) {
@@ -147,6 +155,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				viewer.getGraphLayout().setLocation(nodesWithoutPos.get(i), new Point2D.Double(x, upperLeft.getY()));
 			}
 		}
+		logger.finest("leaving");
 	}
 
 	@Override
@@ -220,11 +229,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	protected GraphNode createMetaNode(String id, Collection<GraphNode> nodes) {
+		logger.finest("entered [" + id + "]");
 		GraphNode newNode = new GraphNode(id,
 				CanvasUtils.joinPropertiesOfNodes(nodes, nodeSchema, id, metaNodeProperty));
 
 		viewer.getGraphLayout().setLocation(newNode, PointUtils.getCenter(getNodePositions(nodes).values()));
 
+		logger.finest("leaving");
 		return newNode;
 	}
 	

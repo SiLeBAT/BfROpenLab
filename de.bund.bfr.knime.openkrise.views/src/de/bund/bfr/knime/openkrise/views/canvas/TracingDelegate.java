@@ -67,8 +67,12 @@ import de.bund.bfr.knime.openkrise.common.Delivery;
 import de.bund.bfr.knime.openkrise.common.Tracing;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
+import java.util.logging.Logger;
+
 public class TracingDelegate<V extends Node> {
 
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static boolean DEFAULT_SHOW_FORWARD = false;
@@ -87,6 +91,7 @@ public class TracingDelegate<V extends Node> {
 
 	public TracingDelegate(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap,
 			Map<Edge<V>, Set<Edge<V>>> joinMap, Map<String, Delivery> deliveries) {
+		logger.finest("entered");
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
 		this.edgeSaveMap = edgeSaveMap;
@@ -124,11 +129,12 @@ public class TracingDelegate<V extends Node> {
 			from.add(Calendar.DAY_OF_MONTH, -1);
 
 			dateSlider = new DateSlider(from, to);
+			
 			dateSlider.addDateListener(e -> {
 				applyChanges();
 				call(l -> l.dateSettingsChanged(canvas));
 			});
-
+			
 			JScrollPane pane = new JScrollPane(dateSlider, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
 					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -171,6 +177,8 @@ public class TracingDelegate<V extends Node> {
 		canvas.getPopupMenu().add(new JSeparator());
 		canvas.getPopupMenu().add(defaultHighlightItem);
 		canvas.getViewer().addPostRenderPaintable(new PostPaintable(canvas));
+		
+		logger.finest("leaving");
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -178,6 +186,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void setNodeWeights(Map<String, Double> nodeWeights) {
+		logger.finest("entered");
 		setDoublePropertyValues(nodeSaveMap.values(), TracingColumns.WEIGHT, nodeWeights);
 
 		if (performTracing) {
@@ -185,6 +194,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		call(l -> l.nodeWeightsChanged(canvas));
+		logger.finest("leaving");
 	}
 
 	public Map<String, Double> getEdgeWeights() {
@@ -192,6 +202,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void setEdgeWeights(Map<String, Double> edgeWeights) {
+		logger.finest("entered");
 		setDoublePropertyValues(edgeSaveMap.values(), TracingColumns.WEIGHT, edgeWeights);
 
 		if (performTracing) {
@@ -199,6 +210,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		call(l -> l.edgeWeightsChanged(canvas));
+		logger.finest("leaving");
 	}
 
 	public Map<String, Boolean> getNodeCrossContaminations() {
@@ -206,6 +218,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations) {
+		logger.finest("entered");
 		setBooleanPropertyValues(nodeSaveMap.values(), TracingColumns.CROSS_CONTAMINATION, nodeCrossContaminations);
 
 		if (performTracing) {
@@ -213,6 +226,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		call(l -> l.nodeCrossContaminationsChanged(canvas));
+		logger.finest("leaving");
 	}
 
 	public Map<String, Boolean> getEdgeCrossContaminations() {
@@ -220,6 +234,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
+		logger.finest("entered");
 		setBooleanPropertyValues(edgeSaveMap.values(), TracingColumns.CROSS_CONTAMINATION, edgeCrossContaminations);
 
 		if (performTracing) {
@@ -227,6 +242,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		call(l -> l.edgeCrossContaminationsChanged(canvas));
+		logger.finest("leaving");
 	}
 
 	public Map<String, Boolean> getNodeKillContaminations() {
@@ -234,6 +250,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void setNodeKillContaminations(Map<String, Boolean> nodeKillContaminations) {
+		logger.finest("entered");
 		setBooleanPropertyValues(nodeSaveMap.values(), TracingColumns.KILL_CONTAMINATION, nodeKillContaminations);
 
 		if (performTracing) {
@@ -241,6 +258,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		call(l -> l.nodeKillContaminationsChanged(canvas));
+		logger.finest("leaving");
 	}
 
 	public Map<String, Boolean> getEdgeKillContaminations() {
@@ -248,6 +266,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void setEdgeKillContaminations(Map<String, Boolean> edgeKillContaminations) {
+		logger.finest("entered");
 		setBooleanPropertyValues(edgeSaveMap.values(), TracingColumns.KILL_CONTAMINATION, edgeKillContaminations);
 
 		if (performTracing) {
@@ -255,6 +274,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		call(l -> l.edgeKillContaminationsChanged(canvas));
+		logger.finest("leaving");
 	}
 
 	public Map<String, Boolean> getObservedNodes() {
@@ -262,6 +282,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void setObservedNodes(Map<String, Boolean> observedNodes) {
+		logger.finest("entered");
 		setBooleanPropertyValues(nodeSaveMap.values(), TracingColumns.OBSERVED, observedNodes);
 
 		if (performTracing) {
@@ -269,6 +290,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		call(l -> l.observedNodesChanged(canvas));
+		logger.finest("leaving");
 	}
 
 	public Map<String, Boolean> getObservedEdges() {
@@ -276,6 +298,7 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void setObservedEdges(Map<String, Boolean> observedEdges) {
+		logger.finest("entered");
 		setBooleanPropertyValues(edgeSaveMap.values(), TracingColumns.OBSERVED, observedEdges);
 
 		if (performTracing) {
@@ -283,6 +306,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		call(l -> l.observedEdgesChanged(canvas));
+		logger.finest("leaving");
 	}
 
 	public boolean isEnforceTemporalOrder() {
@@ -387,6 +411,8 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public void applyChanges() {
+		logger.finest("entered");
+		
 		Set<String> selectedNodeIds = canvas.getSelectedNodeIds();
 		Set<String> selectedEdgeIds = canvas.getSelectedEdgeIds();
 
@@ -404,6 +430,7 @@ public class TracingDelegate<V extends Node> {
 		canvas.setSelectedNodeIdsWithoutListener(selectedNodeIds);
 		canvas.setSelectedEdgeIdsWithoutListener(selectedEdgeIds);
 		canvas.getViewer().repaint();
+		logger.finest("leaving");
 	}
 
 	public void doubleClickedOn(Object obj) {
@@ -440,7 +467,9 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	private void applyTimeWindow() {
+		logger.finest("entered");
 		if (dateSlider == null) {
+			logger.finest("leaving dataSlider is null");
 			return;
 		}
 
@@ -448,6 +477,7 @@ public class TracingDelegate<V extends Node> {
 		boolean showEdgesWithoutDate = dateSlider.isShowDeliveriesWithoutDate();
 
 		if (to == null && showEdgesWithoutDate) {
+			logger.finest("leaving to == null && showEdgesWithoutDate");
 			return;
 		}
 
@@ -461,11 +491,14 @@ public class TracingDelegate<V extends Node> {
 				canvas.getEdges().remove(edge);
 			}
 		}
+		logger.finest("leaving");
 	}
 
 	private void applyInvisibility() {
+		logger.finest("entered");
 		if (!isShowForward()) {
 			canvas.applyInvisibility();
+			logger.finest("leaving !isShowForward()");
 			return;
 		}
 
@@ -495,9 +528,11 @@ public class TracingDelegate<V extends Node> {
 				canvas.getEdges().add(edge);
 			}
 		}
+		logger.finest("leaving");
 	}
 
 	private void applyTracing() {
+		logger.finest("entered");
 		if (!isPerformTracing()) {
 			return;
 		}
@@ -583,6 +618,7 @@ public class TracingDelegate<V extends Node> {
 				}
 			}
 		}
+		logger.finest("leaving");
 	}
 
 	private Tracing.Result createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {

@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -18,8 +19,16 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.Handler;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.Formatter;
+
 public class ExplosionCanvasUtils {
 	private static final GeometryFactory FACTORY = new GeometryFactory();
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	public static Polygon createBorderPolygon(Rectangle2D rect, double d) {
 		Coordinate[] outerRing = new Coordinate[] { new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
@@ -58,4 +67,12 @@ public class ExplosionCanvasUtils {
 	public static Map<String, Set<String>> filterExplosedNode(Map<String, Set<String>> nodes, String explodedNodeKey) {
 		return nodes.entrySet().stream().filter(e->e.getKey()!=explodedNodeKey).collect(Collectors.toMap(e->e.getKey(),e->e.getValue()));
 	}
+	
+	
+	
+//	public static void logInfo(String text) {
+//		jlog.log(Level.INFO, text);
+//	}
+	
+	
 }

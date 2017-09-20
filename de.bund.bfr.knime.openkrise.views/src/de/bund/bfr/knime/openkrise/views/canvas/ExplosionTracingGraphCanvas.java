@@ -15,8 +15,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,12 +47,17 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.common.Delivery;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
+import java.util.logging.Logger;
+
 public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	/**
 	 * 
 	 */
@@ -64,26 +71,35 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	public ExplosionTracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
 			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, String strKey, Set<String> containedNodes) {
 		super(nodes, edges, nodeProperties, edgeProperties, deliveries, lotBased, false);
+		
+		logger.finest("entered");
 		this.image = null;
+		this.gstrKey = strKey;
 		this.boundaryNodes = this.nodes.stream().filter(n -> !containedNodes.contains(n.getId())).collect(Collectors.toSet());
 		this.nonBoundaryNodes = this.nodes.stream().filter(n -> containedNodes.contains(n.getId())).collect(Collectors.toSet());
 		//BetterGraphMouse<GraphNode,Edge<GraphNode>> m = (BetterGraphMouse<GraphNode,Edge<GraphNode>>) this.getViewer().getGraphMouse();
 		
 		this.getViewer().addPreRenderPaintable(new PrePaintable(false));
 		this.getViewer().addPostRenderPaintable(new LabelPaintable(this.getViewer(),strKey,()->call(l->l.closeExplosionViewRequested(this))));
-		this.repositionBoundaryNodes();
-		//this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
+		//this.repositionBoundaryNodes();
+		this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
 		//this.boundaryNodes.forEach(n -> n.setAllowMove(false));
-		((BetterGraphMouse<GraphNode,Edge<GraphNode>>) this.getViewer().getGraphMouse()).getPickingPlugin().setNotMovables(this.boundaryNodes);
-		
+		//((BetterGraphMouse<GraphNode,Edge<GraphNode>>) this.getViewer().getGraphMouse()).getPickingPlugin().setNotMovables(this.boundaryNodes);
+		logger.finest("leaving");
 	}
-	
-	
 	
 	@Override
-	protected BetterPickingGraphMousePlugin<GraphNode, Edge<GraphNode>> createPickingPlugin() {
-		return new BetterPickingGraphMousePlugin<>(true);
+	public void setPerformTracing(boolean performTracing) {
+		logger.finest("entered");
+		if(performTracing) this.repositionBoundaryNodes();
+		super.setPerformTracing(performTracing);
+		logger.finest("leaving");
 	}
+	
+//	@Override
+//	protected BetterPickingGraphMousePlugin<GraphNode, Edge<GraphNode>> createPickingPlugin() {
+//		return new BetterPickingGraphMousePlugin<>(true);
+//	}
 	
 	@Override
 	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(boolean toSvg) {
@@ -107,10 +123,12 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	
 	@Override
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
+		logger.finest("entered");
 		Sets.difference(this.collapsedNodes.keySet(), collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
 		this.collapsedNodes = ExplosionCanvasUtils.filterExplosedNode(collapsedNodes,this.gstrKey);
 		applyChanges();
 		call(l -> l.collapsedNodesChanged(this));
+		logger.finest("leaving");
 	}
 	
 	@Override
@@ -131,7 +149,16 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		super.applyInvisibility();
 	}
 	
+	@Override 
+	protected Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
+		logger.finest("entered");
+		Map<String, Point2D> nodePos = super.getNodePositions(nodes.stream().filter(n-> this.nonBoundaryNodes.contains(n) && this.boundaryNodes.contains(n)).collect(Collectors.toList()));
+		logger.finest("leaving");
+		return nodePos;
+	}
+	
 	private void repositionBoundaryNodes() {
+		logger.finest("entered");
 		//Rectangle rect = getNonBoundaryNodeArea();
 		Map<String, Point2D> positions = this.getNodePositions();
 		Set<String> boundaryNodeIds = CanvasUtils.getElementIds(this.boundaryNodes);
@@ -144,6 +171,7 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 			
 			if(bounds.isEmpty()) {
 				boundaryArea = null;
+				logger.finest("leaving bounds.isEmpty()=TRUE");
 				return;
 			}
 			
@@ -181,7 +209,7 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 			
 			this.setNodePositions(positions);
 		}
-		
+		logger.finest("leaving");
 	}
 		
 	private static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {

@@ -54,8 +54,12 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingShapefileCanvas;
 
+import java.util.logging.Logger;
+
 public class TracingViewCanvasCreator {
 
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
 	private BufferedDataTable tracingTable;
@@ -73,6 +77,7 @@ public class TracingViewCanvasCreator {
 
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable, BufferedDataTable edgeTable,
 			BufferedDataTable tracingTable, BufferedDataTable shapeTable, TracingViewSettings set) {
+		logger.finest("entered");
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
 		this.tracingTable = tracingTable;
@@ -102,6 +107,7 @@ public class TracingViewCanvasCreator {
 		skippedShapeRows = new LinkedHashMap<>();
 
 		lotBased = TracingUtils.isLotBased(nodeSchema, edgeSchema);
+		logger.finest("leaving");
 	}
 
 	public boolean hasGisCoordinates() {
@@ -138,6 +144,7 @@ public class TracingViewCanvasCreator {
 	}
 
 	public TracingGraphCanvas createGraphCanvas() throws NotConfigurableException {
+        logger.finest("entered");
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
 		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
@@ -149,7 +156,7 @@ public class TracingViewCanvasCreator {
 		set.setToCanvas(canvas);
 		set.getGraphSettings().setToCanvas(canvas);
 		canvas.setPerformTracing(true);
-
+		logger.finest("leaving");
 		return canvas;
 	}
 	
@@ -178,6 +185,7 @@ public class TracingViewCanvasCreator {
 	}
 	
 	public TracingGraphCanvas createExplosionGraphCanvas() throws NotConfigurableException {
+		logger.finest("entered");
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
 		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
@@ -199,10 +207,12 @@ public class TracingViewCanvasCreator {
 		set.getGraphSettings().setToCanvas(canvas);
 		canvas.setPerformTracing(true);
 
+		logger.finest("leaving");
 		return canvas;
 	}
 
 	public ITracingGisCanvas<?> createGisCanvas() throws NotConfigurableException {
+		logger.finest("entered");
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashMap<>(),
 				false);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
@@ -224,6 +234,7 @@ public class TracingViewCanvasCreator {
 		set.getGisSettings().setToCanvas(canvas);
 		canvas.setPerformTracing(true);
 
+		logger.finest("leaving");
 		return canvas;
 	}
 	

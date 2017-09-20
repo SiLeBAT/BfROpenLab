@@ -36,6 +36,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.util.Deque;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -47,6 +48,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -161,11 +166,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	private ItemListener gisBoxListener;
 
 	private JScrollPane northScrollPane;
+	
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
 	 */
 	protected TracingViewNodeDialog() {
+		this.initializeFileLogging();
 		this.set = new TracingViewSettings();
 		this.undoStack = new LinkedList<>();
 		this.redoStack = new LinkedList<>();
@@ -199,9 +207,29 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 		this.addTab("Options", panel, false);
 	}
+	
+	private void initializeFileLogging() {
+		// File Handler erzeugen
+		try {
+			FileHandler file_handler = new FileHandler("C:\\Temp\\FCL.log");
+			// Formatter erzeugen
+			SimpleFormatter klartext = new SimpleFormatter();
+			file_handler.setFormatter(klartext);
+			logger.addHandler(file_handler);
+			logger.setLevel(Level.ALL);
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	finally
+		{}
+	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
+		logger.finest("entered");
 		this.nodeTable = (BufferedDataTable) input[0];
 		this.edgeTable = (BufferedDataTable) input[1];
 		this.tracingTable = (BufferedDataTable) input[2];
@@ -259,12 +287,15 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 		this.createCanvas(false);
 		this.updateStatusVariables();
+		logger.finest("leaving");
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+		logger.finest("entered");
 		this.updateSettings();
 		this.set.saveSettings(settings);
+		logger.finest("leaving");
 	}
 
 	@Override
@@ -649,6 +680,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	}
 
 	private String createCanvas(boolean isUpdate) throws NotConfigurableException {
+		logger.finest("entered");
 		//if (this.gobjExplosionViewLabel!=null) this.removeLabelFromExplosionViewLabel();
 
 		if (canvas != null) {
@@ -726,6 +758,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 //        objPane.revalidate();
 		panel.revalidate();
 
+		logger.finest("leaving");
 		return warning;
 	}
 	
