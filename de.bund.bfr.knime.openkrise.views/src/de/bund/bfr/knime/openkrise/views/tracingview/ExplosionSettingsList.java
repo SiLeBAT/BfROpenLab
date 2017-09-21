@@ -77,21 +77,31 @@ public class ExplosionSettingsList extends NodeSettings {
 	protected ExplosionSettings getActiveExplosionSettings() { return (this.gobjActiveExplosionSettingsList.isEmpty()?null:this.gobjActiveExplosionSettingsList.peek());}
 	
 	public boolean setActiveExplosionSettings(ExplosionSettings objES, boolean bolActive) {
-		this.gobjActiveExplosionSettingsList.remove(objES);
+		boolean wasActive = this.gobjActiveExplosionSettingsList.remove(objES);
+			
 		if(bolActive && objES!=null) {
 			if(!this.gobjExplosionSettingsList.contains(objES)) return false;
 			this.gobjActiveExplosionSettingsList.push(objES);
+			if(!wasActive) {
+				objES.setSelectedNodes(new ArrayList<>());
+				objES.setSelectedEdges(new ArrayList<>());
+			}
 		}
 		return true;
 	}
 	
 	public boolean setActiveExplosionSettings(ExplosionSettings objActivateES, ExplosionSettings objDeactivateES) {
 		this.gobjActiveExplosionSettingsList.remove(objDeactivateES);
-		if(objActivateES!=null) this.gobjActiveExplosionSettingsList.remove(objActivateES);
+		boolean wasActive = false;
+		if(objActivateES!=null) wasActive = this.gobjActiveExplosionSettingsList.remove(objActivateES);
 		
 		if(objActivateES!=null) {
 			if(!this.gobjExplosionSettingsList.contains(objActivateES)) return false;
 			this.gobjActiveExplosionSettingsList.push(objActivateES);
+			if(!wasActive) {
+				objActivateES.setSelectedNodes(new ArrayList<>());
+				objActivateES.setSelectedEdges(new ArrayList<>());
+			}
 		}
 		return true;
 	}

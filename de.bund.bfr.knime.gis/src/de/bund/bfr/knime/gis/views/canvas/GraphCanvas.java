@@ -95,6 +95,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public Map<String, Point2D> getNodePositions() {
 		updatePositionsOfCollapsedNodes();
+		Collection<GraphNode> col =  nodeSaveMap.values();
+		col = nodeSaveMap.values().stream().filter(n -> !collapsedNodes.containsKey(n.getId()))
+				.collect(Collectors.toList());
+		Map<String, Point2D> res = getNodePositions(col);
 		return getNodePositions(nodeSaveMap.values().stream().filter(n -> !collapsedNodes.containsKey(n.getId()))
 				.collect(Collectors.toList()));
 	}

@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -16,17 +18,20 @@ public class ExplosionSettings {
 	
 	private String gstrKey;
 	private Set<String> gobjNodeSubset;
+	private List<String> selectedNodes;
+	private List<String> selectedEdges;
 	private GisSettings gobjGisSettings;
 	private GraphSettings gobjGraphSettings;
 	
 	public ExplosionSettings() {
 		this.gobjGisSettings = new GisSettings();
 		this.gobjGraphSettings = new GraphSettings();
+		this.selectedNodes = new ArrayList<>();
+		this.selectedEdges = new ArrayList<>();
 	}
 	
 	public ExplosionSettings(String strKey, Set<String> objNodeSet) {
-		this.gobjGisSettings = new GisSettings();
-		this.gobjGraphSettings = new GraphSettings();
+		this();
 		this.gstrKey = strKey;
 		this.gobjNodeSubset = objNodeSet;
 	}
@@ -80,6 +85,13 @@ public class ExplosionSettings {
 //			this.gobjGisSettings.setFromCanvas((IGisCanvas) canvas);
 //		}  
 //	}
-
+	
+	protected List<String> getSelectedNodes() { return this.selectedNodes; }
+	
+	protected List<String> getSelectedEdges() { return this.selectedEdges; }
+	
+	protected void setSelectedNodes(List<String> selectedNodes) { this.selectedNodes = selectedNodes; }
+	
+	protected void setSelectedEdges(List<String> selectedEdges) { this.selectedEdges = selectedEdges; }
 
 }

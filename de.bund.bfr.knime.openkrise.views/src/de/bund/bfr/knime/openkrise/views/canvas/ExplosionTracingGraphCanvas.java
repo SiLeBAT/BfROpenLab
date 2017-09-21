@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -21,12 +22,15 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
+
+import org.apache.commons.collections15.Transformer;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -48,8 +52,10 @@ import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 import java.util.logging.Logger;
@@ -113,6 +119,8 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	@Override
 	public void nodeMovementFinished() {
 		this.repositionBoundaryNodes();
+		//this.getViewer().addPreRenderPaintable(paintable);
+		this.getViewer().repaint();
 		super.nodeMovementFinished();
 		//call(l -> l.nodePositionsChanged(this));
 	}
@@ -152,9 +160,17 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	@Override 
 	protected Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
 		logger.finest("entered");
-		Map<String, Point2D> nodePos = super.getNodePositions(nodes.stream().filter(n-> this.nonBoundaryNodes.contains(n) && this.boundaryNodes.contains(n)).collect(Collectors.toList()));
+		Map<String, Point2D> nodePos = super.getNodePositions(nodes.stream().filter(n-> this.nonBoundaryNodes.contains(n) || this.boundaryNodes.contains(n)).collect(Collectors.toList()));
 		logger.finest("leaving");
 		return nodePos;
+	}
+	
+	@Override
+	public void transformFinished() {
+		//this.flushImage();
+		this.repositionBoundaryNodes();
+		super.transformFinished();
+		//call(l -> l.transformChanged(this));
 	}
 	
 	private void repositionBoundaryNodes() {
@@ -180,13 +196,28 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 			if (size == 0.0) {
 				size = 1.0;
 			}
-
-			double d = 0.2 * size;
-			double r = 0.02 * size;
 			
-			boundaryArea = ExplosionCanvasUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d, bounds.getY() - d,
+			//Set<String> boundaryNodesIds = CanvasUtils.getElementIds(this.boundaryNodes);
+			Transformer<GraphNode, Shape> vertexShapeTransformer = this.getViewer().getRenderContext().getVertexShapeTransformer();
+			
+			
+			double refNodeSize = this.boundaryNodes.stream().map(n -> vertexShapeTransformer.transform(n).getBounds().getSize().getWidth()).max(Double::compare).orElse(0.0);    // this.getEdgeWeights().entrySet().stream().filter(e -> boundaryNodesIds.contains(e.getKey())).map(e -> e.getValue()).max(Double::compare).orElse(0.0);
+					
+			double d = Double.max(0.2 * size, refNodeSize*5);
+//			double z = this.getViewer().getRenderContext().getMultiLayerTransformer()
+//					.getTransformer(Layer.LAYOUT).getScale();
+			double r = 1.2 * refNodeSize / this.getViewer().getRenderContext().getMultiLayerTransformer()
+					.getTransformer(Layer.LAYOUT).getScale();
+					
+			//r = 1.2 * refNodeSize * this.getViewer().getRenderContext().    CanvasUtils.getTransformForBounds(canvasSize, bounds, zoomStep)
+			
+			Polygon newBoundaryArea = ExplosionCanvasUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d, bounds.getY() - d,
 					bounds.getWidth() + 2 * d, bounds.getHeight() + 2 * d), 2 * r);
-
+			
+			boolean boundaryAreaChanged = boundaryArea==null || !newBoundaryArea.equals(boundaryArea);
+			
+			boundaryArea = newBoundaryArea;
+			
 			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - d - r, bounds.getY() - d - r,
 					bounds.getWidth() + 2 * (d + r), bounds.getHeight() + 2 * (d + r));
 			
@@ -203,11 +234,17 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 			}
 			
 			nodeRefPoints.asMap().entrySet().forEach(e -> {
-				Point2D p = getClosestPointOnRect(PointUtils.getCenter(e.getValue()), rect);
-				positions.put(e.getKey().getId(), p);
+				Point2D pCenter = PointUtils.getCenter(e.getValue());
+				Point2D pBR = getClosestPointOnRect(pCenter, rect);
+				if(!positions.containsKey(e.getKey().getId()) || 
+				   !ExplosionCanvasUtils.isPointOnRect(positions.get(e.getKey().getId()),rect) || 
+				   !ExplosionCanvasUtils.arePointsEquallyDistant(pCenter, positions.get(e.getKey().getId()), pBR)) 
+				positions.put(e.getKey().getId(), pBR);
 			});
 			
 			this.setNodePositions(positions);
+			
+			if(boundaryAreaChanged) this.flushImage();
 		}
 		logger.finest("leaving");
 	}
@@ -242,14 +279,16 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	
 	private void paintGraph(Graphics2D g, boolean toSvg) {
 		//super.paintGis(g, toSvg, onWhiteBackground);
-
+		logger.finest("entered toSvg=" + (toSvg?"true":"false"));
 		if (this.boundaryArea != null) {
 			ExplosionCanvasUtils.paintBoundaryArea(g, getCanvasSize().width, getCanvasSize().height,
 					transform.apply(this.boundaryArea));
 		}
+		logger.finest("leaving");
 	}
 	
 	private void paintGraphImage(Graphics2D g) {
+		logger.finest("entered");
 		int width = getCanvasSize().width;
 		int height = getCanvasSize().height;
 
@@ -260,6 +299,7 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		}
 
 		g.drawImage(image, 0, 0, null);
+		logger.finest("leaving");
 	}
 	
 	private class PrePaintable implements Paintable {
@@ -277,11 +317,13 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 
 		@Override
 		public void paint(Graphics g) {
+			logger.finest("entered toSvg=" + (toSvg?"true":"false"));
 			if (toSvg) {
 				ExplosionTracingGraphCanvas.this.paintGraph((Graphics2D) g, true);
 			} else {
 				ExplosionTracingGraphCanvas.this.paintGraphImage((Graphics2D) g);
 			}
+			logger.finest("leaving");
 		}
 	}
 	

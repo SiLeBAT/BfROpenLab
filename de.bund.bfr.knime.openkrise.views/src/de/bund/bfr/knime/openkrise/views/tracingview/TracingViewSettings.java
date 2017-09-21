@@ -372,8 +372,11 @@ public class TracingViewSettings extends NodeSettings {
 		showEdgesInMetaNode = canvas.getOptionsPanel().isShowEdgesInMetaNode();
 		label = canvas.getOptionsPanel().getLabel();
 
-		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
-		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
+//		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
+//		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
+		setSelectedNodes(Ordering.natural().sortedCopy(canvas.getSelectedNodeIds()));
+		setSelectedEdges(Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds()));
+
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
 		editingMode = canvas.getOptionsPanel().getEditingMode();
@@ -381,7 +384,8 @@ public class TracingViewSettings extends NodeSettings {
 		if(gobjExplosionSettingsList.getActiveExplosionSettings()==null) {
 			collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
 		}
-
+		
+		
 		if (resized || canvasSize == null) {
 			canvasSize = canvas.getCanvasSize();
 		}
@@ -427,8 +431,8 @@ public class TracingViewSettings extends NodeSettings {
 				.renameColumns(nodeHighlightConditions, canvas.getNodeSchema().getMap().keySet()));
 		canvas.setEdgeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils
 				.renameColumns(edgeHighlightConditions, canvas.getEdgeSchema().getMap().keySet()));
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(this.getSelectedNodes()));
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(this.getSelectedEdges()));
 
 		if (canvasSize != null) {
 			canvas.setCanvasSize(canvasSize);
@@ -458,6 +462,34 @@ public class TracingViewSettings extends NodeSettings {
 		return (this.gobjExplosionSettingsList.getActiveExplosionSettings()==null? 
 				this.gisSettings:
 				this.gobjExplosionSettingsList.getActiveExplosionSettings().getGisSettings());
+	}
+	
+	private List<String> getSelectedNodes() {
+		return (this.gobjExplosionSettingsList.getActiveExplosionSettings()==null? 
+				this.selectedNodes:
+				this.gobjExplosionSettingsList.getActiveExplosionSettings().getSelectedNodes());
+	}
+	
+	private List<String> getSelectedEdges() {
+		return (this.gobjExplosionSettingsList.getActiveExplosionSettings()==null? 
+				this.selectedEdges:
+				this.gobjExplosionSettingsList.getActiveExplosionSettings().getSelectedEdges());
+	}
+	
+	private void setSelectedNodes(List<String> selectedNodes) {
+		if(this.gobjExplosionSettingsList.getActiveExplosionSettings()==null) {
+			this.selectedNodes = selectedNodes;
+		} else {
+			this.gobjExplosionSettingsList.getActiveExplosionSettings().setSelectedNodes(selectedNodes);
+		}
+	}
+	
+	private void setSelectedEdges(List<String> selectedEdges) {
+		if(this.gobjExplosionSettingsList.getActiveExplosionSettings()==null) {
+			this.selectedEdges = selectedEdges;
+		} else {
+			this.gobjExplosionSettingsList.getActiveExplosionSettings().setSelectedEdges(selectedEdges);
+		}
 	}
 	
 	public ExplosionSettingsList getExplosionSettingsList() {
