@@ -19,6 +19,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
 import java.util.logging.Level;
@@ -100,6 +101,51 @@ public class ExplosionCanvasUtils {
 		throw new RuntimeException("This should not happen");
 	}
 	
+	public static void updatePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Set<? extends Edge<? extends Node>> edges, double distance) {
+		
+	}
+	
+	private static double convertToOneDimensionalPosition(Point2D p, Rectangle2D rect) {
+		double dT = p.getY() - rect.getY();
+		double dR = rect.getX() + rect.getWidth() - p.getX();
+		double dB = rect.getY() + rect.getHeight() - p.getY();
+		double dL = p.getX() - rect.getX();
+		double min = Collections.min(Arrays.asList(dT, dR, dB, dL));
+		
+		if (dT == min) {
+			return Math.max(0, dL);
+		} else if (dR == min) {
+			return rect.getWidth() + Math.max(0, dT);
+		} else if (dB == min) {
+			return rect.getWidth() + rect.getHeight() + Math.max(0, dR);
+		} else if (dL == min) {
+			return 2 * rect.getWidth() + rect.getHeight() + Math.max(0, dB);
+		} 
+		
+		throw new RuntimeException("This should not happen");
+	}
+	
+	private static Point2D convertToTwoDimensionalPosition(double p, Rectangle2D rect) {
+		double d = rect.getWidth() + rect.getHeight();
+		double u = 2 * d;
+		
+		while (p < 0) p+= u;
+		while (p > u) p-= u;
+		
+		if (p <= d) {
+			if (p <= rect.getWidth()) {
+				return new Point2D.Double(rect.getX() + p, rect.getY());
+			} else {
+				return new Point2D.Double(rect.getX() + rect.getWidth(), rect.getY() + p - rect.getWidth());
+			}
+		} else {
+			if (p <= d + rect.getWidth()) {
+				return new Point2D.Double(rect.getX() + rect.getWidth() - (p - d), rect.getY() + rect.getHeight());
+			} else {
+				return new Point2D.Double(rect.getX(), rect.getY() + rect.getHeight() - (p - d - rect.getWidth()));
+			}
+		}
+	}
 //	public static void logInfo(String text) {
 //		jlog.log(Level.INFO, text);
 //	}

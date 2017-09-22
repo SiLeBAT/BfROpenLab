@@ -222,14 +222,17 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 					bounds.getWidth() + 2 * (d + r), bounds.getHeight() + 2 * (d + r));
 			
 			SetMultimap<GraphNode, Point2D> nodeRefPoints = LinkedHashMultimap.create();
+			//SetMultimap<GraphNode, GraphNode> boundaryNodeToInnerNodes = LinkedHashMultimap.create();
 			
 			for(Edge<GraphNode> e : this.edges) {
 				if(this.boundaryNodes.contains(e.getFrom())) {
 					if(!this.boundaryNodes.contains(e.getTo())) {
 						nodeRefPoints.put(e.getFrom(), positions.get(e.getTo().getId()));
+						//boundaryNodeToInnerNodes.put(e.getFrom(), e.getTo());
 					}
 				} else if(this.boundaryNodes.contains(e.getTo())) {
 					nodeRefPoints.put(e.getTo(), positions.get(e.getFrom().getId()));
+					//boundaryNodeToInnerNodes.put(e.getTo(), e.getFrom());
 				}
 			}
 			
@@ -242,6 +245,9 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 				positions.put(e.getKey().getId(), pBR);
 			});
 			
+			//SetMultimap<Set<GraphNode>, GraphNode> innerNodeSetToBoundaryNodes = LinkedHashMultimap.create();
+			//boundaryNodeToInnerNodes.keySet().forEach(n -> innerNodeSetToBoundaryNodes.put(new HashSet<>(), value));
+			ExplosionCanvasUtils.updatePositionsByRemovingVisualConflicts(positions, rect, this.edges, 2 * refNodeSize);
 			this.setNodePositions(positions);
 			
 			if(boundaryAreaChanged) this.flushImage();
