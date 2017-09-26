@@ -7,19 +7,26 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
 import java.util.logging.Level;
@@ -101,8 +108,104 @@ public class ExplosionCanvasUtils {
 		throw new RuntimeException("This should not happen");
 	}
 	
-	public static void updatePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Set<? extends Edge<? extends Node>> edges, double distance) {
+	public static void updateBoundaryPositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Set<? extends Edge<? extends Node>> edges, double distance, List<? extends Node> boundaryNodes) {
+		Map<Point2D, SetMultimap<Set<String>, String>> myMap = new LinkedHashMap<>();
+				
+		SetMultimap<String, String> boundaryNodeToInnerNodes = LinkedHashMultimap.create();
+		//SetMultimap<Set<String>, String> innerNodeSetToBoundaryNodes = LinkedHashMultimap.create();
+		edges.forEach(e -> {
+			if(boundaryNodes.contains(e.getFrom())) {
+				boundaryNodeToInnerNodes.put(e.getFrom().getId(), e.getTo().getId());
+			} else if(boundaryNodes.contains(e.getTo())) {
+				boundaryNodeToInnerNodes.put(e.getTo().getId(), e.getFrom().getId());
+			}
+		});
 		
+		positions.values().forEach( p -> myMap.put(p, LinkedHashMultimap.create()));
+		
+		boundaryNodes.forEach(n -> {
+			myMap.get(positions.get(n.getId())).put(new LinkedHashSet<>(boundaryNodeToInnerNodes.get(n.getId())), n.getId());
+		});
+		
+		
+		
+		boundaryNodeToInnerNodes.asMap().entrySet().forEach(e -> {
+			innerNodeSetToBoundaryNodes.put(new LinkedHashSet<>(e.getValue()), e.getKey());
+		});
+		
+		
+		
+		Map.Entry<K, V>
+		SetMultimap<Point2D, String> nodeRefPoints = LinkedHashMultimap.create();
+		List<Point2D> p2DList;
+		List<Double> p1DList = p2DList.stream().map(p2D -> convertToOneDimensionalPosition(p2D, rect)).collect(Collectors.toList());
+	}
+	
+	private static List<Double> fitDistances(List<Double> pointList, double distance, Rectangle2D rect) {
+		List<Bucket> bucketList = new ArrayList<>();
+		for(int i=0; i<pointList.size(); i++) {
+			bucketList.add(new Bucket(pointList.get(i),1));
+		}
+		double rectLength = 2 * rect.getWidth() + 2 * rect.getHeight();
+		for(int i=0; i<pointList.size(); i++) {
+			bucketList.add(new Bucket(pointList.get(i)+rectLength,1));
+		}
+		int i = 0; 
+		
+		while(i<bucketList.size()-1) {
+			Bucket b = bucketList.get(i);
+			while(i>0 && areBucketsInConflict(b,bucketList.get(i-1),distance)) {
+				b.join(bucketList.get(i-1));
+				bucketList.remove(i-1);
+				i--;
+			}
+			if(areBucketsInConflict(b,bucketList.get(i+1),distance)) {
+				b.join(bucketList.get(i+1));
+				bucketList.remove(i+1);
+			}
+			i++;
+		}
+		
+		List<Double> newPointList = new ArrayList<>();
+		bucketList.forEach(b -> {
+			for(int w=0; w<b.getWeight(); w++) {
+				newPointList.add(b.getPoint()-(b.getWeight()-1)/2*distance+w*distance);
+			}
+		});
+		
+		return Stream.concat(
+				newPointList.subList(pointList.size(), pointList.size()-1+bucketList.get(0).getWeight()).stream(),
+				newPointList.subList(bucketList.get(0).getWeight(), pointList.size()-1).stream()
+				).collect(Collectors.toList());
+	}
+	
+	private static LinkedHashMap<String, Point2D> getSortedPositionList() {
+		
+	}
+	
+	private static class Bucket {
+		double point;
+		int weight;
+		
+		public Bucket(double point, int weight) {
+			this.point = point;
+			this.weight = weight;
+		}
+		
+		public double getPoint() { return this.point; }
+		public int getWeight() { return this.weight; }
+		
+		public void join(Bucket b) {
+		  this.point = (this.point * this.weight + b.getPoint() * b.getWeight())/(this.weight + b.getWeight());	
+		}
+	}
+	
+	private static boolean areBucketsInConflict(Bucket b1, Bucket b2, double distance) {
+		if(b1.getPoint()<=b2.getPoint()) {
+			return b2.getPoint()-(b2.getWeight()+1)/2*distance < b1.getPoint()+(b1.getWeight()+1)/2*distance;
+		} else {
+			return b1.getPoint()-(b1.getWeight()+1)/2*distance < b2.getPoint()+(b2.getWeight()+1)/2*distance;
+		}
 	}
 	
 	private static double convertToOneDimensionalPosition(Point2D p, Rectangle2D rect) {
@@ -146,9 +249,7 @@ public class ExplosionCanvasUtils {
 			}
 		}
 	}
-//	public static void logInfo(String text) {
-//		jlog.log(Level.INFO, text);
-//	}
+	
 	
 	
 }
