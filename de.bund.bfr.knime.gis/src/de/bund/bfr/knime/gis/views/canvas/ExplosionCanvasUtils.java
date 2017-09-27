@@ -10,12 +10,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import com.google.common.collect.LinkedHashMultimap;
@@ -89,6 +91,9 @@ public class ExplosionCanvasUtils {
 	}
 
 	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
+		if(!(pointInRect!=null && Double.isFinite(pointInRect.getX()) && Double.isFinite(pointInRect.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);
+		if(!(rect!=null && Double.isFinite(rect.getX()) && Double.isFinite(rect.getY()) && Double.isFinite(rect.getWidth()) && Double.isFinite(rect.getHeight()))) return new Point2D.Double(Double.NaN,Double.NaN);
+		
 		double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
 		double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
 		double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
@@ -108,40 +113,74 @@ public class ExplosionCanvasUtils {
 		throw new RuntimeException("This should not happen");
 	}
 	
-	public static void updateBoundaryPositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Set<? extends Edge<? extends Node>> edges, double distance, List<? extends Node> boundaryNodes) {
-		Map<Point2D, SetMultimap<Set<String>, String>> myMap = new LinkedHashMap<>();
+	
+	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Set<? extends Edge<? extends Node>> edges, double distance, Set<? extends Node> boundaryNodes) {
+		//Map<Point2D, SetMultimap<Set<String>, String>> myMap = new LinkedHashMap<>();
 				
-		SetMultimap<String, String> boundaryNodeToInnerNodes = LinkedHashMultimap.create();
-		//SetMultimap<Set<String>, String> innerNodeSetToBoundaryNodes = LinkedHashMultimap.create();
+		SetMultimap<String, String> boundaryNodeToInnerNodesMap = LinkedHashMultimap.create();
+		
 		edges.forEach(e -> {
 			if(boundaryNodes.contains(e.getFrom())) {
-				boundaryNodeToInnerNodes.put(e.getFrom().getId(), e.getTo().getId());
+				boundaryNodeToInnerNodesMap.put(e.getFrom().getId(), e.getTo().getId());
 			} else if(boundaryNodes.contains(e.getTo())) {
-				boundaryNodeToInnerNodes.put(e.getTo().getId(), e.getFrom().getId());
+				boundaryNodeToInnerNodesMap.put(e.getTo().getId(), e.getFrom().getId());
 			}
 		});
 		
-		positions.values().forEach( p -> myMap.put(p, LinkedHashMultimap.create()));
+		List<BoundaryNode> sortableBoundaryNodeList = new ArrayList<>();
 		
-		boundaryNodes.forEach(n -> {
-			myMap.get(positions.get(n.getId())).put(new LinkedHashSet<>(boundaryNodeToInnerNodes.get(n.getId())), n.getId());
+		//positions.values().forEach( p -> myMap.put(p, LinkedHashMultimap.create()));
+		
+		boundaryNodeToInnerNodesMap.asMap().entrySet().forEach(e -> {
+			sortableBoundaryNodeList.add(new BoundaryNode(convertToOneDimensionalPosition(positions.get(e.getKey()), rect),e.getKey(), new HashSet<String>(e.getValue())));
 		});
 		
+		Collections.sort(sortableBoundaryNodeList);
 		
+		DoubleStream tmp = sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint());
+		double[] tmpA = tmp.toArray();
+		Stream<Double> tmp2 = sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed();
+		Object[] tmp2A = tmp2.toArray();
+		List<Double> tmp3 = sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed().collect(Collectors.toList());
 		
-		boundaryNodeToInnerNodes.asMap().entrySet().forEach(e -> {
-			innerNodeSetToBoundaryNodes.put(new LinkedHashSet<>(e.getValue()), e.getKey());
-		});
+		List<Point2D> res = getPositionsWithoutConflict(
+				sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed().collect(Collectors.toList()), 
+				distance, rect).stream()
+				.map(e -> convertToTwoDimensionalPosition(e, rect)).collect(Collectors.toList());
 		
-		
-		
-		Map.Entry<K, V>
-		SetMultimap<Point2D, String> nodeRefPoints = LinkedHashMultimap.create();
-		List<Point2D> p2DList;
-		List<Double> p1DList = p2DList.stream().map(p2D -> convertToOneDimensionalPosition(p2D, rect)).collect(Collectors.toList());
+		for(int i = 0; i < sortableBoundaryNodeList.size(); i++) positions.put(sortableBoundaryNodeList.get(i).getId(), res.get(i));
 	}
 	
-	private static List<Double> fitDistances(List<Double> pointList, double distance, Rectangle2D rect) {
+	private static class BoundaryNode implements Comparable<BoundaryNode> {
+		private double point;
+		private String id;
+		private Set<String> innerNeighbourNodesIds;
+		
+		BoundaryNode(double point, String id, Set<String> innerNeighbourNodesIds) {
+			this.point = point;
+			this.id = id;
+			this.innerNeighbourNodesIds = innerNeighbourNodesIds;
+			//Collections.sort(this.innerNeighbourNodesIds);
+		}
+		
+		@Override
+		public int compareTo(BoundaryNode arg0) {
+			// TODO Auto-generated method stub
+			int res = Double.compare(this.point,arg0.getPoint());
+			if(res!=0) return res;
+			
+			res = Integer.compare(this.innerNeighbourNodesIds.hashCode(),arg0.getInnerNeighbourNodesIds().hashCode());
+			if(res != 0) return res;
+			
+			return this.id.compareTo(arg0.getId());
+		}
+		
+		public double getPoint() { return this.point; }
+		public String getId() { return this.id; }
+		public Set<String> getInnerNeighbourNodesIds() { return this.innerNeighbourNodesIds; }
+	}
+	
+	private static List<Double> getPositionsWithoutConflict(List<Double> pointList, double nodeDistance, Rectangle2D rect) {
 		List<Bucket> bucketList = new ArrayList<>();
 		for(int i=0; i<pointList.size(); i++) {
 			bucketList.add(new Bucket(pointList.get(i),1));
@@ -150,6 +189,9 @@ public class ExplosionCanvasUtils {
 		for(int i=0; i<pointList.size(); i++) {
 			bucketList.add(new Bucket(pointList.get(i)+rectLength,1));
 		}
+		
+		double distance = Math.min(nodeDistance, rectLength/2/pointList.size());
+		
 		int i = 0; 
 		
 		while(i<bucketList.size()-1) {
@@ -162,8 +204,9 @@ public class ExplosionCanvasUtils {
 			if(areBucketsInConflict(b,bucketList.get(i+1),distance)) {
 				b.join(bucketList.get(i+1));
 				bucketList.remove(i+1);
+			} else {
+			  i++;
 			}
-			i++;
 		}
 		
 		List<Double> newPointList = new ArrayList<>();
@@ -173,14 +216,12 @@ public class ExplosionCanvasUtils {
 			}
 		});
 		
-		return Stream.concat(
-				newPointList.subList(pointList.size(), pointList.size()-1+bucketList.get(0).getWeight()).stream(),
-				newPointList.subList(bucketList.get(0).getWeight(), pointList.size()-1).stream()
-				).collect(Collectors.toList());
-	}
-	
-	private static LinkedHashMap<String, Point2D> getSortedPositionList() {
-		
+		Stream<Double> result = newPointList.subList(pointList.size(), pointList.size() + bucketList.get(0).getWeight()).stream();
+		if(bucketList.get(0).getWeight() < pointList.size()) {
+			result = Stream.concat(result, newPointList.subList(bucketList.get(0).getWeight(), pointList.size()).stream());
+		}
+		List<Double> tmp = result.collect(Collectors.toList());
+		return tmp;
 	}
 	
 	private static class Bucket {
@@ -197,6 +238,7 @@ public class ExplosionCanvasUtils {
 		
 		public void join(Bucket b) {
 		  this.point = (this.point * this.weight + b.getPoint() * b.getWeight())/(this.weight + b.getWeight());	
+		  this.weight+= b.getWeight();
 		}
 	}
 	
