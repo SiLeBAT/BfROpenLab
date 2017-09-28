@@ -73,7 +73,7 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 //		listeners = new EventListenerList();
 //	}
 
-	public void setNotMovables(Set<V> notMovable) { this.gobjDenyMoveNodes = notMovable; }
+	//public void setNotMovables(Set<V> notMovable) { this.gobjDenyMoveNodes = notMovable; }
 	
 	public void addChangeListener(JungListener listener) {
 		listeners.add(JungListener.class, listener);

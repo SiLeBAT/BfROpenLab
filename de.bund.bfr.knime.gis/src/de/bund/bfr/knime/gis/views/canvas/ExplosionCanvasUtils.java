@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -76,8 +78,14 @@ public class ExplosionCanvasUtils {
 		return toRemove;
 	}
 	
-	public static Map<String, Set<String>> filterExplosedNode(Map<String, Set<String>> nodes, String explodedNodeKey) {
-		return nodes.entrySet().stream().filter(e->e.getKey()!=explodedNodeKey).collect(Collectors.toMap(e->e.getKey(),e->e.getValue()));
+	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey, Set<String> retainNodes) {
+//		List<Entry<String,Set<String>>> myMap = collapsedNodes.entrySet().stream().filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty()).collect(Collectors.toList());
+//		Map<String, Set<String>> test = collapsedNodes.entrySet().stream()
+//				.filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty())
+//				.collect(Collectors.toMap(e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
+		return collapsedNodes.entrySet().stream()
+				.filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty())
+				.collect(Collectors.toMap(e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
 	}
 	
 	public static boolean isPointOnRect(Point2D p, Rectangle2D rect) {

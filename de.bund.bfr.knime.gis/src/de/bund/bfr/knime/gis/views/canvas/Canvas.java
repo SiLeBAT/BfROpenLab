@@ -1126,7 +1126,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	void applyNodeCollapse(Map<String,Set<String>> collapsedNodes) {
-		
+		logger.finest("entered");
 		Map<String, String> collapseTo = new LinkedHashMap<>();
 
 		collapsedNodes.forEach((to, fromList) -> fromList.forEach(from -> collapseTo.put(from, to)));
@@ -1169,6 +1169,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		nodes = newNodes;
 		edges = newEdges;
+		logger.finest("leaving");
 	}
 	
 	@Override

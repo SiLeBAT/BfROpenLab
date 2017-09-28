@@ -37,6 +37,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Deque;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -49,7 +51,9 @@ import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -213,7 +217,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		try {
 			FileHandler file_handler = new FileHandler("C:\\Temp\\FCL.log");
 			// Formatter erzeugen
-			SimpleFormatter klartext = new SimpleFormatter();
+			// SimpleFormatter klartext = new SimpleFormatter();
+			MyFormatter klartext = new MyFormatter();
 			file_handler.setFormatter(klartext);
 			logger.addHandler(file_handler);
 			logger.setLevel(Level.ALL);
@@ -225,6 +230,26 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			e.printStackTrace();
 		}	finally
 		{}
+	}
+	
+	private class MyFormatter extends Formatter {
+
+		@Override
+		public String format(LogRecord arg0) {
+			// TODO Auto-generated method stub
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(arg0.getMillis());
+			Date date = cal.getTime();
+			
+			return arg0.getLevel().getName() + "\t" + 
+			      String.format("%04d%02d%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)) + 
+			      String.format("%02d%02d%02d.%03d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND)) + 
+			      "\t" + 
+			      arg0.getSourceClassName() + "\t" +
+			      arg0.getSourceMethodName() + "\t" + 
+			      arg0.getMessage() + "\r\n";
+		}
+		
 	}
 
 	@Override

@@ -132,8 +132,13 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	@Override
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
 		logger.finest("entered");
+		
+		this.collapsedNodes = ExplosionCanvasUtils.filterCollapsedNodeAccordingToExplosion(
+				collapsedNodes, this.gstrKey,
+				CanvasUtils.getElementIds(Sets.union(this.nonBoundaryNodes, this.boundaryNodes)));
+				
 		Sets.difference(this.collapsedNodes.keySet(), collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
-		this.collapsedNodes = ExplosionCanvasUtils.filterExplosedNode(collapsedNodes,this.gstrKey);
+		
 		applyChanges();
 		call(l -> l.collapsedNodesChanged(this));
 		logger.finest("leaving");
@@ -151,11 +156,11 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
 	}
 	
-	@Override
-	public void applyInvisibility() {
-		ExplosionCanvasUtils.removeOuterNodes(nodes, this.nonBoundaryNodes, this.boundaryNodes);
-		super.applyInvisibility();
-	}
+//	@Override
+//	public void applyInvisibility() {
+//		ExplosionCanvasUtils.removeOuterNodes(nodes, this.nonBoundaryNodes, this.boundaryNodes);
+//		super.applyInvisibility();
+//	}
 	
 	@Override 
 	protected Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
@@ -167,8 +172,8 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	
 	@Override
 	public void transformFinished() {
-		//this.flushImage();
 		this.repositionBoundaryNodes();
+		this.flushImage();
 		super.transformFinished();
 		//call(l -> l.transformChanged(this));
 	}
@@ -236,9 +241,9 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 			nodeRefPoints.asMap().entrySet().forEach(e -> {
 				Point2D pCenter = PointUtils.getCenter(e.getValue());
 				Point2D pBR = getClosestPointOnRect(pCenter, rect);
-				if(!positions.containsKey(e.getKey().getId()) || 
-				   !ExplosionCanvasUtils.isPointOnRect(positions.get(e.getKey().getId()),rect) || 
-				   !ExplosionCanvasUtils.arePointsEquallyDistant(pCenter, positions.get(e.getKey().getId()), pBR)) 
+				//if(!positions.containsKey(e.getKey().getId()) || 
+				//   !ExplosionCanvasUtils.isPointOnRect(positions.get(e.getKey().getId()),rect) || 
+				//   !ExplosionCanvasUtils.arePointsEquallyDistant(pCenter, positions.get(e.getKey().getId()), pBR)) 
 				positions.put(e.getKey().getId(), pBR);
 			});
 			
@@ -280,16 +285,16 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	
 	private void paintGraph(Graphics2D g, boolean toSvg) {
 		//super.paintGis(g, toSvg, onWhiteBackground);
-		logger.finest("entered toSvg=" + (toSvg?"true":"false"));
+		//logger.finest("entered toSvg=" + (toSvg?"true":"false"));
 		if (this.boundaryArea != null) {
 			ExplosionCanvasUtils.paintBoundaryArea(g, getCanvasSize().width, getCanvasSize().height,
 					transform.apply(this.boundaryArea));
 		}
-		logger.finest("leaving");
+		//logger.finest("leaving");
 	}
 	
 	private void paintGraphImage(Graphics2D g) {
-		logger.finest("entered");
+		//logger.finest("entered");
 		int width = getCanvasSize().width;
 		int height = getCanvasSize().height;
 
@@ -300,7 +305,7 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		}
 
 		g.drawImage(image, 0, 0, null);
-		logger.finest("leaving");
+		//logger.finest("leaving");
 	}
 	
 	private class PrePaintable implements Paintable {
@@ -318,13 +323,13 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 
 		@Override
 		public void paint(Graphics g) {
-			logger.finest("entered toSvg=" + (toSvg?"true":"false"));
+			//logger.finest("entered toSvg=" + (toSvg?"true":"false"));
 			if (toSvg) {
 				ExplosionTracingGraphCanvas.this.paintGraph((Graphics2D) g, true);
 			} else {
 				ExplosionTracingGraphCanvas.this.paintGraphImage((Graphics2D) g);
 			}
-			logger.finest("leaving");
+			//logger.finest("leaving");
 		}
 	}
 	

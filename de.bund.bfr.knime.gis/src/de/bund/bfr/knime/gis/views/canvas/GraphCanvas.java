@@ -56,6 +56,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.ui.Dialogs;
+import edu.uci.ics.jung.graph.Graph;
 
 import java.util.logging.Logger;
 
@@ -246,6 +247,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	protected Set<GraphNode> getLayoutableNodes() { return this.nodes; }
 
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog, boolean signalLayoutProcessFinish) {
+		logger.finest("entered");
+		Graph<GraphNode, Edge<GraphNode>> tmp = viewer.getGraphLayout().getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = 
 				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout!=nodes)?
 				new FRLayout(viewer.getGraphLayout().getGraph(), viewer.getSize(),true):
@@ -324,7 +327,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if(signalLayoutProcessFinish) Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
-		
+		logger.finest("leaving");
 	}
 	
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {

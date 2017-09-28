@@ -41,9 +41,9 @@ public class PointUtils {
 	}
 
 	public static Point2D getCenter(Collection<Point2D> points) {
-		logger.finest("entered");
+		//logger.finest("entered");
 		if (points.isEmpty()) {
-			logger.finest("leaving points is empty");
+			//logger.finest("leaving points is empty");
 			return null;
 		}
 
@@ -52,7 +52,7 @@ public class PointUtils {
 
 		for (Point2D p : points) {
 			if (p == null) {
-				logger.finest("leaving a point is null");
+				//logger.finest("leaving a point is null");
 				return null;
 			}
 
@@ -63,7 +63,7 @@ public class PointUtils {
 		x /= points.size();
 		y /= points.size();
 		
-		logger.finest("leaving");
+		//logger.finest("leaving");
 		return new Point2D.Double(x, y);
 	}
 
