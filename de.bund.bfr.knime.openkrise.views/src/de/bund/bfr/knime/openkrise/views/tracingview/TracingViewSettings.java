@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -49,6 +50,8 @@ import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingViewSettings extends NodeSettings {
+	
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
@@ -161,6 +164,7 @@ public class TracingViewSettings extends NodeSettings {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void loadSettings(NodeSettingsRO settings) {
+		logger.finest("entered");
 		try {
 			showGis = settings.getBoolean(CFG_SHOW_GIS);
 		} catch (InvalidSettingsException e) {
@@ -321,10 +325,12 @@ public class TracingViewSettings extends NodeSettings {
 		graphSettings.loadSettings(settings);
 		gisSettings.loadSettings(settings);
 		this.gobjExplosionSettingsList.loadSettings(settings);
+		logger.finest("leaving");
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		logger.finest("entered");
 		settings.addBoolean(CFG_SHOW_GIS, showGis);
 		settings.addString(CFG_GIS_TYPE, gisType.name());
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
@@ -360,9 +366,11 @@ public class TracingViewSettings extends NodeSettings {
 		graphSettings.saveSettings(settings);
 		gisSettings.saveSettings(settings);
 		this.gobjExplosionSettingsList.saveSettings(settings);
+		logger.finest("leaving");
 	}
 
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
+		logger.finest("entered");
 		showLegend = canvas.getOptionsPanel().isShowLegend();
 		joinEdges = canvas.getOptionsPanel().isJoinEdges();
 		hideArrowHead = canvas.getOptionsPanel().getArrowHeadType() == ArrowHeadType.HIDE;
@@ -402,9 +410,11 @@ public class TracingViewSettings extends NodeSettings {
 		showForward = canvas.isShowForward();
 		showDeliveriesWithoutDate = canvas.isShowDeliveriesWithoutDate();
 		showToDate = canvas.getShowToDate();
+		logger.finest("leaving");
 	}
 
 	public void setToCanvas(ITracingCanvas<?> canvas) {
+		logger.finest("entered");
 		canvas.getOptionsPanel().setShowLegend(showLegend);
 		canvas.getOptionsPanel().setEditingMode(editingMode);
 		canvas.getOptionsPanel().setJoinEdges(joinEdges);
@@ -450,6 +460,8 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setShowForward(showForward);
 		canvas.setShowDeliveriesWithoutDate(showDeliveriesWithoutDate);
 		canvas.setShowToDate(showToDate);
+		
+		logger.finest("leaving");
 	}
 
 	public GraphSettings getGraphSettings() {

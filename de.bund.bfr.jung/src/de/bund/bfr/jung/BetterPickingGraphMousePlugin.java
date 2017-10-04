@@ -51,7 +51,7 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	protected E edge;
 
 	private boolean allowMovingNodes;
-	private Set<V> gobjDenyMoveNodes;
+	//private Set<V> gobjDenyMoveNodes;
 
 	private Rectangle2D rect = new Rectangle2D.Float();
 
@@ -62,7 +62,7 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	public BetterPickingGraphMousePlugin(boolean allowMovingNodes) {
 		super(0);
 		this.allowMovingNodes = allowMovingNodes;
-		this.gobjDenyMoveNodes = new HashSet<>();
+		//this.gobjDenyMoveNodes = new HashSet<>();
 		listeners = new EventListenerList();
 	}
 	
@@ -204,7 +204,7 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 				//Layout<V,E>
 				PickedState<V> ps = vv.getPickedVertexState();
 
-				for (V v : Sets.difference(ps.getPicked(), this.gobjDenyMoveNodes)) {
+				for (V v : ps.getPicked()) {
 					if(!layout.isLocked(v)) {
 					//if(layout.isMovable(v))
 						layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));

@@ -534,6 +534,7 @@ public class TracingDelegate<V extends Node> {
 	private void applyTracing() {
 		logger.finest("entered");
 		if (!isPerformTracing()) {
+			logger.finest("leaving !isPerformTracing()");
 			return;
 		}
 

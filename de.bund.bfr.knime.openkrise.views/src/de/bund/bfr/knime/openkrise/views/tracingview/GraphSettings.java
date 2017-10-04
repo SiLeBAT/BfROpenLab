@@ -22,6 +22,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -35,6 +36,8 @@ import de.bund.bfr.knime.openkrise.views.Activator;
 
 public class GraphSettings extends NodeSettings {
 
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	private static final String CFG_SCALE_X = "GraphScaleX";
@@ -72,10 +75,13 @@ public class GraphSettings extends NodeSettings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		logger.finest("entered");
 		this.loadSettings(settings, "");
+		logger.finest("leaving");
 	}
 
 	public void loadSettings(NodeSettingsRO settings, String prefix) {
+		logger.finest("entered");
 		try {
 			transform = new Transform(settings.getDouble(prefix + CFG_SCALE_X), settings.getDouble(prefix + CFG_SCALE_Y),
 					settings.getDouble(prefix + CFG_TRANSLATION_X), settings.getDouble(prefix + CFG_TRANSLATION_Y));
@@ -116,16 +122,21 @@ public class GraphSettings extends NodeSettings {
 			fontBold = settings.getBoolean(prefix + CFG_FONT_BOLD);
 		} catch (InvalidSettingsException e) {
 		}
+		
+		logger.finest("leaving");
 	}
 
 	
 	
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		logger.finest("entered");
 		this.saveSettings(settings, "");
+		logger.finest("leaving");
 	}
 
 	public void setFromCanvas(GraphCanvas canvas) {
+		logger.finest("entered");
 		transform = canvas.getTransform();
 		nodeSize = canvas.getOptionsPanel().getNodeSize();
 		nodeMaxSize = canvas.getOptionsPanel().getNodeMaxSize();
@@ -134,9 +145,11 @@ public class GraphSettings extends NodeSettings {
 		fontSize = canvas.getOptionsPanel().getFontSize();
 		fontBold = canvas.getOptionsPanel().isFontBold();
 		nodePositions = canvas.getNodePositions();
+		logger.finest("leaving");
 	}
 
 	public void setToCanvas(GraphCanvas canvas) {
+		logger.finest("entered");
 		canvas.getOptionsPanel().setNodeSize(nodeSize);
 		canvas.getOptionsPanel().setNodeMaxSize(nodeMaxSize);
 		canvas.getOptionsPanel().setEdgeThickness(edgeThickness);
@@ -153,9 +166,11 @@ public class GraphSettings extends NodeSettings {
 		} else {
 			canvas.initLayout();
 		}
+		logger.finest("leaving");
 	}
 
 	public void saveSettings(NodeSettingsWO settings, String prefix) {
+		logger.finest("entered");
 		// TODO Auto-generated method stub
 		settings.addDouble(prefix + CFG_SCALE_X, transform.getScaleX());
 		settings.addDouble(prefix + CFG_SCALE_Y, transform.getScaleY());
@@ -168,5 +183,6 @@ public class GraphSettings extends NodeSettings {
 		settings.addInt(prefix + CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
 		settings.addInt(prefix + CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(prefix + CFG_FONT_BOLD, fontBold);
+		logger.finest("leaving");
 	}
 }
