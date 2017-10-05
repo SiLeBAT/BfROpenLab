@@ -100,12 +100,16 @@ public class CanvasPopupMenu extends JPopupMenu {
 			nodeSelectionMenu.add(selectIncomingItem);
 			nodeSelectionMenu.add(selectOutgoingItem);
 
+			nodeSelectionMenu.add(new JSeparator());
+			
 			if (allowCollapse) {
-				nodeSelectionMenu.add(new JSeparator());
 				nodeSelectionMenu.add(collapseToNodeItem);
 				nodeSelectionMenu.add(expandFromNodeItem);
-				nodeSelectionMenu.add(nodeAllPropertiesItem);
 			}
+			
+			// in the previous version the following menu entry was dependent on allowCollapse,
+			// this dependency was removed
+			nodeSelectionMenu.add(nodeAllPropertiesItem); 
 
 			edgeSelectionMenu.add(edgePropertiesItem);
 			edgeSelectionMenu.add(edgeAllPropertiesItem);
@@ -154,8 +158,8 @@ public class CanvasPopupMenu extends JPopupMenu {
 			add(clearCollapsedNodesItem);
 		}
 		if (allowOpenExplosionView) {
-			add(new JSeparator());
-			add(this.openExplosionViewItem);
+			nodeSelectionMenu.add(new JSeparator());
+			nodeSelectionMenu.add(this.openExplosionViewItem);
 		}
 	}
 

@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.BorderLayout;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -245,20 +246,26 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 	
 	protected Set<GraphNode> getLayoutableNodes() { return this.nodes; }
+	
+	protected Rectangle2D getLayoutBounds() { return new Rectangle2D.Double(0.0, 0.0, viewer.getSize().getWidth(), viewer.getSize().getHeight()); }
 
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog, boolean signalLayoutProcessFinish) {
 		logger.finest("entered");
-		Graph<GraphNode, Edge<GraphNode>> tmp = viewer.getGraphLayout().getGraph();
+		Rectangle2D layoutBounds = this.getLayoutBounds();
+		Dimension s =  layoutBounds.getBounds().getSize();  //viewer.getSize();
+		//s.height*= 0.5;
+		//s.width*= 0.5;
 		Layout<GraphNode, Edge<GraphNode>> layout = 
 				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout!=nodes)?
-				new FRLayout(viewer.getGraphLayout().getGraph(), viewer.getSize(),true):
-				layoutType.create(viewer.getGraphLayout().getGraph(), viewer.getSize()));
+				new FRLayout(viewer.getGraphLayout().getGraph(), s,true):
+				layoutType.create(viewer.getGraphLayout().getGraph(),s));
 		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
 			Point2D pos = viewer.getGraphLayout().transform(node);
 
-			initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
+			//initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
+			initialPositions.put(node, transform.apply(pos.getX() + layoutBounds.getX(), pos.getY()+layoutBounds.getY()));
 			layout.setLocked(node, !nodesForLayout.contains(node));
 		}
 

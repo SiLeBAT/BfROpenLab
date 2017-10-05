@@ -1,7 +1,9 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -20,6 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
+
+import org.apache.commons.collections15.Transformer;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -41,9 +45,13 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.Formatter;
 
 public class ExplosionCanvasUtils {
+
 	private static final GeometryFactory FACTORY = new GeometryFactory();
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
+	public static final double BOUNDARY_MARGIN = 0.2;
+	public static final double BOUNDARY_WIDTH = 10;
+	
 	public static Polygon createBorderPolygon(Rectangle2D rect, double d) {
 		Coordinate[] outerRing = new Coordinate[] { new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
 				new Coordinate(rect.getMaxX() + d, rect.getMinY() - d),
@@ -97,6 +105,36 @@ public class ExplosionCanvasUtils {
 		double d2 = pFrom.distance(pTo2);
 		return d1==d2 || Math.abs(d1-d2)/Math.max(d1, d2) < 0.0001;
 	}
+	
+	public static Rectangle2D getNonBoundaryRect(Canvas canvas) {
+		//Rectangle outerBounds = canvas.getViewer().getBounds();
+		Dimension size = canvas.getViewer().getSize();
+		//double size = Math.max(size.getWidth(), size.getHeight());
+		
+//		if (size == 0.0) {
+//			size = 1.0;
+//		}
+		
+		double margin = (Math.max(size.getWidth(), size.getHeight()) - BOUNDARY_WIDTH) / (1 + 2 * BOUNDARY_MARGIN);
+		
+		return new Rectangle2D.Double(
+				0 + margin + BOUNDARY_WIDTH / 2, 
+				0 + margin + BOUNDARY_WIDTH / 2, 
+				size.getWidth() - 2 * margin - BOUNDARY_WIDTH, 
+				size.getHeight() - 2 * margin - BOUNDARY_WIDTH);
+				
+//		Transformer<GraphNode, Shape> vertexShapeTransformer = this.getViewer().getRenderContext().getVertexShapeTransformer();
+//		
+//		
+//		
+//		double refNodeSize = this.boundaryNodes.stream().map(n -> vertexShapeTransformer.transform(n).getBounds().getSize().getWidth()).max(Double::compare).orElse(0.0);    // this.getEdgeWeights().entrySet().stream().filter(e -> boundaryNodesIds.contains(e.getKey())).map(e -> e.getValue()).max(Double::compare).orElse(0.0);
+//				
+//		double d = Double.max(BOUNDARY_MARGIN * size, refNodeSize*5);
+	}
+//	
+//	public static getBoundaryRect(Rectangle innerBounds, double relativeMargin, double ) {
+//	
+//	}
 
 	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
 		if(!(pointInRect!=null && Double.isFinite(pointInRect.getX()) && Double.isFinite(pointInRect.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);
