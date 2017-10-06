@@ -925,6 +925,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			canvas.addCanvasListener(this);
 			canvas.addTracingListener(this);
 			updateStatusVariables();
+//			canvas.refreshPaintables();
 		}
 
 		(undo ? redoStack : undoStack).push(change);

@@ -115,7 +115,7 @@ public class ExplosionCanvasUtils {
 //			size = 1.0;
 //		}
 		
-		double margin = (Math.max(size.getWidth(), size.getHeight()) - BOUNDARY_WIDTH) / (1 + 2 * BOUNDARY_MARGIN);
+		double margin = (Math.max(size.getWidth(), size.getHeight()) - BOUNDARY_WIDTH) / (1 + 2 * BOUNDARY_MARGIN) * BOUNDARY_MARGIN;
 		
 		return new Rectangle2D.Double(
 				0 + margin + BOUNDARY_WIDTH / 2, 

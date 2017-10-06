@@ -264,8 +264,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		for (GraphNode node : nodes) {
 			Point2D pos = viewer.getGraphLayout().transform(node);
 
-			//initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
-			initialPositions.put(node, transform.apply(pos.getX() + layoutBounds.getX(), pos.getY()+layoutBounds.getY()));
+			initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
+			//initialPositions.put(node, transform.apply(pos.getX() + layoutBounds.getX(), pos.getY()+layoutBounds.getY()));
 			layout.setLocked(node, !nodesForLayout.contains(node));
 		}
 
@@ -305,21 +305,24 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				Sets.difference(nodeSaveMap.keySet(), collapsedNodes.values().stream().flatMap(Set::stream)
 						.collect(Collectors.toCollection(LinkedHashSet::new))));
 
+		//Dimension sizeA = viewer.getSize();
+		//Dimension sizeB = viewer.getGraphLayout().getSize();
+		
 		for (GraphNode node : nonCollapsedNodes) {
 			if (layoutResult.containsKey(node)) {
-				viewer.getGraphLayout().setLocation(node, layoutResult.get(node));
+//				viewer.getGraphLayout().setLocation(node, layoutResult.get(node));
+				if(layout.isLocked(node)) {
+					viewer.getGraphLayout().setLocation(node, layoutResult.get(node));
+				} else {
+					Point2D pos = layoutResult.get(node);
+					viewer.getGraphLayout().setLocation(node, new Point2D.Double(pos.getX() + layoutBounds.getX(),pos.getY() + layoutBounds.getY()));
+				}
 			} else {
 				Point2D pos = viewer.getGraphLayout().transform(node);
-
+				
 				viewer.getGraphLayout().setLocation(node, transform.apply(pos.getX(), pos.getY()));
 			}
 		}
-
-//		if(useIdentityTransform) {
-//			setTransform(Transform.IDENTITY_TRANSFORM);
-//		} else {
-//			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), PointUtils.getBounds(layoutResult.values()), null));
-//		}
 		
 		 
 		if (layoutType == LayoutType.FR_LAYOUT) {
