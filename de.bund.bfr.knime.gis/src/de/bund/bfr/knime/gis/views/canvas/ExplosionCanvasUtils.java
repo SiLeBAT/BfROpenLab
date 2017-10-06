@@ -132,9 +132,16 @@ public class ExplosionCanvasUtils {
 //		double d = Double.max(BOUNDARY_MARGIN * size, refNodeSize*5);
 	}
 //	
-//	public static getBoundaryRect(Rectangle innerBounds, double relativeMargin, double ) {
-//	
-//	}
+	public static Rectangle2D getBoundaryRect(Rectangle2D innerBounds) {
+		
+		double size = Math.max(innerBounds.getWidth(), innerBounds.getHeight());
+		
+		return new Rectangle2D.Double(
+				innerBounds.getX() - BOUNDARY_MARGIN * size - 0.5 * BOUNDARY_WIDTH,
+				innerBounds.getY() - BOUNDARY_MARGIN * size - 0.5 * BOUNDARY_WIDTH,
+				innerBounds.getWidth() + BOUNDARY_MARGIN * size * 2  + BOUNDARY_WIDTH,
+				innerBounds.getHeight() + BOUNDARY_MARGIN * size * 2  + BOUNDARY_WIDTH);
+	}
 
 	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
 		if(!(pointInRect!=null && Double.isFinite(pointInRect.getX()) && Double.isFinite(pointInRect.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);

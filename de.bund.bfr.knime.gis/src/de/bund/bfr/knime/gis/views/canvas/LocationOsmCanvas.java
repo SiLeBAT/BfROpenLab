@@ -78,6 +78,8 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
 	}
+	
+	public Polygon getInvalidArea() { return invalidArea; }
 
 	@Override
 	public void resetLayoutItemClicked() {

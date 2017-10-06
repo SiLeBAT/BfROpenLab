@@ -249,10 +249,10 @@ public class TracingViewCanvasCreator {
 		this.filterExplosionData(nodes, edges, deliveries);
 		
 		if (set.getGisType() == GisType.SHAPEFILE) {
-			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+			canvas = new ExplosionTracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
 					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased);
 		} else {
-			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries,
+			canvas = new ExplosionTracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries,
 					lotBased);
 			((TracingOsmCanvas) canvas).setTileSource(set.getGisType().getTileSource());
 		}
