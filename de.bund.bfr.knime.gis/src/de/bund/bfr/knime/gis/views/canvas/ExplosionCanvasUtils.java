@@ -137,22 +137,37 @@ public class ExplosionCanvasUtils {
 //		double d = Double.max(BOUNDARY_MARGIN * size, refNodeSize*5);
 	}
 //	
-	public static Rectangle2D getBoundaryAreaRect(Rectangle2D innerBounds, boolean isNodeBound) {
+	public static Rectangle2D getBoundaryAreaRect(Rectangle2D innerBounds) {
 		
 		double size = Math.max(innerBounds.getWidth(), innerBounds.getHeight());
+		double margin = size * BOUNDARY_AREA_RELATIVE_MARGIN;
+		double w = size * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
 		
 		return new Rectangle2D.Double(
-				innerBounds.getX() - BOUNDARY_MARGIN * size - 0.5 * BOUNDARY_WIDTH,
-				innerBounds.getY() - BOUNDARY_MARGIN * size - 0.5 * BOUNDARY_WIDTH,
-				innerBounds.getWidth() + BOUNDARY_MARGIN * size * 2  + BOUNDARY_WIDTH,
-				innerBounds.getHeight() + BOUNDARY_MARGIN * size * 2  + BOUNDARY_WIDTH);
+				innerBounds.getX() - margin - 0.5 * w,
+				innerBounds.getY() - margin * size - 0.5 * w,
+				innerBounds.getWidth() + margin * 2  + w,
+				innerBounds.getHeight() + margin * 2  + w);
 	}
 	
-	
-	public static Rectangle2D getBoundaryAreaRect(Rectangle2D innerBounds) {
-	}
 	
 	public static Rectangle2D getBoundaryAreaRect(Polygon invalidArea) {
+		
+		Rectangle2D bounds = getInvalidAreaRect(invalidArea);
+		
+		double size = Math.max(bounds.getWidth(), bounds.getHeight());
+		double margin = BOUNDARY_AREA_RELATIVE_MARGIN/2 * size;
+		double w = getInvalidAreaBorderWidth(invalidArea);
+		
+		return new Rectangle2D.Double(
+				bounds.getX() - margin - 0.5 * w,
+				bounds.getY() - margin - 0.5 * w,
+				bounds.getWidth() + margin * 2  + w,
+				bounds.getHeight() + margin * 2  + w);
+		
+	}
+	
+	public static Rectangle2D getInvalidAreaRect(Polygon invalidArea) {
 		Rectangle2D bounds = null;
 		
 		if(invalidArea!=null) {
@@ -169,7 +184,7 @@ public class ExplosionCanvasUtils {
 				if(maxY < coord.y) maxY = coord.y;
 			}
 			
-			double w = getAreaBorderWidth(invalidArea);
+			double w = getInvalidAreaBorderWidth(invalidArea);
 			
 			bounds = new Rectangle2D.Double(minX + w / 2, minY + w / 2, maxX - minX - w, maxY - minY - w);
 		}
@@ -178,14 +193,15 @@ public class ExplosionCanvasUtils {
 	}
 			
 	public static double getInvalidAreaBorderWidth(Polygon invalidArea) {
-		if(area != null) {
+		
+		if(invalidArea != null) {
 			
 			double minX = Double.MAX_VALUE;
 			double minX2 = Double.MAX_VALUE;
 			
-			for(Coordinate coord : area.getCoordinates()) if(minX > coord.x) minX = coord.x;
+			for(Coordinate coord : invalidArea.getCoordinates()) if(minX > coord.x) minX = coord.x;
 				
-			for(Coordinate coord : area.getCoordinates()) if((minX2 > coord.x) && (minX < coord.x)) minX2 = coord.x;
+			for(Coordinate coord : invalidArea.getCoordinates()) if((minX2 > coord.x) && (minX < coord.x)) minX2 = coord.x;
 			
 			return minX2 - minX;
 			
