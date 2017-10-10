@@ -98,6 +98,7 @@ public class CanvasUtils {
 	
 	private static final int NODE_TEXTURE_SIZE = 3;
 	private static final int EDGE_TEXTURE_SIZE = 5;
+	
 	private static final Color[] COLORS = new Color[] { new Color(255, 85, 85), new Color(85, 85, 255),
 			new Color(85, 255, 85), new Color(255, 85, 255), new Color(85, 255, 255), new Color(255, 175, 175),
 			new Color(128, 128, 128), new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),

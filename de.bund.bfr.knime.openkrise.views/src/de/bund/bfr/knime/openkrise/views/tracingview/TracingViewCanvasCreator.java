@@ -49,6 +49,8 @@ import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingOsmCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingShapefileCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
@@ -215,6 +217,15 @@ public class TracingViewCanvasCreator {
 		logger.finest("entered");
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashMap<>(),
 				false);
+		
+		for(LocationNode node: nodes.values()) {
+			if(node.getId().equals("1653105646")) {
+				node.updateCenter(null);
+				Map<String, Object> tmp = node.getProperties();
+				tmp.get("Longitude");
+			}
+		}
+		
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
 		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedDeliveryRelationRows);
@@ -241,6 +252,11 @@ public class TracingViewCanvasCreator {
 	public ITracingGisCanvas<?> createExplosionGisCanvas() throws NotConfigurableException {
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashMap<>(),
 				false);
+		//((LocationNode) nodes.values().toArray()[0]).updateCenter(null);
+		//((LocationNode) nodes.values().toArray()[1]).updateCenter(null);
+		for(LocationNode node: nodes.values()) if(node.getId().equals("1653105646")) node.updateCenter(null);
+		for(LocationNode node: nodes.values()) if(node.getId().equals("131121881")) node.updateCenter(null);
+		
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
 		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedDeliveryRelationRows);
@@ -250,11 +266,15 @@ public class TracingViewCanvasCreator {
 		
 		if (set.getGisType() == GisType.SHAPEFILE) {
 			canvas = new ExplosionTracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
-					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased);
+					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased, 
+					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(),
+					this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
 		} else {
 			canvas = new ExplosionTracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries,
-					lotBased);
-			((TracingOsmCanvas) canvas).setTileSource(set.getGisType().getTileSource());
+					lotBased,
+					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(),
+					this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
+			((ExplosionTracingOsmCanvas) canvas).setTileSource(set.getGisType().getTileSource());
 		}
 
 		canvas.setPerformTracing(false);

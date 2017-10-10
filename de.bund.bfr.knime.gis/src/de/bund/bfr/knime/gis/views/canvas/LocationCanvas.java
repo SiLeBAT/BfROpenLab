@@ -86,6 +86,8 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
 	}
+	
+	public Polygon getInvalidArea() { return this.invalidArea; }
 
 	@Override
 	public Collection<RegionNode> getRegions() {

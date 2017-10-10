@@ -53,6 +53,7 @@ import de.bund.bfr.knime.gis.views.canvas.LocationCanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.common.Delivery;
@@ -62,7 +63,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
+public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas{
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
@@ -82,9 +83,9 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 	
 	private Map<String, Set<String>> allCollapsedNodes;
 
-	public ExplosionTracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
-			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, String strKey, Set<String> containedNodes) {
-		super(nodes, edges, nodeProperties, edgeProperties, deliveries, lotBased);
+	public ExplosionTracingShapefileCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties, List<RegionNode> regions, Map<String, Delivery> deliveries, boolean lotBased, String strKey, Set<String> containedNodes) {
+		super(nodes, edges, nodeProperties, edgeProperties, regions, deliveries, lotBased);
 		
 		logger.finest("entered");
 		this.image = null;
@@ -139,8 +140,10 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 		Stream.of(getListeners(CanvasListener.class)).forEach(action);
 	}
 	
-	private void placeBoundaryNodes() { 
+	private void placeBoundaryNodes() { //Set<LocationNode> nodes, Set<Edge<LocationNode>> edges,
+			//Layout<LocationNode, Edge<LocationNode>> layout) {
 		logger.finest("entered");
+		//Polygon boundaryArea = null;
 
 		if (!boundaryNodes.isEmpty()) {
 			
@@ -167,9 +170,11 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 
 				for (LocationNode node : Sets.difference(nodes,this.allBoundaryNodes)) {
 					if (node.getCenter() != null) {
+//						layout.setLocation(node, node.getCenter());
 						positions.add(node.getCenter());
 					} else {
 						// this should not happen since the node center was already set
+						// invalidNodes.add(node);
 					}
 				}
 				
@@ -192,24 +197,20 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 
 			SetMultimap<LocationNode, Point2D> nodeRefPoints = LinkedHashMultimap.create();
 			Map<String, Point2D> positions = new LinkedHashMap<>();
-			//for(LocationNode node: this.nonBoundaryNodes) positions.put(node.getId(), node.getCenter());
 			
 			for(Edge<LocationNode> e : this.edges) {
 				if(!this.nonBoundaryNodes.contains(e.getFrom())) {
 					if(this.nonBoundaryNodes.contains(e.getTo())) {
-						nodeRefPoints.put(e.getFrom(), e.getTo().getCenter());
+						nodeRefPoints.put(e.getFrom(), positions.get(e.getTo().getId()));
 					}
 				} else if(!this.nonBoundaryNodes.contains(e.getTo())) {
-					nodeRefPoints.put(e.getTo(), e.getFrom().getCenter());
+					nodeRefPoints.put(e.getTo(), positions.get(e.getFrom().getId()));
 				}
 			}
 			
 			
 			nodeRefPoints.asMap().entrySet().forEach(e -> {
 				Point2D pCenter = PointUtils.getCenter(e.getValue());
-				if(pCenter == null) {
-					 pCenter = null;
-				}
 				Point2D pBR = getClosestPointOnRect(pCenter, rect);
 				 
 				positions.put(e.getKey().getId(), pBR);
@@ -229,8 +230,7 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 			
 			Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
 			
-			
-			for( LocationNode node: this.allBoundaryNodes ) {
+			for( LocationNode node: Sets.union(this.allBoundaryNodes,this.nodes)) {
 				Point2D p = positions.get(node.getId());
 				node.updateCenter(p);
 				layout.setLocation(node, p);
@@ -383,9 +383,9 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 		public void paint(Graphics g) {
 			//logger.finest("entered toSvg=" + (toSvg?"true":"false"));
 			if (toSvg) {
-				ExplosionTracingOsmCanvas.this.paintGraph((Graphics2D) g, true);
+				ExplosionTracingShapefileCanvas.this.paintGraph((Graphics2D) g, true);
 			} else {
-				ExplosionTracingOsmCanvas.this.paintGraphImage((Graphics2D) g);
+				ExplosionTracingShapefileCanvas.this.paintGraphImage((Graphics2D) g);
 			}
 			//logger.finest("leaving");
 		}

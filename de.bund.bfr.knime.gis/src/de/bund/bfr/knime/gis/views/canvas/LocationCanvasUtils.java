@@ -53,6 +53,9 @@ public class LocationCanvasUtils {
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
+	public static double INVALID_AREA_RELATIVE_MARGIN = 0.2;
+	public static double INVALID_AREA_RELATIVE_BORDERWIDTH = 0.02;
+	
 	private LocationCanvasUtils() {
 	}
 

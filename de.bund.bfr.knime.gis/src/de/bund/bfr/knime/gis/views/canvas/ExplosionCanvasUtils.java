@@ -33,9 +33,13 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
+import de.bund.bfr.knime.PointUtils;
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,8 +53,9 @@ public class ExplosionCanvasUtils {
 	private static final GeometryFactory FACTORY = new GeometryFactory();
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
-	public static final double BOUNDARY_MARGIN = 0.2;
-	public static final double BOUNDARY_WIDTH = 10;
+	public static final double BOUNDARY_AREA_RELATIVE_MARGIN = LocationCanvasUtils.INVALID_AREA_RELATIVE_MARGIN; //    0.2;
+	public static final double BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH = LocationCanvasUtils.INVALID_AREA_RELATIVE_BORDERWIDTH; // 0.02;
+	public static final double BOUNDARY_WIDTH = 5; // 10
 	
 	public static Polygon createBorderPolygon(Rectangle2D rect, double d) {
 		Coordinate[] outerRing = new Coordinate[] { new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
@@ -132,7 +137,7 @@ public class ExplosionCanvasUtils {
 //		double d = Double.max(BOUNDARY_MARGIN * size, refNodeSize*5);
 	}
 //	
-	public static Rectangle2D getBoundaryRect(Rectangle2D innerBounds) {
+	public static Rectangle2D getBoundaryAreaRect(Rectangle2D innerBounds, boolean isNodeBound) {
 		
 		double size = Math.max(innerBounds.getWidth(), innerBounds.getHeight());
 		
@@ -141,6 +146,158 @@ public class ExplosionCanvasUtils {
 				innerBounds.getY() - BOUNDARY_MARGIN * size - 0.5 * BOUNDARY_WIDTH,
 				innerBounds.getWidth() + BOUNDARY_MARGIN * size * 2  + BOUNDARY_WIDTH,
 				innerBounds.getHeight() + BOUNDARY_MARGIN * size * 2  + BOUNDARY_WIDTH);
+	}
+	
+	
+	public static Rectangle2D getBoundaryAreaRect(Rectangle2D innerBounds) {
+	}
+	
+	public static Rectangle2D getBoundaryAreaRect(Polygon invalidArea) {
+		Rectangle2D bounds = null;
+		
+		if(invalidArea!=null) {
+			
+			double minX = Double.MAX_VALUE;
+			double maxX = Double.MIN_VALUE;
+			double minY = Double.MAX_VALUE;
+			double maxY = Double.MIN_VALUE;
+			
+			for(Coordinate coord : invalidArea.getCoordinates()) {
+				if(minX > coord.x) minX = coord.x;
+				if(maxX < coord.x) maxX = coord.x;
+				if(minY > coord.y) minY = coord.y;
+				if(maxY < coord.y) maxY = coord.y;
+			}
+			
+			double w = getAreaBorderWidth(invalidArea);
+			
+			bounds = new Rectangle2D.Double(minX + w / 2, minY + w / 2, maxX - minX - w, maxY - minY - w);
+		}
+		
+		return bounds;
+	}
+			
+	public static double getInvalidAreaBorderWidth(Polygon invalidArea) {
+		if(area != null) {
+			
+			double minX = Double.MAX_VALUE;
+			double minX2 = Double.MAX_VALUE;
+			
+			for(Coordinate coord : area.getCoordinates()) if(minX > coord.x) minX = coord.x;
+				
+			for(Coordinate coord : area.getCoordinates()) if((minX2 > coord.x) && (minX < coord.x)) minX2 = coord.x;
+			
+			return minX2 - minX;
+			
+		} else {
+			
+			return 0;
+			
+		}
+	}
+	
+	public Polygon placeBoundaryNodes(Set<LocationNode> allBoundaryNodes, Set<LocationNode> nodes, Set<Edge<LocationNode>> edges, Map<String,Set<String>> collapsedNodes) {
+		logger.finest("entered");
+
+		
+		if (!allBoundaryNodes.isEmpty()) {
+			
+			Rectangle2D bounds;
+			
+			if(this.getInvalidArea()!=null) {
+				
+				double minX = Double.MAX_VALUE;
+				double maxX = Double.MIN_VALUE;
+				double minY = Double.MAX_VALUE;
+				double maxY = Double.MIN_VALUE;
+				
+				for(Coordinate coord : this.getInvalidArea().getCoordinates()) {
+					if(minX > coord.x) minX = coord.x;
+					if(maxX < coord.x) maxX = coord.x;
+					if(minY > coord.y) minY = coord.y;
+					if(maxY < coord.y) maxY = coord.y;
+				}
+				bounds = new Rectangle2D.Double(minX, minY, maxX-minX, maxY-minY);
+				
+			} else {
+				
+				List<Point2D> positions = new ArrayList<>();
+
+				for (LocationNode node : Sets.difference(nodes,this.allBoundaryNodes)) {
+					if (node.getCenter() != null) {
+						positions.add(node.getCenter());
+					} else {
+						// this should not happen since the node center was already set
+					}
+				}
+				
+				bounds = PointUtils.getBounds(positions);
+			}
+			
+			
+			double size = Math.max(bounds.getWidth(), bounds.getHeight());
+
+			if (size == 0.0) {
+				size = 1.0;
+			}
+
+			double d = ExplosionCanvasUtils.BOUNDARY_MARGIN * size;
+			// ExplosionCanvasUtils.
+			// double r = 0.02 * size;
+
+			Rectangle2D rect = ExplosionCanvasUtils.getBoundaryRect(bounds);
+			this.boundaryArea = GisUtils.createBorderPolygon(rect, ExplosionCanvasUtils.BOUNDARY_WIDTH);
+
+			SetMultimap<LocationNode, Point2D> nodeRefPoints = LinkedHashMultimap.create();
+			Map<String, Point2D> positions = new LinkedHashMap<>();
+			//for(LocationNode node: this.nonBoundaryNodes) positions.put(node.getId(), node.getCenter());
+			
+			for(Edge<LocationNode> e : this.edges) {
+				if(!this.nonBoundaryNodes.contains(e.getFrom())) {
+					if(this.nonBoundaryNodes.contains(e.getTo())) {
+						nodeRefPoints.put(e.getFrom(), e.getTo().getCenter());
+					}
+				} else if(!this.nonBoundaryNodes.contains(e.getTo())) {
+					nodeRefPoints.put(e.getTo(), e.getFrom().getCenter());
+				}
+			}
+			
+			
+			nodeRefPoints.asMap().entrySet().forEach(e -> {
+				Point2D pCenter = PointUtils.getCenter(e.getValue());
+				if(pCenter == null) {
+					 pCenter = null;
+				}
+				Point2D pBR = getClosestPointOnRect(pCenter, rect);
+				 
+				positions.put(e.getKey().getId(), pBR);
+			});
+			
+            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, this.edges, ExplosionCanvasUtils.BOUNDARY_WIDTH, this.boundaryNodes);
+			
+			// the boundary positions were only set for the visual nodes so far
+			// but the position of the boundary meta nodes will be overwritten by 
+			// the position of the center of their contained nodes ->
+			// the position of the contained nodes is set to the position of their meta node
+			Sets.intersection(this.collapsedNodes.keySet(), 
+					          nodeRefPoints.keySet().stream().map(n -> n.getId()).collect(Collectors.toSet())).forEach(metaKey -> {
+					        	  Point2D p = positions.get(metaKey);
+					        	  this.collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+					          });
+			
+			Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
+			
+			
+			for( LocationNode node: this.allBoundaryNodes ) {
+				Point2D p = positions.get(node.getId());
+				node.updateCenter(p);
+				layout.setLocation(node, p);
+			}
+			
+			this.flushImage();
+		}
+
+		logger.finest("leaving");
 	}
 
 	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
