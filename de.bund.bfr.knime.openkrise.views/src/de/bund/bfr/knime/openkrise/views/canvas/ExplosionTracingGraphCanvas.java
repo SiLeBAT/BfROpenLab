@@ -200,7 +200,7 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 	
 	@Override
 	protected Rectangle2D getLayoutBounds() {
-		return ExplosionCanvasUtils.getNonBoundaryRect(this);
+		return ExplosionCanvasUtils.getInnerBoundaryRect(this);
 	}
 	
 	@Override

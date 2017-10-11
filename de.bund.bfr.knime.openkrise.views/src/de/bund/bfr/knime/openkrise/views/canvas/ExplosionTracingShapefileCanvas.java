@@ -113,9 +113,19 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas{
 		
 		Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
 		
-		this.boundaryNodes.forEach(n -> layout.lock(n, true));
+        Sets.difference(this.nodes, this.nonBoundaryNodes).forEach(n -> layout.lock(n, true));
 		
-		this.placeBoundaryNodes();
+		Set<LocationNode> allBoundaryNodes = Sets.union(Sets.difference(this.nodes, this.nonBoundaryNodes), this.boundaryNodes);
+		
+		if(!this.boundaryNodes.isEmpty()) {
+			this.boundaryArea = ExplosionCanvasUtils.placeBoundaryNodes(
+					allBoundaryNodes, 
+					this.nodes, 
+					this.edges, 
+					this.collapsedNodes, 
+					layout, 
+					this.getInvalidArea());
+		}
 		logger.finest("leaving");
 	}
 	
@@ -140,107 +150,6 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas{
 		Stream.of(getListeners(CanvasListener.class)).forEach(action);
 	}
 	
-	private void placeBoundaryNodes() { //Set<LocationNode> nodes, Set<Edge<LocationNode>> edges,
-			//Layout<LocationNode, Edge<LocationNode>> layout) {
-		logger.finest("entered");
-		//Polygon boundaryArea = null;
-
-		if (!boundaryNodes.isEmpty()) {
-			
-			Rectangle2D bounds;
-			
-			if(this.getInvalidArea()!=null) {
-				
-				double minX = Double.MAX_VALUE;
-				double maxX = Double.MIN_VALUE;
-				double minY = Double.MAX_VALUE;
-				double maxY = Double.MIN_VALUE;
-				
-				for(Coordinate coord : this.getInvalidArea().getCoordinates()) {
-					if(minX > coord.x) minX = coord.x;
-					if(maxX < coord.x) maxX = coord.x;
-					if(minY > coord.y) minY = coord.y;
-					if(maxY < coord.y) maxY = coord.y;
-				}
-				bounds = new Rectangle2D.Double(minX, minY, maxX-minX, maxY-minY);
-				
-			} else {
-				
-				List<Point2D> positions = new ArrayList<>();
-
-				for (LocationNode node : Sets.difference(nodes,this.allBoundaryNodes)) {
-					if (node.getCenter() != null) {
-//						layout.setLocation(node, node.getCenter());
-						positions.add(node.getCenter());
-					} else {
-						// this should not happen since the node center was already set
-						// invalidNodes.add(node);
-					}
-				}
-				
-				bounds = PointUtils.getBounds(positions);
-			}
-			
-			
-			double size = Math.max(bounds.getWidth(), bounds.getHeight());
-
-			if (size == 0.0) {
-				size = 1.0;
-			}
-
-			double d = ExplosionCanvasUtils.BOUNDARY_MARGIN * size;
-			// ExplosionCanvasUtils.
-			// double r = 0.02 * size;
-
-			Rectangle2D rect = ExplosionCanvasUtils.getBoundaryRect(bounds);
-			this.boundaryArea = GisUtils.createBorderPolygon(rect, ExplosionCanvasUtils.BOUNDARY_WIDTH);
-
-			SetMultimap<LocationNode, Point2D> nodeRefPoints = LinkedHashMultimap.create();
-			Map<String, Point2D> positions = new LinkedHashMap<>();
-			
-			for(Edge<LocationNode> e : this.edges) {
-				if(!this.nonBoundaryNodes.contains(e.getFrom())) {
-					if(this.nonBoundaryNodes.contains(e.getTo())) {
-						nodeRefPoints.put(e.getFrom(), positions.get(e.getTo().getId()));
-					}
-				} else if(!this.nonBoundaryNodes.contains(e.getTo())) {
-					nodeRefPoints.put(e.getTo(), positions.get(e.getFrom().getId()));
-				}
-			}
-			
-			
-			nodeRefPoints.asMap().entrySet().forEach(e -> {
-				Point2D pCenter = PointUtils.getCenter(e.getValue());
-				Point2D pBR = getClosestPointOnRect(pCenter, rect);
-				 
-				positions.put(e.getKey().getId(), pBR);
-			});
-			
-            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, this.edges, ExplosionCanvasUtils.BOUNDARY_WIDTH, this.boundaryNodes);
-			
-			// the boundary positions were only set for the visual nodes so far
-			// but the position of the boundary meta nodes will be overwritten by 
-			// the position of the center of their contained nodes ->
-			// the position of the contained nodes is set to the position of their meta node
-			Sets.intersection(this.collapsedNodes.keySet(), 
-					          nodeRefPoints.keySet().stream().map(n -> n.getId()).collect(Collectors.toSet())).forEach(metaKey -> {
-					        	  Point2D p = positions.get(metaKey);
-					        	  this.collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
-					          });
-			
-			Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
-			
-			for( LocationNode node: Sets.union(this.allBoundaryNodes,this.nodes)) {
-				Point2D p = positions.get(node.getId());
-				node.updateCenter(p);
-				layout.setLocation(node, p);
-			}
-			
-			this.flushImage();
-		}
-
-		logger.finest("leaving");
-	}
 
 	public static void paintNonLatLonArea(Graphics2D g, int w, int h, Shape invalidArea) {
 		BufferedImage invalidAreaImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -269,55 +178,6 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas{
 		applyChanges();
 		call(l -> l.collapsedNodesChanged(this));
 		logger.finest("leaving");
-	}
-	
-//	@Override
-//	protected Set<GraphNode> getLayoutableNodes() { return this.nonBoundaryNodes; }
-//	//private Set<GraphNode> nonBoundaryNodes() { return Sets.difference(this.nodes,this.boundaryNodes); }
-	
-//	@Override
-//	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
-//		super.applyLayout(layoutType, nodesForLayout, showProgressDialog, false);
-//		//Sets.difference(this.boundaryNodes, this.nodes).forEach(n -> viewer.getGraphLayout().setLocation(n,  new Point2D.Double(Double.NaN, Double.NaN)));
-//		// viewer.getGraphLayout().setLocation(node, transform.apply(pos.getX(), pos.getY()));
-//		this.repositionBoundaryNodes();
-//		//Rectangle viewBounds = this.getViewer().getBounds();
-//		//if this.getViewer().getBounds() 
-//		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
-//	}
-	
-//	@Override
-//	public void applyInvisibility() {
-//		ExplosionCanvasUtils.removeOuterNodes(nodes, this.nonBoundaryNodes, this.boundaryNodes);
-//		super.applyInvisibility();
-//	}
-	
-//	@Override 
-//	protected Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
-//		logger.finest("entered");
-//		Map<String, Point2D> nodePos = super.getNodePositions(nodes.stream().filter(n-> this.nonBoundaryNodes.contains(n) || this.boundaryNodes.contains(n)).collect(Collectors.toList()));
-//		logger.finest("leaving");
-//		return nodePos;
-//	}
-	
-	private static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
-		double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
-		double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
-		double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
-		double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
-		double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
-
-		if (dx1 == min) {
-			return new Point2D.Double(rect.getMinX(), pointInRect.getY());
-		} else if (dx2 == min) {
-			return new Point2D.Double(rect.getMaxX(), pointInRect.getY());
-		} else if (dy1 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMinY());
-		} else if (dy2 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMaxY());
-		}
-
-		throw new RuntimeException("This should not happen");
 	}
 	
 	protected void flushImage() {

@@ -118,6 +118,10 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	protected List<V> allNodes;
 	protected List<Edge<V>> allEdges;
+	
+	/*
+	 * ?(mr) Nodes that are visualized in graph
+	 */
 	protected Set<V> nodes;
 	protected Set<Edge<V>> edges;
 	protected Map<String, V> nodeSaveMap;
