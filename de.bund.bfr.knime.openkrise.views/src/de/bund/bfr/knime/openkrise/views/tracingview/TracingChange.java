@@ -592,15 +592,32 @@ public class TracingChange implements Serializable {
 			set.setGisType(undo ? gisTypeBefore : gisTypeAfter);
 			
 			if(this.genmExplosionViewAction!=ExplosionViewAction.None) {
-				if(!undo ^ this.genmExplosionViewAction==ExplosionViewAction.Closed) {
-					set.getExplosionSettingsList().setActiveExplosionSettings(
-							(undo || this.genmExplosionViewAction==ExplosionViewAction.Closed) ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
-									true);
+				if(undo) {
+					if(this.genmExplosionViewAction==ExplosionViewAction.Closed) {
+						set.getExplosionSettingsList().setActiveExplosionSettings(this.gobjExplosionSettingsBefore, true);
+					} else {
+						set.getExplosionSettingsList().setActiveExplosionSettings(this.gobjExplosionSettingsBefore, this.gobjExplosionSettingsAfter);
+					}
 				} else {
-					set.getExplosionSettingsList().setActiveExplosionSettings(
-							(undo || this.genmExplosionViewAction==ExplosionViewAction.Closed) ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
-									set.getExplosionSettingsList().getActiveExplosionSettings());
+					if(this.genmExplosionViewAction==ExplosionViewAction.Closed) {
+						set.getExplosionSettingsList().setActiveExplosionSettings(this.gobjExplosionSettingsAfter, this.gobjExplosionSettingsBefore);
+					} else {
+						set.getExplosionSettingsList().setActiveExplosionSettings(this.gobjExplosionSettingsAfter, true);
+					}
 				}
+				
+//				if(!undo ^ this.genmExplosionViewAction==ExplosionViewAction.Closed) {
+//					set.getExplosionSettingsList().setActiveExplosionSettings(
+//							//(undo || this.genmExplosionViewAction==ExplosionViewAction.Closed) ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
+//							undo ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
+//									true);
+//				} else {
+//					set.getExplosionSettingsList().setActiveExplosionSettings(
+//							undo ?  this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
+//							undo ? this.gobjEx
+//							//(undo || this.genmExplosionViewAction==ExplosionViewAction.Closed) ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
+//							//set.getExplosionSettingsList().getActiveExplosionSettings());
+//				}
 			}
 		}
 

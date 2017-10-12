@@ -57,7 +57,9 @@ public class ExplosionSettingsList extends NodeSettings {
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		// TODO Auto-generated method stub
-		for(int i=this.gobjExplosionSettingsList.size()-1; i>=0; i--) this.gobjExplosionSettingsList.get(i).saveSettings(settings, this.getElementPrefix(i++));
+		for(int i=this.gobjExplosionSettingsList.size()-1; i>=0; i--) {
+			this.gobjExplosionSettingsList.get(i).saveSettings(settings, this.getElementPrefix(i+1));
+		}
 	}
 		
 	public ExplosionSettings getExplosionSettings(String strKey, Set<String> containedNodes) {
@@ -115,6 +117,10 @@ public class ExplosionSettingsList extends NodeSettings {
 		}
 		
 		return (this.setActiveExplosionSettings(objES,true)?objES:null);
+	}
+	
+	public void clearActiveExplosionSettings() {
+	  if(this.gobjActiveExplosionSettingsList != null) this.gobjActiveExplosionSettingsList.clear();	
 	}
 	
 	public ExplosionSettings setActiveExplosionSettings(Set<String> containedNodes, boolean bolActive) {

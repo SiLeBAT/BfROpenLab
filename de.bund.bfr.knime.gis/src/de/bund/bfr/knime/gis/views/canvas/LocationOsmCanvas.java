@@ -24,6 +24,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -37,6 +38,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 
 public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
@@ -76,7 +78,13 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 			}
 		}
 
-		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
+		//invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
+		//invalidArea = this.placeNodes();
+		this.placeNodes(this.nodes,this.edges);
+	}
+	
+	protected void placeNodes(Set<LocationNode> nodes, Set<Edge<LocationNode>> edges) {
+		this.invalidArea = LocationCanvasUtils.placeNodes(nodes, edges, viewer.getGraphLayout());
 	}
 	
 	public Polygon getInvalidArea() { return invalidArea; }

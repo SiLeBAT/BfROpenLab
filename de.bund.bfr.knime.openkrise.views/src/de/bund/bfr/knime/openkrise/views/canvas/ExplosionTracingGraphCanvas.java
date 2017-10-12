@@ -294,15 +294,14 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		//call(l -> l.transformChanged(this));
 	}
 	
-	private void repositionBoundaryNodes() {
+	public void repositionBoundaryNodes() {
 		logger.finest("entered");
 		if(this.isPerformTracing()) {
 		
-		Map<String, Point2D> positions = this.getNodePositions();
-		Set<String> nonBoundaryNodeIds = CanvasUtils.getElementIds(this.nonBoundaryNodes);
-		
-		
 		if (!this.boundaryNodes.isEmpty()) {
+			Map<String, Point2D> positions = this.getNodePositions();
+			Set<String> nonBoundaryNodeIds = CanvasUtils.getElementIds(this.nonBoundaryNodes);
+			
 			Rectangle2D bounds = PointUtils.getBounds(
 					positions.entrySet().stream()
 					.filter(e -> nonBoundaryNodeIds.contains(e.getKey())).map(e -> e.getValue()).collect(Collectors.toList()));
@@ -313,32 +312,36 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 				return;
 			}
 			
-			double size = Math.max(bounds.getWidth(), bounds.getHeight());
-
-			if (size == 0.0) {
-				size = 1.0;
-			}
-			
-			Transformer<GraphNode, Shape> vertexShapeTransformer = this.getViewer().getRenderContext().getVertexShapeTransformer();
-			
-			
-			
-			double refNodeSize = this.boundaryNodes.stream().map(n -> vertexShapeTransformer.transform(n).getBounds().getSize().getWidth()).max(Double::compare).orElse(0.0);    // this.getEdgeWeights().entrySet().stream().filter(e -> boundaryNodesIds.contains(e.getKey())).map(e -> e.getValue()).max(Double::compare).orElse(0.0);
-					
-			double d = Double.max(BOUNDARY_MARGIN * size, refNodeSize*5);
-
-			double r = 1.2 * refNodeSize / this.getViewer().getRenderContext().getMultiLayerTransformer()
-					.getTransformer(Layer.LAYOUT).getScale();
-					
-			Polygon newBoundaryArea = ExplosionCanvasUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d, bounds.getY() - d,
-					bounds.getWidth() + 2 * d, bounds.getHeight() + 2 * d), 2 * r);
+			Polygon newBoundaryArea = ExplosionCanvasUtils.createBoundaryArea(bounds);
+//			double size = Math.max(bounds.getWidth(), bounds.getHeight());
+//
+//			if (size == 0.0) {
+//				size = 1.0;
+//			}
+//			
+//			Transformer<GraphNode, Shape> vertexShapeTransformer = this.getViewer().getRenderContext().getVertexShapeTransformer();
+//			
+//			
+//			
+//			double refNodeSize = this.boundaryNodes.stream().map(n -> vertexShapeTransformer.transform(n).getBounds().getSize().getWidth()).max(Double::compare).orElse(0.0);    // this.getEdgeWeights().entrySet().stream().filter(e -> boundaryNodesIds.contains(e.getKey())).map(e -> e.getValue()).max(Double::compare).orElse(0.0);
+//					
+//			double d = Double.max(BOUNDARY_MARGIN * size, refNodeSize*5);
+//
+//			double r = 1.2 * refNodeSize / this.getViewer().getRenderContext().getMultiLayerTransformer()
+//					.getTransformer(Layer.LAYOUT).getScale();
+//					
+//			Polygon newBoundaryArea = ExplosionCanvasUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d, bounds.getY() - d,
+//					bounds.getWidth() + 2 * d, bounds.getHeight() + 2 * d), 2 * r);
 			
 			boolean boundaryAreaChanged = boundaryArea==null || !newBoundaryArea.equals(boundaryArea);
 			
 			boundaryArea = newBoundaryArea;
 			
-			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - d - r, bounds.getY() - d - r,
-					bounds.getWidth() + 2 * (d + r), bounds.getHeight() + 2 * (d + r));
+			Rectangle2D rect = ExplosionCanvasUtils.getAreaRect(this.boundaryArea);
+			double w = ExplosionCanvasUtils.getAreaBorderWidth(this.boundaryArea);
+			
+//			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - d - r, bounds.getY() - d - r,
+//					bounds.getWidth() + 2 * (d + r), bounds.getHeight() + 2 * (d + r));
 			
 			SetMultimap<GraphNode, Point2D> nodeRefPoints = LinkedHashMultimap.create();
 			
@@ -352,15 +355,17 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 				}
 			}
 			
+			if(!nodeRefPoints.isEmpty()) {
+				nodeRefPoints.asMap().entrySet().forEach(e -> {
+					Point2D pCenter = PointUtils.getCenter(e.getValue());
+					Point2D pBR = getClosestPointOnRect(pCenter, rect);
+					 
+					positions.put(e.getKey().getId(), pBR);
+				});
+			}
 			
-			nodeRefPoints.asMap().entrySet().forEach(e -> {
-				Point2D pCenter = PointUtils.getCenter(e.getValue());
-				Point2D pBR = getClosestPointOnRect(pCenter, rect);
-				 
-				positions.put(e.getKey().getId(), pBR);
-			});
-			
-			ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, this.edges, 2 * refNodeSize, this.boundaryNodes);
+			// ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, this.edges, 2 * refNodeSize, this.boundaryNodes);
+			ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, this.edges, w, this.boundaryNodes);
 			
 			// the boundary positions were only set for the visual nodes so far
 			// but the position of the boundary meta nodes will be overwritten by 

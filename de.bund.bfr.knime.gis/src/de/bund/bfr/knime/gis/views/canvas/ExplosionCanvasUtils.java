@@ -2,6 +2,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -81,46 +82,29 @@ public class ExplosionCanvasUtils {
 		imgGraphics.fill(boundaryArea);
 		imgGraphics.setColor(Color.BLACK);
 		imgGraphics.draw(boundaryArea);
+	
 		CanvasUtils.drawImageWithAlpha(g, boundaryAreaImage, 75);
 		boundaryAreaImage.flush();
 	}
 	
-	public static <N extends Node> Set<N> removeOuterNodes(Set<N> nodes, Set<N> explodedNodes, Set<N> boundaryNodes) {
-		Set<N> toRemove  = nodes.stream().filter(n -> !(explodedNodes.contains(n) || boundaryNodes.contains(n))).collect(Collectors.toSet());
-
-		nodes.removeAll(toRemove);
-		return toRemove;
-	}
+//	public static <N extends Node> Set<N> removeOuterNodes(Set<N> nodes, Set<N> explodedNodes, Set<N> boundaryNodes) {
+//		Set<N> toRemove  = nodes.stream().filter(n -> !(explodedNodes.contains(n) || boundaryNodes.contains(n))).collect(Collectors.toSet());
+//
+//		nodes.removeAll(toRemove);
+//		return toRemove;
+//	}
 	
 	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey, Set<String> retainNodes) {
-//		List<Entry<String,Set<String>>> myMap = collapsedNodes.entrySet().stream().filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty()).collect(Collectors.toList());
-//		Map<String, Set<String>> test = collapsedNodes.entrySet().stream()
-//				.filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty())
-//				.collect(Collectors.toMap(e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
 		return collapsedNodes.entrySet().stream()
 				.filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty())
 				.collect(Collectors.toMap(e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
 	}
 	
-//	public static boolean isPointOnRect(Point2D p, Rectangle2D rect) {
-//		return getClosestPointOnRect(p,rect).distance(p) < Double.max(rect.getWidth(),rect.getHeight())/1000;
-//	}
-	
-//	public static boolean arePointsEquallyDistant(Point2D pFrom, Point2D pTo1, Point2D pTo2) {
-//		double d1 = pFrom.distance(pTo1);
-//		double d2 = pFrom.distance(pTo2);
-//		return d1==d2 || Math.abs(d1-d2)/Math.max(d1, d2) < 0.0001;
-//	}
-	
 	public static Rectangle2D getInnerBoundaryRect(Canvas canvas) {
-		//Rectangle outerBounds = canvas.getViewer().getBounds();
+		
 		Dimension size = canvas.getViewer().getSize();
 		double maxSize = Math.max(size.getWidth(), size.getHeight());
-		//double size = Math.max(size.getWidth(), size.getHeight());
 		
-//		if (size == 0.0) {
-//			size = 1.0;
-//		}
 		
 		double innerSize = maxSize / (1 + 2 * BOUNDARY_AREA_RELATIVE_MARGIN + BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH);
 		double margin = innerSize * BOUNDARY_AREA_RELATIVE_MARGIN;
@@ -132,13 +116,6 @@ public class ExplosionCanvasUtils {
 				size.getWidth() - 2 * margin - w, 
 				size.getHeight() - 2 * margin - w);
 				
-//		Transformer<GraphNode, Shape> vertexShapeTransformer = this.getViewer().getRenderContext().getVertexShapeTransformer();
-//		
-//		
-//		
-//		double refNodeSize = this.boundaryNodes.stream().map(n -> vertexShapeTransformer.transform(n).getBounds().getSize().getWidth()).max(Double::compare).orElse(0.0);    // this.getEdgeWeights().entrySet().stream().filter(e -> boundaryNodesIds.contains(e.getKey())).map(e -> e.getValue()).max(Double::compare).orElse(0.0);
-//				
-//		double d = Double.max(BOUNDARY_MARGIN * size, refNodeSize*5);
 	}
 	
 	public static Rectangle2D getInnerBoundaryRect(Set<LocationNode> innerNodes) {
@@ -153,38 +130,7 @@ public class ExplosionCanvasUtils {
 			}
 		}
 		
-		// bounds = PointUtils.getBounds(positions);
 		return PointUtils.getBounds(positions); 
-	}
-//	
-	public static Rectangle2D getBoundaryAreaRect(Rectangle2D innerBounds) {
-		
-		double size = Math.max(innerBounds.getWidth(), innerBounds.getHeight());
-		double margin = size * BOUNDARY_AREA_RELATIVE_MARGIN;
-		double w = size * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
-		
-		return new Rectangle2D.Double(
-				innerBounds.getX() - margin - 0.5 * w,
-				innerBounds.getY() - margin * size - 0.5 * w,
-				innerBounds.getWidth() + margin * 2  + w,
-				innerBounds.getHeight() + margin * 2  + w);
-	}
-	
-	
-	public static Rectangle2D getBoundaryAreaRect(Polygon invalidArea) {
-		
-		Rectangle2D bounds = getAreaRect(invalidArea);
-		
-		double size = Math.max(bounds.getWidth(), bounds.getHeight());
-		double margin = BOUNDARY_AREA_RELATIVE_MARGIN/2 * size;
-		double w = getAreaBorderWidth(invalidArea);
-		
-		return new Rectangle2D.Double(
-				bounds.getX() - margin - 0.5 * w,
-				bounds.getY() - margin - 0.5 * w,
-				bounds.getWidth() + margin * 2  + w,
-				bounds.getHeight() + margin * 2  + w);
-		
 	}
 	
 	public static Rectangle2D getAreaRect(Polygon area) {
@@ -243,16 +189,13 @@ public class ExplosionCanvasUtils {
 				invalidAreaRect.getX() - margin/2 - w/2, 
 				invalidAreaRect.getY() - margin/2 - w/2,
 				invalidAreaRect.getWidth() + margin + w,
-				invalidAreaRect.getHeight() + margin - w), w);
+				invalidAreaRect.getHeight() + margin + w), w);
 	}
 	
 	public static Polygon createBoundaryArea(Rectangle2D innerBounds) {
 		double size = Math.max(innerBounds.getWidth(), innerBounds.getHeight());
 		double margin = size * BOUNDARY_AREA_RELATIVE_MARGIN;
 		double w = size * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
-		
-		// Rectangle2D rect = getAreaRect(invalidArea);
-		// double w = getAreaBorderWidth(invalidArea);
 		
 		return GisUtils.createBorderPolygon(
 				new Rectangle2D.Double(
@@ -373,28 +316,25 @@ public class ExplosionCanvasUtils {
 			}
 		});
 		
-		List<BoundaryNode> sortableBoundaryNodeList = new ArrayList<>();
 		
-		//positions.values().forEach( p -> myMap.put(p, LinkedHashMultimap.create()));
 		
-		boundaryNodeToInnerNodesMap.asMap().entrySet().forEach(e -> {
-			sortableBoundaryNodeList.add(new BoundaryNode(convertToOneDimensionalPosition(positions.get(e.getKey()), rect),e.getKey(), new HashSet<String>(e.getValue())));
-		});
-		
-		Collections.sort(sortableBoundaryNodeList);
-		
-		DoubleStream tmp = sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint());
-		double[] tmpA = tmp.toArray();
-		Stream<Double> tmp2 = sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed();
-		Object[] tmp2A = tmp2.toArray();
-		List<Double> tmp3 = sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed().collect(Collectors.toList());
-		
-		List<Point2D> res = getPositionsWithoutConflict(
-				sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed().collect(Collectors.toList()), 
-				distance, rect).stream()
-				.map(e -> convertToTwoDimensionalPosition(e, rect)).collect(Collectors.toList());
-		
-		for(int i = 0; i < sortableBoundaryNodeList.size(); i++) positions.put(sortableBoundaryNodeList.get(i).getId(), res.get(i));
+		if(!boundaryNodeToInnerNodesMap.isEmpty()) {
+			
+			List<BoundaryNode> sortableBoundaryNodeList = new ArrayList<>();
+			
+			boundaryNodeToInnerNodesMap.asMap().entrySet().forEach(e -> {
+				sortableBoundaryNodeList.add(new BoundaryNode(convertToOneDimensionalPosition(positions.get(e.getKey()), rect),e.getKey(), new HashSet<String>(e.getValue())));
+			});
+			
+			Collections.sort(sortableBoundaryNodeList);
+			
+			List<Point2D> res = getPositionsWithoutConflict(
+					sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed().collect(Collectors.toList()), 
+					distance, rect).stream()
+					.map(e -> convertToTwoDimensionalPosition(e, rect)).collect(Collectors.toList());
+			
+			for(int i = 0; i < sortableBoundaryNodeList.size(); i++) positions.put(sortableBoundaryNodeList.get(i).getId(), res.get(i));
+		}
 	}
 	
 	private static class BoundaryNode implements Comparable<BoundaryNode> {

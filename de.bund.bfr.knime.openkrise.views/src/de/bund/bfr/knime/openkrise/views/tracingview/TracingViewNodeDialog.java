@@ -33,6 +33,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.Calendar;
@@ -81,6 +83,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
 import de.bund.bfr.knime.ui.Dialogs;
@@ -92,7 +95,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
  * 
  * @author Christian Thoens, Marco Ruegen
  */
-public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements CanvasListener, TracingListener {
+public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements CanvasListener, TracingListener, WindowListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -702,9 +705,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		if (canvas != null) {
 			if(canvas.getComponent().getParent()==panel) {
 				panel.remove(canvas.getComponent());
-			} else {
-			  panel.remove(canvas.getComponent().getParent().getParent());
-			}
+			} 
+//			else {
+//			  panel.remove(canvas.getComponent().getParent().getParent());
+//			}
 			//panel.remove(canvas.getComponent());
 		}
 		
@@ -912,7 +916,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			} else {
 				change.redo(canvas);
 			}
-
+			if(canvas instanceof ExplosionTracingGraphCanvas) ((ExplosionTracingGraphCanvas) canvas).repositionBoundaryNodes();
 			canvas.addCanvasListener(this);
 			canvas.addTracingListener(this);
 			updateStatusVariables();
@@ -1205,4 +1209,46 @@ public void nodeSubsetChanged(ICanvas<?> source) {
 	}
 
   }
+
+@Override
+public void windowActivated(WindowEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowClosed(WindowEvent arg0) {
+	// TODO Auto-generated method stub
+	this.set.getExplosionSettingsList().clearActiveExplosionSettings();
+}
+
+@Override
+public void windowClosing(WindowEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowDeactivated(WindowEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowDeiconified(WindowEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowIconified(WindowEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowOpened(WindowEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
 }
