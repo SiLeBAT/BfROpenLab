@@ -22,6 +22,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -359,4 +360,5 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		});
 	}
+
 }

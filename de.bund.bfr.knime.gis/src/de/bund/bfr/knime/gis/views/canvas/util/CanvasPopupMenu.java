@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.util;
 
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
@@ -29,6 +30,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
 
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
@@ -234,6 +236,8 @@ public class CanvasPopupMenu extends JPopupMenu {
 		clearCollapsedNodesItem = createItem("Clear Collapsed " + owner.getNaming().Nodes(),
 				ClickListener::clearCollapsedNodesItemClicked);
 		this.openExplosionViewItem = createItem("Show Contained Nodes", ClickListener::openExplosionViewItemClicked);
+		this.openExplosionViewItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+		//this.openExplosionViewItem.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		
 		layoutItems = new ArrayList<>();
 

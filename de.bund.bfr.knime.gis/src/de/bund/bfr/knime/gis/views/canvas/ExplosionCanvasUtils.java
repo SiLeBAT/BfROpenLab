@@ -212,7 +212,9 @@ public class ExplosionCanvasUtils {
 		
 		if (!allBoundaryNodes.isEmpty()) {
 			
-			boundaryArea = (invalidArea != null ? createBoundaryArea(invalidArea) : createBoundaryArea(getInnerBoundaryRect(Sets.intersection(nodes, allBoundaryNodes))));
+			Set<LocationNode> boundaryNodes = Sets.intersection(nodes, allBoundaryNodes);
+			
+			boundaryArea = (invalidArea != null ? createBoundaryArea(invalidArea) : createBoundaryArea(getInnerBoundaryRect(boundaryNodes)));
 			
 			Rectangle2D rect = getAreaRect(boundaryArea);
 			double w = getAreaBorderWidth(boundaryArea);
@@ -221,7 +223,9 @@ public class ExplosionCanvasUtils {
 			Map<String, Point2D> positions = new LinkedHashMap<>();
 			//for(LocationNode node: this.nonBoundaryNodes) positions.put(node.getId(), node.getCenter());
 			
-			Set<LocationNode> boundaryNodes = Sets.intersection(nodes, allBoundaryNodes);
+			Set<String> tmpFrom = edges.stream().map(e -> e.getFrom().getId()).collect(Collectors.toSet());
+			Set<String> tmpTo = edges.stream().map(e -> e.getTo().getId()).collect(Collectors.toSet());
+			
 			
 			for(Edge<LocationNode> e : edges) {
 				if(boundaryNodes.contains(e.getFrom())) {

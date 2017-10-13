@@ -31,6 +31,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
@@ -95,7 +97,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
  * 
  * @author Christian Thoens, Marco Ruegen
  */
-public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements CanvasListener, TracingListener, WindowListener {
+public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements CanvasListener, TracingListener, KeyListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -254,6 +256,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		this.tracingTable = (BufferedDataTable) input[2];
 		this.shapeTable = (BufferedDataTable) input[3];
 		this.set.loadSettings(settings);
+		//this.set.getExplosionSettingsList().clearActiveExplosionSettings();
 
 		this.undoButton.setEnabled(false);
 		this.redoButton.setEnabled(false);
@@ -1211,43 +1214,19 @@ public void nodeSubsetChanged(ICanvas<?> source) {
   }
 
 @Override
-public void windowActivated(WindowEvent arg0) {
+public void keyTyped(KeyEvent e) {
 	// TODO Auto-generated method stub
 	
 }
 
 @Override
-public void windowClosed(WindowEvent arg0) {
+public void keyPressed(KeyEvent e) {
 	// TODO Auto-generated method stub
-	this.set.getExplosionSettingsList().clearActiveExplosionSettings();
+	logger.finest("keyCode: " + e.getKeyCode());
 }
 
 @Override
-public void windowClosing(WindowEvent arg0) {
-	// TODO Auto-generated method stub
-	
-}
-
-@Override
-public void windowDeactivated(WindowEvent arg0) {
-	// TODO Auto-generated method stub
-	
-}
-
-@Override
-public void windowDeiconified(WindowEvent arg0) {
-	// TODO Auto-generated method stub
-	
-}
-
-@Override
-public void windowIconified(WindowEvent arg0) {
-	// TODO Auto-generated method stub
-	
-}
-
-@Override
-public void windowOpened(WindowEvent arg0) {
+public void keyReleased(KeyEvent e) {
 	// TODO Auto-generated method stub
 	
 }

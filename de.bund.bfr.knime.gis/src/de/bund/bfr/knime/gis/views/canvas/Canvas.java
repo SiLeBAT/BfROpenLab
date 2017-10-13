@@ -25,6 +25,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -105,7 +107,7 @@ import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import java.util.logging.Logger;
 
 public abstract class Canvas<V extends Node> extends JPanel
-		implements JungListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
+		implements JungListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V>, KeyListener {
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
@@ -138,6 +140,8 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
+	
+	private int pressedKey;
 
 	public Canvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
@@ -195,6 +199,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
+		this.pressedKey = Integer.MIN_VALUE;
 		logger.finest("leaving");
 	}
 
@@ -442,8 +447,11 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 			dialog.setVisible(true);
 		}
+		
 	}
 
+	protected int getPressedKey() { return this.pressedKey; }
+	
 	@Override
 	public void resetLayoutItemClicked() {
 		setTransform(Transform.IDENTITY_TRANSFORM);
@@ -1300,6 +1308,26 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	private void call(Consumer<CanvasListener> action) {
 		Stream.of(getListeners(CanvasListener.class)).forEach(action);
+	}
+	
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		logger.finest("keyCode: " + e.getKeyCode());
+		this.pressedKey = e.getKeyCode();
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		logger.finest("keyCode: " + e.getKeyCode());
+		if(this.pressedKey == e.getKeyCode()) this.pressedKey = Integer.MIN_VALUE;
 	}
 
 	private class PostPaintable implements Paintable {

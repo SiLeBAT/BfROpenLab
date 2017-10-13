@@ -10,6 +10,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -29,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.swing.KeyStroke;
 import javax.swing.event.EventListenerList;
 
 import org.apache.commons.collections15.Transformer;
@@ -47,10 +50,14 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.ExplosionCanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
@@ -94,6 +101,28 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		this.getViewer().addPostRenderPaintable(new LabelPaintable(this.getViewer(),strKey,()->call(l->l.closeExplosionViewRequested(this))));
 		
 		this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
+		
+		this.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				logger.finest("key pressed");
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		
 		this.addTracingListener(new TracingListener() {
 
@@ -410,6 +439,20 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 			image.flush();
 			image = null;
 		}
+	}
+	
+	@Override
+	public void doubleClickedOn(Object obj) {
+		logger.finest("entered");
+		if(this.getPressedKey() == KeyEvent.CTRL_DOWN_MASK) {
+			
+			if (obj instanceof Node) this.openExplosionViewItemClicked();
+			
+		} else {
+			
+			super.doubleClickedOn(obj);
+		}
+		logger.finest("leaving");
 	}
 	
 	@Override
