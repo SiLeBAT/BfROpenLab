@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -29,10 +30,14 @@ import java.util.logging.Logger;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
@@ -238,9 +243,24 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 		logger.finest("leaving");
 	}
 
+//	@Override
+//	public void doubleClickedOn(Object obj, MouseEvent e) {
+//		tracing.doubleClickedOn(obj);
+//		super.doubleClickedOn(obj, e);
+//	}
+	
 	@Override
-	public void doubleClickedOn(Object obj) {
-		tracing.doubleClickedOn(obj);
+	public void doubleClickedOn(Object obj, MouseEvent e) {
+		
+		if(e.isControlDown() && (obj instanceof Node) && this.isExplosionViewSupported()) {
+			
+			this.openExplosionViewItemClicked();
+			
+		} else {
+			
+			tracing.doubleClickedOn(obj);
+			
+		}		
 	}
 
 	@Override
@@ -252,6 +272,9 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 		return dialog;
 	}
 
+	@Override
+	protected boolean isExplosionViewSupported() { return true; }
+	
 	@Override
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		HighlightListDialog dialog = super.openEdgeHighlightDialog();

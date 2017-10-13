@@ -62,7 +62,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
+public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExplosionCanvas{
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
@@ -148,8 +148,8 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 		return server;
 	}
 	
-	private void call(Consumer<CanvasListener> action) {
-		Stream.of(getListeners(CanvasListener.class)).forEach(action);
+	private void call(Consumer<ExplosionCanvasListener> action) {
+		Stream.of(getListeners(ExplosionCanvasListener.class)).forEach(action);
 	}
 	
 //	public static void paintNonLatLonArea(Graphics2D g, int w, int h, Shape invalidArea) {
@@ -267,18 +267,18 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 //		}
 //	}
 	
-	@Override
-	public void openExplosionViewItemClicked() {
-		Set<String> selectedNodeIds = getSelectedNodeIds();
-		
-		// exactly one node must be selected
-		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
-		// this node has to be a metanode
-		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
-		if(!this.allCollapsedNodes.keySet().contains(selectedNodeId)) return;
-		
-		call(l -> l.openExplosionViewRequested(this, selectedNodeId, this.allCollapsedNodes.get(selectedNodeId)));
-	}
+//	@Override
+//	public void openExplosionViewItemClicked() {
+//		Set<String> selectedNodeIds = getSelectedNodeIds();
+//		
+//		// exactly one node must be selected
+//		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
+//		// this node has to be a metanode
+//		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
+//		if(!this.allCollapsedNodes.keySet().contains(selectedNodeId)) return;
+//		
+//		call(l -> l.openExplosionViewRequested(this, selectedNodeId)); //, this.allCollapsedNodes.get(selectedNodeId)));
+//	}
 	
 	
 	@Override
@@ -505,6 +505,12 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas{
 		@Override
 		public void mouseExited(MouseEvent e) {
 		}
+	}
+
+	@Override
+	public Set getBoundaryNodes() {
+		// TODO Auto-generated method stub
+		return this.boundaryNodes;
 	}
 
 

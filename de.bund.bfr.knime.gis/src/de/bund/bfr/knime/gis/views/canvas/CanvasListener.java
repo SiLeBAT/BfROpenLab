@@ -72,7 +72,6 @@ public interface CanvasListener extends EventListener {
 	
 	void nodeSubsetChanged(ICanvas<?> source);
 	
-	void openExplosionViewRequested(ICanvas<?> source, String strKey, Set<String> containedNodes);
+	void openExplosionViewRequested(ICanvas<?> source, String strKey); //, Set<String> containedNodes);
 	
-	void closeExplosionViewRequested(ICanvas<?> source);
 }

@@ -85,7 +85,9 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionCanvasListener;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.IExplosionCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
 import de.bund.bfr.knime.ui.Dialogs;
@@ -95,9 +97,9 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
  * 
- * @author Christian Thoens, Marco Ruegen
+ * @author Christian Thoens
  */
-public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements CanvasListener, TracingListener, KeyListener {
+public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements ExplosionCanvasListener, CanvasListener, TracingListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -756,14 +758,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showInfoMessage(panel, TracingUtils.LOT_BASED_INFO));
 		}
 
-		if(false && this.isExplosionViewActive()) {
-			// explosion view
-			panel.add(new ExplosionCanvasContainerWithLabelAndCloseFeature(canvas, 
-					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(), c -> this.closeExplosionViewRequested(c)),
-					BorderLayout.CENTER);
-		} else {
+//		if(false && this.isExplosionViewActive()) {
+//			// explosion view
+//			panel.add(new ExplosionCanvasContainerWithLabelAndCloseFeature(canvas, 
+//					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(), c -> this.closeExplosionViewRequested(c)),
+//					BorderLayout.CENTER);
+//		} else {
 			panel.add(canvas.getComponent(), BorderLayout.CENTER);
-		}
+//		}
 //		JPanel objPanel = new JPanel();
 //		JLayeredPane objPane = new JLayeredPane();
 //		objPanel.add(objPane);
@@ -976,7 +978,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	}
 
 	@Override
-	public void openExplosionViewRequested(ICanvas<?> source, String strKey, Set<String> containedNodes) {
+	public void openExplosionViewRequested(ICanvas<?> source, String strKey) { //, Set<String> containedNodes) {
 		// TODO Auto-generated method stub
 		updateSettings();
 		
@@ -986,7 +988,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 //				 null:
 //				 this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
 		
-		ExplosionSettings objToES = this.set.getExplosionSettingsList().setActiveExplosionSettings(strKey, containedNodes);
+		ExplosionSettings objToES = this.set.getExplosionSettingsList().setActiveExplosionSettings(strKey, this.collapsedNodes.get(strKey)); //, containedNodes);
 		
 		this.changeOccured(TracingChange.Builder.createViewChange(
 				this.set.isShowGis(), this.set.isShowGis(), this.set.getGisType(),
@@ -1000,7 +1002,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 //	}
 	
 	@Override
-	public void closeExplosionViewRequested(ICanvas<?> source) {
+	public void closeExplosionViewRequested(IExplosionCanvas<?> source) {
 		// TODO Auto-generated method stub
 		ExplosionSettings objCloseES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
 		if(objCloseES==null) return; 
@@ -1213,21 +1215,4 @@ public void nodeSubsetChanged(ICanvas<?> source) {
 
   }
 
-@Override
-public void keyTyped(KeyEvent e) {
-	// TODO Auto-generated method stub
-	
-}
-
-@Override
-public void keyPressed(KeyEvent e) {
-	// TODO Auto-generated method stub
-	logger.finest("keyCode: " + e.getKeyCode());
-}
-
-@Override
-public void keyReleased(KeyEvent e) {
-	// TODO Auto-generated method stub
-	
-}
 }

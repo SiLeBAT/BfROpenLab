@@ -68,7 +68,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 import java.util.logging.Logger;
 
-public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
+public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements IExplosionCanvas {
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
@@ -101,28 +101,6 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		this.getViewer().addPostRenderPaintable(new LabelPaintable(this.getViewer(),strKey,()->call(l->l.closeExplosionViewRequested(this))));
 		
 		this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
-		
-		this.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				logger.finest("key pressed");
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
 		
 		this.addTracingListener(new TracingListener() {
 
@@ -266,8 +244,8 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		//call(l -> l.nodePositionsChanged(this));
 	}
 	
-	private void call(Consumer<CanvasListener> action) {
-		Stream.of(getListeners(CanvasListener.class)).forEach(action);
+	private void call(Consumer<ExplosionCanvasListener> action) {
+		Stream.of(getListeners(ExplosionCanvasListener.class)).forEach(action);
 	}
 	
 	@Override
@@ -441,32 +419,20 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		}
 	}
 	
-	@Override
-	public void doubleClickedOn(Object obj) {
-		logger.finest("entered");
-		if(this.getPressedKey() == KeyEvent.CTRL_DOWN_MASK) {
-			
-			if (obj instanceof Node) this.openExplosionViewItemClicked();
-			
-		} else {
-			
-			super.doubleClickedOn(obj);
-		}
-		logger.finest("leaving");
-	}
+//	@Override
+//	public void openExplosionViewItemClicked() {
+//		Set<String> selectedNodeIds = getSelectedNodeIds();
+//		
+//		// exactly one node must be selected
+//		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
+//		// this node has to be a metanode
+//		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
+//		if(!this.allCollapsedNodes.keySet().contains(selectedNodeId)) return;
+//		
+//		call(l -> l.openExplosionViewRequested(this, selectedNodeId));
+//	}
 	
-	@Override
-	public void openExplosionViewItemClicked() {
-		Set<String> selectedNodeIds = getSelectedNodeIds();
-		
-		// exactly one node must be selected
-		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
-		// this node has to be a metanode
-		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
-		if(!this.allCollapsedNodes.keySet().contains(selectedNodeId)) return;
-		
-		call(l -> l.openExplosionViewRequested(this, selectedNodeId, this.allCollapsedNodes.get(selectedNodeId)));
-	}
+	
 	
 	
 	private void paintGraph(Graphics2D g, boolean toSvg) {
@@ -683,6 +649,12 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas{
 		@Override
 		public void mouseExited(MouseEvent e) {
 		}
+	}
+
+	@Override
+	public Set getBoundaryNodes() {
+		// TODO Auto-generated method stub
+		return this.boundaryNodes;
 	}
 
 

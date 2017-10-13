@@ -330,14 +330,9 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
-	public void openExplosionViewRequested(ICanvas<?> source, String strKey, Set<String> containedNodes) {
+	public void openExplosionViewRequested(ICanvas<?> source, String strKey) { //, Set<String> containedNodes) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
-	public void closeExplosionViewRequested(ICanvas<?> source) {
-		// TODO Auto-generated method stub
-		
-	}
 }

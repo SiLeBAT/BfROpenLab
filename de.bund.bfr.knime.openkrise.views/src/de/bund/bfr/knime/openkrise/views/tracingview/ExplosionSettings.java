@@ -16,53 +16,51 @@ public class ExplosionSettings {
 	private final static String CFG_KEY = "ExplosionKey";
 	private final static String CFG_NODE_SUBSET = "ExplosionNodeSubset";
 	
-	private String gstrKey;
-	private Set<String> gobjNodeSubset;
+	private String metaNodeId;
+	private Set<String> containedNodesIds;
 	private List<String> selectedNodes;
 	private List<String> selectedEdges;
-	private GisSettings gobjGisSettings;
-	private GraphSettings gobjGraphSettings;
+	private GisSettings gisSettings;
+	private GraphSettings graphSettings;
 	
 	public ExplosionSettings() {
-		this.gobjGisSettings = new GisSettings();
-		this.gobjGraphSettings = new GraphSettings();
+		this.gisSettings = new GisSettings();
+		this.graphSettings = new GraphSettings();
 		this.selectedNodes = new ArrayList<>();
 		this.selectedEdges = new ArrayList<>();
 	}
 	
-	public ExplosionSettings(String strKey, Set<String> objNodeSet) {
+	public ExplosionSettings(String metaNodeId, Set<String> containedNodesIds) {
 		this();
-		this.gstrKey = strKey;
-		this.gobjNodeSubset = objNodeSet;
+		this.metaNodeId = metaNodeId;
+		this.containedNodesIds = containedNodesIds;
 	}
 
-	public GraphSettings getGraphSettings() { return this.gobjGraphSettings; }
-	public GisSettings getGisSettings() { return this.gobjGisSettings; }
-	public String getKey() { return this.gstrKey; }
-	public Set<String> getContainedNodes() { 
-		return this.gobjNodeSubset; 
-	}
+	public GraphSettings getGraphSettings() { return this.graphSettings; }
+	public GisSettings getGisSettings() { return this.gisSettings; }
+	public String getKey() { return this.metaNodeId; }
+	public Set<String> getContainedNodesIds() {	return this.containedNodesIds; }
 	
 	public void loadSettings(NodeSettingsRO settings, String prefix) {
 		// TODO Auto-generated method stub
 		try {
-			this.gstrKey = settings.getString(prefix + CFG_KEY);
+			this.metaNodeId = settings.getString(prefix + CFG_KEY);
 		} catch (InvalidSettingsException e) {
 		}
 		try {
-			this.gobjNodeSubset = (Set<String>) GraphSettings.SERIALIZER.fromXml(settings.getString(prefix + CFG_NODE_SUBSET));
+			this.containedNodesIds = (Set<String>) GraphSettings.SERIALIZER.fromXml(settings.getString(prefix + CFG_NODE_SUBSET));
 		} catch (InvalidSettingsException e) {
 		}
-		this.gobjGisSettings.loadSettings(settings, prefix);
-		this.gobjGraphSettings.loadSettings(settings, prefix);
+		this.gisSettings.loadSettings(settings, prefix);
+		this.graphSettings.loadSettings(settings, prefix);
 	}
 
 	public void saveSettings(NodeSettingsWO settings, String prefix) {
 		// TODO Auto-generated method stub
-		settings.addString(prefix + CFG_KEY, this.gstrKey);
-		settings.addString(prefix + CFG_NODE_SUBSET, GraphSettings.SERIALIZER.toXml(this.gobjNodeSubset));
-		this.gobjGisSettings.saveSettings(settings, prefix);
-		this.gobjGraphSettings.saveSettings(settings, prefix);
+		settings.addString(prefix + CFG_KEY, this.metaNodeId);
+		settings.addString(prefix + CFG_NODE_SUBSET, GraphSettings.SERIALIZER.toXml(this.containedNodesIds));
+		this.gisSettings.saveSettings(settings, prefix);
+		this.graphSettings.saveSettings(settings, prefix);
 	}
 	
 //	public void setToCanvas(IDetailCanvas canvas) {

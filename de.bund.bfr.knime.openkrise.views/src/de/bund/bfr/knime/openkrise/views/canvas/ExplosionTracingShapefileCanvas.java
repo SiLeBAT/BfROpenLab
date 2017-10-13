@@ -63,7 +63,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas{
+public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas implements IExplosionCanvas{
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
@@ -146,8 +146,8 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas{
 		return server;
 	}
 	
-	private void call(Consumer<CanvasListener> action) {
-		Stream.of(getListeners(CanvasListener.class)).forEach(action);
+	private void call(Consumer<ExplosionCanvasListener> action) {
+		Stream.of(getListeners(ExplosionCanvasListener.class)).forEach(action);
 	}
 	
 
@@ -187,18 +187,18 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas{
 		}
 	}
 	
-	@Override
-	public void openExplosionViewItemClicked() {
-		Set<String> selectedNodeIds = getSelectedNodeIds();
-		
-		// exactly one node must be selected
-		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
-		// this node has to be a metanode
-		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
-		if(!this.allCollapsedNodes.keySet().contains(selectedNodeId)) return;
-		
-		call(l -> l.openExplosionViewRequested(this, selectedNodeId, this.allCollapsedNodes.get(selectedNodeId)));
-	}
+//	@Override
+//	public void openExplosionViewItemClicked() {
+//		Set<String> selectedNodeIds = getSelectedNodeIds();
+//		
+//		// exactly one node must be selected
+//		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
+//		// this node has to be a metanode
+//		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
+//		if(!this.allCollapsedNodes.keySet().contains(selectedNodeId)) return;
+//		
+//		call(l -> l.openExplosionViewRequested(this, selectedNodeId)); //, this.allCollapsedNodes.get(selectedNodeId)));
+//	}
 	
 	
 	private void paintGraph(Graphics2D g, boolean toSvg) {
@@ -415,6 +415,12 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas{
 		@Override
 		public void mouseExited(MouseEvent e) {
 		}
+	}
+
+	@Override
+	public Set getBoundaryNodes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

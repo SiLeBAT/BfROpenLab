@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.jung;
 
+import java.awt.event.MouseEvent;
 import java.util.EventListener;
 
 public interface JungListener extends EventListener {
@@ -35,5 +36,5 @@ public interface JungListener extends EventListener {
 
 	void modeChangeFinished();
 
-	void doubleClickedOn(Object obj);
+	void doubleClickedOn(Object obj, MouseEvent e);
 }

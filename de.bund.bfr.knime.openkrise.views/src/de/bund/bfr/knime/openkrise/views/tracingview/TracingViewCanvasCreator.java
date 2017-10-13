@@ -128,7 +128,7 @@ public class TracingViewCanvasCreator {
 		}
 
 		int intIDIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
-		Set<String> filterNodes = (this.set.getExplosionSettingsList().getActiveExplosionSettings()==null?null:this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
+		Set<String> filterNodes = (this.set.getExplosionSettingsList().getActiveExplosionSettings()==null?null:this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodesIds());
 		
 		for (DataRow row : nodeTable) {
 			if(filterNodes==null || filterNodes.contains(IO.getToCleanString(row.getCell(intIDIndex))))
@@ -165,7 +165,7 @@ public class TracingViewCanvasCreator {
 	private void filterExplosionData(Map<String, ? extends Node> nodes, List<? extends Edge<? extends Node>> edges, Map<String, Delivery> deliveries) {
 		// filter relevant edges, nodes, deliveries
 		ExplosionSettings objES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
-		Set<String> filterNodes = new HashSet<>(new ArrayList<>(objES.getContainedNodes()));
+		Set<String> filterNodes = new HashSet<>(new ArrayList<>(objES.getContainedNodesIds()));
 		
 		// remove edges which are not connected with one of the exploded nodes
 		edges.removeAll(edges.stream()
@@ -202,7 +202,7 @@ public class TracingViewCanvasCreator {
 		TracingGraphCanvas canvas = new ExplosionTracingGraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
 				edgeSchema, deliveries, lotBased, 
 				this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(),
-				this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
+				this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodesIds());
 
 		canvas.setPerformTracing(false);
 		set.setToCanvas(canvas);
@@ -268,12 +268,12 @@ public class TracingViewCanvasCreator {
 			canvas = new ExplosionTracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
 					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased, 
 					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(),
-					this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
+					this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodesIds());
 		} else {
 			canvas = new ExplosionTracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries,
 					lotBased,
 					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(),
-					this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
+					this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodesIds());
 			((ExplosionTracingOsmCanvas) canvas).setTileSource(set.getGisType().getTileSource());
 		}
 

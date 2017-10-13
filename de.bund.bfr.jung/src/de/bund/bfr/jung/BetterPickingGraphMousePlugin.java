@@ -90,9 +90,9 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 			E edge;
 
 			if ((node = getPickedNode(e)) != null) {
-				call(l -> l.doubleClickedOn(node));
+				call(l -> l.doubleClickedOn(node, e));
 			} else if ((edge = getPickedEdge(e)) != null) {
-				call(l -> l.doubleClickedOn(edge));
+				call(l -> l.doubleClickedOn(edge, e));
 			}
 		}
 	}

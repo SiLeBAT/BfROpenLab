@@ -27,6 +27,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -200,6 +201,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		this.pressedKey = Integer.MIN_VALUE;
+		this.addKeyListener(this);
 		logger.finest("leaving");
 	}
 
@@ -433,21 +435,28 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	@Override
-	public void doubleClickedOn(Object obj) {
-		PropertySchema schema = null;
-
-		if (obj instanceof Node) {
-			schema = nodeSchema;
-		} else if (obj instanceof Edge) {
-			schema = edgeSchema;
-		}
-
-		if (schema != null) {
-			SinglePropertiesDialog dialog = new SinglePropertiesDialog(viewer, (Element) obj, schema);
-
-			dialog.setVisible(true);
-		}
+	public void doubleClickedOn(Object obj, MouseEvent e) {
 		
+		if(e.isControlDown() && (obj instanceof Node) && this.isExplosionViewSupported()) {
+			
+			this.openExplosionViewItemClicked();
+			
+		} else {
+			
+			PropertySchema schema = null;
+	
+			if (obj instanceof Node) {
+				schema = nodeSchema;
+			} else if (obj instanceof Edge) {
+				schema = edgeSchema;
+			}
+	
+			if (schema != null) {
+				SinglePropertiesDialog dialog = new SinglePropertiesDialog(viewer, (Element) obj, schema);
+	
+				dialog.setVisible(true);
+			}
+		}		
 	}
 
 	protected int getPressedKey() { return this.pressedKey; }
@@ -848,17 +857,22 @@ public abstract class Canvas<V extends Node> extends JPanel
 		call(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 	
+	protected boolean isExplosionViewSupported() { return false; }
+	
 	@Override
 	public void openExplosionViewItemClicked() {
-		Set<String> selectedNodeIds = getSelectedNodeIds();
 		
-		// exactly one node must be selected
-		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
-		// this node has to be a metanode
-		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
-		if(!collapsedNodes.keySet().contains(selectedNodeId)) return;
-		
-		call(l -> l.openExplosionViewRequested(this, selectedNodeId, this.collapsedNodes.get(selectedNodeId)));
+		if(this.isExplosionViewSupported()) {
+			Set<String> selectedNodeIds = getSelectedNodeIds();
+			
+			// exactly one node must be selected
+			if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
+			// this node has to be a metanode
+			String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
+			if(!collapsedNodes.keySet().contains(selectedNodeId)) return;
+			
+			call(l -> l.openExplosionViewRequested(this, selectedNodeId)); //, this.collapsedNodes.get(selectedNodeId)));
+		}
 	}
 
 	@Override 

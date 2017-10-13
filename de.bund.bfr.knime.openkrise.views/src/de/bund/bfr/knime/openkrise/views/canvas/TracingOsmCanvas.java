@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -229,7 +230,7 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	}
 
 	@Override
-	public void doubleClickedOn(Object obj) {
+	public void doubleClickedOn(Object obj, MouseEvent e) {
 		tracing.doubleClickedOn(obj);
 	}
 

@@ -63,15 +63,17 @@ public class ExplosionSettingsList extends NodeSettings {
 	}
 		
 	public ExplosionSettings getExplosionSettings(String strKey, Set<String> containedNodes) {
-		List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getContainedNodes().equals(containedNodes)).collect(Collectors.toList());
+		//List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getContainedNodes().equals(containedNodes)).collect(Collectors.toList());
+		List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getKey().equals(containedNodes)).collect(Collectors.toList());
 		
 		return (oESL.size()==0?null:oESL.get(0));
 	}
 	
-	public ExplosionSettings getExplosionSettings(Set<String> containedNodes) {
-		if(containedNodes==null || containedNodes.isEmpty()) return null;
+	public ExplosionSettings getExplosionSettings(Set<String> containedNodesIds) {
 		
-		List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getContainedNodes().equals(containedNodes)).collect(Collectors.toList());
+		if(containedNodesIds == null || containedNodesIds.isEmpty()) return null;
+		
+		List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getContainedNodesIds().equals(containedNodesIds)).collect(Collectors.toList());
 		
 		return (oESL.size()==0?null:oESL.get(0));
 	}
@@ -108,11 +110,11 @@ public class ExplosionSettingsList extends NodeSettings {
 		return true;
 	}
 
-	public ExplosionSettings setActiveExplosionSettings(String strKey, Set<String> containedNodes) {
-		ExplosionSettings objES = this.getExplosionSettings(strKey, containedNodes);
+	public ExplosionSettings setActiveExplosionSettings(String strKey, Set<String> containedNodesIds) {
+		ExplosionSettings objES = this.getExplosionSettings(strKey, containedNodesIds);
 		
 		if(objES==null) {
-			objES=new ExplosionSettings(strKey, containedNodes);
+			objES=new ExplosionSettings(strKey, containedNodesIds);
 			this.gobjExplosionSettingsList.add(objES);
 		}
 		
