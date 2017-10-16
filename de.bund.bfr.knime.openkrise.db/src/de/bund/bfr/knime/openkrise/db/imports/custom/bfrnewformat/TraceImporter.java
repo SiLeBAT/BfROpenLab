@@ -1050,33 +1050,38 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 			
 		try {
-			for (Station s: stations.values()) {
-				s.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + ": " + s.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)));
+			if (dels.size() > 0) {
+				for (Station s: stations.values()) {
+					s.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + ": " + s.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)));
+				}
+				for (Delivery d : olddelsRow.values()) {
+					System.err.println(d.getId());
+					d.insertIntoDb(mydbi);
+					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+				}
+				for (Delivery d : dels.values()) {
+					d.insertIntoDb(mydbi);
+					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+				}	
+				
+				MetaInfo mi = new MetaInfo();
+				mi.setFilename(filename);		
+				Integer miDbId = null;
+				try {
+					miDbId = mi.getID(mydbi);
+				} catch (Exception e) {
+					exceptions.add(e);
+				}
+				if (miDbId == null) exceptions.add(new Exception("File already imported"));				
 			}
-			for (Delivery d : olddelsRow.values()) {
-				System.err.println(d.getId());
-				d.insertIntoDb(mydbi);
-				//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-				if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
-			}
-			for (Delivery d : dels.values()) {
-				d.insertIntoDb(mydbi);
-				//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-				if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+			else {
+				exceptions.add(new Exception("No new delivery data found. Nothing imported!"));	
 			}
 		} catch (Exception e) {
 			exceptions.add(e);
 		}
-
-		MetaInfo mi = new MetaInfo();
-		mi.setFilename(filename);		
-		Integer miDbId = null;
-		try {
-			miDbId = mi.getID(mydbi);
-		} catch (Exception e) {
-			exceptions.add(e);
-		}
-		if (miDbId == null) exceptions.add(new Exception("File already imported"));
 
 		return exceptions;
 	}
