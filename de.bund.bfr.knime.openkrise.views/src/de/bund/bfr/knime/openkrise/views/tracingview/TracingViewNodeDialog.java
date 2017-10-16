@@ -86,6 +86,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionCanvasListener;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionListener;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.IExplosionCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
@@ -99,7 +100,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
  * 
  * @author Christian Thoens
  */
-public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements ExplosionCanvasListener, CanvasListener, TracingListener {
+public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements ExplosionListener, CanvasListener, TracingListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -722,6 +723,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 				set);
 
 		boolean bolIsGisAvailable = creator.hasGisCoordinates();
+		if(!bolIsGisAvailable && set.isShowGis()) this.forceGraphView();
+		
 		
 		if(this.set.getExplosionSettingsList().getActiveExplosionSettings()==null) {
 		    canvas = ((set.isShowGis() && bolIsGisAvailable) ? creator.createGisCanvas() : creator.createGraphCanvas());
@@ -730,6 +733,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		}
 		canvas.addCanvasListener(this);
 		canvas.addTracingListener(this);
+		if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas) canvas).addExplosionListener(this);
 		switchButton.setText("Switch to " + ((canvas instanceof IGisCanvas) ? "Graph" : "GIS"));
 		switchButton.setEnabled(bolIsGisAvailable);
 
@@ -845,6 +849,24 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 		return true;
 	}
+	
+	private void forceGraphView() {
+		
+		Dialogs.showInfoMessage(this.getPanel(), "No GIS information available. Graph mode will be activated.");    
+		
+		if(!undoStack.isEmpty()) {
+			
+			TracingChange lastTracingChange = undoStack.pop();
+			TracingChange newTracingChange = TracingChange.Builder.createViewChange(
+					set.isShowGis(), false, set.getGisType(), set.getGisType());
+			
+			undoStack.push(newTracingChange);
+			undoStack.push(lastTracingChange);
+			
+		}
+		
+		this.set.setShowGis(false);
+	}
 
 	private void updateStatusVariables() {
 		transform = canvas.getTransform();
@@ -913,8 +935,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 			updateGisBox();
 			updateCanvas();
 		} else {
+			
 			canvas.removeCanvasListener(this);
 			canvas.removeTracingListener(this);
+			if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas) canvas).removeExplosionListener(this);
 
 			if (undo) {
 				change.undo(canvas);
@@ -922,8 +946,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 				change.redo(canvas);
 			}
 			if(canvas instanceof ExplosionTracingGraphCanvas) ((ExplosionTracingGraphCanvas) canvas).repositionBoundaryNodes();
+			
 			canvas.addCanvasListener(this);
 			canvas.addTracingListener(this);
+			if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas) canvas).addExplosionListener(this);
+		
 			updateStatusVariables();
 //			canvas.refreshPaintables();
 		}
@@ -1017,6 +1044,40 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		
 	    updateCanvas();
 	}
+	
+//	@Override
+//	public void closeExplosionViewRequested() {
+//		// TODO Auto-generated method stub
+//		
+//		ExplosionSettings objCloseES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
+//		if(objCloseES==null) return; 
+//		
+//		updateSettings();
+//		
+//		this.set.getExplosionSettingsList().setActiveExplosionSettings(objCloseES, false);
+//		
+//		this.changeOccured(TracingChange.Builder.createViewChange(
+//				this.set.isShowGis(), this.set.isShowGis(), this.set.getGisType(),
+//				this.set.getGisType(), objCloseES, this.set.getExplosionSettingsList().getActiveExplosionSettings(),TracingChange.ExplosionViewAction.Closed));
+//		
+//	    updateCanvas();
+//	}
+	
+//	public void closeExplosionView() {
+//		// TODO Auto-generated method stub
+//		ExplosionSettings objCloseES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
+//		if(objCloseES==null) return; 
+//		
+//		updateSettings();
+//		
+//		this.set.getExplosionSettingsList().setActiveExplosionSettings(objCloseES, false);
+//		
+//		this.changeOccured(TracingChange.Builder.createViewChange(
+//				this.set.isShowGis(), this.set.isShowGis(), this.set.getGisType(),
+//				this.set.getGisType(), objCloseES, this.set.getExplosionSettingsList().getActiveExplosionSettings(),TracingChange.ExplosionViewAction.Closed));
+//		
+//	    updateCanvas();
+//	}
 
 @Override
 public void nodeSubsetChanged(ICanvas<?> source) {

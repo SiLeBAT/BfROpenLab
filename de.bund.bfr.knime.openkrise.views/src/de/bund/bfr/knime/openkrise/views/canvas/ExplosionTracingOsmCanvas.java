@@ -48,7 +48,7 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import de.bund.bfr.knime.gis.views.canvas.ExplosionCanvasUtils;
+//import de.bund.bfr.knime.gis.views.canvas.ExplosionCanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -62,7 +62,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExplosionCanvas{
+public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExplosionCanvas<LocationNode> {
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
@@ -94,7 +94,12 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		this.allBoundaryNodes = this.boundaryNodes.stream().collect(Collectors.toSet());
 		
 //		this.getViewer().addPreRenderPaintable(new PrePaintable(false));
-		this.getViewer().addPostRenderPaintable(new LabelPaintable(this.getViewer(),strKey,()->call(l->l.closeExplosionViewRequested(this))));
+		//this.getViewer().addPostRenderPaintable(new ExplosionCanvasUtils.LabelPaintable(this.getViewer(),strKey,()->call(l->l.closeExplosionViewRequested())));
+		this.getViewer().addPostRenderPaintable(
+				new ExplosionCanvasUtils.LabelPaintable(
+						this.getViewer(),
+						strKey,
+						()-> Stream.of(getListeners(ExplosionListener.class)).forEach(l->l.closeExplosionViewRequested(this))));
 		
 		this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
 		
@@ -144,12 +149,12 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super.getVisualizationServer(toSvg);
 		
 //		server.addPreRenderPaintable(new PrePaintable(toSvg));
-        server.addPostRenderPaintable(new LabelPaintable(this.getViewer(),this.gstrKey));
+        server.addPostRenderPaintable(new ExplosionCanvasUtils.LabelPaintable(this.getViewer(),this.gstrKey));
 		return server;
 	}
 	
-	private void call(Consumer<ExplosionCanvasListener> action) {
-		Stream.of(getListeners(ExplosionCanvasListener.class)).forEach(action);
+	private void call(Consumer<CanvasListener> action) {
+		Stream.of(getListeners(CanvasListener.class)).forEach(action);
 	}
 	
 //	public static void paintNonLatLonArea(Graphics2D g, int w, int h, Shape invalidArea) {
@@ -175,7 +180,7 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 			super.placeNodes(nonBoundaryNodes, this.edges.stream().filter(e -> nonBoundaryNodes.contains(e.getTo()) && nonBoundaryNodes.contains(e.getFrom())).collect(Collectors.toSet()));
 			
 		} else {
-			// do nothinghjhj
+			// do nothing
 		}
 		
 	}
@@ -341,40 +346,24 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 //		}
 //	}
 	
-	public class LabelPaintable implements Paintable, MouseMotionListener, MouseListener {
-
-		private VisualizationViewer<?, ?> viewer;
-
-		private EventListenerList listeners;
-
-		private Rectangle closeRect;
-
-		private boolean closeFocused;
-		
-		//private boolean gbolLabelOnly;
-		private String gstrLabel;
-		private Runnable function;
-
-		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel, Runnable function) {
-			this.viewer = viewer;
-			this.gstrLabel = strLabel + " Explosion View";
-			this.function = function;
-			listeners = new EventListenerList();
-			closeRect = null;
-			closeFocused = false;
-			
-			if(!this.labelOnly()) {
-			  viewer.addMouseMotionListener(this);
-			  viewer.addMouseListener(this);
-			}
-		}
-		
-		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel) {
-			this(viewer, strLabel, null);
+//	public class LabelPaintable implements Paintable, MouseMotionListener, MouseListener {
+//
+//		private VisualizationViewer<?, ?> viewer;
+//
+//		private EventListenerList listeners;
+//
+//		private Rectangle closeRect;
+//
+//		private boolean closeFocused;
+//		
+//		//private boolean gbolLabelOnly;
+//		private String gstrLabel;
+//		private Runnable function;
+//
+//		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel, Runnable function) {
 //			this.viewer = viewer;
-//			this.gstrLabel = strLabel;
+//			this.gstrLabel = strLabel + " Explosion View";
 //			this.function = function;
-//			//this.gbolLabelOnly = labelOnly;
 //			listeners = new EventListenerList();
 //			closeRect = null;
 //			closeFocused = false;
@@ -383,134 +372,162 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 //			  viewer.addMouseMotionListener(this);
 //			  viewer.addMouseListener(this);
 //			}
-		}
-
-		public void addChangeListener(JungListener listener) {
-			listeners.add(JungListener.class, listener);
-		}
-
-		public void removeChangeListener(JungListener listener) {
-			listeners.remove(JungListener.class, listener);
-		}
-
-		@Override
-		public void paint(Graphics graphics) {
-			int w = viewer.getSize().width;
-			int h = viewer.getSize().height;
-			int size = 30;
-			int d = 10;
-			int lineD = 8;
-			int lineWidth = 2;
-
-			
-			//int xPlus = w - d - size;
-			//int yPlus = h - size - d - 2 * size;
-			//int xMinus = xPlus;
-			//int yMinus = h - size - d - size;
-						
-			Graphics2D g = (Graphics2D) graphics;
-			
-			Font font = new Font("Default", Font.BOLD, 10);
-			int fontHeight = g.getFontMetrics(font).getHeight();
-			int fontAscent = g.getFontMetrics(font).getAscent();
-			
-			int dy = 2;
-
-			int dx = 5;
-			
-			
-			int sw = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getWidth();
-			int sh = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getHeight();
-
-			Color currentColor = g.getColor();
-			Stroke currentStroke = g.getStroke();
-
-			if(!this.labelOnly()) this.closeRect = new Rectangle(w/2 + sw/2 + dx - fontAscent/2 - dx/2, dy ,fontAscent,fontAscent);
-			
-			g.setColor(ZoomingPaintable.BACKGROUND);
-			g.fillRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2) , 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
-//			g.setColor(minusFocused ? Color.BLUE : BACKGROUND);
-//			g.fillRect(xMinus, yMinus, size, size);
-			g.setColor(Color.BLACK);
-			g.drawRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2), 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
-//			g.drawRect(xMinus, yMinus, size, size);
-			g.setFont(font);
-			g.drawString(this.gstrLabel, w/2 - sw/2 - (this.labelOnly()?0:this.closeRect.width/2+dx/2), dy+fontAscent);
-			if(!this.labelOnly()) {
-				//this.closeRect = new Rectangle(w/2 + sw/2 + dx,dy+fontAscent,fontAscent,fontAscent);
-				g.setStroke(new BasicStroke(lineWidth));
-				if(this.closeFocused) g.setColor(Color.BLUE);
-				g.drawLine(this.closeRect.x,this.closeRect.y,this.closeRect.x+this.closeRect.width,this.closeRect.y+this.closeRect.height);
-				g.drawLine(this.closeRect.x,this.closeRect.y+this.closeRect.height,this.closeRect.x+this.closeRect.width,this.closeRect.y);
-			}
-			g.setColor(currentColor);
-			g.setStroke(currentStroke);
-
-//			closeRect = new Rectangle(xPlus, yPlus, size, size);
-//			minusRect = new Rectangle(xMinus, yMinus, size, size);
-		}
-
-		private boolean labelOnly() { return this.function==null; }
-		
-		@Override
-		public boolean useTransform() {
-			return false;
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			boolean newCloseFocused = closeRect != null && closeRect.contains(e.getPoint());
-			boolean changed = newCloseFocused != closeFocused;
-
-			closeFocused = newCloseFocused;
-//			minusFocused = newMinusFocused;
-
-			if (changed) {
-				BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) viewer.getGraphMouse();
-
-				graphMouse.setPickingDeactivated(closeFocused);
-				paint(viewer.getGraphics());
-			}
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (e.getButton() == MouseEvent.BUTTON1 && (closeFocused)) {
-				try {
-					//this.function.call();
-					this.function.run();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-		}
-	}
+//		}
+//		
+//		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel) {
+//			this(viewer, strLabel, null);
+////			this.viewer = viewer;
+////			this.gstrLabel = strLabel;
+////			this.function = function;
+////			//this.gbolLabelOnly = labelOnly;
+////			listeners = new EventListenerList();
+////			closeRect = null;
+////			closeFocused = false;
+////			
+////			if(!this.labelOnly()) {
+////			  viewer.addMouseMotionListener(this);
+////			  viewer.addMouseListener(this);
+////			}
+//		}
+//
+//		public void addChangeListener(JungListener listener) {
+//			listeners.add(JungListener.class, listener);
+//		}
+//
+//		public void removeChangeListener(JungListener listener) {
+//			listeners.remove(JungListener.class, listener);
+//		}
+//
+//		@Override
+//		public void paint(Graphics graphics) {
+//			int w = viewer.getSize().width;
+//			int h = viewer.getSize().height;
+//			int size = 30;
+//			int d = 10;
+//			int lineD = 8;
+//			int lineWidth = 2;
+//
+//			
+//			//int xPlus = w - d - size;
+//			//int yPlus = h - size - d - 2 * size;
+//			//int xMinus = xPlus;
+//			//int yMinus = h - size - d - size;
+//						
+//			Graphics2D g = (Graphics2D) graphics;
+//			
+//			Font font = new Font("Default", Font.BOLD, 10);
+//			int fontHeight = g.getFontMetrics(font).getHeight();
+//			int fontAscent = g.getFontMetrics(font).getAscent();
+//			
+//			int dy = 2;
+//
+//			int dx = 5;
+//			
+//			
+//			int sw = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getWidth();
+//			int sh = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getHeight();
+//
+//			Color currentColor = g.getColor();
+//			Stroke currentStroke = g.getStroke();
+//
+//			if(!this.labelOnly()) this.closeRect = new Rectangle(w/2 + sw/2 + dx - fontAscent/2 - dx/2, dy ,fontAscent,fontAscent);
+//			
+//			g.setColor(ZoomingPaintable.BACKGROUND);
+//			g.fillRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2) , 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
+////			g.setColor(minusFocused ? Color.BLUE : BACKGROUND);
+////			g.fillRect(xMinus, yMinus, size, size);
+//			g.setColor(Color.BLACK);
+//			g.drawRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2), 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
+////			g.drawRect(xMinus, yMinus, size, size);
+//			g.setFont(font);
+//			g.drawString(this.gstrLabel, w/2 - sw/2 - (this.labelOnly()?0:this.closeRect.width/2+dx/2), dy+fontAscent);
+//			if(!this.labelOnly()) {
+//				//this.closeRect = new Rectangle(w/2 + sw/2 + dx,dy+fontAscent,fontAscent,fontAscent);
+//				g.setStroke(new BasicStroke(lineWidth));
+//				if(this.closeFocused) g.setColor(Color.BLUE);
+//				g.drawLine(this.closeRect.x,this.closeRect.y,this.closeRect.x+this.closeRect.width,this.closeRect.y+this.closeRect.height);
+//				g.drawLine(this.closeRect.x,this.closeRect.y+this.closeRect.height,this.closeRect.x+this.closeRect.width,this.closeRect.y);
+//			}
+//			g.setColor(currentColor);
+//			g.setStroke(currentStroke);
+//
+////			closeRect = new Rectangle(xPlus, yPlus, size, size);
+////			minusRect = new Rectangle(xMinus, yMinus, size, size);
+//		}
+//
+//		private boolean labelOnly() { return this.function==null; }
+//		
+//		@Override
+//		public boolean useTransform() {
+//			return false;
+//		}
+//
+//		@Override
+//		public void mouseDragged(MouseEvent e) {
+//		}
+//
+//		@Override
+//		public void mouseMoved(MouseEvent e) {
+//			boolean newCloseFocused = closeRect != null && closeRect.contains(e.getPoint());
+//			boolean changed = newCloseFocused != closeFocused;
+//
+//			closeFocused = newCloseFocused;
+////			minusFocused = newMinusFocused;
+//
+//			if (changed) {
+//				BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) viewer.getGraphMouse();
+//
+//				graphMouse.setPickingDeactivated(closeFocused);
+//				paint(viewer.getGraphics());
+//			}
+//		}
+//
+//		@Override
+//		public void mouseClicked(MouseEvent e) {
+//			if (e.getButton() == MouseEvent.BUTTON1 && (closeFocused)) {
+//				try {
+//					//this.function.call();
+//					this.function.run();
+//				} catch (Exception e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+//			}
+//		}
+//
+//		@Override
+//		public void mousePressed(MouseEvent e) {
+//		}
+//
+//		@Override
+//		public void mouseReleased(MouseEvent e) {
+//		}
+//
+//		@Override
+//		public void mouseEntered(MouseEvent e) {
+//		}
+//
+//		@Override
+//		public void mouseExited(MouseEvent e) {
+//		}
+//	}
 
 	@Override
 	public Set getBoundaryNodes() {
 		// TODO Auto-generated method stub
 		return this.boundaryNodes;
+	}
+
+	@Override
+	public void addExplosionListener(ExplosionListener listener) {
+		// TODO Auto-generated method stub
+		this.listenerList.add(ExplosionListener.class, listener);
+	}
+
+	@Override
+	public void removeExplosionListener(ExplosionListener listener) {
+		// TODO Auto-generated method stub
+		this.listenerList.remove(ExplosionListener.class, listener);
 	}
 
 

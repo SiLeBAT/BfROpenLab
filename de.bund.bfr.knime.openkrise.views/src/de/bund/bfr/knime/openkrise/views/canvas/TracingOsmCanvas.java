@@ -32,6 +32,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
@@ -228,10 +229,21 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 		tracing.applyChanges();
 		logger.finest("leaving");
 	}
+	
+	protected boolean isExplosionViewSupported() { return true; }
 
 	@Override
 	public void doubleClickedOn(Object obj, MouseEvent e) {
-		tracing.doubleClickedOn(obj);
+			
+		if(e.isControlDown() && (obj instanceof Node) && this.collapsedNodes.containsKey(((Node) obj).getId())) {
+				
+			this.openExplosionViewItemClicked();
+				
+		} else {
+			
+			tracing.doubleClickedOn(obj);
+				
+		}		
 	}
 
 	@Override

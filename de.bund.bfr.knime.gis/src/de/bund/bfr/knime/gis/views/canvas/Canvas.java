@@ -108,7 +108,7 @@ import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import java.util.logging.Logger;
 
 public abstract class Canvas<V extends Node> extends JPanel
-		implements JungListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V>, KeyListener {
+		implements JungListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
@@ -142,7 +142,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
 	
-	private int pressedKey;
 
 	public Canvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
@@ -200,8 +199,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
-		this.pressedKey = Integer.MIN_VALUE;
-		this.addKeyListener(this);
+		
 		logger.finest("leaving");
 	}
 
@@ -458,8 +456,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 			}
 		}		
 	}
-
-	protected int getPressedKey() { return this.pressedKey; }
 	
 	@Override
 	public void resetLayoutItemClicked() {
@@ -1324,25 +1320,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 		Stream.of(getListeners(CanvasListener.class)).forEach(action);
 	}
 	
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-		logger.finest("keyCode: " + e.getKeyCode());
-		this.pressedKey = e.getKeyCode();
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-		logger.finest("keyCode: " + e.getKeyCode());
-		if(this.pressedKey == e.getKeyCode()) this.pressedKey = Integer.MIN_VALUE;
-	}
 
 	private class PostPaintable implements Paintable {
 

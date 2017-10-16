@@ -252,7 +252,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	@Override
 	public void doubleClickedOn(Object obj, MouseEvent e) {
 		
-		if(e.isControlDown() && (obj instanceof Node) && this.isExplosionViewSupported()) {
+		if(e.isControlDown() && (obj instanceof Node) && this.collapsedNodes.containsKey(((Node) obj).getId())) {
 			
 			this.openExplosionViewItemClicked();
 			

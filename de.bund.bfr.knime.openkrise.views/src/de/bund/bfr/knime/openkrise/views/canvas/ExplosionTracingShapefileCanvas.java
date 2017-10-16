@@ -48,7 +48,7 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import de.bund.bfr.knime.gis.views.canvas.ExplosionCanvasUtils;
+//import de.bund.bfr.knime.gis.views.canvas.ExplosionCanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -95,7 +95,11 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 		this.allBoundaryNodes = this.boundaryNodes.stream().collect(Collectors.toSet());
 		
 		this.getViewer().addPreRenderPaintable(new PrePaintable(false));
-		this.getViewer().addPostRenderPaintable(new LabelPaintable(this.getViewer(),strKey,()->call(l->l.closeExplosionViewRequested(this))));
+		this.getViewer().addPostRenderPaintable(
+				new ExplosionCanvasUtils.LabelPaintable(
+						this.getViewer(),
+						strKey,
+						()-> Stream.of(getListeners(ExplosionListener.class)).forEach(l->l.closeExplosionViewRequested(this))));
 		
 		this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
 		
@@ -146,8 +150,8 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 		return server;
 	}
 	
-	private void call(Consumer<ExplosionCanvasListener> action) {
-		Stream.of(getListeners(ExplosionCanvasListener.class)).forEach(action);
+	private void call(Consumer<CanvasListener> action) {
+		Stream.of(getListeners(CanvasListener.class)).forEach(action);
 	}
 	
 
@@ -421,6 +425,18 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 	public Set getBoundaryNodes() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void addExplosionListener(ExplosionListener listener) {
+		// TODO Auto-generated method stub
+		this.listenerList.add(ExplosionListener.class, listener);
+	}
+
+	@Override
+	public void removeExplosionListener(ExplosionListener listener) {
+		// TODO Auto-generated method stub
+		this.listenerList.remove(ExplosionListener.class, listener);
 	}
 
 

@@ -129,6 +129,7 @@ public class TracingViewCanvasCreator {
 
 		int intIDIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		Set<String> filterNodes = (this.set.getExplosionSettingsList().getActiveExplosionSettings()==null?null:this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodesIds());
+		if(filterNodes!=null) return false;
 		
 		for (DataRow row : nodeTable) {
 			if(filterNodes==null || filterNodes.contains(IO.getToCleanString(row.getCell(intIDIndex))))
@@ -256,6 +257,8 @@ public class TracingViewCanvasCreator {
 		//((LocationNode) nodes.values().toArray()[1]).updateCenter(null);
 		for(LocationNode node: nodes.values()) if(node.getId().equals("1653105646")) node.updateCenter(null);
 		for(LocationNode node: nodes.values()) if(node.getId().equals("131121881")) node.updateCenter(null);
+		
+		for(LocationNode node: nodes.values()) node.updateCenter(null);
 		
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
 		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,

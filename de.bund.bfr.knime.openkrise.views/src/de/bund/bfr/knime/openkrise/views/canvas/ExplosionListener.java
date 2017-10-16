@@ -2,9 +2,7 @@ package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.util.EventListener;
 
-import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
-
-public interface ExplosionCanvasListener extends CanvasListener {
+public interface ExplosionListener extends EventListener{
 	
 	void closeExplosionViewRequested(IExplosionCanvas<?> source);
 
