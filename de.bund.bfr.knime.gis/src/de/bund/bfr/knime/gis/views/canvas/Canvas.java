@@ -435,26 +435,20 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void doubleClickedOn(Object obj, MouseEvent e) {
 		
-		if(e.isControlDown() && (obj instanceof Node) && this.isExplosionViewSupported()) {
-			
-			this.openExplosionViewItemClicked();
-			
-		} else {
-			
-			PropertySchema schema = null;
-	
-			if (obj instanceof Node) {
-				schema = nodeSchema;
-			} else if (obj instanceof Edge) {
-				schema = edgeSchema;
-			}
-	
-			if (schema != null) {
-				SinglePropertiesDialog dialog = new SinglePropertiesDialog(viewer, (Element) obj, schema);
-	
-				dialog.setVisible(true);
-			}
-		}		
+		PropertySchema schema = null;
+
+		if (obj instanceof Node) {
+			schema = nodeSchema;
+		} else if (obj instanceof Edge) {
+			schema = edgeSchema;
+		}
+
+		if (schema != null) {
+			SinglePropertiesDialog dialog = new SinglePropertiesDialog(viewer, (Element) obj, schema);
+
+			dialog.setVisible(true);
+		}
+				
 	}
 	
 	@Override
@@ -859,6 +853,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 	public void openExplosionViewItemClicked() {
 		
 		if(this.isExplosionViewSupported()) {
+			
 			Set<String> selectedNodeIds = getSelectedNodeIds();
 			
 			// exactly one node must be selected
@@ -1212,6 +1207,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void applyJoinEdgesAndSkipEdgeless() {
+		logger.finest("entered");
 		joinMap.clear();
 
 		if (optionsPanel.isJoinEdges()) {
@@ -1223,6 +1219,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		if (optionsPanel.isSkipEdgelessNodes()) {
 			CanvasUtils.removeEdgelessNodes(nodes, edges);
 		}
+		logger.finest("leaving");
 	}
 
 	@Override

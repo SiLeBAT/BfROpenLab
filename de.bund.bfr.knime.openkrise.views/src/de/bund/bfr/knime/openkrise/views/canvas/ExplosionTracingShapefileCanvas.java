@@ -71,10 +71,9 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String gstrKey;
+	private String metaNodeId;
 	private Set<LocationNode> boundaryNodes; 
 	private Set<LocationNode> nonBoundaryNodes;
-	private Set<LocationNode> allBoundaryNodes;
 	
 	private BufferedImage image;
 	private Polygon boundaryArea;
@@ -84,52 +83,26 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 	private Map<String, Set<String>> allCollapsedNodes;
 
 	public ExplosionTracingShapefileCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
-			EdgePropertySchema edgeProperties, List<RegionNode> regions, Map<String, Delivery> deliveries, boolean lotBased, String strKey, Set<String> containedNodes) {
+			EdgePropertySchema edgeProperties, List<RegionNode> regions, Map<String, Delivery> deliveries, boolean lotBased, String metaNodeId, Set<String> containedNodes) {
 		super(nodes, edges, nodeProperties, edgeProperties, regions, deliveries, lotBased);
 		
 		logger.finest("entered");
 		this.image = null;
-		this.gstrKey = strKey;
+		this.metaNodeId = metaNodeId;
 		this.boundaryNodes = this.nodes.stream().filter(n -> !containedNodes.contains(n.getId())).collect(Collectors.toSet());
 		this.nonBoundaryNodes = this.nodes.stream().filter(n -> containedNodes.contains(n.getId())).collect(Collectors.toSet());
-		this.allBoundaryNodes = this.boundaryNodes.stream().collect(Collectors.toSet());
 		
 		this.getViewer().addPreRenderPaintable(new PrePaintable(false));
 		this.getViewer().addPostRenderPaintable(
 				new ExplosionCanvasUtils.LabelPaintable(
 						this.getViewer(),
-						strKey,
+						metaNodeId,
 						()-> Stream.of(getListeners(ExplosionListener.class)).forEach(l->l.closeExplosionViewRequested(this))));
 		
 		this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
 		
 		//this.placeBoundaryNodes();
 		
-		logger.finest("leaving");
-	}
-	
-	@Override
-	public void applyNodeCollapse() {
-		logger.finest("entered");
-		super.applyNodeCollapse();
-		
-		this.boundaryNodes = Sets.difference(this.nodes, this.nonBoundaryNodes);
-		
-		Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
-		
-        Sets.difference(this.nodes, this.nonBoundaryNodes).forEach(n -> layout.lock(n, true));
-		
-		Set<LocationNode> allBoundaryNodes = Sets.union(Sets.difference(this.nodes, this.nonBoundaryNodes), this.boundaryNodes);
-		
-		if(!this.boundaryNodes.isEmpty()) {
-			this.boundaryArea = ExplosionCanvasUtils.placeBoundaryNodes(
-					allBoundaryNodes, 
-					this.nodes, 
-					this.edges, 
-					this.collapsedNodes, 
-					layout, 
-					this.getInvalidArea());
-		}
 		logger.finest("leaving");
 	}
 	
@@ -146,7 +119,7 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super.getVisualizationServer(toSvg);
 		
 		server.addPreRenderPaintable(new PrePaintable(toSvg));
-        server.addPostRenderPaintable(new LabelPaintable(this.getViewer(),this.gstrKey));
+        server.addPostRenderPaintable(new ExplosionCanvasUtils.LabelPaintable(this.getViewer(),this.metaNodeId));
 		return server;
 	}
 	
@@ -155,18 +128,18 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 	}
 	
 
-	public static void paintNonLatLonArea(Graphics2D g, int w, int h, Shape invalidArea) {
-		BufferedImage invalidAreaImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D imgGraphics = invalidAreaImage.createGraphics();
-
-		imgGraphics.setPaint(CanvasUtils.mixColors(Color.WHITE, Arrays.asList(Color.RED, Color.WHITE),
-				Arrays.asList(1.0, 1.0), false));
-		imgGraphics.fill(invalidArea);
-		imgGraphics.setColor(Color.BLACK);
-		imgGraphics.draw(invalidArea);
-		CanvasUtils.drawImageWithAlpha(g, invalidAreaImage, 75);
-		invalidAreaImage.flush();
-	}
+//	public static void paintNonLatLonArea(Graphics2D g, int w, int h, Shape invalidArea) {
+//		BufferedImage invalidAreaImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+//		Graphics2D imgGraphics = invalidAreaImage.createGraphics();
+//
+//		imgGraphics.setPaint(CanvasUtils.mixColors(Color.WHITE, Arrays.asList(Color.RED, Color.WHITE),
+//				Arrays.asList(1.0, 1.0), false));
+//		imgGraphics.fill(invalidArea);
+//		imgGraphics.setColor(Color.BLACK);
+//		imgGraphics.draw(invalidArea);
+//		CanvasUtils.drawImageWithAlpha(g, invalidAreaImage, 75);
+//		invalidAreaImage.flush();
+//	}
 
 	@Override
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
@@ -174,7 +147,7 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 		
 		this.allCollapsedNodes = collapsedNodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<String>(e.getValue())));
 		this.collapsedNodes = ExplosionCanvasUtils.filterCollapsedNodeAccordingToExplosion(
-				collapsedNodes, this.gstrKey,
+				collapsedNodes, this.metaNodeId,
 				CanvasUtils.getElementIds(Sets.union(this.nonBoundaryNodes, this.boundaryNodes)));
 				
 		Sets.difference(this.collapsedNodes.keySet(), collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
@@ -206,17 +179,16 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 	
 	
 	private void paintGraph(Graphics2D g, boolean toSvg) {
-		//super.paintGis(g, toSvg, onWhiteBackground);
-		//logger.finest("entered toSvg=" + (toSvg?"true":"false"));
+		
 		if (this.boundaryArea != null) {
 			ExplosionCanvasUtils.paintBoundaryArea(g, getCanvasSize().width, getCanvasSize().height,
 					transform.apply(this.boundaryArea));
 		}
-		//logger.finest("leaving");
+	
 	}
 	
 	private void paintGraphImage(Graphics2D g) {
-		//logger.finest("entered");
+		
 		int width = getCanvasSize().width;
 		int height = getCanvasSize().height;
 
@@ -227,7 +199,7 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 		}
 
 		g.drawImage(image, 0, 0, null);
-		//logger.finest("leaving");
+		
 	}
 	
 	private class PrePaintable implements Paintable {
@@ -245,197 +217,28 @@ public class ExplosionTracingShapefileCanvas extends TracingShapefileCanvas impl
 
 		@Override
 		public void paint(Graphics g) {
-			//logger.finest("entered toSvg=" + (toSvg?"true":"false"));
+			
 			if (toSvg) {
 				ExplosionTracingShapefileCanvas.this.paintGraph((Graphics2D) g, true);
 			} else {
 				ExplosionTracingShapefileCanvas.this.paintGraphImage((Graphics2D) g);
 			}
-			//logger.finest("leaving");
-		}
-	}
 	
-	public class LabelPaintable implements Paintable, MouseMotionListener, MouseListener {
-
-		private VisualizationViewer<?, ?> viewer;
-
-		private EventListenerList listeners;
-
-		private Rectangle closeRect;
-
-		private boolean closeFocused;
-		
-		//private boolean gbolLabelOnly;
-		private String gstrLabel;
-		private Runnable function;
-
-		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel, Runnable function) {
-			this.viewer = viewer;
-			this.gstrLabel = strLabel + " Explosion View";
-			this.function = function;
-			listeners = new EventListenerList();
-			closeRect = null;
-			closeFocused = false;
-			
-			if(!this.labelOnly()) {
-			  viewer.addMouseMotionListener(this);
-			  viewer.addMouseListener(this);
-			}
-		}
-		
-		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel) {
-			this(viewer, strLabel, null);
-//			this.viewer = viewer;
-//			this.gstrLabel = strLabel;
-//			this.function = function;
-//			//this.gbolLabelOnly = labelOnly;
-//			listeners = new EventListenerList();
-//			closeRect = null;
-//			closeFocused = false;
-//			
-//			if(!this.labelOnly()) {
-//			  viewer.addMouseMotionListener(this);
-//			  viewer.addMouseListener(this);
-//			}
-		}
-
-		public void addChangeListener(JungListener listener) {
-			listeners.add(JungListener.class, listener);
-		}
-
-		public void removeChangeListener(JungListener listener) {
-			listeners.remove(JungListener.class, listener);
-		}
-
-		@Override
-		public void paint(Graphics graphics) {
-			int w = viewer.getSize().width;
-			int h = viewer.getSize().height;
-			int size = 30;
-			int d = 10;
-			int lineD = 8;
-			int lineWidth = 2;
-
-			
-			//int xPlus = w - d - size;
-			//int yPlus = h - size - d - 2 * size;
-			//int xMinus = xPlus;
-			//int yMinus = h - size - d - size;
-						
-			Graphics2D g = (Graphics2D) graphics;
-			
-			Font font = new Font("Default", Font.BOLD, 10);
-			int fontHeight = g.getFontMetrics(font).getHeight();
-			int fontAscent = g.getFontMetrics(font).getAscent();
-			
-			int dy = 2;
-
-			int dx = 5;
-			
-			
-			int sw = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getWidth();
-			int sh = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getHeight();
-
-			Color currentColor = g.getColor();
-			Stroke currentStroke = g.getStroke();
-
-			if(!this.labelOnly()) this.closeRect = new Rectangle(w/2 + sw/2 + dx - fontAscent/2 - dx/2, dy ,fontAscent,fontAscent);
-			
-			g.setColor(ZoomingPaintable.BACKGROUND);
-			g.fillRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2) , 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
-//			g.setColor(minusFocused ? Color.BLUE : BACKGROUND);
-//			g.fillRect(xMinus, yMinus, size, size);
-			g.setColor(Color.BLACK);
-			g.drawRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2), 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
-//			g.drawRect(xMinus, yMinus, size, size);
-			g.setFont(font);
-			g.drawString(this.gstrLabel, w/2 - sw/2 - (this.labelOnly()?0:this.closeRect.width/2+dx/2), dy+fontAscent);
-			if(!this.labelOnly()) {
-				//this.closeRect = new Rectangle(w/2 + sw/2 + dx,dy+fontAscent,fontAscent,fontAscent);
-				g.setStroke(new BasicStroke(lineWidth));
-				if(this.closeFocused) g.setColor(Color.BLUE);
-				g.drawLine(this.closeRect.x,this.closeRect.y,this.closeRect.x+this.closeRect.width,this.closeRect.y+this.closeRect.height);
-				g.drawLine(this.closeRect.x,this.closeRect.y+this.closeRect.height,this.closeRect.x+this.closeRect.width,this.closeRect.y);
-			}
-			g.setColor(currentColor);
-			g.setStroke(currentStroke);
-
-//			closeRect = new Rectangle(xPlus, yPlus, size, size);
-//			minusRect = new Rectangle(xMinus, yMinus, size, size);
-		}
-
-		private boolean labelOnly() { return this.function==null; }
-		
-		@Override
-		public boolean useTransform() {
-			return false;
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			boolean newCloseFocused = closeRect != null && closeRect.contains(e.getPoint());
-			boolean changed = newCloseFocused != closeFocused;
-
-			closeFocused = newCloseFocused;
-//			minusFocused = newMinusFocused;
-
-			if (changed) {
-				BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) viewer.getGraphMouse();
-
-				graphMouse.setPickingDeactivated(closeFocused);
-				paint(viewer.getGraphics());
-			}
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (e.getButton() == MouseEvent.BUTTON1 && (closeFocused)) {
-				try {
-					//this.function.call();
-					this.function.run();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
 		}
 	}
 
 	@Override
 	public Set getBoundaryNodes() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.boundaryNodes;
 	}
 
 	@Override
 	public void addExplosionListener(ExplosionListener listener) {
-		// TODO Auto-generated method stub
 		this.listenerList.add(ExplosionListener.class, listener);
 	}
 
 	@Override
 	public void removeExplosionListener(ExplosionListener listener) {
-		// TODO Auto-generated method stub
 		this.listenerList.remove(ExplosionListener.class, listener);
 	}
 

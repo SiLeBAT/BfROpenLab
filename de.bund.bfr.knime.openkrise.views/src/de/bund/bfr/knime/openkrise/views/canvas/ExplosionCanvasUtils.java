@@ -220,79 +220,105 @@ public class ExplosionCanvasUtils {
 						innerBounds.getWidth() + 2 * margin + w,
 						innerBounds.getHeight() + 2 * margin + w), w);
 	}
-	
-	public static Polygon placeBoundaryNodes(Set<LocationNode> allBoundaryNodes, Set<LocationNode> nodes, Set<Edge<LocationNode>> edges, Map<String,Set<String>> collapsedNodes, Layout<LocationNode, Edge<LocationNode>> layout, Polygon invalidArea) {
-		logger.finest("entered");
-
-		Polygon boundaryArea = null;
+	 
+	public static <T extends Node> void test(Set<T> tmp) {
 		
-		if (!allBoundaryNodes.isEmpty()) {
-			
-			Set<LocationNode> boundaryNodes = Sets.intersection(nodes, allBoundaryNodes);
-			
-			boundaryArea = (invalidArea != null ? createBoundaryArea(invalidArea) : createBoundaryArea(getInnerBoundaryRect(boundaryNodes)));
-			
-			Rectangle2D rect = getAreaRect(boundaryArea);
-			double w = getAreaBorderWidth(boundaryArea);
-
-			SetMultimap<LocationNode, Point2D> nodeRefPoints = LinkedHashMultimap.create();
-			Map<String, Point2D> positions = new LinkedHashMap<>();
-			
-			for(Edge<LocationNode> e : edges) {
-				if(boundaryNodes.contains(e.getFrom())) {
-					if(!boundaryNodes.contains(e.getTo())) {
-						nodeRefPoints.put(e.getFrom(), e.getTo().getCenter());
-					}
-				} else if(boundaryNodes.contains(e.getTo())) {
-					nodeRefPoints.put(e.getTo(), e.getFrom().getCenter());
-				}
-			}
-			
-			
-			nodeRefPoints.asMap().entrySet().forEach(e -> {
-				Point2D pCenter = PointUtils.getCenter(e.getValue());
-				if(pCenter == null) {
-					 pCenter = null;
-				}
-				Point2D pBR = getClosestPointOnRect(pCenter, rect);
-				 
-				positions.put(e.getKey().getId(), pBR);
-			});
-			
-			
-            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, edges, w, boundaryNodes);
-			
-			// the boundary positions were only set for the visual nodes so far
-			// but the position of the boundary meta nodes will be overwritten by 
-			// the position of the center of their contained nodes ->
-			// the position of the contained nodes is set to the position of their meta node
-			Sets.intersection(collapsedNodes.keySet(), 
-					          nodeRefPoints.keySet().stream().map(n -> n.getId()).collect(Collectors.toSet())).forEach(metaKey -> {
-					        	  Point2D p = positions.get(metaKey);
-					        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
-					          });
-			
-			//Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
-			
-			Map<String, LocationNode> nodeMap = allBoundaryNodes.stream().collect(Collectors.toMap((n) -> n.getId(), n -> n));
-			
-			for( LocationNode node: boundaryNodes ) {
-				Point2D p = positions.get(node.getId());
-				node.updateCenter(p);
-				layout.setLocation(node, p);
-				if(collapsedNodes.containsKey(node.getId())) {
-					collapsedNodes.get(node.getId()).forEach(nodeKey -> {
-						LocationNode collapsedNode = nodeMap.get(nodeKey);
-						collapsedNode.updateCenter(p);
-						layout.setLocation(collapsedNode, p);
-					});
-				}
+	}
+	
+    public static <T extends Node> void initBoundaryAndHiddenNodes(
+    		Set<T> nodes, Set<Edge<T>> edges, Set<T> nonBoundaryNodes, Set<T> boundaryNodes, 
+    		Set<T> hiddenNodes, Set<Edge<T>> hiddenEdges) {
+		
+		for(Edge<T> edge : edges) {
+			if(nonBoundaryNodes.contains(edge.getFrom())) {
+				
+				if(!nonBoundaryNodes.contains(edge.getTo())) boundaryNodes.add(edge.getTo());
+				
+			} else if(nonBoundaryNodes.contains(edge.getTo())) {
+				
+				boundaryNodes.add(edge.getFrom());
+				
+			} else {
+				
+				hiddenEdges.add(edge);
 			}
 		}
+		
+		hiddenNodes.addAll(Sets.difference(Sets.difference(nodes, nonBoundaryNodes), boundaryNodes));
 
-		logger.finest("leaving");
-		return boundaryArea;
 	}
+//	public static Polygon placeBoundaryNodes(Set<LocationNode> allBoundaryNodes, Set<LocationNode> nodes, Set<Edge<LocationNode>> edges, Map<String,Set<String>> collapsedNodes, Layout<LocationNode, Edge<LocationNode>> layout, Polygon invalidArea) {
+//		logger.finest("entered");
+//
+//		Polygon boundaryArea = null;
+//		
+//		if (!allBoundaryNodes.isEmpty()) {
+//			
+//			Set<LocationNode> boundaryNodes = Sets.intersection(nodes, allBoundaryNodes);
+//			
+//			boundaryArea = (invalidArea != null ? createBoundaryArea(invalidArea) : createBoundaryArea(getInnerBoundaryRect(boundaryNodes)));
+//			
+//			Rectangle2D rect = getAreaRect(boundaryArea);
+//			double w = getAreaBorderWidth(boundaryArea);
+//
+//			SetMultimap<LocationNode, Point2D> nodeRefPoints = LinkedHashMultimap.create();
+//			Map<String, Point2D> positions = new LinkedHashMap<>();
+//			
+//			for(Edge<LocationNode> e : edges) {
+//				if(boundaryNodes.contains(e.getFrom())) {
+//					if(!boundaryNodes.contains(e.getTo())) {
+//						nodeRefPoints.put(e.getFrom(), e.getTo().getCenter());
+//					}
+//				} else if(boundaryNodes.contains(e.getTo())) {
+//					nodeRefPoints.put(e.getTo(), e.getFrom().getCenter());
+//				}
+//			}
+//			
+//			
+//			nodeRefPoints.asMap().entrySet().forEach(e -> {
+//				Point2D pCenter = PointUtils.getCenter(e.getValue());
+//				if(pCenter == null) {
+//					 pCenter = null;
+//				}
+//				Point2D pBR = getClosestPointOnRect(pCenter, rect);
+//				 
+//				positions.put(e.getKey().getId(), pBR);
+//			});
+//			
+//			
+//            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, edges, w, boundaryNodes);
+//			
+//			// the boundary positions were only set for the visual nodes so far
+//			// but the position of the boundary meta nodes will be overwritten by 
+//			// the position of the center of their contained nodes ->
+//			// the position of the contained nodes is set to the position of their meta node
+//			Sets.intersection(collapsedNodes.keySet(), 
+//					          nodeRefPoints.keySet().stream().map(n -> n.getId()).collect(Collectors.toSet())).forEach(metaKey -> {
+//					        	  Point2D p = positions.get(metaKey);
+//					        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+//					          });
+//			
+//			//Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
+//			
+//			Map<String, LocationNode> nodeMap = allBoundaryNodes.stream().collect(Collectors.toMap((n) -> n.getId(), n -> n));
+//			
+//			for( LocationNode node: boundaryNodes ) {
+//				Point2D p = positions.get(node.getId());
+//				node.updateCenter(p);
+//				layout.setLocation(node, p);
+//				if(collapsedNodes.containsKey(node.getId())) {
+//					collapsedNodes.get(node.getId()).forEach(nodeKey -> {
+//						LocationNode collapsedNode = nodeMap.get(nodeKey);
+//						collapsedNode.updateCenter(p);
+//						layout.setLocation(collapsedNode, p);
+//					});
+//				}
+//			}
+//		}
+//
+//		logger.finest("leaving");
+//		return boundaryArea;
+//	}
 	
 	public static Polygon placeBoundaryNodes(
 			Set<LocationNode> boundaryNodes, Set<LocationNode> nonBoundaryNodes, Map<String, LocationNode> nodeSaveMap, 
@@ -311,14 +337,15 @@ public class ExplosionCanvasUtils {
 			Rectangle2D rect = getAreaRect(boundaryArea);
 			double w = getAreaBorderWidth(boundaryArea);
 
-//			SetMultimap<String, Point2D> nodeRefPoints = LinkedHashMultimap.create();
 			Map<String, Point2D> positions = new LinkedHashMap<>();
 			
-			Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
+			//Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
 			
-			collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
 			
-			for(String nodeKey: updateSet) {
+			//collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
+			
+			// for(String nodeKey: updateSet) {
+			for(String nodeKey: boundaryNodesToInnerNodesMap.keySet()) {
 	
 				Point2D pCenter = PointUtils.getCenter(
 						boundaryNodesToInnerNodesMap.get(nodeKey).stream().map(key -> nodeSaveMap.get(key).getCenter())
@@ -336,10 +363,11 @@ public class ExplosionCanvasUtils {
 			// but the position of the boundary meta nodes will be overwritten by 
 			// the position of the center of their contained nodes ->
 			// the position of the contained nodes is set to the position of their meta node
-            Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
-			        	  Point2D p = positions.get(metaKey);
-			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
-			          });
+            //Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
+//           Sets.intersection(collapsedNodes.keySet(), boundaryNodesToInnerNodesMap.keySet()).forEach(metaKey -> {
+//			        	  Point2D p = positions.get(metaKey);
+//			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+//			          });
 
 			for( LocationNode node: boundaryNodes ) {
 				Point2D p = positions.get(node.getId());
@@ -359,21 +387,22 @@ public class ExplosionCanvasUtils {
 		return boundaryArea;
 	}
 
-	public static SetMultimap<String, String> collectBoundaryNodesInnerNeighbours(Set<? extends Node> nonBoundaryNodes, Set<? extends Node> boundaryNodes, Set<? extends Edge<? extends Node>> edges) {
-		SetMultimap<String, String> referencedNodes = LinkedHashMultimap.create();
+	public static SetMultimap<String, String> createBoundaryNodesToInnerNodesMap(Set<? extends Node> nonBoundaryNodes, Set<? extends Node> boundaryNodes, Set<? extends Edge<? extends Node>> edges) {
+		SetMultimap<String, String> boundaryNodesToInnerNodesMap = LinkedHashMultimap.create();
 		
 		for(Edge<? extends Node> edge: edges) {
 			if(boundaryNodes.contains(edge.getTo())) {
-				if(nonBoundaryNodes.contains(edge.getFrom())) referencedNodes.put(edge.getTo().getId(), edge.getFrom().getId());
+				if(nonBoundaryNodes.contains(edge.getFrom())) boundaryNodesToInnerNodesMap.put(edge.getTo().getId(), edge.getFrom().getId());
 			} else if(boundaryNodes.contains(edge.getFrom())) {
-				if(nonBoundaryNodes.contains(edge.getTo())) referencedNodes.put(edge.getFrom().getId(), edge.getTo().getId());
+				if(nonBoundaryNodes.contains(edge.getTo())) boundaryNodesToInnerNodesMap.put(edge.getFrom().getId(), edge.getTo().getId());
 			}
 		}
 		
-		return referencedNodes;
-		//referenceNodes.
+		return boundaryNodesToInnerNodesMap;
 	}
+	
 	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
+		
 		if(!(pointInRect!=null && Double.isFinite(pointInRect.getX()) && Double.isFinite(pointInRect.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);
 		if(!(rect!=null && Double.isFinite(rect.getX()) && Double.isFinite(rect.getY()) && Double.isFinite(rect.getWidth()) && Double.isFinite(rect.getHeight()))) return new Point2D.Double(Double.NaN,Double.NaN);
 		
@@ -398,7 +427,6 @@ public class ExplosionCanvasUtils {
 	
 	
 	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Collection<? extends Edge<? extends Node>> edges, double distance, Set<? extends Node> boundaryNodes) {
-		//Map<Point2D, SetMultimap<Set<String>, String>> myMap = new LinkedHashMap<>();
 				
 		SetMultimap<String, String> boundaryNodeToInnerNodesMap = LinkedHashMultimap.create();
 		
@@ -409,8 +437,6 @@ public class ExplosionCanvasUtils {
 				boundaryNodeToInnerNodesMap.put(e.getTo().getId(), e.getFrom().getId());
 			}
 		});
-		
-		
 		
 		if(!boundaryNodeToInnerNodesMap.isEmpty()) {
 			
@@ -432,20 +458,7 @@ public class ExplosionCanvasUtils {
 	}
 	
 	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, SetMultimap<String, String> boundaryNodeToInnerNodesMap, double distance, Set<? extends Node> boundaryNodes) {
-		//Map<Point2D, SetMultimap<Set<String>, String>> myMap = new LinkedHashMap<>();
-				
-//		SetMultimap<String, String> boundaryNodeToInnerNodesMap = LinkedHashMultimap.create();
-//		
-//		edges.forEach(e -> {
-//			if(boundaryNodes.contains(e.getFrom())) {
-//				boundaryNodeToInnerNodesMap.put(e.getFrom().getId(), e.getTo().getId());
-//			} else if(boundaryNodes.contains(e.getTo())) {
-//				boundaryNodeToInnerNodesMap.put(e.getTo().getId(), e.getFrom().getId());
-//			}
-//		});
-		
-		
-		
+			
 		if(!boundaryNodeToInnerNodesMap.isEmpty()) {
 			
 			List<BoundaryNode> sortableBoundaryNodeList = new ArrayList<>();
@@ -474,7 +487,6 @@ public class ExplosionCanvasUtils {
 			this.point = point;
 			this.id = id;
 			this.innerNeighbourNodesIds = innerNeighbourNodesIds;
-			//Collections.sort(this.innerNeighbourNodesIds);
 		}
 		
 		@Override
@@ -609,34 +621,13 @@ public class ExplosionCanvasUtils {
 	public static class LabelPaintable implements Paintable, MouseMotionListener, MouseListener {
 
 		private VisualizationViewer<?, ?> viewer;
-		// private IExplosionCanvas<?> canvas;
-
-		// private EventListenerList listeners;
 
 		private Rectangle closeRect;
 
 		private boolean closeFocused;
 		
-		//private boolean gbolLabelOnly;
 		private String label;
 		private Runnable closeMethod;
-		//private boolean labelOnly;
-		
-//		public LabelPaintable(IExplosionCanvas<?> canvas, String label, boolean labelOnly) {
-//			this.canvas = canvas;
-//			//this.viewer = viewer;
-//			this.label = label + " Explosion View";
-//			this.labelOnly = labelOnly;
-//			// this.function = function;
-//			//listeners = new EventListenerList();
-//			closeRect = null;
-//			closeFocused = false;
-//			
-//			if(!this.labelOnly) {
-//			  canvas.getViewer().addMouseMotionListener(this);
-//			  canvas.getViewer().addMouseListener(this);
-//			}
-//		}
 		
 		protected LabelPaintable(VisualizationViewer<?, ?> viewer, String label) {
 			this(viewer, label, null);
@@ -646,7 +637,7 @@ public class ExplosionCanvasUtils {
 			this.viewer = viewer;
 			this.label = label + " Explosion View";
 			this.closeMethod = closeMethod;
-			//listeners = new EventListenerList();
+			
 			closeRect = null;
 			closeFocused = false;
 			
@@ -657,18 +648,6 @@ public class ExplosionCanvasUtils {
 		}
 		
 		private boolean labelOnly() { return this.closeMethod == null; }
-		
-//		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel) {
-//			this(viewer, strLabel, null);
-//		}
-
-//		public void addChangeListener(JungListener listener) {
-//			listeners.add(JungListener.class, listener);
-//		}
-//
-//		public void removeChangeListener(JungListener listener) {
-//			listeners.remove(JungListener.class, listener);
-//		}
 
 		@Override
 		public void paint(Graphics graphics) {

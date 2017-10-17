@@ -219,13 +219,13 @@ public class TracingViewCanvasCreator {
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashMap<>(),
 				false);
 		
-		for(LocationNode node: nodes.values()) {
-			if(node.getId().equals("1653105646")) {
-				node.updateCenter(null);
-				Map<String, Object> tmp = node.getProperties();
-				tmp.get("Longitude");
-			}
-		}
+//		for(LocationNode node: nodes.values()) {
+//			if(node.getId().equals("1653105646")) {
+//				node.updateCenter(null);
+//				Map<String, Object> tmp = node.getProperties();
+//				tmp.get("Longitude");
+//			}
+//		}
 		
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
 		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
