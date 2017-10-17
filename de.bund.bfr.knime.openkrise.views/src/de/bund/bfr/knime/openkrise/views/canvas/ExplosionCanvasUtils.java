@@ -104,13 +104,6 @@ public class ExplosionCanvasUtils {
 		boundaryAreaImage.flush();
 	}
 	
-//	public static <N extends Node> Set<N> removeOuterNodes(Set<N> nodes, Set<N> explodedNodes, Set<N> boundaryNodes) {
-//		Set<N> toRemove  = nodes.stream().filter(n -> !(explodedNodes.contains(n) || boundaryNodes.contains(n))).collect(Collectors.toSet());
-//
-//		nodes.removeAll(toRemove);
-//		return toRemove;
-//	}
-	
 	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey, Set<String> retainNodes) {
 		return collapsedNodes.entrySet().stream()
 				.filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty())
@@ -244,11 +237,6 @@ public class ExplosionCanvasUtils {
 
 			SetMultimap<LocationNode, Point2D> nodeRefPoints = LinkedHashMultimap.create();
 			Map<String, Point2D> positions = new LinkedHashMap<>();
-			//for(LocationNode node: this.nonBoundaryNodes) positions.put(node.getId(), node.getCenter());
-			
-			Set<String> tmpFrom = edges.stream().map(e -> e.getFrom().getId()).collect(Collectors.toSet());
-			Set<String> tmpTo = edges.stream().map(e -> e.getTo().getId()).collect(Collectors.toSet());
-			
 			
 			for(Edge<LocationNode> e : edges) {
 				if(boundaryNodes.contains(e.getFrom())) {
@@ -310,50 +298,22 @@ public class ExplosionCanvasUtils {
 			Set<LocationNode> boundaryNodes, Set<LocationNode> nonBoundaryNodes, Map<String, LocationNode> nodeSaveMap, 
 			SetMultimap<String, String> boundaryNodesToInnerNodesMap, 
 			Map<String,Set<String>> collapsedNodes, Layout<LocationNode, Edge<LocationNode>> layout, Polygon invalidArea) {
+		
 		logger.finest("entered");
 
 		Polygon boundaryArea = null;
 		
 		if (!((boundaryNodes == null) || boundaryNodes.isEmpty())) {
 			
-			//Set<LocationNode> boundaryNodes = Sets.intersection(nodes, allBoundaryNodes);
 			
 			boundaryArea = (invalidArea != null ? createBoundaryArea(invalidArea) : createBoundaryArea(getInnerBoundaryRect(nonBoundaryNodes)));
 			
 			Rectangle2D rect = getAreaRect(boundaryArea);
 			double w = getAreaBorderWidth(boundaryArea);
 
-			SetMultimap<String, Point2D> nodeRefPoints = LinkedHashMultimap.create();
+//			SetMultimap<String, Point2D> nodeRefPoints = LinkedHashMultimap.create();
 			Map<String, Point2D> positions = new LinkedHashMap<>();
 			
-			
-//			boundaryNodes.forEach(n -> {
-//				nodeRefPoints.put(
-//					n.getId(),   
-//					referencedNodesIds.get(n.getId()).stream().map(nodeId -> nodeSaveMap.get(nodeId).getCenter()))
-//					.collect(Collectors.toSet());
-//			});
-			
-//			for(Edge<LocationNode> e : edges) {
-//				if(boundaryNodes.contains(e.getFrom())) {
-//					if(!boundaryNodes.contains(e.getTo())) {
-//						nodeRefPoints.put(e.getFrom(), e.getTo().getCenter());
-//					}
-//				} else if(boundaryNodes.contains(e.getTo())) {
-//					nodeRefPoints.put(e.getTo(), e.getFrom().getCenter());
-//				}
-//			}
-			
-			
-//			nodeRefPoints.asMap().entrySet().forEach(e -> {
-//				Point2D pCenter = PointUtils.getCenter(e.getValue());
-//				if(pCenter == null) {
-//					 pCenter = null;
-//				}
-//				Point2D pBR = getClosestPointOnRect(pCenter, rect);
-//				 
-//				positions.put(e.getKey().getId(), pBR);
-//			});
 			Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
 			
 			collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
@@ -370,8 +330,7 @@ public class ExplosionCanvasUtils {
 			}
 			
 			
-//            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, allEdges, w, boundaryNodes);
-            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, boundaryNodesToInnerNodesMap, w, boundaryNodes);
+           ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, boundaryNodesToInnerNodesMap, w, boundaryNodes);
 			
 			// the boundary positions were only set for the visual nodes so far
 			// but the position of the boundary meta nodes will be overwritten by 
@@ -381,16 +340,7 @@ public class ExplosionCanvasUtils {
 			        	  Point2D p = positions.get(metaKey);
 			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
 			          });
-//			Sets.intersection(collapsedNodes.keySet(), 
-//					          nodeRefPoints.keySet().stream().map(n -> n.getId()).collect(Collectors.toSet())).forEach(metaKey -> {
-//					        	  Point2D p = positions.get(metaKey);
-//					        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
-//					          });
-			
-			//Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
-			
-			//Map<String, LocationNode> nodeMap = allBoundaryNodes.stream().collect(Collectors.toMap((n) -> n.getId(), n -> n));
-			
+
 			for( LocationNode node: boundaryNodes ) {
 				Point2D p = positions.get(node.getId());
 				node.updateCenter(p);
@@ -723,10 +673,6 @@ public class ExplosionCanvasUtils {
 		@Override
 		public void paint(Graphics graphics) {
 			int w = this.viewer.getSize().width;
-			int h = this.viewer.getSize().height;
-			int size = 30;
-			int d = 10;
-			int lineD = 8;
 			int lineWidth = 2;
 
 						
@@ -742,8 +688,7 @@ public class ExplosionCanvasUtils {
 			
 			
 			int sw = (int) font.getStringBounds(this.label, g.getFontRenderContext()).getWidth();
-			int sh = (int) font.getStringBounds(this.label, g.getFontRenderContext()).getHeight();
-
+			
 			Color currentColor = g.getColor();
 			Stroke currentStroke = g.getStroke();
 
@@ -751,15 +696,11 @@ public class ExplosionCanvasUtils {
 			
 			g.setColor(ZoomingPaintable.BACKGROUND);
 			g.fillRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2) , 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
-//			g.setColor(minusFocused ? Color.BLUE : BACKGROUND);
-//			g.fillRect(xMinus, yMinus, size, size);
 			g.setColor(Color.BLACK);
 			g.drawRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2), 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
-//			g.drawRect(xMinus, yMinus, size, size);
 			g.setFont(font);
 			g.drawString(this.label, w/2 - sw/2 - (this.labelOnly()?0:this.closeRect.width/2+dx/2), dy+fontAscent);
 			if(!this.labelOnly()) {
-				//this.closeRect = new Rectangle(w/2 + sw/2 + dx,dy+fontAscent,fontAscent,fontAscent);
 				g.setStroke(new BasicStroke(lineWidth));
 				if(this.closeFocused) g.setColor(Color.BLUE);
 				g.drawLine(this.closeRect.x,this.closeRect.y,this.closeRect.x+this.closeRect.width,this.closeRect.y+this.closeRect.height);
@@ -768,11 +709,7 @@ public class ExplosionCanvasUtils {
 			g.setColor(currentColor);
 			g.setStroke(currentStroke);
 
-//			closeRect = new Rectangle(xPlus, yPlus, size, size);
-//			minusRect = new Rectangle(xMinus, yMinus, size, size);
 		}
-
-//		private boolean labelOnly() { return this.function==null; }
 		
 		@Override
 		public boolean useTransform() {
@@ -789,7 +726,6 @@ public class ExplosionCanvasUtils {
 			boolean changed = newCloseFocused != closeFocused;
 
 			closeFocused = newCloseFocused;
-//			minusFocused = newMinusFocused;
 
 			if (changed) {
 				BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) viewer.getGraphMouse();
