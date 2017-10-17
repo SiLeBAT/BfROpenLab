@@ -723,7 +723,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 				set);
 
 		boolean bolIsGisAvailable = creator.hasGisCoordinates();
-		if(!bolIsGisAvailable && set.isShowGis()) this.forceGraphView();
+		boolean isGraphViewEnforced = !bolIsGisAvailable && set.isShowGis();
+		if(isGraphViewEnforced) this.forceGraphView();
 		
 		
 		if(this.set.getExplosionSettingsList().getActiveExplosionSettings()==null) {
@@ -786,6 +787,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 //		}
 //        objPane.revalidate();
 		panel.revalidate();
+		if(isGraphViewEnforced) Dialogs.showInfoMessage(this.getPanel(), "No GIS information available. Graph mode was activated.");    
 
 		logger.finest("leaving");
 		return warning;
@@ -851,8 +853,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	}
 	
 	private void forceGraphView() {
-		
-		Dialogs.showInfoMessage(this.getPanel(), "No GIS information available. Graph mode will be activated.");    
 		
 		if(!undoStack.isEmpty()) {
 			

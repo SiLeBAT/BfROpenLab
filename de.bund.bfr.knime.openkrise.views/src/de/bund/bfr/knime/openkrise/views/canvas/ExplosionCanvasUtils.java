@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -114,6 +115,12 @@ public class ExplosionCanvasUtils {
 		return collapsedNodes.entrySet().stream()
 				.filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty())
 				.collect(Collectors.toMap(e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
+	}
+	
+	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey) {
+		return collapsedNodes.entrySet().stream()
+				.filter(e -> e.getKey() != explodedNodeKey)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); //    e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
 	}
 	
 	public static Rectangle2D getInnerBoundaryRect(Canvas canvas) {
@@ -298,7 +305,124 @@ public class ExplosionCanvasUtils {
 		logger.finest("leaving");
 		return boundaryArea;
 	}
+	
+	public static Polygon placeBoundaryNodes(
+			Set<LocationNode> boundaryNodes, Set<LocationNode> nonBoundaryNodes, Map<String, LocationNode> nodeSaveMap, 
+			SetMultimap<String, String> boundaryNodesToInnerNodesMap, 
+			Map<String,Set<String>> collapsedNodes, Layout<LocationNode, Edge<LocationNode>> layout, Polygon invalidArea) {
+		logger.finest("entered");
 
+		Polygon boundaryArea = null;
+		
+		if (!((boundaryNodes == null) || boundaryNodes.isEmpty())) {
+			
+			//Set<LocationNode> boundaryNodes = Sets.intersection(nodes, allBoundaryNodes);
+			
+			boundaryArea = (invalidArea != null ? createBoundaryArea(invalidArea) : createBoundaryArea(getInnerBoundaryRect(nonBoundaryNodes)));
+			
+			Rectangle2D rect = getAreaRect(boundaryArea);
+			double w = getAreaBorderWidth(boundaryArea);
+
+			SetMultimap<String, Point2D> nodeRefPoints = LinkedHashMultimap.create();
+			Map<String, Point2D> positions = new LinkedHashMap<>();
+			
+			
+//			boundaryNodes.forEach(n -> {
+//				nodeRefPoints.put(
+//					n.getId(),   
+//					referencedNodesIds.get(n.getId()).stream().map(nodeId -> nodeSaveMap.get(nodeId).getCenter()))
+//					.collect(Collectors.toSet());
+//			});
+			
+//			for(Edge<LocationNode> e : edges) {
+//				if(boundaryNodes.contains(e.getFrom())) {
+//					if(!boundaryNodes.contains(e.getTo())) {
+//						nodeRefPoints.put(e.getFrom(), e.getTo().getCenter());
+//					}
+//				} else if(boundaryNodes.contains(e.getTo())) {
+//					nodeRefPoints.put(e.getTo(), e.getFrom().getCenter());
+//				}
+//			}
+			
+			
+//			nodeRefPoints.asMap().entrySet().forEach(e -> {
+//				Point2D pCenter = PointUtils.getCenter(e.getValue());
+//				if(pCenter == null) {
+//					 pCenter = null;
+//				}
+//				Point2D pBR = getClosestPointOnRect(pCenter, rect);
+//				 
+//				positions.put(e.getKey().getId(), pBR);
+//			});
+			Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
+			
+			collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
+			
+			for(String nodeKey: updateSet) {
+	
+				Point2D pCenter = PointUtils.getCenter(
+						boundaryNodesToInnerNodesMap.get(nodeKey).stream().map(key -> nodeSaveMap.get(key).getCenter())
+						.collect(Collectors.toList()));
+				
+				Point2D pBR = getClosestPointOnRect(pCenter, rect);
+				 
+				positions.put(nodeKey, pBR);
+			}
+			
+			
+//            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, allEdges, w, boundaryNodes);
+            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, boundaryNodesToInnerNodesMap, w, boundaryNodes);
+			
+			// the boundary positions were only set for the visual nodes so far
+			// but the position of the boundary meta nodes will be overwritten by 
+			// the position of the center of their contained nodes ->
+			// the position of the contained nodes is set to the position of their meta node
+            Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
+			        	  Point2D p = positions.get(metaKey);
+			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+			          });
+//			Sets.intersection(collapsedNodes.keySet(), 
+//					          nodeRefPoints.keySet().stream().map(n -> n.getId()).collect(Collectors.toSet())).forEach(metaKey -> {
+//					        	  Point2D p = positions.get(metaKey);
+//					        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+//					          });
+			
+			//Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
+			
+			//Map<String, LocationNode> nodeMap = allBoundaryNodes.stream().collect(Collectors.toMap((n) -> n.getId(), n -> n));
+			
+			for( LocationNode node: boundaryNodes ) {
+				Point2D p = positions.get(node.getId());
+				node.updateCenter(p);
+				layout.setLocation(node, p);
+				if(collapsedNodes.containsKey(node.getId())) {
+					collapsedNodes.get(node.getId()).forEach(nodeId -> {
+						LocationNode collapsedNode = nodeSaveMap.get(nodeId);
+						collapsedNode.updateCenter(p);
+						layout.setLocation(collapsedNode, p);
+					});
+				}
+			}
+		}
+
+		logger.finest("leaving");
+		return boundaryArea;
+	}
+
+	public static SetMultimap<String, String> collectBoundaryNodesInnerNeighbours(Set<? extends Node> nonBoundaryNodes, Set<? extends Node> boundaryNodes, Set<? extends Edge<? extends Node>> edges) {
+		SetMultimap<String, String> referencedNodes = LinkedHashMultimap.create();
+		
+		for(Edge<? extends Node> edge: edges) {
+			if(boundaryNodes.contains(edge.getTo())) {
+				if(nonBoundaryNodes.contains(edge.getFrom())) referencedNodes.put(edge.getTo().getId(), edge.getFrom().getId());
+			} else if(boundaryNodes.contains(edge.getFrom())) {
+				if(nonBoundaryNodes.contains(edge.getTo())) referencedNodes.put(edge.getFrom().getId(), edge.getTo().getId());
+			}
+		}
+		
+		return referencedNodes;
+		//referenceNodes.
+	}
 	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
 		if(!(pointInRect!=null && Double.isFinite(pointInRect.getX()) && Double.isFinite(pointInRect.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);
 		if(!(rect!=null && Double.isFinite(rect.getX()) && Double.isFinite(rect.getY()) && Double.isFinite(rect.getWidth()) && Double.isFinite(rect.getHeight()))) return new Point2D.Double(Double.NaN,Double.NaN);
@@ -323,7 +447,7 @@ public class ExplosionCanvasUtils {
 	}
 	
 	
-	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Set<? extends Edge<? extends Node>> edges, double distance, Set<? extends Node> boundaryNodes) {
+	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Collection<? extends Edge<? extends Node>> edges, double distance, Set<? extends Node> boundaryNodes) {
 		//Map<Point2D, SetMultimap<Set<String>, String>> myMap = new LinkedHashMap<>();
 				
 		SetMultimap<String, String> boundaryNodeToInnerNodesMap = LinkedHashMultimap.create();
@@ -335,6 +459,40 @@ public class ExplosionCanvasUtils {
 				boundaryNodeToInnerNodesMap.put(e.getTo().getId(), e.getFrom().getId());
 			}
 		});
+		
+		
+		
+		if(!boundaryNodeToInnerNodesMap.isEmpty()) {
+			
+			List<BoundaryNode> sortableBoundaryNodeList = new ArrayList<>();
+			
+			boundaryNodeToInnerNodesMap.asMap().entrySet().forEach(e -> {
+				sortableBoundaryNodeList.add(new BoundaryNode(convertToOneDimensionalPosition(positions.get(e.getKey()), rect),e.getKey(), new HashSet<String>(e.getValue())));
+			});
+			
+			Collections.sort(sortableBoundaryNodeList);
+			
+			List<Point2D> res = getPositionsWithoutConflict(
+					sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed().collect(Collectors.toList()), 
+					distance, rect).stream()
+					.map(e -> convertToTwoDimensionalPosition(e, rect)).collect(Collectors.toList());
+			
+			for(int i = 0; i < sortableBoundaryNodeList.size(); i++) positions.put(sortableBoundaryNodeList.get(i).getId(), res.get(i));
+		}
+	}
+	
+	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, SetMultimap<String, String> boundaryNodeToInnerNodesMap, double distance, Set<? extends Node> boundaryNodes) {
+		//Map<Point2D, SetMultimap<Set<String>, String>> myMap = new LinkedHashMap<>();
+				
+//		SetMultimap<String, String> boundaryNodeToInnerNodesMap = LinkedHashMultimap.create();
+//		
+//		edges.forEach(e -> {
+//			if(boundaryNodes.contains(e.getFrom())) {
+//				boundaryNodeToInnerNodesMap.put(e.getFrom().getId(), e.getTo().getId());
+//			} else if(boundaryNodes.contains(e.getTo())) {
+//				boundaryNodeToInnerNodesMap.put(e.getTo().getId(), e.getFrom().getId());
+//			}
+//		});
 		
 		
 		

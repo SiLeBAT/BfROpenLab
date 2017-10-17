@@ -70,10 +70,13 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String gstrKey;
+	private String metaNodeId;
 	private Set<LocationNode> boundaryNodes; 
 	private Set<LocationNode> nonBoundaryNodes;
-	private Set<LocationNode> allBoundaryNodes;
+	private Set<LocationNode> hiddenNodes;
+	private Set<Edge<LocationNode>> hiddenEdges;
+	private SetMultimap<String, String> boundaryNodesToInnerNodesMap;
+	// private Set<LocationNode> allBoundaryNodes;
 	
 //	private BufferedImage image;
 	private Polygon boundaryArea;
@@ -83,30 +86,60 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 	private Map<String, Set<String>> allCollapsedNodes;
 
 	public ExplosionTracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
-			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, String strKey, Set<String> containedNodes) {
+			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, String metaNodeId, Set<String> containedNodesIds) {
 		super(nodes, edges, nodeProperties, edgeProperties, deliveries, lotBased);
 		
 		logger.finest("entered");
 //		this.image = null;
-		this.gstrKey = strKey;
-		this.boundaryNodes = this.nodes.stream().filter(n -> !containedNodes.contains(n.getId())).collect(Collectors.toSet());
-		this.nonBoundaryNodes = this.nodes.stream().filter(n -> containedNodes.contains(n.getId())).collect(Collectors.toSet());
-		this.allBoundaryNodes = this.boundaryNodes.stream().collect(Collectors.toSet());
+		this.metaNodeId = metaNodeId;
+		this.nonBoundaryNodes = this.nodes.stream().filter(n -> containedNodesIds.contains(n.getId())).collect(Collectors.toSet());
+		this.initHiddenObjects();
+		
+		this.boundaryNodes = Sets.difference(Sets.difference(this.nodes, this.nonBoundaryNodes),this.hiddenNodes);
+		
+		//this.boundaryNodes = this.nodes.stream().filter(n -> !containedNodes.contains(n.getId())).collect(Collectors.toSet());
+		//this.allBoundaryNodes = this.boundaryNodes.stream().collect(Collectors.toSet());
+		this.boundaryNodesToInnerNodesMap = ExplosionCanvasUtils.collectBoundaryNodesInnerNeighbours(this.nonBoundaryNodes, this.boundaryNodes, Sets.difference(this.edges, this.hiddenEdges));
 		
 //		this.getViewer().addPreRenderPaintable(new PrePaintable(false));
 		//this.getViewer().addPostRenderPaintable(new ExplosionCanvasUtils.LabelPaintable(this.getViewer(),strKey,()->call(l->l.closeExplosionViewRequested())));
 		this.getViewer().addPostRenderPaintable(
 				new ExplosionCanvasUtils.LabelPaintable(
 						this.getViewer(),
-						strKey,
+						metaNodeId,
 						()-> Stream.of(getListeners(ExplosionListener.class)).forEach(l->l.closeExplosionViewRequested(this))));
 		
-		this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
+		//this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
 		
 		this.placeNodes(this.nonBoundaryNodes, this.edges);
-		//this.placeBoundaryNodes();
+		
 		
 		logger.finest("leaving");
+	}
+	
+	private void initHiddenObjects() {
+		
+		this.hiddenNodes = new HashSet<>();
+		this.hiddenEdges = new HashSet<>();
+		this.boundaryNodes = new HashSet<>();
+		
+		for(Edge<LocationNode> edge : this.edges) {
+			if(this.nonBoundaryNodes.contains(edge.getFrom())) {
+				
+				if(!this.nonBoundaryNodes.contains(edge.getTo())) this.boundaryNodes.add(edge.getTo());
+				
+			} else if(this.nonBoundaryNodes.contains(edge.getTo())) {
+				
+				this.boundaryNodes.add(edge.getFrom());
+				
+			} else {
+				
+				this.hiddenEdges.add(edge);
+			}
+		}
+		
+		this.hiddenNodes = Sets.difference(Sets.difference(this.nodes, this.nonBoundaryNodes), this.boundaryNodes);
+
 	}
 	
 	@Override
@@ -114,22 +147,26 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		logger.finest("entered");
 		super.applyNodeCollapse();
 		
-		//this.boundaryNodes = Sets.difference(this.nodes, this.nonBoundaryNodes);
+		if(this.nonBoundaryNodes != null) {
+			
+			this.boundaryNodes = Sets.difference(this.nodes, this.nonBoundaryNodes);
 		
-		Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
+			Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
 		
-		Sets.difference(this.nodes, this.nonBoundaryNodes).forEach(n -> layout.lock(n, true));
+			this.boundaryNodes.forEach(n -> layout.lock(n, true));
 		
-		Set<LocationNode> allBoundaryNodes = Sets.union(Sets.difference(this.nodes, this.nonBoundaryNodes), this.boundaryNodes);
 		
-		if(!this.boundaryNodes.isEmpty()) {
-			this.boundaryArea = ExplosionCanvasUtils.placeBoundaryNodes(
-					allBoundaryNodes, 
-					this.nodes, 
-					this.edges, 
-					this.collapsedNodes, 
-					layout, 
-					this.getInvalidArea());
+			if(!this.boundaryNodes.isEmpty()) {
+				// this.placeNodes(this.nonBoundaryNodes, this.edges);
+				this.boundaryArea = ExplosionCanvasUtils.placeBoundaryNodes(
+						this.boundaryNodes, 
+						this.nonBoundaryNodes, 
+						this.nodeSaveMap,
+						this.boundaryNodesToInnerNodesMap,
+						this.collapsedNodes, 
+						layout, 
+						this.getInvalidArea());
+			}
 		}
 		
 		// this.placeBoundaryNodes();
@@ -140,7 +177,10 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 	public void resetNodesAndEdges() {
 		logger.finest("entered");
 		super.resetNodesAndEdges();
-		this.boundaryNodes = Sets.intersection(this.nodes, this.boundaryNodes);
+		
+		if(this.hiddenNodes != null) this.nodes = Sets.difference(this.nodes, this.hiddenNodes);
+		if(this.hiddenEdges != null) this.edges = Sets.difference(this.edges, this.hiddenEdges);
+		//this.boundaryNodes = Sets.intersection(this.nodes, this.boundaryNodes);
 		logger.finest("leaving");
 	}
 	
@@ -149,7 +189,7 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super.getVisualizationServer(toSvg);
 		
 //		server.addPreRenderPaintable(new PrePaintable(toSvg));
-        server.addPostRenderPaintable(new ExplosionCanvasUtils.LabelPaintable(this.getViewer(),this.gstrKey));
+        server.addPostRenderPaintable(new ExplosionCanvasUtils.LabelPaintable(this.getViewer(),this.metaNodeId));
 		return server;
 	}
 	
@@ -173,11 +213,13 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 	@Override
 	protected void placeNodes(Set<LocationNode> nodes, Set<Edge<LocationNode>> edges) {
 		
-		if(this.nonBoundaryNodes!=null) {
+		if(this.nonBoundaryNodes != null) {
 			
-			Set<LocationNode> nonBoundaryNodes = Sets.intersection(this.nodes, this.nonBoundaryNodes);
+			//Set<LocationNode> nonBoundaryNodes = Sets.intersection(this.nodes, this.nonBoundaryNodes);
 			
-			super.placeNodes(nonBoundaryNodes, this.edges.stream().filter(e -> nonBoundaryNodes.contains(e.getTo()) && nonBoundaryNodes.contains(e.getFrom())).collect(Collectors.toSet()));
+			super.placeNodes(
+					this.nonBoundaryNodes, 
+					this.edges.stream().filter(e -> this.nonBoundaryNodes.contains(e.getTo()) && this.nonBoundaryNodes.contains(e.getFrom())).collect(Collectors.toSet()));
 			
 		} else {
 			// do nothing
@@ -204,13 +246,32 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		logger.finest("entered");
 		
 		this.allCollapsedNodes = collapsedNodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<String>(e.getValue())));
-		this.collapsedNodes = ExplosionCanvasUtils.filterCollapsedNodeAccordingToExplosion(
-				collapsedNodes, this.gstrKey,
-				CanvasUtils.getElementIds(Sets.union(this.nonBoundaryNodes, this.boundaryNodes)));
-				
-		Sets.difference(this.collapsedNodes.keySet(), collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
 		
-		applyChanges();
+		Map<String, Set<String>> newCollapsedNodes = ExplosionCanvasUtils.filterCollapsedNodeAccordingToExplosion(
+				collapsedNodes, this.metaNodeId,
+				CanvasUtils.getElementIds(Sets.union(this.nonBoundaryNodes, this.boundaryNodes)));
+		
+//		this.collapsedNodes = ExplosionCanvasUtils.filterCollapsedNodeAccordingToExplosion(
+//				collapsedNodes, this.metaNodeId,
+//				CanvasUtils.getElementIds(Sets.union(this.nonBoundaryNodes, this.boundaryNodes)));
+		
+		// strip old meta nodes
+		if(this.collapsedNodes != null) {
+			Sets.difference(this.collapsedNodes.keySet(), newCollapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
+		
+			this.collapsedNodes.keySet().forEach(metaKey -> this.boundaryNodesToInnerNodesMap.removeAll(metaKey));
+		}
+		
+		newCollapsedNodes.keySet().forEach(metaKey -> {
+			newCollapsedNodes.get(metaKey).forEach(key -> {
+				this.boundaryNodesToInnerNodesMap.putAll(metaKey, this.boundaryNodesToInnerNodesMap.get(key));
+			});
+		});
+		// this.boundaryNodes = null;	
+		
+		
+		
+		this.applyChanges();
 		call(l -> l.collapsedNodesChanged(this));
 		this.flushImage();
 		logger.finest("leaving");
@@ -245,25 +306,25 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 //		return nodePos;
 //	}
 	
-	private static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
-		double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
-		double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
-		double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
-		double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
-		double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
-
-		if (dx1 == min) {
-			return new Point2D.Double(rect.getMinX(), pointInRect.getY());
-		} else if (dx2 == min) {
-			return new Point2D.Double(rect.getMaxX(), pointInRect.getY());
-		} else if (dy1 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMinY());
-		} else if (dy2 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMaxY());
-		}
-
-		throw new RuntimeException("This should not happen");
-	}
+//	private static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
+//		double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
+//		double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
+//		double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
+//		double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
+//		double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
+//
+//		if (dx1 == min) {
+//			return new Point2D.Double(rect.getMinX(), pointInRect.getY());
+//		} else if (dx2 == min) {
+//			return new Point2D.Double(rect.getMaxX(), pointInRect.getY());
+//		} else if (dy1 == min) {
+//			return new Point2D.Double(pointInRect.getX(), rect.getMinY());
+//		} else if (dy2 == min) {
+//			return new Point2D.Double(pointInRect.getX(), rect.getMaxY());
+//		}
+//
+//		throw new RuntimeException("This should not happen");
+//	}
 	
 //	protected void flushImage() {
 //		if (image != null) {
