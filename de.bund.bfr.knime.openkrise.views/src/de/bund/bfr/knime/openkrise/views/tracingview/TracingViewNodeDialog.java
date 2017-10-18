@@ -945,7 +945,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 			} else {
 				change.redo(canvas);
 			}
-			if(canvas instanceof ExplosionTracingGraphCanvas) ((ExplosionTracingGraphCanvas) canvas).repositionBoundaryNodes();
+			if(canvas instanceof ExplosionTracingGraphCanvas) ((ExplosionTracingGraphCanvas) canvas).placeBoundaryNodes(true);
 			
 			canvas.addCanvasListener(this);
 			canvas.addTracingListener(this);

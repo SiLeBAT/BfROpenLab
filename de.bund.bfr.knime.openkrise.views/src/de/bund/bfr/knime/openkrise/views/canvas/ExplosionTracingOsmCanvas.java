@@ -92,10 +92,14 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 
 		this.metaNodeId = metaNodeId;
 		this.nonBoundaryNodes = this.nodes.stream().filter(n -> containedNodesIds.contains(n.getId())).collect(Collectors.toSet());
-		this.initBoundaryAndHiddenNodes();
+		this.hiddenNodes = new HashSet<>();
+		this.hiddenEdges = new HashSet<>();
+		this.boundaryNodes = new HashSet<>();
 		
-		this.boundaryNodes = Sets.difference(Sets.difference(this.nodes, this.nonBoundaryNodes),this.hiddenNodes);
-		this.boundaryNodesToInnerNodesMap = ExplosionCanvasUtils.createBoundaryNodesToInnerNodesMap(this.nonBoundaryNodes, this.boundaryNodes, Sets.difference(this.edges, this.hiddenEdges));
+		ExplosionCanvasUtils.initBoundaryAndHiddenNodes(this.nodes, this.edges, this.nonBoundaryNodes, this.boundaryNodes, this.hiddenNodes, this.hiddenEdges);
+		
+		this.edges = Sets.difference(this.edges, this.hiddenEdges).stream().collect(Collectors.toSet());
+		this.boundaryNodesToInnerNodesMap = ExplosionCanvasUtils.createBoundaryNodesToInnerNodesMap(this.nonBoundaryNodes, this.boundaryNodes, this.edges);
 		
 
 		this.getViewer().addPostRenderPaintable(
@@ -109,31 +113,6 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		
 		
 		logger.finest("leaving");
-	}
-	
-	private void initBoundaryAndHiddenNodes() {
-		
-		this.hiddenNodes = new HashSet<>();
-		this.hiddenEdges = new HashSet<>();
-		this.boundaryNodes = new HashSet<>();
-		
-		for(Edge<LocationNode> edge : this.edges) {
-			if(this.nonBoundaryNodes.contains(edge.getFrom())) {
-				
-				if(!this.nonBoundaryNodes.contains(edge.getTo())) this.boundaryNodes.add(edge.getTo());
-				
-			} else if(this.nonBoundaryNodes.contains(edge.getTo())) {
-				
-				this.boundaryNodes.add(edge.getFrom());
-				
-			} else {
-				
-				this.hiddenEdges.add(edge);
-			}
-		}
-		
-		this.hiddenNodes = Sets.difference(Sets.difference(this.nodes, this.nonBoundaryNodes), this.boundaryNodes);
-
 	}
 	
 	@Override
@@ -164,8 +143,6 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		
 		if(this.nonBoundaryNodes != null) {
 			
-			//Set<LocationNode> nonBoundaryNodes = Sets.intersection(this.nodes, this.nonBoundaryNodes);
-			
 			super.placeNodes(
 					this.nonBoundaryNodes, 
 					this.edges.stream().filter(e -> this.nonBoundaryNodes.contains(e.getTo()) && this.nonBoundaryNodes.contains(e.getFrom())).collect(Collectors.toSet()));
@@ -194,40 +171,50 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
 		logger.finest("entered");
 		
-		
+		// remove old meta nodes which are obsolete
 		Sets.difference(this.collapsedNodes.keySet(), collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
 		
 		Map<String, Set<String>> newFilteredCollapsedNodes = ExplosionCanvasUtils.filterCollapsedNodeAccordingToExplosion(
 				collapsedNodes, this.metaNodeId,
 				CanvasUtils.getElementIds(Sets.union(this.nonBoundaryNodes, this.boundaryNodes)));
 		
-		// create meta nodes for discarded nodes
+		// create meta nodes which do not belong to the explosion view
+		// this is required because the properties of the meta nodes have to be maintained
 		Sets.difference(collapsedNodes.keySet(), newFilteredCollapsedNodes.keySet()).forEach(metaId -> {
 			
 			if(!nodeSaveMap.containsKey(metaId)) nodeSaveMap.put(metaId, createMetaNode(metaId, CanvasUtils.getElementsById(nodeSaveMap, collapsedNodes.get(metaId))));
-			
+		
 		});
-
-		newFilteredCollapsedNodes.forEach((metaId, nodeIds) -> {
+		
+		
+		for(String metaId : newFilteredCollapsedNodes.keySet()) {
+			Set<String> nodeIds = newFilteredCollapsedNodes.get(metaId);
+			
 			if(Sets.intersection(nodeIds, this.boundaryNodesToInnerNodesMap.keySet()).isEmpty()) {
 				nodeIds.forEach(id -> this.boundaryNodesToInnerNodesMap.putAll(metaId, this.boundaryNodesToInnerNodesMap.get(id)));
 			}
-		});
+		}
+
+//		newFilteredCollapsedNodes.forEach((metaId, nodeIds) -> {
+//			if(Sets.intersection(nodeIds, new HashSet<>(this.boundaryNodesToInnerNodesMap.keySet())).isEmpty()) {
+//				nodeIds.forEach(id -> this.boundaryNodesToInnerNodesMap.putAll(metaId, this.boundaryNodesToInnerNodesMap.get(id)));
+//			}
+//		});
 //		newCollapsedNodes.keySet().forEach(metaKey -> {
 //			newCollapsedNodes.get(metaKey).forEach(key -> {
 //				this.boundaryNodesToInnerNodesMap.putAll(metaKey, this.boundaryNodesToInnerNodesMap.get(key));
 //			});
 //		});
 		
-		this.collapsedNodes = newFilteredCollapsedNodes;
+		//this.collapsedNodes = newFilteredCollapsedNodes;
 		
 		this.applyChanges();
 		
         if(this.boundaryNodes != null) {
 		
-			Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
-		
-			this.boundaryNodes.forEach(n -> layout.lock(n, true));
+//			Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
+//		
+//			this.boundaryNodes.forEach(n -> layout.lock(n, true));
 		
 		
 			if(!this.boundaryNodes.isEmpty()) {
@@ -238,15 +225,65 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 						this.nodeSaveMap,
 						this.boundaryNodesToInnerNodesMap,
 						this.collapsedNodes, 
-						layout, 
+						this.getViewer().getGraphLayout(), 
 						this.getInvalidArea());
 			}
 		}  
         
 		call(l -> l.collapsedNodesChanged(this));
-		this.flushImage();
+		//this.flushImage();
 		logger.finest("leaving");
 	}
+	
+//	@Override
+//	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
+//		logger.finest("entered");
+//		
+//		
+//		Sets.difference(this.collapsedNodes.keySet(), this.collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
+//		
+//		Map<String, Set<String>> newCollapsedNodes = ExplosionCanvasUtils.filterCollapsedNodeAccordingToExplosion(
+//				collapsedNodes, this.metaNodeId,
+//				CanvasUtils.getElementIds(Sets.union(this.nonBoundaryNodes, this.boundaryNodes)));
+//		
+//		Sets.difference(collapsedNodes.keySet(), newCollapsedNodes.keySet()).forEach(metaId -> {
+//			
+//			if(!nodeSaveMap.containsKey(metaId)) nodeSaveMap.put(metaId, createMetaNode(metaId, CanvasUtils.getElementsById(nodeSaveMap, collapsedNodes.get(metaId))));
+//			
+//		});
+//
+//		newCollapsedNodes.keySet().forEach(metaKey -> {
+//			newCollapsedNodes.get(metaKey).forEach(key -> {
+//				this.boundaryNodesToInnerNodesMap.putAll(metaKey, this.boundaryNodesToInnerNodesMap.get(key));
+//			});
+//		});
+//		
+//		this.applyChanges();
+//		
+//        if(this.boundaryNodes != null) {
+//		
+//			Layout<LocationNode, Edge<LocationNode>> layout = this.getViewer().getGraphLayout();
+//		
+//			this.boundaryNodes.forEach(n -> layout.lock(n, true));
+//		
+//		
+//			if(!this.boundaryNodes.isEmpty()) {
+//				
+//				this.boundaryArea = ExplosionCanvasUtils.placeBoundaryNodes(
+//						this.boundaryNodes, 
+//						this.nonBoundaryNodes, 
+//						this.nodeSaveMap,
+//						this.boundaryNodesToInnerNodesMap,
+//						this.collapsedNodes, 
+//						layout, 
+//						this.getInvalidArea());
+//			}
+//		}  
+//        
+//		call(l -> l.collapsedNodesChanged(this));
+//		this.flushImage();
+//		logger.finest("leaving");
+//	}
 	
 	@Override
 	protected void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground) {

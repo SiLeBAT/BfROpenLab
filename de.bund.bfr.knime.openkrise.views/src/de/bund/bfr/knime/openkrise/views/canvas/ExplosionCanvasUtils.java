@@ -107,7 +107,7 @@ public class ExplosionCanvasUtils {
 	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey, Set<String> retainNodes) {
 		return collapsedNodes.entrySet().stream()
 				.filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty())
-				.collect(Collectors.toMap(e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
+				.collect(Collectors.toMap(e->e.getKey(),e-> new HashSet<>(Sets.intersection(retainNodes,e.getValue()))));
 	}
 	
 	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey) {
@@ -221,15 +221,12 @@ public class ExplosionCanvasUtils {
 						innerBounds.getHeight() + 2 * margin + w), w);
 	}
 	 
-	public static <T extends Node> void test(Set<T> tmp) {
-		
-	}
-	
     public static <T extends Node> void initBoundaryAndHiddenNodes(
     		Set<T> nodes, Set<Edge<T>> edges, Set<T> nonBoundaryNodes, Set<T> boundaryNodes, 
     		Set<T> hiddenNodes, Set<Edge<T>> hiddenEdges) {
 		
 		for(Edge<T> edge : edges) {
+			
 			if(nonBoundaryNodes.contains(edge.getFrom())) {
 				
 				if(!nonBoundaryNodes.contains(edge.getTo())) boundaryNodes.add(edge.getTo());
@@ -320,7 +317,74 @@ public class ExplosionCanvasUtils {
 //		return boundaryArea;
 //	}
 	
-	public static Polygon placeBoundaryNodes(
+//	public static Polygon placeBoundaryNodes(
+//			Set<LocationNode> boundaryNodes, Set<LocationNode> nonBoundaryNodes, Map<String, LocationNode> nodeSaveMap, 
+//			SetMultimap<String, String> boundaryNodesToInnerNodesMap, 
+//			Map<String,Set<String>> collapsedNodes, Layout<LocationNode, Edge<LocationNode>> layout, Polygon invalidArea) {
+//		
+//		logger.finest("entered");
+//
+//		Polygon boundaryArea = null;
+//		
+//		if (!((boundaryNodes == null) || boundaryNodes.isEmpty())) {
+//			
+//			
+//			boundaryArea = (invalidArea != null ? createBoundaryArea(invalidArea) : createBoundaryArea(getInnerBoundaryRect(nonBoundaryNodes)));
+//			
+//			Rectangle2D rect = getAreaRect(boundaryArea);
+//			double w = getAreaBorderWidth(boundaryArea);
+//
+//			Map<String, Point2D> positions = new LinkedHashMap<>();
+//			
+//			//Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
+//			
+//			
+//			//collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
+//			
+//			// for(String nodeKey: updateSet) {
+//			for(String nodeKey: boundaryNodesToInnerNodesMap.keySet()) {
+//	
+//				Point2D pCenter = PointUtils.getCenter(
+//						boundaryNodesToInnerNodesMap.get(nodeKey).stream().map(key -> nodeSaveMap.get(key).getCenter())
+//						.collect(Collectors.toList()));
+//				
+//				Point2D pBR = getClosestPointOnRect(pCenter, rect);
+//				 
+//				positions.put(nodeKey, pBR);
+//			}
+//			
+//			
+//           ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, boundaryNodesToInnerNodesMap, w, boundaryNodes);
+//			
+//			// the boundary positions were only set for the visual nodes so far
+//			// but the position of the boundary meta nodes will be overwritten by 
+//			// the position of the center of their contained nodes ->
+//			// the position of the contained nodes is set to the position of their meta node
+//            //Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
+////           Sets.intersection(collapsedNodes.keySet(), boundaryNodesToInnerNodesMap.keySet()).forEach(metaKey -> {
+////			        	  Point2D p = positions.get(metaKey);
+////			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+////			          });
+//
+//			for( LocationNode node: boundaryNodes ) {
+//				Point2D p = positions.get(node.getId());
+//				node.updateCenter(p);
+//				layout.setLocation(node, p);
+//				if(collapsedNodes.containsKey(node.getId())) {
+//					collapsedNodes.get(node.getId()).forEach(nodeId -> {
+//						LocationNode collapsedNode = nodeSaveMap.get(nodeId);
+//						collapsedNode.updateCenter(p);
+//						layout.setLocation(collapsedNode, p);
+//					});
+//				}
+//			}
+//		}
+//
+//		logger.finest("leaving");
+//		return boundaryArea;
+//	}
+
+    public static Polygon placeBoundaryNodes(
 			Set<LocationNode> boundaryNodes, Set<LocationNode> nonBoundaryNodes, Map<String, LocationNode> nodeSaveMap, 
 			SetMultimap<String, String> boundaryNodesToInnerNodesMap, 
 			Map<String,Set<String>> collapsedNodes, Layout<LocationNode, Edge<LocationNode>> layout, Polygon invalidArea) {
@@ -337,15 +401,14 @@ public class ExplosionCanvasUtils {
 			Rectangle2D rect = getAreaRect(boundaryArea);
 			double w = getAreaBorderWidth(boundaryArea);
 
+//			SetMultimap<String, Point2D> nodeRefPoints = LinkedHashMultimap.create();
 			Map<String, Point2D> positions = new LinkedHashMap<>();
 			
-			//Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
+			Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
 			
+			collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
 			
-			//collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
-			
-			// for(String nodeKey: updateSet) {
-			for(String nodeKey: boundaryNodesToInnerNodesMap.keySet()) {
+			for(String nodeKey: updateSet) {
 	
 				Point2D pCenter = PointUtils.getCenter(
 						boundaryNodesToInnerNodesMap.get(nodeKey).stream().map(key -> nodeSaveMap.get(key).getCenter())
@@ -363,11 +426,10 @@ public class ExplosionCanvasUtils {
 			// but the position of the boundary meta nodes will be overwritten by 
 			// the position of the center of their contained nodes ->
 			// the position of the contained nodes is set to the position of their meta node
-            //Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
-//           Sets.intersection(collapsedNodes.keySet(), boundaryNodesToInnerNodesMap.keySet()).forEach(metaKey -> {
-//			        	  Point2D p = positions.get(metaKey);
-//			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
-//			          });
+            Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
+			        	  Point2D p = positions.get(metaKey);
+			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+			          });
 
 			for( LocationNode node: boundaryNodes ) {
 				Point2D p = positions.get(node.getId());
@@ -386,7 +448,7 @@ public class ExplosionCanvasUtils {
 		logger.finest("leaving");
 		return boundaryArea;
 	}
-
+    
 	public static SetMultimap<String, String> createBoundaryNodesToInnerNodesMap(Set<? extends Node> nonBoundaryNodes, Set<? extends Node> boundaryNodes, Set<? extends Edge<? extends Node>> edges) {
 		SetMultimap<String, String> boundaryNodesToInnerNodesMap = LinkedHashMultimap.create();
 		
