@@ -110,8 +110,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		logger.finest("entered");
 		List<GraphNode> nodesWithoutPos = new ArrayList<>();
 
-		for (GraphNode node : nodeSaveMap.values()) {
+		for (GraphNode node :  nodeSaveMap.values()) {
 			if (collapsedNodes.containsKey(node.getId())) {
+				if(node.getId().equals("Westfleisch")) {
+					logger.finest("Debug");
+				}
 				Point2D centerOfCollapsedNodes = PointUtils
 						.getCenter(CanvasUtils.getElementsById(nodePositions, collapsedNodes.get(node.getId())));
 
@@ -130,7 +133,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				}
 			}
 		}
-
+		
 		if (!nodesWithoutPos.isEmpty()) {
 			if (USE_FR_LAYOUT_TO_PLACE_NEW_NODES) {
 				Layout<GraphNode, Edge<GraphNode>> layout = new FRLayout<>(viewer.getGraphLayout().getGraph(),
@@ -257,9 +260,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		//s.height*= 0.5;
 		//s.width*= 0.5;
 		Layout<GraphNode, Edge<GraphNode>> layout = 
-				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout!=nodes)?
+				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != this.getLayoutableNodes())? //nodes)?
 				new FRLayout(viewer.getGraphLayout().getGraph(), s,true):
 				layoutType.create(viewer.getGraphLayout().getGraph(),s));
+
 		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {

@@ -195,7 +195,7 @@ public class TracingViewCanvasCreator {
 				skippedDeliveryRelationRows);
 		
 		
-		this.filterExplosionData(nodes, edges, deliveries);
+		//this.filterExplosionData(nodes, edges, deliveries);
 		//Map<String, ? extends Node> t1 = nodes;
 		//List<? extends Edge<? extends Node>> t2 = edges;
 		//Set<String> borderNodes = Sets.difference(nodes.keySet(), this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());

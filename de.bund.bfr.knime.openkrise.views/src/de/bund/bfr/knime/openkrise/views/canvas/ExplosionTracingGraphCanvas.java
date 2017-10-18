@@ -18,6 +18,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,10 +47,12 @@ import de.bund.bfr.jung.BetterGraphMouse;
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.JungListener;
 import de.bund.bfr.jung.ZoomingPaintable;
+import de.bund.bfr.jung.layout.FRLayout;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 //import de.bund.bfr.knime.gis.views.canvas.ExplosionCanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -120,7 +123,6 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 						this.getViewer(),
 						metaNodeId,
 						()-> Stream.of(getListeners(ExplosionListener.class)).forEach(l->l.closeExplosionViewRequested(this))));
-		
 		
 		
 		
@@ -274,20 +276,11 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		logger.finest("entered");
 		super.resetNodesAndEdges();
 		
-		if(this.hiddenNodes != null) this.nodes = Sets.difference(this.nodes, this.hiddenNodes);
-		if(this.hiddenEdges != null) this.edges = Sets.difference(this.edges, this.hiddenEdges);
+		if(this.hiddenNodes != null) this.nodes.removeAll(this.hiddenNodes); //= new HashSet<>(Sets.difference(this.nodes, this.hiddenNodes));
+		if(this.hiddenEdges != null) this.edges.removeAll(this.hiddenEdges); //= new HashSet<>(Sets.difference(this.edges, this.hiddenEdges));
 		
-		//this.boundaryNodes = Sets.intersection(this.nodes, this.boundaryNodes);
 		logger.finest("leaving");
 	}
-	
-//	@Override
-//	public void setPerformTracing(boolean performTracing) {
-//		logger.finest("entered");
-//		if(performTracing) this.repositionBoundaryNodes();
-//		super.setPerformTracing(performTracing);
-//		logger.finest("leaving");
-//	}
 	
 	@Override
 	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(boolean toSvg) {
@@ -328,10 +321,12 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 			
 			if(!nodeSaveMap.containsKey(metaId)) {
 				
-				Set<String> nodeIds = collapsedNodes.get(metaId);
-				Set<GraphNode> nodes = CanvasUtils.getElementsById(this.nodeSaveMap, nodeIds); //this.getNodePositions(CanvasUtils.getElementsById(this.nodeSaveMap, nodeIds))
-				Map<String, Point2D> positions = this.getNodePositions(nodes);
-				positions.entrySet().stream().map(Entry::getKey,new Point2D.Double(Double.NaN, Double.NaN)).
+//				Set<String> nodeIds = collapsedNodes.get(metaId);
+//				Set<GraphNode> nodes = CanvasUtils.getElementsById(this.nodeSaveMap, nodeIds); //this.getNodePositions(CanvasUtils.getElementsById(this.nodeSaveMap, nodeIds))
+//				Map<String, Point2D> positions = this.getNodePositions(nodes);
+//				positions = positions.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new Point2D.Double(Double.NaN, Double.NaN)));
+//				this.setNodePositions(positions);
+				
 				nodeSaveMap.put(metaId, createMetaNode(metaId, CanvasUtils.getElementsById(nodeSaveMap, collapsedNodes.get(metaId))));
 			}
 			
@@ -347,36 +342,20 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		}
 
 				
-		//this.collapsedNodes = newFilteredCollapsedNodes;
+		this.collapsedNodes = newFilteredCollapsedNodes;
 				
 		this.applyChanges();
 				
 		if(this.boundaryNodes != null) this.placeBoundaryNodes(false);
-				
-//					Layout<GraphNode, Edge<GraphNode>> layout = this.getViewer().getGraphLayout();
-//				
-//					this.boundaryNodes.forEach(n -> layout.lock(n, true));
-//				
-//				
-//					if(!this.boundaryNodes.isEmpty()) {
-//						
-//						this.boundaryArea = ExplosionCanvasUtils.placeBoundaryNodes(
-//								this.boundaryNodes, 
-//								this.nonBoundaryNodes, 
-//								this.nodeSaveMap,
-//								this.boundaryNodesToInnerNodesMap,
-//								this.collapsedNodes, 
-//								layout);
-//					}
-//				}  
 		        
 		call(l -> l.collapsedNodesChanged(this));
 		logger.finest("leaving");
 	}
 	
 	@Override
-	protected Set<GraphNode> getLayoutableNodes() { return this.nonBoundaryNodes; }
-	//private Set<GraphNode> nonBoundaryNodes() { return Sets.difference(this.nodes,this.boundaryNodes); }
+	protected Set<GraphNode> getLayoutableNodes() { 
+		return this.nonBoundaryNodes; 
+	}
 	
 	@Override
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
@@ -410,18 +389,65 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		super.transformFinished();
 	}
 	
+//	@Override
+//	public void setNodePositions(Map<String, Point2D> nodePositions) {
+//		logger.finest("entered");
+//		List<GraphNode> nodesWithoutPos = new ArrayList<>();
+//
+//		for (GraphNode node :  this.nonBoundaryNodes) {
+////			if (collapsedNodes.containsKey(node.getId())) {
+////				Point2D centerOfCollapsedNodes = PointUtils
+////						.getCenter(CanvasUtils.getElementsById(nodePositions, collapsedNodes.get(node.getId())));
+////
+////				if (centerOfCollapsedNodes != null) {
+////					viewer.getGraphLayout().setLocation(node, centerOfCollapsedNodes);
+////				} else if (nodePositions.containsKey(node.getId())) {
+////					viewer.getGraphLayout().setLocation(node, nodePositions.get(node.getId()));
+////				} else {
+////					nodesWithoutPos.add(node);
+////				}
+////			} else {
+//				if (nodePositions.containsKey(node.getId())) {
+//					viewer.getGraphLayout().setLocation(node, nodePositions.get(node.getId()));
+//				} else {
+//					nodesWithoutPos.add(node);
+//				}
+////			}
+//		}
+//
+//		if (!nodesWithoutPos.isEmpty()) this.placeNewNodes(nodesWithoutPos);
+//			
+//		logger.finest("leaving");
+//	}
+	
 	public void placeBoundaryNodes(boolean onlyUpdateBoundaryAreaPosition) {
 		logger.finest("entered");
 		if(this.isPerformTracing()) {
 		
 			if (!((this.boundaryNodes == null) || this.boundaryNodes.isEmpty())) {
 				
-				Map<String, Point2D> positions = this.getNodePositions();
-				Set<String> nonBoundaryNodeIds = CanvasUtils.getElementIds(this.nonBoundaryNodes);
+				//Map<String, Point2D> positions = this.getNodePositions(boundaryNodes)
+				
+				Map<String, Point2D> positions = this.getNodePositions(this.nonBoundaryNodes);
+				
+				if(positions == null || positions.entrySet().stream().anyMatch(e -> Double.isNaN(e.getValue().getX()) || (Double.isNaN(e.getValue().getY())))) {
+					return;
+				
+//					this.setNodePositions(new LinkedHashMap<String, Point2D>());
+//					positions = this.getNodePositions(this.nonBoundaryNodes);
+//					
+//					if(positions == null || positions.entrySet().stream().anyMatch(e -> Double.isNaN(e.getValue().getX()) || (Double.isNaN(e.getValue().getY())))) {
+//						return;
+//					}
+				}
+				
+				//Set<String> nonBoundaryNodeIds = CanvasUtils.getElementIds(this.nonBoundaryNodes);
 			
-				Rectangle2D bounds = PointUtils.getBounds(
-						positions.entrySet().stream()
-						.filter(e -> nonBoundaryNodeIds.contains(e.getKey())).map(e -> e.getValue()).collect(Collectors.toList()));
+				Rectangle2D bounds = PointUtils.getBounds(positions.values());
+				
+//				Rectangle2D bounds = PointUtils.getBounds(
+//						positions.entrySet().stream()
+//						.filter(e -> nonBoundaryNodeIds.contains(e.getKey())).map(e -> e.getValue()).collect(Collectors.toList()));
 			
 				if(bounds.isEmpty()) {
 					boundaryArea = null;
@@ -444,15 +470,21 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 					
 					collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
 					
-					for(String nodeKey: updateSet) {
-			
+					for(String boundaryNodeKey: updateSet) {
+//						List<Point2D> pointList = new ArrayList<>();
+//						
+//						for(String innerNodeKey: this.boundaryNodesToInnerNodesMap.get(boundaryNodeKey)) {
+//							pointList.add(positions.get(innerNodeKey));
+//						}
+//						
+//						Point2D pCenter = PointUtils.getCenter(pointList);
 						Point2D pCenter = PointUtils.getCenter(
-								this.boundaryNodesToInnerNodesMap.get(nodeKey).stream().map(key -> positions.get(key))
+								this.boundaryNodesToInnerNodesMap.get(boundaryNodeKey).stream().map(innerNodeKey -> positions.get(innerNodeKey))
 								.collect(Collectors.toList()));
 						
 						Point2D pBR = getClosestPointOnRect(pCenter, rect);
 						 
-						positions.put(nodeKey, pBR);
+						positions.put(boundaryNodeKey, pBR);
 					}
 					
 				
@@ -479,6 +511,10 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 					        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
 					          });
 		
+//		            Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
+//			        	  Point2D p = positions.get(metaKey);
+//			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+//			          });
 					
 					this.setNodePositions(positions);
 				}
@@ -556,6 +592,27 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		g.drawImage(image, 0, 0, null);
 		//logger.finest("leaving");
 	}
+	
+	@Override
+	public Map<String, Point2D> getNodePositions() {
+//		updatePositionsOfCollapsedNodes();
+//		Collection<GraphNode> col =  nodeSaveMap.values();
+//		col = nodeSaveMap.values().stream().filter(n -> !collapsedNodes.containsKey(n.getId()))
+//				.collect(Collectors.toList());
+//		Map<String, Point2D> res = getNodePositions(col);
+		return getNodePositions(this.nonBoundaryNodes);
+//		return nodeSaveMap.values().stream().filter(n -> !collapsedNodes.containsKey(n.getId()))
+//				.collect(Collectors.toList()));
+	}
+	
+//	@Override
+//	public void initLayout() {
+//		logger.finest("entered");
+//		if (!this.nonBoundaryNodes.isEmpty()) {
+//			this.applyLayout(LayoutType.ISOM_LAYOUT, this.nonBoundaryNodes, false);
+//		}
+//		logger.finest("leaving");
+//	}
 	
 	private class PrePaintable implements Paintable {
 		
@@ -747,6 +804,12 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 //		public void mouseExited(MouseEvent e) {
 //		}
 //	}
+	
+	@Override
+	public void setPerformTracing(boolean performTracing) {
+		super.setPerformTracing(performTracing);
+		this.placeBoundaryNodes(false);
+	}
 
 	@Override
 	public Set getBoundaryNodes() {

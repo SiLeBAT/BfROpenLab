@@ -23,12 +23,12 @@ public class ExplosionSettingsList extends NodeSettings {
 	
 	private final static String CFG_PREFIX = "CFG_EXPLOSION";
 	
-	private ArrayList<ExplosionSettings> gobjExplosionSettingsList;
-	private Stack<ExplosionSettings> gobjActiveExplosionSettingsList;
+	private ArrayList<ExplosionSettings> explosionSettingsList;
+	private Stack<ExplosionSettings> activeExplosionSettingsList;
 	
     protected ExplosionSettingsList() {
-		this.gobjExplosionSettingsList = new ArrayList<ExplosionSettings>();
-		this.gobjActiveExplosionSettingsList = new Stack<ExplosionSettings>();
+		this.explosionSettingsList = new ArrayList<ExplosionSettings>();
+		this.activeExplosionSettingsList = new Stack<ExplosionSettings>();
 	}
 	
 	private static String getElementPrefix(int index) {
@@ -44,7 +44,10 @@ public class ExplosionSettingsList extends NodeSettings {
 		indices.forEach(i -> {
 			ExplosionSettings eS = new ExplosionSettings();
 			eS.loadSettings(settings, getElementPrefix(i));
+			this.explosionSettingsList.add(eS);
 		});
+		
+		this.activeExplosionSettingsList.clear();
 	}
 	
 	
@@ -57,14 +60,14 @@ public class ExplosionSettingsList extends NodeSettings {
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		// TODO Auto-generated method stub
-		for(int i=this.gobjExplosionSettingsList.size()-1; i>=0; i--) {
-			this.gobjExplosionSettingsList.get(i).saveSettings(settings, this.getElementPrefix(i+1));
+		for(int i=this.explosionSettingsList.size()-1; i>=0; i--) {
+			this.explosionSettingsList.get(i).saveSettings(settings, this.getElementPrefix(i+1));
 		}
 	}
 		
 	public ExplosionSettings getExplosionSettings(String strKey, Set<String> containedNodes) {
 		//List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getContainedNodes().equals(containedNodes)).collect(Collectors.toList());
-		List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getKey().equals(containedNodes)).collect(Collectors.toList());
+		List<ExplosionSettings> oESL = this.explosionSettingsList.stream().filter(eS -> eS.getKey().equals(strKey)).collect(Collectors.toList());
 		
 		return (oESL.size()==0?null:oESL.get(0));
 	}
@@ -73,19 +76,19 @@ public class ExplosionSettingsList extends NodeSettings {
 		
 		if(containedNodesIds == null || containedNodesIds.isEmpty()) return null;
 		
-		List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getContainedNodesIds().equals(containedNodesIds)).collect(Collectors.toList());
+		List<ExplosionSettings> oESL = this.explosionSettingsList.stream().filter(eS -> eS.getContainedNodesIds().equals(containedNodesIds)).collect(Collectors.toList());
 		
 		return (oESL.size()==0?null:oESL.get(0));
 	}
 	
-	protected ExplosionSettings getActiveExplosionSettings() { return (this.gobjActiveExplosionSettingsList.isEmpty()?null:this.gobjActiveExplosionSettingsList.peek());}
+	protected ExplosionSettings getActiveExplosionSettings() { return (this.activeExplosionSettingsList.isEmpty()?null:this.activeExplosionSettingsList.peek());}
 	
 	public boolean setActiveExplosionSettings(ExplosionSettings objES, boolean bolActive) {
-		boolean wasActive = this.gobjActiveExplosionSettingsList.remove(objES);
+		boolean wasActive = this.activeExplosionSettingsList.remove(objES);
 			
 		if(bolActive && objES!=null) {
-			if(!this.gobjExplosionSettingsList.contains(objES)) return false;
-			this.gobjActiveExplosionSettingsList.push(objES);
+			if(!this.explosionSettingsList.contains(objES)) return false;
+			this.activeExplosionSettingsList.push(objES);
 			if(!wasActive) {
 				objES.setSelectedNodes(new ArrayList<>());
 				objES.setSelectedEdges(new ArrayList<>());
@@ -95,13 +98,13 @@ public class ExplosionSettingsList extends NodeSettings {
 	}
 	
 	public boolean setActiveExplosionSettings(ExplosionSettings objActivateES, ExplosionSettings objDeactivateES) {
-		this.gobjActiveExplosionSettingsList.remove(objDeactivateES);
+		this.activeExplosionSettingsList.remove(objDeactivateES);
 		boolean wasActive = false;
-		if(objActivateES!=null) wasActive = this.gobjActiveExplosionSettingsList.remove(objActivateES);
+		if(objActivateES!=null) wasActive = this.activeExplosionSettingsList.remove(objActivateES);
 		
 		if(objActivateES!=null) {
-			if(!this.gobjExplosionSettingsList.contains(objActivateES)) return false;
-			this.gobjActiveExplosionSettingsList.push(objActivateES);
+			if(!this.explosionSettingsList.contains(objActivateES)) return false;
+			this.activeExplosionSettingsList.push(objActivateES);
 			if(!wasActive) {
 				objActivateES.setSelectedNodes(new ArrayList<>());
 				objActivateES.setSelectedEdges(new ArrayList<>());
@@ -115,19 +118,19 @@ public class ExplosionSettingsList extends NodeSettings {
 		
 		if(objES==null) {
 			objES=new ExplosionSettings(strKey, containedNodesIds);
-			this.gobjExplosionSettingsList.add(objES);
+			this.explosionSettingsList.add(objES);
 		}
 		
 		return (this.setActiveExplosionSettings(objES,true)?objES:null);
 	}
 	
 	public void clearActiveExplosionSettings() {
-	  if(this.gobjActiveExplosionSettingsList != null) this.gobjActiveExplosionSettingsList.clear();	
+	  if(this.activeExplosionSettingsList != null) this.activeExplosionSettingsList.clear();	
 	}
 	
 	public ExplosionSettings setActiveExplosionSettings(Set<String> containedNodes, boolean bolActive) {
 		if(containedNodes==null || containedNodes.isEmpty()) {
-			this.gobjActiveExplosionSettingsList.clear();
+			this.activeExplosionSettingsList.clear();
 		} else {
 			ExplosionSettings objES = this.getExplosionSettings(containedNodes);
 			if(objES!=null && this.setActiveExplosionSettings(objES,bolActive)) return objES;

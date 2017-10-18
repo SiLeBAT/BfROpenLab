@@ -100,7 +100,7 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		
 		this.edges = Sets.difference(this.edges, this.hiddenEdges).stream().collect(Collectors.toSet());
 		this.boundaryNodesToInnerNodesMap = ExplosionCanvasUtils.createBoundaryNodesToInnerNodesMap(this.nonBoundaryNodes, this.boundaryNodes, this.edges);
-		
+		//this.hiddenNodes.forEach(n -> n.updateCenter(new Point2D.Double(Double.NaN, Double.NaN)));
 
 		this.getViewer().addPostRenderPaintable(
 				new ExplosionCanvasUtils.LabelPaintable(
@@ -120,8 +120,8 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 		logger.finest("entered");
 		super.resetNodesAndEdges();
 		
-		if(this.hiddenNodes != null) this.nodes = Sets.difference(this.nodes, this.hiddenNodes);
-		if(this.hiddenEdges != null) this.edges = Sets.difference(this.edges, this.hiddenEdges);
+		if(this.hiddenNodes != null) this.nodes.removeAll(this.hiddenNodes); //  Sets.difference(this.nodes, this.hiddenNodes);
+		if(this.hiddenEdges != null) this.edges.removeAll(this.hiddenEdges);   //this.edges = Sets.difference(this.edges, this.hiddenEdges);
 		
 		logger.finest("leaving");
 	}
@@ -206,7 +206,7 @@ public class ExplosionTracingOsmCanvas extends TracingOsmCanvas implements IExpl
 //			});
 //		});
 		
-		//this.collapsedNodes = newFilteredCollapsedNodes;
+		this.collapsedNodes = newFilteredCollapsedNodes;
 		
 		this.applyChanges();
 		

@@ -28,6 +28,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import com.google.common.base.Strings;
+
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -171,7 +173,6 @@ public class GraphSettings extends NodeSettings {
 
 	public void saveSettings(NodeSettingsWO settings, String prefix) {
 		logger.finest("entered");
-		// TODO Auto-generated method stub
 		settings.addDouble(prefix + CFG_SCALE_X, transform.getScaleX());
 		settings.addDouble(prefix + CFG_SCALE_Y, transform.getScaleY());
 		settings.addDouble(prefix + CFG_TRANSLATION_X, transform.getTranslationX());

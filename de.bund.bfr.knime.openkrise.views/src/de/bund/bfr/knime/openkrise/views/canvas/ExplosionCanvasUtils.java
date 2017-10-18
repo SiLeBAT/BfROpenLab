@@ -104,9 +104,9 @@ public class ExplosionCanvasUtils {
 		boundaryAreaImage.flush();
 	}
 	
-	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey, Set<String> retainNodes) {
+	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String metaNodeId, Set<String> retainNodes) {
 		return collapsedNodes.entrySet().stream()
-				.filter(e->e.getKey()!=explodedNodeKey && !Sets.intersection(e.getValue(), retainNodes).isEmpty())
+				.filter(e->(!e.getKey().equals(metaNodeId)) && (!Sets.intersection(e.getValue(), retainNodes).isEmpty()))
 				.collect(Collectors.toMap(e->e.getKey(),e-> new HashSet<>(Sets.intersection(retainNodes,e.getValue()))));
 	}
 	
@@ -210,6 +210,8 @@ public class ExplosionCanvasUtils {
 	
 	public static Polygon createBoundaryArea(Rectangle2D innerBounds) {
 		double size = Math.max(innerBounds.getWidth(), innerBounds.getHeight());
+		if(size == 0) size = 1;
+		
 		double margin = size * BOUNDARY_AREA_RELATIVE_MARGIN;
 		double w = size * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
 		
