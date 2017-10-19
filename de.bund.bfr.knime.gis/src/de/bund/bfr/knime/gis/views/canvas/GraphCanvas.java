@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
@@ -43,12 +44,14 @@ import javax.swing.WindowConstants;
 
 import com.google.common.collect.Sets;
 
+import de.bund.bfr.jung.BetterVisualizationViewer;
 import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.jung.layout.FRLayout;
 import de.bund.bfr.jung.layout.Layout;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.UI;
+//import de.bund.bfr.knime.gis.views.canvas.Canvas.PostPaintable;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
@@ -260,13 +263,33 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		//s.height*= 0.5;
 		//s.width*= 0.5;
 		Layout<GraphNode, Edge<GraphNode>> layout = 
-				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != this.getLayoutableNodes())? //nodes)?
-				new FRLayout(viewer.getGraphLayout().getGraph(), s,true):
+				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != nodes)?
+				new FRLayout<>(viewer.getGraphLayout().getGraph(), s,true):
 				layoutType.create(viewer.getGraphLayout().getGraph(),s));
-
+		
+//		Set<GraphNode> graphNodes = Sets.union(nodesForLayout,this.nodes).stream().collect(Collectors.toSet());
+//		
+//		BetterVisualizationViewer<GraphNode, Edge<GraphNode>> myviewer = 
+//				(this.nodes.containsAll(nodesForLayout)?
+//				 this.viewer: new BetterVisualizationViewer<>());
+//		
+//		if(myviewer != viewer) {
+//			myviewer.setBackground(this.viewer.getBackground());
+//			Set<Edge<GraphNode>> graphEdges = CanvasUtils.getElementsById(this.edgeSaveMap, CanvasUtils.getElementIds(this.allEdges));
+//			graphEdges = graphEdges.stream().filter(e -> graphNodes.contains(e.getTo()) && graphNodes.contains(e.getFrom())).collect(Collectors.toSet());
+//			myviewer.getGraphLayout().setGraph(CanvasUtils.createGraph(myviewer, graphNodes, graphEdges));
+//			
+//		}
+		
+//		Layout<GraphNode, Edge<GraphNode>> layout = 
+//				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != this.getLayoutableNodes())?
+//				new FRLayout<>(this.viewer.getGraphLayout().getGraph(), s, true):
+//				layoutType.create(this.viewer.getGraphLayout().getGraph(),s));
+				
 		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
+		//for (GraphNode node : graphNodes) {
 			Point2D pos = viewer.getGraphLayout().transform(node);
 
 			initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
@@ -345,6 +368,118 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		logger.finest("leaving");
 	}
 	
+//	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog, boolean signalLayoutProcessFinish) {
+//		logger.finest("entered");
+//		Rectangle2D layoutBounds = this.getLayoutBounds();
+//		Dimension s =  layoutBounds.getBounds().getSize();  //viewer.getSize();
+//		//s.height*= 0.5;
+//		//s.width*= 0.5;
+////		Layout<GraphNode, Edge<GraphNode>> layout = 
+////				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != nodes)?
+////				new FRLayout(viewer.getGraphLayout().getGraph(), s,true):
+////				layoutType.create(viewer.getGraphLayout().getGraph(),s));
+//		
+//		Set<GraphNode> graphNodes = Sets.union(nodesForLayout,this.nodes).stream().collect(Collectors.toSet());
+//		
+//		BetterVisualizationViewer<GraphNode, Edge<GraphNode>> myviewer = 
+//				(this.nodes.containsAll(nodesForLayout)?
+//				 this.viewer: new BetterVisualizationViewer<>());
+//		
+//		if(myviewer != viewer) {
+//			myviewer.setBackground(this.viewer.getBackground());
+//			Set<Edge<GraphNode>> graphEdges = CanvasUtils.getElementsById(this.edgeSaveMap, CanvasUtils.getElementIds(this.allEdges));
+//			graphEdges = graphEdges.stream().filter(e -> graphNodes.contains(e.getTo()) && graphNodes.contains(e.getFrom())).collect(Collectors.toSet());
+//			myviewer.getGraphLayout().setGraph(CanvasUtils.createGraph(myviewer, graphNodes, graphEdges));
+//			
+//		}
+//		
+//		Layout<GraphNode, Edge<GraphNode>> layout = 
+//				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != this.getLayoutableNodes())?
+//				new FRLayout<>(this.viewer.getGraphLayout().getGraph(), s, true):
+//				layoutType.create(this.viewer.getGraphLayout().getGraph(),s));
+//				
+//		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
+//
+//		//for (GraphNode node : nodes) {
+//		for (GraphNode node : graphNodes) {
+//			Point2D pos = viewer.getGraphLayout().transform(node);
+//
+//			initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
+//			//initialPositions.put(node, transform.apply(pos.getX() + layoutBounds.getX(), pos.getY()+layoutBounds.getY()));
+//			layout.setLocked(node, !nodesForLayout.contains(node));
+//		}
+//
+//		Map<GraphNode, Point2D> layoutResult = new LinkedHashMap<>();
+//
+//		if (showProgressDialog) {
+//			JDialog layoutDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Layout Process",
+//					Dialog.DEFAULT_MODALITY_TYPE);
+//			JProgressBar progressBar = new JProgressBar();
+//
+//			layoutDialog.add(UI.createBorderPanel(new JLabel("Waiting for Layout Process")), BorderLayout.NORTH);
+//			layoutDialog.add(UI.createBorderPanel(progressBar), BorderLayout.CENTER);
+//			layoutDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+//			layoutDialog.pack();
+//			layoutDialog.setResizable(false);
+//			layoutDialog.setLocationRelativeTo(this);
+//
+//			new Thread(() -> {
+//				while (!layoutDialog.isVisible()) {
+//					try {
+//						Thread.sleep(50);
+//					} catch (InterruptedException e) {
+//					}
+//				}
+//
+//				layoutResult.putAll(layout.getNodePositions(initialPositions,
+//						p -> SwingUtilities.invokeLater(() -> progressBar.setValue((int) Math.round(p * 100)))));
+//				SwingUtilities.invokeLater(() -> layoutDialog.setVisible(false));
+//			}).start();
+//
+//			layoutDialog.setVisible(true);
+//		} else {
+//			layoutResult.putAll(layout.getNodePositions(initialPositions, null));
+//		}
+//
+//		Set<GraphNode> nonCollapsedNodes = CanvasUtils.getElementsById(nodeSaveMap,
+//				Sets.difference(nodeSaveMap.keySet(), collapsedNodes.values().stream().flatMap(Set::stream)
+//						.collect(Collectors.toCollection(LinkedHashSet::new))));
+//
+//		//Dimension sizeA = viewer.getSize();
+//		//Dimension sizeB = viewer.getGraphLayout().getSize();
+//		
+//		for (GraphNode node : nonCollapsedNodes) {
+//			if (layoutResult.containsKey(node)) {
+////				viewer.getGraphLayout().setLocation(node, layoutResult.get(node));
+//				if(layout.isLocked(node)) {
+//					viewer.getGraphLayout().setLocation(node, layoutResult.get(node));
+//				} else {
+//					Point2D pos = layoutResult.get(node);
+//					viewer.getGraphLayout().setLocation(node, new Point2D.Double(pos.getX() + layoutBounds.getX(),pos.getY() + layoutBounds.getY()));
+//				}
+//			} else {
+//				Point2D pos = viewer.getGraphLayout().transform(node);
+//				
+//				viewer.getGraphLayout().setLocation(node, transform.apply(pos.getX(), pos.getY()));
+//			}
+//		}
+//		
+//		 
+//		if (layoutType == LayoutType.FR_LAYOUT) {
+//			if(this.getLayoutableNodes()==nodesForLayout) {
+//			  setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), PointUtils.getBounds(layoutResult.values()),
+//					  null));
+//			} else {
+//			  setTransform(Transform.IDENTITY_TRANSFORM);
+//			}
+//		} else {
+//			setTransform(Transform.IDENTITY_TRANSFORM);
+//		}
+//
+//		if(signalLayoutProcessFinish) Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
+//		logger.finest("leaving");
+//	}
+//	
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
 		this.applyLayout(layoutType, nodesForLayout, showProgressDialog, true);
 	}

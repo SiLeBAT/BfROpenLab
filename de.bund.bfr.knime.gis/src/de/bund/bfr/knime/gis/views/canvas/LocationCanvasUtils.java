@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -252,6 +253,20 @@ public class LocationCanvasUtils {
 
 	public static LocationNode createMetaNode(String id, Collection<LocationNode> nodes, NodePropertySchema nodeSchema,
 			String metaNodeProperty, Layout<LocationNode, Edge<LocationNode>> layout) {
+		
+//		Collection<LocationNode> nodesWithCenter = nodes.stream().filter(n -> n.getCenter() != null).collect(Collectors.toList());
+//		
+//		LocationNode newNode = new LocationNode(id,
+//				CanvasUtils.joinPropertiesOfNodes(nodes, nodeSchema, id, metaNodeProperty), 
+//				(nodesWithCenter.isEmpty()?
+//						new Point2D.Double(
+//						nodesWithCenter.stream().mapToDouble(n -> n.getCenter().getX()).average().getAsDouble(),
+//						nodesWithCenter.stream().mapToDouble(n -> n.getCenter().getY()).average().getAsDouble()):
+//						null));
+//		
+//		layout.setLocation(newNode, newNode.getCenter());
+//		return newNode;
+
 		double x = nodes.stream().mapToDouble(n -> n.getCenter().getX()).average().getAsDouble();
 		double y = nodes.stream().mapToDouble(n -> n.getCenter().getY()).average().getAsDouble();
 		LocationNode newNode = new LocationNode(id,

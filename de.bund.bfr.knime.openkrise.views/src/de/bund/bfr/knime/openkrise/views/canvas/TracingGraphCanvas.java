@@ -227,6 +227,9 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 		tracing.edgeAllPropertiesItemClicked();
 	}
 
+//	@Override
+//	protected TracingDelegate getTracing() { return this.tracing; }
+	
 	@Override
 	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(boolean toSvg) {
 		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super.getVisualizationServer(toSvg);
@@ -288,4 +291,5 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	protected PropertySelectorCreator createPropertySelectorCreator() {
 		return new TracingPropertySelectorCreator(metaNodeProperty);
 	}
+
 }

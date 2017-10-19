@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
@@ -50,12 +51,17 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 
 	public TracingOsmCanvas() {
 		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(),
-				new LinkedHashMap<>(0), false);
+				new LinkedHashMap<>(0), false, true);
 	}
 
 	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
 			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased) {
-		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING);
+		this(nodes, edges, nodeProperties, edgeProperties, deliveries, lotBased, true);
+	}
+	
+	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, boolean allowCollapse) {
+		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING, allowCollapse);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 

@@ -50,7 +50,9 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -104,19 +106,26 @@ public class ExplosionCanvasUtils {
 		boundaryAreaImage.flush();
 	}
 	
+//	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String metaNodeId, Set<String> retainNodes) {
+//		return collapsedNodes.entrySet().stream()
+//				.filter(e->(!e.getKey().equals(metaNodeId)) && (!Sets.intersection(e.getValue(), retainNodes).isEmpty()))
+//				.collect(Collectors.toMap(e->e.getKey(),e-> new HashSet<>(Sets.intersection(retainNodes,e.getValue()))));
+//	}
+	
 	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String metaNodeId, Set<String> retainNodes) {
 		return collapsedNodes.entrySet().stream()
 				.filter(e->(!e.getKey().equals(metaNodeId)) && (!Sets.intersection(e.getValue(), retainNodes).isEmpty()))
-				.collect(Collectors.toMap(e->e.getKey(),e-> new HashSet<>(Sets.intersection(retainNodes,e.getValue()))));
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+				//.collect(Collectors.toMap(e->e.getKey(),e-> new HashSet<>(Sets.intersection(retainNodes,e.getValue()))));
 	}
 	
-	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey) {
-		return collapsedNodes.entrySet().stream()
-				.filter(e -> e.getKey() != explodedNodeKey)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); //    e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
-	}
+//	public static Map<String, Set<String>> filterCollapsedNodeAccordingToExplosion(Map<String, Set<String>> collapsedNodes, String explodedNodeKey) {
+//		return collapsedNodes.entrySet().stream()
+//				.filter(e -> e.getKey() != explodedNodeKey)
+//				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); //    e->e.getKey(),e->Sets.intersection(retainNodes,e.getValue())));
+//	}
 	
-	public static Rectangle2D getInnerBoundaryRect(Canvas canvas) {
+	public static Rectangle2D getInnerBoundaryRect(Canvas<?> canvas) {
 		
 		Dimension size = canvas.getViewer().getSize();
 		double maxSize = Math.max(size.getWidth(), size.getHeight());
@@ -386,6 +395,22 @@ public class ExplosionCanvasUtils {
 //		return boundaryArea;
 //	}
 
+    public static <T extends Node> void showAllPropertiesDialog(ICanvas<T> canvas, Map<String,Set<String>> collapsedNodes, Map<String, T> nodeSaveMap) {
+		Set<T> pickedAll = new LinkedHashSet<>();
+
+		for (T node : canvas.getSelectedNodes()) {
+			if (collapsedNodes.containsKey(node.getId())) {
+				pickedAll.addAll(CanvasUtils.getElementsById(nodeSaveMap, collapsedNodes.get(node.getId())));
+			} else {
+				pickedAll.add(node);
+			}
+		}
+
+		PropertiesDialog<T> dialog = PropertiesDialog.createNodeDialog(canvas, pickedAll, canvas.getNodeSchema(), false);
+
+		dialog.setVisible(true);
+	}
+    
     public static Polygon placeBoundaryNodes(
 			Set<LocationNode> boundaryNodes, Set<LocationNode> nonBoundaryNodes, Map<String, LocationNode> nodeSaveMap, 
 			SetMultimap<String, String> boundaryNodesToInnerNodesMap, 
@@ -422,7 +447,12 @@ public class ExplosionCanvasUtils {
 			}
 			
 			
-           ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, boundaryNodesToInnerNodesMap, w, boundaryNodes);
+			 ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(
+	            		positions, rect, 
+	            		boundaryNodesToInnerNodesMap.asMap().entrySet().stream().filter(e -> updateSet.contains(e.getKey()))
+	            		.collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<String>(e.getValue()))),
+	            		w);
+           //ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, boundaryNodesToInnerNodesMap, w, boundaryNodes);
 			
 			// the boundary positions were only set for the visual nodes so far
 			// but the position of the boundary meta nodes will be overwritten by 
@@ -432,19 +462,31 @@ public class ExplosionCanvasUtils {
 			        	  Point2D p = positions.get(metaKey);
 			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
 			          });
-
-			for( LocationNode node: boundaryNodes ) {
-				Point2D p = positions.get(node.getId());
-				node.updateCenter(p);
-				layout.setLocation(node, p);
-				if(collapsedNodes.containsKey(node.getId())) {
-					collapsedNodes.get(node.getId()).forEach(nodeId -> {
-						LocationNode collapsedNode = nodeSaveMap.get(nodeId);
+            
+            for(String nodeId: updateSet) {
+            	Point2D p = positions.get(nodeId);
+            	LocationNode node = nodeSaveMap.get(nodeId);
+            	layout.setLocation(node, p);
+            	if(collapsedNodes.containsKey(nodeId)) {
+					collapsedNodes.get(nodeId).forEach(collapsedNodeId -> {
+						LocationNode collapsedNode = nodeSaveMap.get(collapsedNodeId);
 						collapsedNode.updateCenter(p);
 						layout.setLocation(collapsedNode, p);
 					});
 				}
-			}
+            }
+//			for( LocationNode node: boundaryNodes ) {
+//				Point2D p = positions.get(node.getId());
+//				node.updateCenter(p);
+//				layout.setLocation(node, p);
+//				if(collapsedNodes.containsKey(node.getId())) {
+//					collapsedNodes.get(node.getId()).forEach(nodeId -> {
+//						LocationNode collapsedNode = nodeSaveMap.get(nodeId);
+//						collapsedNode.updateCenter(p);
+//						layout.setLocation(collapsedNode, p);
+//					});
+//				}
+//			}
 		}
 
 		logger.finest("leaving");
@@ -521,13 +563,16 @@ public class ExplosionCanvasUtils {
 		}
 	}
 	
-	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, SetMultimap<String, String> boundaryNodeToInnerNodesMap, double distance, Set<? extends Node> boundaryNodes) {
+	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Map<String, Set<String>> boundaryNodeToInnerNodesMap, double distance) { //Set<? extends Node> tmpboundaryNodes) {
 			
 		if(!boundaryNodeToInnerNodesMap.isEmpty()) {
 			
 			List<BoundaryNode> sortableBoundaryNodeList = new ArrayList<>();
 			
-			boundaryNodeToInnerNodesMap.asMap().entrySet().forEach(e -> {
+			//List<Point2D> tmp = boundaryNode 
+			
+			boundaryNodeToInnerNodesMap.entrySet().forEach(e -> {
+				//logger.finest(String.format("Node[%s]position: %s", e.getKey(), positions.get(e.getKey()).toString()));
 				sortableBoundaryNodeList.add(new BoundaryNode(convertToOneDimensionalPosition(positions.get(e.getKey()), rect),e.getKey(), new HashSet<String>(e.getValue())));
 			});
 			

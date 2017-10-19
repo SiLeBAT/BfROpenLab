@@ -410,14 +410,14 @@ public class TracingDelegate<V extends Node> {
 		}
 	}
 
-	public void applyChanges() {
+	protected void applyChanges(boolean ignoreTimeWindow) {
 		logger.finest("entered");
 		
 		Set<String> selectedNodeIds = canvas.getSelectedNodeIds();
 		Set<String> selectedEdgeIds = canvas.getSelectedEdgeIds();
 
 		canvas.resetNodesAndEdges();
-		applyTimeWindow();
+		if(!ignoreTimeWindow) applyTimeWindow();
 		canvas.applyNodeCollapse();
 		applyInvisibility();
 		canvas.applyJoinEdgesAndSkipEdgeless();
@@ -429,8 +429,32 @@ public class TracingDelegate<V extends Node> {
 
 		canvas.setSelectedNodeIdsWithoutListener(selectedNodeIds);
 		canvas.setSelectedEdgeIdsWithoutListener(selectedEdgeIds);
-		canvas.getViewer().repaint();
+//		canvas.getViewer().repaint();
 		logger.finest("leaving");
+	}
+	
+	public void applyChanges() {
+		this.applyChanges(false);
+		canvas.getViewer().repaint();
+		
+//		Set<String> selectedNodeIds = canvas.getSelectedNodeIds();
+//		Set<String> selectedEdgeIds = canvas.getSelectedEdgeIds();
+//
+//		canvas.resetNodesAndEdges();
+//		applyTimeWindow();
+//		canvas.applyNodeCollapse();
+//		applyInvisibility();
+//		canvas.applyJoinEdgesAndSkipEdgeless();
+//		applyTracing();
+//		canvas.applyShowEdgesInMetaNode();
+//		canvas.applyHighlights();
+//		canvas.getViewer().getGraphLayout()
+//				.setGraph(CanvasUtils.createGraph(canvas.getViewer(), canvas.getNodes(), canvas.getEdges()));
+//
+//		canvas.setSelectedNodeIdsWithoutListener(selectedNodeIds);
+//		canvas.setSelectedEdgeIdsWithoutListener(selectedEdgeIds);
+//		canvas.getViewer().repaint();
+//		logger.finest("leaving");
 	}
 
 	public void doubleClickedOn(Object obj) {

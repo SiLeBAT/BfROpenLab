@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -49,25 +50,35 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 	public LocationOsmCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(), naming,
-				allowEdges);
+				allowEdges, true);
 	}
 
 	public LocationOsmCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
-		this(nodes, new ArrayList<>(0), nodeSchema, new EdgePropertySchema(), naming, false);
+		this(nodes, new ArrayList<>(0), nodeSchema, new EdgePropertySchema(), naming, false, true);
+		//this(nodes, nodeSchema, naming, true);
 	}
+	
+//	public LocationOsmCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming, boolean allowCollapse) {
+//		this(nodes, new ArrayList<>(0), nodeSchema, new EdgePropertySchema(), naming, false, allowCollapse);
+//	}
 
 	public LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
 			EdgePropertySchema edgeSchema, Naming naming) {
 		this(nodes, edges, nodeSchema, edgeSchema, naming, true);
 	}
+	
+	public LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming, boolean allowCollapse) {
+		this(nodes, edges, nodeSchema, edgeSchema, naming, true, allowCollapse);
+	}
 
 	private LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
-			EdgePropertySchema edgeSchema, Naming naming, boolean allowEdges) {
+			EdgePropertySchema edgeSchema, Naming naming, boolean allowEdges, boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		invalidArea = null;
 		lastScaleX = null;
 
-		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true, true));
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, allowCollapse, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false, true));
 		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(
 				getOptionsPanel().getNodeSize(), getOptionsPanel().getNodeMaxSize(), null, null));
@@ -80,6 +91,10 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 		//invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
 		//invalidArea = this.placeNodes();
+		// TODO remove
+		this.nodes.stream().filter(n -> n.getId().equals("1082303994")).collect(Collectors.toSet()).forEach(n -> {
+			n.updateCenter(null);
+		});
 		this.placeNodes(this.nodes,this.edges);
 	}
 	
