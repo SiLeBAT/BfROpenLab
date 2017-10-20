@@ -22,9 +22,15 @@ package de.bund.bfr.knime.gis.views.canvas.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,8 +66,9 @@ import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.AutoSuggestField;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
+import javafx.geometry.Point2D;
 
-public class HighlightDialog extends KnimeDialog {
+public class HighlightDialog extends KnimeDialog implements ComponentListener{
 
 	private static final long serialVersionUID = 1L;
 
@@ -139,6 +146,8 @@ public class HighlightDialog extends KnimeDialog {
 
 	private HighlightCondition condition;
 	private boolean approved;
+	
+//	private Point scrollPoint;
 
 	public static HighlightDialog createFilterDialog(Component owner, PropertySchema schema,
 			HighlightCondition condition, PropertySelectorCreator selectorCreator) {
@@ -575,7 +584,13 @@ public class HighlightDialog extends KnimeDialog {
 	private void addRemoveButtonPressed(JButton button) {
 		boolean addPressed;
 		int index;
-
+//		Rectangle rect = conditionPanel.getVisibleRect();
+		int vScroll = ((JScrollPane) conditionPanel).getVerticalScrollBar().getValue();
+		int hScroll = ((JScrollPane) conditionPanel).getHorizontalScrollBar().getValue();
+		Point windowPosition = this.getLocation();
+		Dimension windowSize = this.getSize();
+		Point scrollPoint = ((JScrollPane) conditionPanel).getViewport().getViewPosition();
+		
 		if (logicalAddButtons.contains(button)) {
 			addPressed = true;
 			index = logicalAddButtons.indexOf(button);
@@ -648,6 +663,7 @@ public class HighlightDialog extends KnimeDialog {
 		}
 
 		remove(conditionPanel);
+		
 
 		if (condition instanceof AndOrHighlightCondition) {
 			conditionPanel = createLogicalPanel(
@@ -657,9 +673,38 @@ public class HighlightDialog extends KnimeDialog {
 					new LogicalValueHighlightCondition(((LogicalValueHighlightCondition) condition).getValueCondition(),
 							new AndOrHighlightCondition(conditions, null, false, null, false, false, null, null)));
 		}
-
+		
+		((JScrollPane) conditionPanel).getHorizontalScrollBar().addComponentListener(this);
+//		conditionPanel.addComponentListener(this);
 		add(conditionPanel, BorderLayout.CENTER);
 		pack();
+		
+		System.out.println("Before vScroll: " + vScroll + ", HScroll: " + hScroll);
+		
+		this.setSize(windowSize);
+		this.setLocation(windowPosition);
+//		((JScrollPane) conditionPanel).getVerticalScrollBar().setValue(vScroll);
+//		((JScrollPane) conditionPanel).getHorizontalScrollBar().setValue(hScroll);
+		
+		System.out.println("After vScroll: " + ((JScrollPane) conditionPanel).getVerticalScrollBar().getValue() + ", HScroll: " + ((JScrollPane) conditionPanel).getHorizontalScrollBar().getValue());
+//		Point tmp = new Point();
+//		tmp.setLocation(this.scrollPoint.getX()/2, this.scrollPoint.getY()/2);
+		this.revalidate();
+		((JScrollPane) conditionPanel).getViewport().setViewPosition(scrollPoint);
+		((JScrollPane) conditionPanel).getViewport().revalidate();
+		System.out.println("view==null: " + ((JScrollPane)conditionPanel).getViewport().getView()==null);
+		System.out.println("Before vPoint: " + scrollPoint.toString());
+		System.out.println("After vPoint: " + ((JScrollPane) conditionPanel).getViewport().getViewPosition().toString());
+		((JScrollPane) conditionPanel).validate();
+		((JScrollPane) conditionPanel).getViewport().validate();
+//		if (addPressed) {
+//			JButton newButton = (index>=this.logicalAddButtons.size()?null:this.logicalAddButtons.get(index));
+//			if (newButton != null) {
+//				newButton.requestFocus();
+//			}
+//			//newButtonbutton.requestFocus();
+//		}
+//		conditionPanel.scrollRectToVisible(rect);
 	}
 
 	private void conditionTypeChanged() {
@@ -739,4 +784,48 @@ public class HighlightDialog extends KnimeDialog {
 	private AndOrHighlightCondition createAndOrCondition() {
 		return new AndOrHighlightCondition(createLogicalCondition(), null, true, Color.RED, false, false, null, null);
 	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+//		System.out.println("Event");
+//		if (this.scrollPoint != null) {
+//			Component tmp = ((JScrollPane)conditionPanel).getViewport().getView();
+//			System.out.println("tmp==null: " + tmp==null);
+//			((JScrollPane)conditionPanel).getViewport().setViewPosition(this.scrollPoint);
+//			((JScrollPane)conditionPanel).getViewport().revalidate();
+//			this.scrollPoint = null;
+//		}
+		
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+//	@Override
+//	public void componentAdded(ContainerEvent e) {
+//		// TODO Auto-generated method stub
+//		if (e.getComponent() instanceof JScrollPane) ((JScrollPane) e.getComponent()).scrollRectToVisible(rectConditionPanel);
+//	}
+//
+//	@Override
+//	public void componentRemoved(ContainerEvent e) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 }
