@@ -214,12 +214,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	public void clearCollapsedNodesItemClicked() {
-		updatePositionsOfCollapsedNodes();
-		super.clearCollapsedNodesItemClicked();
-	}
-
-	@Override
 	public void editingModeChanged() {
 		super.editingModeChanged();
 	}

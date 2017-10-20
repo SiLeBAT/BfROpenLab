@@ -751,6 +751,19 @@ public abstract class Canvas<V extends Node> extends JPanel
 			return;
 		}
 
+		if (!selectedIds.containsAll(collapsedNodes.keySet())) {
+			switch (Dialogs.showYesNoCancelDialog(this, "Do you want to expand all meta stations?", "Confirm")) {
+			case YES:
+				selectedIds = collapsedNodes.keySet().stream().collect(Collectors.toSet());
+				break;
+			case NO:
+				break;
+			case CANCEL:
+			default:
+				return;
+			}
+		}
+		
 		Set<String> newIds = new LinkedHashSet<>();
 
 		for (String id : selectedIds) {
@@ -951,23 +964,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 			}
 		});
 		return res;
-	}
-	
-	
-	
-	@Override
-	public void clearCollapsedNodesItemClicked() {
-		Set<String> selectedIds = getSelectedNodeIds();
-		Set<String> selectedMetaIds = new LinkedHashSet<>(Sets.intersection(selectedIds, collapsedNodes.keySet()));
-		
-		// Only collapsed nodes that are selected are removed
-		nodeSaveMap.keySet().removeAll(selectedMetaIds);
-		collapsedNodes.keySet().removeAll(selectedMetaIds);
-		
-		applyChanges();
-		popup.setNodeSelectionEnabled(false);
-		this.popup.setOpenExplosionViewEnabled(false);
-		call(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 	
 	@SuppressWarnings("unchecked")

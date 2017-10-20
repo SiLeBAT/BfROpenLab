@@ -75,7 +75,6 @@ public class CanvasPopupMenu extends JPopupMenu {
 	private JMenuItem expandFromNodeItem;
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem collapseSimpleChainsItem;
-	private JMenuItem clearCollapsedNodesItem;
 	
 	private JMenuItem openExplosionViewItem;
 
@@ -157,7 +156,6 @@ public class CanvasPopupMenu extends JPopupMenu {
 			add(new JSeparator());
 			add(collapseByPropertyItem);
 			add(collapseSimpleChainsItem);
-			add(clearCollapsedNodesItem);
 		}
 		if (allowOpenExplosionView) {
 			nodeSelectionMenu.add(new JSeparator());
@@ -233,11 +231,8 @@ public class CanvasPopupMenu extends JPopupMenu {
 				ClickListener::expandFromNodeItemClicked);
 		collapseByPropertyItem = createItem("Collapse by Property", ClickListener::collapseByPropertyItemClicked);
 		collapseSimpleChainsItem = createItem("Collapse Simple Chains", ClickListener::collapseSimpleChainsItemClicked);
-		clearCollapsedNodesItem = createItem("Clear Collapsed " + owner.getNaming().Nodes(),
-				ClickListener::clearCollapsedNodesItemClicked);
+		
 		this.openExplosionViewItem = createItem("Show Contained Nodes", ClickListener::openExplosionViewItemClicked);
-		this.openExplosionViewItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
-		//this.openExplosionViewItem.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		
 		layoutItems = new ArrayList<>();
 
@@ -311,8 +306,6 @@ public class CanvasPopupMenu extends JPopupMenu {
 		void collapseByPropertyItemClicked();
 		
 		void collapseSimpleChainsItemClicked();
-
-		void clearCollapsedNodesItemClicked();
 		
 		void openExplosionViewItemClicked();
 
