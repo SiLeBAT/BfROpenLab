@@ -21,8 +21,6 @@ package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.Set;
-
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.BufferedDataTable;

@@ -25,19 +25,14 @@ import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
-
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
@@ -45,7 +40,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<GraphNode> {
 
-	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
 	private static final long serialVersionUID = 1L;
 
@@ -207,9 +202,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 
 	@Override
 	public void setPerformTracing(boolean performTracing) {
-		logger.finest("entered");
 		tracing.setPerformTracing(performTracing);
-		logger.finest("leaving");
 	}
 
 	@Override
@@ -227,9 +220,6 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 		tracing.edgeAllPropertiesItemClicked();
 	}
 
-//	@Override
-//	protected TracingDelegate getTracing() { return this.tracing; }
-	
 	@Override
 	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(boolean toSvg) {
 		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super.getVisualizationServer(toSvg);
@@ -241,21 +231,14 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 
 	@Override
 	public void applyChanges() {
-		logger.finest("entered");
 		tracing.applyChanges();
-		logger.finest("leaving");
 	}
-
-//	@Override
-//	public void doubleClickedOn(Object obj, MouseEvent e) {
-//		tracing.doubleClickedOn(obj);
-//		super.doubleClickedOn(obj, e);
-//	}
 	
 	@Override
 	public void doubleClickedOn(Object obj, MouseEvent e) {
 		
 		if(e.isControlDown() && (obj instanceof Node) && this.collapsedNodes.containsKey(((Node) obj).getId())) {
+			// Strg + DoubleClick on meta node
 			
 			this.openExplosionViewItemClicked();
 			

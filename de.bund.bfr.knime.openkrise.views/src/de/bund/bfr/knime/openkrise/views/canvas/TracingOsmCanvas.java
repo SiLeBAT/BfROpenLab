@@ -25,9 +25,6 @@ import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
 import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
@@ -43,7 +40,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCanvas<LocationNode> {
 
-	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
 	private static final long serialVersionUID = 1L;
 
@@ -231,17 +228,17 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 
 	@Override
 	public void applyChanges() {
-		logger.finest("entered");
 		tracing.applyChanges();
-		logger.finest("leaving");
 	}
 	
+	@Override
 	protected boolean isExplosionViewSupported() { return true; }
 
 	@Override
 	public void doubleClickedOn(Object obj, MouseEvent e) {
 			
 		if(e.isControlDown() && (obj instanceof Node) && this.collapsedNodes.containsKey(((Node) obj).getId())) {
+			// Strg + DoubleClick on meta node
 				
 			this.openExplosionViewItemClicked();
 				

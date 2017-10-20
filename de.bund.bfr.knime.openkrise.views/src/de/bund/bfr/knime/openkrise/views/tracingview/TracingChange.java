@@ -567,7 +567,6 @@ public class TracingChange implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private boolean showGisChanged;
-		//private boolean gbolExplosionViewOpenedORClosed;
 
 		private GisType gisTypeBefore;
 		private GisType gisTypeAfter;
@@ -605,19 +604,6 @@ public class TracingChange implements Serializable {
 						set.getExplosionSettingsList().setActiveExplosionSettings(this.gobjExplosionSettingsAfter, true);
 					}
 				}
-				
-//				if(!undo ^ this.genmExplosionViewAction==ExplosionViewAction.Closed) {
-//					set.getExplosionSettingsList().setActiveExplosionSettings(
-//							//(undo || this.genmExplosionViewAction==ExplosionViewAction.Closed) ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
-//							undo ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
-//									true);
-//				} else {
-//					set.getExplosionSettingsList().setActiveExplosionSettings(
-//							undo ?  this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
-//							undo ? this.gobjEx
-//							//(undo || this.genmExplosionViewAction==ExplosionViewAction.Closed) ? this.gobjExplosionSettingsBefore:this.gobjExplosionSettingsAfter,
-//							//set.getExplosionSettingsList().getActiveExplosionSettings());
-//				}
 			}
 		}
 

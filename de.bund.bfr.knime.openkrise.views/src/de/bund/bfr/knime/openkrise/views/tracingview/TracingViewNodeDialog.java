@@ -20,27 +20,10 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.geom.Point2D;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Deque;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -48,17 +31,10 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -73,7 +49,6 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.jung.LabelPosition;
-import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
@@ -85,15 +60,12 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
-import de.bund.bfr.knime.openkrise.views.canvas.ExplosionCanvasListener;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionListener;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.IExplosionCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
 import de.bund.bfr.knime.ui.Dialogs;
-
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -104,7 +76,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
-//	private ExplosionViewLabel gobjExplosionViewLabel;
 
 	private boolean resized;
 
@@ -116,9 +87,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	private TracingViewSettings set;
 	private Deque<TracingChange> undoStack;
 	private Deque<TracingChange> redoStack;
-	//private Stack<ExplosionSettings> gobjExplosionStack;
-	//private Stack<ViewPair> gobjViewStack;
-
+	
 	private Transform transform;
 	private Set<String> selectedNodes;
 	private Set<String> selectedEdges;
@@ -170,13 +139,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 	private JScrollPane northScrollPane;
 	
-	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
 	 */
 	protected TracingViewNodeDialog() {
-		this.initializeFileLogging();
+//		this.initializeFileLogging();
 		this.set = new TracingViewSettings();
 		this.undoStack = new LinkedList<>();
 		this.redoStack = new LinkedList<>();
@@ -211,63 +180,60 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		this.addTab("Options", panel, false);
 	}
 	
-	private void initializeFileLogging() {
-		// File Handler erzeugen
-		try {
-			FileHandler file_handler = new FileHandler("C:\\Temp\\FCL.log");
-			// Formatter erzeugen
-			// SimpleFormatter klartext = new SimpleFormatter();
-			MyFormatter klartext = new MyFormatter();
-			file_handler.setFormatter(klartext);
-			logger.addHandler(file_handler);
-			logger.setLevel(Level.ALL);
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	finally
-		{}
-	}
+//	private void initializeFileLogging() {
+//		// File Handler erzeugen
+//		try {
+//			FileHandler file_handler = new FileHandler("C:\\Temp\\FCL.log");
+//			// Formatter erzeugen
+//			// SimpleFormatter klartext = new SimpleFormatter();
+//			MyFormatter klartext = new MyFormatter();
+//			file_handler.setFormatter(klartext);
+//			logger.addHandler(file_handler);
+//			logger.setLevel(Level.ALL);
+//		} catch (SecurityException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}	finally
+//		{}
+//	}
 	
-	private class MyFormatter extends Formatter {
-
-		@Override
-		public String format(LogRecord arg0) {
-			// TODO Auto-generated method stub
-			Calendar cal = Calendar.getInstance();
-			cal.setTimeInMillis(arg0.getMillis());
-			Date date = cal.getTime();
-			
-			return arg0.getLevel().getName() + "\t" + 
-			      String.format("%04d%02d%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)) + 
-			      String.format("%02d%02d%02d.%03d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND)) + 
-			      "\t" + 
-			      arg0.getSourceClassName() + "\t" +
-			      arg0.getSourceMethodName() + "\t" + 
-			      arg0.getMessage() + "\r\n";
-		}
-		
-	}
+//	private class MyFormatter extends Formatter {
+//
+//		@Override
+//		public String format(LogRecord arg0) {
+//			// TODO Auto-generated method stub
+//			Calendar cal = Calendar.getInstance();
+//			cal.setTimeInMillis(arg0.getMillis());
+//			Date date = cal.getTime();
+//			
+//			return arg0.getLevel().getName() + "\t" + 
+//			      String.format("%04d%02d%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)) + 
+//			      String.format("%02d%02d%02d.%03d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND)) + 
+//			      "\t" + 
+//			      arg0.getSourceClassName() + "\t" +
+//			      arg0.getSourceMethodName() + "\t" + 
+//			      arg0.getMessage() + "\r\n";
+//		}
+//		
+//	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
-		logger.finest("entered");
+		
 		this.nodeTable = (BufferedDataTable) input[0];
 		this.edgeTable = (BufferedDataTable) input[1];
 		this.tracingTable = (BufferedDataTable) input[2];
 		this.shapeTable = (BufferedDataTable) input[3];
 		this.set.loadSettings(settings);
-		//this.set.getExplosionSettingsList().clearActiveExplosionSettings();
-
+		
 		this.undoButton.setEnabled(false);
 		this.redoButton.setEnabled(false);
 		this.undoStack.clear();
 		this.redoStack.clear();
-		//this.gobjExplosionStack.clear();
-		//this.gobjViewStack.push(new ViewPair(this.set.getGraphSettings(),this.set.getGisSettings()));
-
+		
 		this.gisBox.removeItemListener(this.gisBoxListener);
 		this.gisBox.removeAllItems();
 
@@ -312,15 +278,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 		this.createCanvas(false);
 		this.updateStatusVariables();
-		logger.finest("leaving");
+		
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		logger.finest("entered");
 		this.updateSettings();
 		this.set.saveSettings(settings);
-		logger.finest("leaving");
 	}
 
 	@Override
@@ -705,38 +669,29 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	}
 
 	private String createCanvas(boolean isUpdate) throws NotConfigurableException {
-		logger.finest("entered");
-		//if (this.gobjExplosionViewLabel!=null) this.removeLabelFromExplosionViewLabel();
-
-		if (canvas != null) {
-			if(canvas.getComponent().getParent()==panel) {
-				panel.remove(canvas.getComponent());
-			} 
-//			else {
-//			  panel.remove(canvas.getComponent().getParent().getParent());
-//			}
-			//panel.remove(canvas.getComponent());
-		}
 		
+		if (canvas != null) {
+			panel.remove(canvas.getComponent());
+		}
 
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(nodeTable, edgeTable, tracingTable, shapeTable,
 				set);
 
-		boolean bolIsGisAvailable = creator.hasGisCoordinates();
-		boolean isGraphViewEnforced = !bolIsGisAvailable && set.isShowGis();
+		boolean isGisAvailable = creator.hasGisCoordinates();
+		boolean isGraphViewEnforced = (!isGisAvailable || set.getGisType() == GisType.SHAPEFILE) && set.isShowGis();
 		if(isGraphViewEnforced) this.forceGraphView();
 		
 		
 		if(this.set.getExplosionSettingsList().getActiveExplosionSettings()==null) {
-		    canvas = ((set.isShowGis() && bolIsGisAvailable) ? creator.createGisCanvas() : creator.createGraphCanvas());
+		    canvas = ((set.isShowGis() && isGisAvailable) ? creator.createGisCanvas() : creator.createGraphCanvas());
 		} else {
-			canvas = ((set.isShowGis() && bolIsGisAvailable) ? creator.createExplosionGisCanvas() : creator.createExplosionGraphCanvas());
+			canvas = ((set.isShowGis() && isGisAvailable) ? creator.createExplosionGisCanvas() : creator.createExplosionGraphCanvas());
 		}
 		canvas.addCanvasListener(this);
 		canvas.addTracingListener(this);
-		if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas) canvas).addExplosionListener(this);
+		if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas<?>) canvas).addExplosionListener(this);
 		switchButton.setText("Switch to " + ((canvas instanceof IGisCanvas) ? "Graph" : "GIS"));
-		switchButton.setEnabled(bolIsGisAvailable);
+		switchButton.setEnabled(isGisAvailable);
 
 		String warningTable = null;
 
@@ -763,49 +718,19 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showInfoMessage(panel, TracingUtils.LOT_BASED_INFO));
 		}
 
-//		if(false && this.isExplosionViewActive()) {
-//			// explosion view
-//			panel.add(new ExplosionCanvasContainerWithLabelAndCloseFeature(canvas, 
-//					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(), c -> this.closeExplosionViewRequested(c)),
-//					BorderLayout.CENTER);
-//		} else {
-			panel.add(canvas.getComponent(), BorderLayout.CENTER);
-//		}
-//		JPanel objPanel = new JPanel();
-//		JLayeredPane objPane = new JLayeredPane();
-//		objPanel.add(objPane);
-//		panel.add(objPanel, BorderLayout.CENTER);
-	    //canvas.getComponent().setBounds(objPane.getBounds());
-		//panel.add(canvas.getComponent(), BorderLayout.CENTER);
-//		objPane.add(canvas.getComponent(), new Integer(0), 0);
-		
-//        if(this.isExplosionViewActive()) {
-//			this.addLabelToExplosionView();
-//        } else {
-//        	  objPane.setLayout(new BorderLayout());
-//        	  
-//		}
-//        objPane.revalidate();
-		panel.revalidate();
-		if(isGraphViewEnforced) Dialogs.showInfoMessage(this.getPanel(), "No GIS information available. Graph mode was activated.");    
 
-		logger.finest("leaving");
+		panel.add(canvas.getComponent(), BorderLayout.CENTER);
+
+		panel.revalidate();
+		
+		if(isGraphViewEnforced) Dialogs.showInfoMessage(this.getPanel(), 
+				(isGisAvailable?
+						"An explosion is not supported for Shapefile views. Graph mode was activated.":
+						"No GIS information available. Graph mode was activated."));    
+
 		return warning;
 	}
 	
-	private boolean isExplosionViewActive() { return this.set.getExplosionSettingsList().getActiveExplosionSettings()!=null; }
-	
-//	private void addLabelToExplosionView() {
-//	  this.gobjExplosionViewLabel = new ExplosionViewLabel(this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey());
-//	}
-	
-//	private void removeLabelFromExplosionViewLabel() {
-//		if(this.gobjExplosionViewLabel!=null) {
-//			this.gobjExplosionViewLabel.remove();
-//			this.gobjExplosionViewLabel = null;
-//		}
-//	}
-
 	private void updateCanvas() {
 		undoButton.setEnabled(false);
 		redoButton.setEnabled(false);
@@ -852,6 +777,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		return true;
 	}
 	
+	/**
+	 * Forces the view mode to graph mode and inserts an appropriate TracingChange to make this action available to undo
+	 */
 	private void forceGraphView() {
 		
 		if(!undoStack.isEmpty()) {
@@ -938,21 +866,25 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 			
 			canvas.removeCanvasListener(this);
 			canvas.removeTracingListener(this);
-			if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas) canvas).removeExplosionListener(this);
+			if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas<?>) canvas).removeExplosionListener(this);
 
 			if (undo) {
 				change.undo(canvas);
 			} else {
 				change.redo(canvas);
 			}
-			if(canvas instanceof ExplosionTracingGraphCanvas) ((ExplosionTracingGraphCanvas) canvas).placeBoundaryNodes(true);
+			
+			if(canvas instanceof ExplosionTracingGraphCanvas) {
+				// this is needed because an undo/redo operation might effect the node positions, but the operation 
+				// does not effect the prepaintables which are responsible for drawing the boundary area
+				((ExplosionTracingGraphCanvas) canvas).placeBoundaryNodes(true);
+			}
 			
 			canvas.addCanvasListener(this);
 			canvas.addTracingListener(this);
-			if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas) canvas).addExplosionListener(this);
+			if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas<?>) canvas).addExplosionListener(this);
 		
 			updateStatusVariables();
-//			canvas.refreshPaintables();
 		}
 
 		(undo ? redoStack : undoStack).push(change);
@@ -1005,16 +937,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	}
 
 	@Override
-	public void openExplosionViewRequested(ICanvas<?> source, String strKey) { //, Set<String> containedNodes) {
-		// TODO Auto-generated method stub
+	public void openExplosionViewRequested(ICanvas<?> source, String strKey) { 
+		
 		updateSettings();
 		
         ExplosionSettings objFromES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
-//		Set<String> objCurrentNodes = 
-//				(this.set.getExplosionSettingsList().getActiveExplosionSettings()==null?
-//				 null:
-//				 this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodes());
-		
+
 		ExplosionSettings objToES = this.set.getExplosionSettingsList().setActiveExplosionSettings(strKey, this.collapsedNodes.get(strKey)); //, containedNodes);
 		
 		this.changeOccured(TracingChange.Builder.createViewChange(
@@ -1024,13 +952,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		updateCanvas();
 	}
 	
-//	private void openExplosionView(String strKey, Set<String> explodedNodes) {
-//		
-//	}
-	
 	@Override
 	public void closeExplosionViewRequested(IExplosionCanvas<?> source) {
-		// TODO Auto-generated method stub
+		
 		ExplosionSettings objCloseES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
 		if(objCloseES==null) return; 
 		
@@ -1045,235 +969,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	    updateCanvas();
 	}
 	
-//	@Override
-//	public void closeExplosionViewRequested() {
-//		// TODO Auto-generated method stub
-//		
-//		ExplosionSettings objCloseES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
-//		if(objCloseES==null) return; 
-//		
-//		updateSettings();
-//		
-//		this.set.getExplosionSettingsList().setActiveExplosionSettings(objCloseES, false);
-//		
-//		this.changeOccured(TracingChange.Builder.createViewChange(
-//				this.set.isShowGis(), this.set.isShowGis(), this.set.getGisType(),
-//				this.set.getGisType(), objCloseES, this.set.getExplosionSettingsList().getActiveExplosionSettings(),TracingChange.ExplosionViewAction.Closed));
-//		
-//	    updateCanvas();
-//	}
-	
-//	public void closeExplosionView() {
-//		// TODO Auto-generated method stub
-//		ExplosionSettings objCloseES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
-//		if(objCloseES==null) return; 
-//		
-//		updateSettings();
-//		
-//		this.set.getExplosionSettingsList().setActiveExplosionSettings(objCloseES, false);
-//		
-//		this.changeOccured(TracingChange.Builder.createViewChange(
-//				this.set.isShowGis(), this.set.isShowGis(), this.set.getGisType(),
-//				this.set.getGisType(), objCloseES, this.set.getExplosionSettingsList().getActiveExplosionSettings(),TracingChange.ExplosionViewAction.Closed));
-//		
-//	    updateCanvas();
-//	}
-
-@Override
-public void nodeSubsetChanged(ICanvas<?> source) {
-	// TODO Auto-generated method stub
-	
-}
-	
-//	private Set<String> getNodesInCurrentView() {
-//		if(this.gobjViewStack.size()==1) {
-//			//return this.
-//		} else {
-//			//return this.getCurrentExplosionSettings
-//		}
-//		return new HashSet<String>();
-//	}
-  private class ExplosionCanvasContainerWithLabelAndCloseFeature extends JPanel implements MouseListener, ComponentListener{
-	private String gstrKey;
-	private String gstrLabel;
-	private JLabel gguiLabel;
-	private ICanvas canvas;
-	private Consumer<ICanvas<?>> consumer; 
-	
-	
-	
-	private class PostPaintable implements Paintable {
-		
-		PostPaintable() {}
-		
-		@Override
-		public void paint(Graphics graphics) {
-			// TODO Auto-generated method stub
-			if(ExplosionCanvasContainerWithLabelAndCloseFeature.this.gguiLabel!=null) {
-				Graphics2D g = (Graphics2D) graphics;
-				//String strLabel = this.gstrKey + " Explosion View";
-				// TODO Auto-generated method stub
-				int w = ExplosionCanvasContainerWithLabelAndCloseFeature.this.canvas.getCanvasSize().width;
-				Font font = ExplosionCanvasContainerWithLabelAndCloseFeature.this.gguiLabel.getFont(); // new Font("Default", Font.BOLD, 10);
-				int fontHeight = g.getFontMetrics(font).getHeight();
-				int fontAscent = g.getFontMetrics(font).getAscent();
-				int dy = 2;
-		
-				int dx = 5;
-				int sw = (int) font.getStringBounds(ExplosionCanvasContainerWithLabelAndCloseFeature.this.gstrLabel, g.getFontRenderContext()).getWidth();
-				Color currentColor = g.getColor();
-				Font currentFont = g.getFont();
-		
-				g.setColor(ZoomingPaintable.BACKGROUND);
-				g.fillRect(w/2 - sw/2 - dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
-				g.setColor(Color.BLACK);
-				g.drawRect(w/2 - sw/2 - dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
-				g.setFont(font);
-				g.drawString(ExplosionCanvasContainerWithLabelAndCloseFeature.this.gstrLabel, w/2 - sw/2, dy + fontAscent);
-		
-				g.setColor(currentColor);
-				g.setFont(currentFont);
-				ExplosionCanvasContainerWithLabelAndCloseFeature.this.gguiLabel.repaint();
-			}
-		}
-
-		@Override
-		public boolean useTransform() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		
-	}
-	
-	ExplosionCanvasContainerWithLabelAndCloseFeature(ICanvas<?> canvas, String strKey, Consumer<ICanvas<?>> consumer) {
-		this.gstrKey = strKey;
-		this.gstrLabel = strKey + " Explosion View";
-		this.canvas = canvas;
-		this.consumer = consumer;
-		//this.font = new Font("Default", Font.BOLD, 10);
-		this.gguiLabel = new JLabel();
-		this.gguiLabel.setFont(new Font("Default", Font.BOLD, 10));
-		this.gguiLabel.setText("x");
-		//this.gguiLabel.setFont(new Font("Default", Font.BOLD, 10));
-		this.gguiLabel.setForeground(Color.BLACK);
-		this.gguiLabel.addMouseListener(this);
-		
-		this.setLayout(new BorderLayout());
-		JLayeredPane objPane = new JLayeredPane();
-		
-		objPane.add(canvas.getComponent(), new Integer(0), 0);
-		objPane.add(this.gguiLabel, new Integer(1), 0);
-		this.add(objPane, BorderLayout.CENTER);
-	
-		this.addComponentListener(this);
-		canvas.getViewer().addPostRenderPaintable(new PostPaintable());
-//		JLayeredPane objPane = (JLayeredPane) TracingViewNodeDialog.this.canvas.getComponent().getParent();
-//		objPane.setBackground(Color.GREEN);
-//		objPane.add(this.gguiLabel,1,0);
-//		this.updateBounds();
-		//TracingViewNodeDialog.this.panel.add(this.gguiLabel,TracingViewNodeDialog.this.panel.getComponentCount());
-		//objPane.addComponentListener(this);
-		//TracingViewNodeDialog.this.panel.addComponentListener(this);
-		//TracingViewNodeDialog.this.canvas.getViewer().addPostRenderPaintable(this);
-	}
-	
-//	public void remove() {
-//		TracingViewNodeDialog.this.panel.remove(this.gguiLabel);
-//	}
-	
-	private void updateBounds() {
-		Rectangle rect = new Rectangle(this.getSize()); //this.getBounds(); 
-		this.canvas.getComponent().setBounds(rect);
-		Dimension d = this.canvas.getViewer().getSize();
-		Point p = this.canvas.getViewer().getLocation();
-		
-		Graphics2D g = (Graphics2D) this.getGraphics();
-		//Graphics2D g = (Graphics2D) TracingViewNodeDialog.this.getGraphics();
-		//String strLabel = this.gstrKey + " Explosion View";
-		// TODO Auto-generated method stub
-		int w = d.width;  //TracingViewNodeDialog.this.panel.getWidth();//canvas.getCanvasSize().width;
-		
-		Font font = this.gguiLabel.getFont();
-		int fontHeight = g.getFontMetrics(font).getHeight();
-		//int fontAscent = g.getFontMetrics(font).getAscent();
-		int dy = 2;
-
-		int dx = 5;
-		int sw = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getWidth();
-		//Color currentColor = g.getColor();
-		//Font currentFont = g.getFont();
-		
-		//this.gguiLabel.setLocation(w/2+sw/2+dx, -1);
-		this.gguiLabel.setBounds(p.x + w/2 + sw/2 + 2*dx, p.y-1, fontHeight + 2 * dy, fontHeight + 2 * dy);
-
-		//g.setColor(ZoomingPaintable.BACKGROUND);
-		//g.fillRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
-		//g.setColor(Color.BLACK);
-		//g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
-		//g.setFont(font);
-		//g.drawString(strLabel, w - sw - dx, dy + fontAscent);
-
-		//g.setColor(currentColor);
-		//g.setFont(currentFont);
-		//this.gguiLabel.repaint();
-	}
-	
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-		//TracingViewNodeDialog.this.closeExplosionViewRequested(canvas);
-		//function.apply(canvas);
-		consumer.accept(canvas);
-	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
+	public void nodeSubsetChanged(ICanvas<?> source) {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		this.gguiLabel.setForeground(Color.BLUE);
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		this.gguiLabel.setForeground(Color.BLACK);
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		// TODO Auto-generated method stub
-		this.updateBounds();
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-  }
-
+	
 }

@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.util.ArrayList;
@@ -8,9 +27,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
-
+/*
+ * Setting object for an explosion view
+ */
 public class ExplosionSettings {
 	
 	private final static String CFG_KEY = "ExplosionKey";
@@ -41,8 +60,8 @@ public class ExplosionSettings {
 	public String getKey() { return this.metaNodeId; }
 	public Set<String> getContainedNodesIds() {	return this.containedNodesIds; }
 	
+	@SuppressWarnings("unchecked")
 	public void loadSettings(NodeSettingsRO settings, String prefix) {
-		// TODO Auto-generated method stub
 		try {
 			this.metaNodeId = settings.getString(prefix + CFG_KEY);
 		} catch (InvalidSettingsException e) {
@@ -56,33 +75,11 @@ public class ExplosionSettings {
 	}
 
 	public void saveSettings(NodeSettingsWO settings, String prefix) {
-		// TODO Auto-generated method stub
 		settings.addString(prefix + CFG_KEY, this.metaNodeId);
 		settings.addString(prefix + CFG_NODE_SUBSET, GraphSettings.SERIALIZER.toXml(this.containedNodesIds));
 		this.gisSettings.saveSettings(settings, prefix);
 		this.graphSettings.saveSettings(settings, prefix);
 	}
-	
-//	public void setToCanvas(IDetailCanvas canvas) {
-//		canvas.setKey(this.gstrKey);
-//		canvas.setNodeSubset(this.gobjNodeSubset);
-//		if(canvas instanceof GraphCanvas) {
-//		  this.gobjGraphSettings.setToCanvas((GraphCanvas) canvas);
-//		} else if(canvas instanceof IGisCanvas) {
-//			this.gobjGisSettings.setToCanvas((IGisCanvas) canvas);
-//		}  
-//	}
-//	
-//	public void setFromCanvas(IDetailCanvas canvas) {
-//		this.gstrKey = canvas.getKey();
-//		this.gobjNodeSubset = canvas.getNodeSubset();
-//		
-//		if(canvas instanceof GraphCanvas) {
-//		  this.gobjGraphSettings.setFromCanvas((GraphCanvas) canvas);
-//		} else if(canvas instanceof IGisCanvas) {
-//			this.gobjGisSettings.setFromCanvas((IGisCanvas) canvas);
-//		}  
-//	}
 	
 	protected List<String> getSelectedNodes() { return this.selectedNodes; }
 	

@@ -1,112 +1,91 @@
+/*******************************************************************************
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.KeyStroke;
-import javax.swing.event.EventListenerList;
-
-import org.apache.commons.collections15.Transformer;
-
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.vividsolutions.jts.geom.Polygon;
 
-import de.bund.bfr.jung.BetterGraphMouse;
-import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
-import de.bund.bfr.jung.JungListener;
-import de.bund.bfr.jung.ZoomingPaintable;
-import de.bund.bfr.jung.layout.FRLayout;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-//import de.bund.bfr.knime.gis.views.canvas.ExplosionCanvasUtils;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
-import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 
-import java.util.logging.Logger;
-
+/**
+ * A <code>TracingGraphCanvas</code> for the explosion of meta nodes
+ */
 public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements IExplosionCanvas<GraphNode> {
 
-	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	
-	private String metaNodeId;
+	
+	private String metaNodeId; // the id of the exploded meta node
+	
+	private Set<GraphNode> nonBoundaryNodes; // nodes which are collapse into the exploded node
+	/*
+	 *  Nodes which are connected to at least one of the collapsed nodes (<code>nonBoundaryNodes</code>)
+	 *  This set does not contain meta nodes.
+	 */
 	private Set<GraphNode> boundaryNodes; 
-	private Set<GraphNode> nonBoundaryNodes;
-	private Set<GraphNode> hiddenNodes; 
-	private Set<Edge<GraphNode>> hiddenEdges; 
 	
-	private SetMultimap<String, String> boundaryNodesToInnerNodesMap;
+	private Set<GraphNode> hiddenNodes; // Nodes which are not connected to the collapsed nodes (<code>nonBoundaryNodes</code>)
+	private Set<Edge<GraphNode>> hiddenEdges; // Edges which are not connected to the collapsed nodes (<code>nonBoundaryNodes</code>)
 	
-	private Map<String,Set<String>> allCollapsedNodes;
+	private SetMultimap<String, String> boundaryNodesToInnerNodesMap; // Map of the boundary node ids to their connected inner nodes ids 
+	
+	//private Map<String,Set<String>> allCollapsedNodes;
 	
 	private BufferedImage image;
 	private Polygon boundaryArea;
 	
-	public static final double BOUNDARY_MARGIN = 0.2;
-	
-	//private Map<String, Set<String>> allCollapsedNodes;
 
 	public ExplosionTracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
 			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, String metaNodeId, Set<String> containedNodes) {
 		super(nodes, edges, nodeProperties, edgeProperties, deliveries, lotBased, false);
 		
-		logger.finest("entered");
-		//this.image = null;
 		this.metaNodeId = metaNodeId;
-		//this.boundaryNodes = this.nodes.stream().filter(n -> !containedNodes.contains(n.getId())).collect(Collectors.toSet());
 		this.nonBoundaryNodes = this.nodes.stream().filter(n -> containedNodes.contains(n.getId())).collect(Collectors.toSet());
         
 		this.hiddenNodes = new HashSet<>();
@@ -126,144 +105,21 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 						metaNodeId,
 						()-> Stream.of(getListeners(ExplosionListener.class)).forEach(l->l.closeExplosionViewRequested(this))));
 		
-//		this.getViewer().addPreRenderPaintable(new PrePaintable(false));
-//		this.getViewer().addPostRenderPaintable(
-//				new ExplosionCanvasUtils.LabelPaintable(
-//						this.getViewer(),
-//						strKey,
-//						()-> Stream.of(getListeners(ExplosionListener.class)).forEach(l->l.closeExplosionViewRequested(this))));
-//		
-//		this.boundaryNodes.forEach(n -> this.getViewer().getGraphLayout().lock(n, true));
-		
-//		this.addTracingListener(new TracingListener() {
-//
-//			@Override
-//			public void nodePropertiesChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void edgePropertiesChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void nodeWeightsChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void edgeWeightsChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void nodeCrossContaminationsChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void edgeCrossContaminationsChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void nodeKillContaminationsChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void edgeKillContaminationsChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void observedNodesChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void observedEdgesChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void enforceTemporalOrderChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void showForwardChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			@Override
-//			public void dateSettingsChanged(ITracingCanvas<?> source) {
-//				// TODO Auto-generated method stub
-//				ExplosionTracingGraphCanvas.this.repositionBoundaryNodes();
-//			}
-//			
-//		});
-		logger.finest("leaving");
 	}
 	
-//    private void initBoundaryAndHiddenNodes() {
-//		
-//		this.hiddenNodes = new HashSet<>();
-//		this.hiddenEdges = new HashSet<>();
-//		this.boundaryNodes = new HashSet<>();
-//		
-//		for(Edge<GraphNode> edge : this.edges) {
-//			if(this.nonBoundaryNodes.contains(edge.getFrom())) {
-//				
-//				if(!this.nonBoundaryNodes.contains(edge.getTo())) this.boundaryNodes.add(edge.getTo());
-//				
-//			} else if(this.nonBoundaryNodes.contains(edge.getTo())) {
-//				
-//				this.boundaryNodes.add(edge.getFrom());
-//				
-//			} else {
-//				
-//				this.hiddenEdges.add(edge);
-//			}
-//		}
-//		
-//		this.hiddenNodes = Sets.difference(Sets.difference(this.nodes, this.nonBoundaryNodes), this.boundaryNodes);
-//
-//	}
-	
-//	@Override
-//	public void applyChanges() {
-//		super.applyChanges();
-//		this.repositionBoundaryNodes();
-//	}
-	
+	/*
+	 * All boundary nodes have to be locked, so that they cannot be moved with the mouse
+	 */
 	@Override
 	public void applyNodeCollapse() {
-		logger.finest("entered");
-		super.applyNodeCollapse();
 		
-		// check whether this is ok
-		//this.boundaryNodes = Sets.difference(this.nodes, this.nonBoundaryNodes);
+		super.applyNodeCollapse();
 		
 		Layout<GraphNode, Edge<GraphNode>> layout = this.getViewer().getGraphLayout();
 		
-		Set<GraphNode> boundaryNodes = CanvasUtils.getElementsById(this.nodeSaveMap,this.boundaryNodesToInnerNodesMap.keySet());
+		Set<GraphNode> allBoundaryNodes = CanvasUtils.getElementsById(this.nodeSaveMap,this.boundaryNodesToInnerNodesMap.keySet());
 		
-		boundaryNodes.forEach(n -> layout.lock(n, true));
-		logger.finest("leaving");
+		allBoundaryNodes.forEach(n -> layout.lock(n, true));
 	}
 	
 	@Override
@@ -273,13 +129,13 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	
 	@Override
 	public void resetNodesAndEdges() {
-		logger.finest("entered");
+		
 		super.resetNodesAndEdges();
 		
-		if(this.hiddenNodes != null) this.nodes.removeAll(this.hiddenNodes); //= new HashSet<>(Sets.difference(this.nodes, this.hiddenNodes));
-		if(this.hiddenEdges != null) this.edges.removeAll(this.hiddenEdges); //= new HashSet<>(Sets.difference(this.edges, this.hiddenEdges));
+		// nodes and edges which do not belong to the explosion are removed
+		if(this.hiddenNodes != null) this.nodes.removeAll(this.hiddenNodes); 
+		if(this.hiddenEdges != null) this.edges.removeAll(this.hiddenEdges); 
 		
-		logger.finest("leaving");
 	}
 	
 	@Override
@@ -293,29 +149,24 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	
 	@Override
 	public void nodeMovementFinished() {
+		
 		this.placeBoundaryNodes(false);
-		//this.getViewer().addPreRenderPaintable(paintable);
-		//this.getViewer().repaint();
 		super.nodeMovementFinished();
-		//call(l -> l.nodePositionsChanged(this));
+		
 	}
 	
 	private void call(Consumer<CanvasListener> action) {
 		Stream.of(getListeners(CanvasListener.class)).forEach(action);
 	}
 	
-	@Override
-	public void nodeAllPropertiesItemClicked() {
-		ExplosionCanvasUtils.showAllPropertiesDialog(this, this.allCollapsedNodes, this.nodeSaveMap);
-	}
 	
 	@Override
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
-		logger.finest("entered");
 		
 		// remove old meta nodes which are obsolete
 		Sets.difference(this.collapsedNodes.keySet(), collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
-				
+		
+		// filters the collapsedNodes map according to the explosion
 		Map<String, Set<String>> newFilteredCollapsedNodes = ExplosionCanvasUtils.filterCollapsedNodeAccordingToExplosion(
 				collapsedNodes, this.metaNodeId,
 				CanvasUtils.getElementIds(Sets.union(this.nonBoundaryNodes, this.boundaryNodes)));
@@ -323,30 +174,20 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		// create meta nodes which do not belong to the explosion view
 		// this is required because the properties of the meta nodes have to be maintained
 		Sets.difference(collapsedNodes.keySet(), newFilteredCollapsedNodes.keySet()).forEach(metaId -> {
-			
 			if(!nodeSaveMap.containsKey(metaId)) {
-				
-//				Set<String> nodeIds = collapsedNodes.get(metaId);
-//				Set<GraphNode> nodes = CanvasUtils.getElementsById(this.nodeSaveMap, nodeIds); //this.getNodePositions(CanvasUtils.getElementsById(this.nodeSaveMap, nodeIds))
-//				Map<String, Point2D> positions = this.getNodePositions(nodes);
-//				positions = positions.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new Point2D.Double(Double.NaN, Double.NaN)));
-//				this.setNodePositions(positions);
-				
 				nodeSaveMap.put(metaId, createMetaNode(metaId, CanvasUtils.getElementsById(nodeSaveMap, collapsedNodes.get(metaId))));
 			}
-			
 		});
 				
-				
+		// add the ids of boundary meta nodes to the node map		
 		for(String metaId : newFilteredCollapsedNodes.keySet()) {
 			Set<String> nodeIds = newFilteredCollapsedNodes.get(metaId);
-			
-			if(Sets.intersection(nodeIds, this.boundaryNodesToInnerNodesMap.keySet()).isEmpty()) {
+			if(!Sets.intersection(nodeIds, this.boundaryNodesToInnerNodesMap.keySet()).isEmpty()) {
 				nodeIds.forEach(id -> this.boundaryNodesToInnerNodesMap.putAll(metaId, this.boundaryNodesToInnerNodesMap.get(id)));
 			}
 		}
 
-		this.allCollapsedNodes = collapsedNodes;
+		//this.allCollapsedNodes = collapsedNodes;
 		
 		this.collapsedNodes = newFilteredCollapsedNodes;
 				
@@ -355,7 +196,6 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		if(this.boundaryNodes != null) this.placeBoundaryNodes(false);
 		        
 		call(l -> l.collapsedNodesChanged(this));
-		logger.finest("leaving");
 	}
 	
 	@Override
@@ -366,35 +206,15 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	@Override
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
 		super.applyLayout(layoutType, nodesForLayout, showProgressDialog, false);
-		//Sets.difference(this.boundaryNodes, this.nodes).forEach(n -> viewer.getGraphLayout().setLocation(n,  new Point2D.Double(Double.NaN, Double.NaN)));
-		// viewer.getGraphLayout().setLocation(node, transform.apply(pos.getX(), pos.getY()));
+		
 		this.placeBoundaryNodes(false);
-		//Rectangle viewBounds = this.getViewer().getBounds();
-		//if this.getViewer().getBounds() 
+		
 		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
 	}
 	
-//	@Override
-//	public void initLayout() {
-//		logger.finest("entered");
-//		//this.getTracing().applyChanges(ignoreTimeWindow);
-//		logger.finest("leaving");
-//	}
-	
-//	@Override
-//	public void applyInvisibility() {
-//		ExplosionCanvasUtils.removeOuterNodes(nodes, this.nonBoundaryNodes, this.boundaryNodes);
-//		super.applyInvisibility();
-//	}
-	
-//	@Override 
-//	protected Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
-//		logger.finest("entered");
-//		Map<String, Point2D> nodePos = super.getNodePositions(nodes.stream().filter(n-> this.nonBoundaryNodes.contains(n) || this.boundaryNodes.contains(n)).collect(Collectors.toList()));
-//		logger.finest("leaving");
-//		return nodePos;
-//	}
-	
+	/*
+	 * The boundary area might need an update.
+	 */
 	@Override
 	public void transformFinished() {
 		this.placeBoundaryNodes(true);
@@ -402,27 +222,28 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		super.transformFinished();
 	}
 	
-//	@Override
-//	public void setNodePositions(Map<String, Point2D> nodePositions) {
-//		logger.finest("entered");
-//		List<GraphNode> nodesWithoutPos = new ArrayList<>();
-//
-//		
-//			
-//		logger.finest("leaving");
-//	}
-	
+	/*
+	 * sets the boundary area and place the boundary nodes
+	 */
 	public void placeBoundaryNodes(boolean onlyUpdateBoundaryAreaPosition) {
-		logger.finest("entered");
+		
 		if(this.isPerformTracing()) {
 		
 			if (!((this.boundaryNodes == null) || this.boundaryNodes.isEmpty())) {
 				
-				//Map<String, Point2D> positions = this.getNodePositions(boundaryNodes)
+				// Step 1: get the bounds of the inner nodes
+				
 				
 				Map<String, Point2D> positions = this.getNodePositions(this.nonBoundaryNodes);
 				
+				// safety test
 				if(positions == null) return;
+				
+				/* the positions might not be available for all nodes because e.g. the date filter specified by the user 
+				 * might remove some inner nodes from the graph so the layout methods do not set their position
+				 * --> these empty position are set to the left upper corner of default bounds
+				 */
+				
 				
 				Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(this);
 				
@@ -431,17 +252,12 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 				nodesWithoutPosition.forEach(nodeId -> positions.put(nodeId, new Point2D.Double(defaultBounds.getX(), defaultBounds.getY())));
 				
 				
-				//Set<String> nonBoundaryNodeIds = CanvasUtils.getElementIds(this.nonBoundaryNodes);
-			
 				Rectangle2D bounds = PointUtils.getBounds(positions.values());
 				
-//				Rectangle2D bounds = PointUtils.getBounds(
-//						positions.entrySet().stream()
-//						.filter(e -> nonBoundaryNodeIds.contains(e.getKey())).map(e -> e.getValue()).collect(Collectors.toList()));
-			
 				if(bounds.isEmpty()) {
+					
 					boundaryArea = null;
-					logger.finest("leaving bounds.isEmpty()=TRUE");
+					this.flushImage();
 					return;
 				}
 			
@@ -456,42 +272,26 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 			
 				if(!onlyUpdateBoundaryAreaPosition) {
 					
+					// <code>updateSet</code> is supposed to be the set of ids of visible boundary nodes if no date filter is applied
 					Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
 					
 					collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
 					
+					// sets the positions of the boundary nodes to nearby positions on the boundary area
 					for(String boundaryNodeKey: updateSet) {
-//						List<Point2D> pointList = new ArrayList<>();
-//						
-//						for(String innerNodeKey: this.boundaryNodesToInnerNodesMap.get(boundaryNodeKey)) {
-//							pointList.add(positions.get(innerNodeKey));
-//						}
-//						
-//						Point2D pCenter = PointUtils.getCenter(pointList);
+						
 						Point2D pCenter = PointUtils.getCenter(
 								this.boundaryNodesToInnerNodesMap.get(boundaryNodeKey).stream().map(innerNodeKey -> positions.get(innerNodeKey))
 								.collect(Collectors.toList()));
 						
-						Point2D pBR = getClosestPointOnRect(pCenter, rect);
+						Point2D pBR = ExplosionCanvasUtils.getClosestPointOnRect(pCenter, rect);
 						 
 						positions.put(boundaryNodeKey, pBR);
 					}
 					
-				
-				// ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, this.edges, 2 * refNodeSize, this.boundaryNodes);
-	//			ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(positions, rect, this.edges, w, this.boundaryNodes);
-	//			
-	//			// the boundary positions were only set for the visual nodes so far
-	//			// but the position of the boundary meta nodes will be overwritten by 
-	//			// the position of the center of their contained nodes ->
-	//			// the position of the contained nodes is set to the position of their meta node
-	//			Sets.intersection(this.collapsedNodes.keySet(), 
-	//					          nodeRefPoints.keySet().stream().map(n -> n.getId()).collect(Collectors.toSet())).forEach(metaKey -> {
-	//					        	  Point2D p = positions.get(metaKey);
-	//					        	  this.collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
-	//					          });
-					//boundaryNodesToInnerNodesMap.asMap().entrySet().stream().filter(e -> updateSet.contains(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<String>(e.getValue())));
-					
+					// if an inner node has connections to several boundary nodes
+					// then their might be positioned on the same spot (depending on their other connections)
+					// this method distributes the boundary nodes with identical positions
 		            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(
 		            		positions, rect, 
 		            		boundaryNodesToInnerNodesMap.asMap().entrySet().stream().filter(e -> updateSet.contains(e.getKey()))
@@ -506,11 +306,6 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 					        	  Point2D p = positions.get(metaKey);
 					        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
 					          });
-		
-//		            Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
-//			        	  Point2D p = positions.get(metaKey);
-//			        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
-//			          });
 					
 					this.setNodePositions(positions);
 				}
@@ -518,29 +313,12 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 				if(boundaryAreaChanged) this.flushImage();
 			}
 		}
-		logger.finest("leaving");
-	}
-		
-	private static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
-		double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
-		double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
-		double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
-		double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
-		double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
 
-		if (dx1 == min) {
-			return new Point2D.Double(rect.getMinX(), pointInRect.getY());
-		} else if (dx2 == min) {
-			return new Point2D.Double(rect.getMaxX(), pointInRect.getY());
-		} else if (dy1 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMinY());
-		} else if (dy2 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMaxY());
-		}
-
-		throw new RuntimeException("This should not happen");
 	}
 	
+	/*
+	 * deletes the buffered image
+	 */
 	protected void flushImage() {
 		if (image != null) {
 			image.flush();
@@ -548,34 +326,17 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		}
 	}
 	
-//	@Override
-//	public void openExplosionViewItemClicked() {
-//		Set<String> selectedNodeIds = getSelectedNodeIds();
-//		
-//		// exactly one node must be selected
-//		if(selectedNodeIds==null || selectedNodeIds.isEmpty() || selectedNodeIds.size()!=1) return;
-//		// this node has to be a metanode
-//		String selectedNodeId = (String) selectedNodeIds.toArray()[0]; //.iterator().next();
-//		if(!this.allCollapsedNodes.keySet().contains(selectedNodeId)) return;
-//		
-//		call(l -> l.openExplosionViewRequested(this, selectedNodeId));
-//	}
-	
-	
-	
-	
 	private void paintGraph(Graphics2D g, boolean toSvg) {
-		//super.paintGis(g, toSvg, onWhiteBackground);
-		//logger.finest("entered toSvg=" + (toSvg?"true":"false"));
+		
 		if (this.boundaryArea != null) {
 			ExplosionCanvasUtils.paintBoundaryArea(g, getCanvasSize().width, getCanvasSize().height,
 					transform.apply(this.boundaryArea));
 		}
-		//logger.finest("leaving");
+
 	}
 	
 	private void paintGraphImage(Graphics2D g) {
-		//logger.finest("entered");
+		
 		int width = getCanvasSize().width;
 		int height = getCanvasSize().height;
 
@@ -586,30 +347,19 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		}
 
 		g.drawImage(image, 0, 0, null);
-		//logger.finest("leaving");
-	}
 	
-	@Override
-	public Map<String, Point2D> getNodePositions() {
-//		updatePositionsOfCollapsedNodes();
-//		Collection<GraphNode> col =  nodeSaveMap.values();
-//		col = nodeSaveMap.values().stream().filter(n -> !collapsedNodes.containsKey(n.getId()))
-//				.collect(Collectors.toList());
-//		Map<String, Point2D> res = getNodePositions(col);
-		return getNodePositions(this.nonBoundaryNodes);
-//		return nodeSaveMap.values().stream().filter(n -> !collapsedNodes.containsKey(n.getId()))
-//				.collect(Collectors.toList()));
 	}
 	
 //	@Override
-//	public void initLayout() {
-//		logger.finest("entered");
-//		if (!this.nonBoundaryNodes.isEmpty()) {
-//			this.applyLayout(LayoutType.ISOM_LAYOUT, this.nonBoundaryNodes, false);
-//		}
-//		logger.finest("leaving");
+//	public Map<String, Point2D> getNodePositions() {
+//        // only return the information for the inner nodes
+//		return getNodePositions(this.nonBoundaryNodes);
+//
 //	}
 	
+	/*
+	 * PrePaintable needed to integrate the boundary area
+	 */
 	private class PrePaintable implements Paintable {
 		
 		private boolean toSvg;
@@ -625,181 +375,15 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 
 		@Override
 		public void paint(Graphics g) {
-			//logger.finest("entered toSvg=" + (toSvg?"true":"false"));
+			
 			if (toSvg) {
 				ExplosionTracingGraphCanvas.this.paintGraph((Graphics2D) g, true);
 			} else {
 				ExplosionTracingGraphCanvas.this.paintGraphImage((Graphics2D) g);
 			}
-			//logger.finest("leaving");
+			
 		}
 	}
-	
-//	public class LabelPaintable implements Paintable, MouseMotionListener, MouseListener {
-//
-//		private VisualizationViewer<?, ?> viewer;
-//
-//		private EventListenerList listeners;
-//
-//		private Rectangle closeRect;
-//
-//		private boolean closeFocused;
-//		
-//		//private boolean gbolLabelOnly;
-//		private String gstrLabel;
-//		private Runnable function;
-//
-//		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel, Runnable function) {
-//			this.viewer = viewer;
-//			this.gstrLabel = strLabel + " Explosion View";
-//			this.function = function;
-//			listeners = new EventListenerList();
-//			closeRect = null;
-//			closeFocused = false;
-//			
-//			if(!this.labelOnly()) {
-//			  viewer.addMouseMotionListener(this);
-//			  viewer.addMouseListener(this);
-//			}
-//		}
-//		
-//		public LabelPaintable(VisualizationViewer<?, ?> viewer, String strLabel) {
-//			this(viewer, strLabel, null);
-////			this.viewer = viewer;
-////			this.gstrLabel = strLabel;
-////			this.function = function;
-////			//this.gbolLabelOnly = labelOnly;
-////			listeners = new EventListenerList();
-////			closeRect = null;
-////			closeFocused = false;
-////			
-////			if(!this.labelOnly()) {
-////			  viewer.addMouseMotionListener(this);
-////			  viewer.addMouseListener(this);
-////			}
-//		}
-//
-//		public void addChangeListener(JungListener listener) {
-//			listeners.add(JungListener.class, listener);
-//		}
-//
-//		public void removeChangeListener(JungListener listener) {
-//			listeners.remove(JungListener.class, listener);
-//		}
-//
-//		@Override
-//		public void paint(Graphics graphics) {
-//			int w = viewer.getSize().width;
-//			int h = viewer.getSize().height;
-//			int size = 30;
-//			int d = 10;
-//			int lineD = 8;
-//			int lineWidth = 2;
-//
-//			
-//			//int xPlus = w - d - size;
-//			//int yPlus = h - size - d - 2 * size;
-//			//int xMinus = xPlus;
-//			//int yMinus = h - size - d - size;
-//						
-//			Graphics2D g = (Graphics2D) graphics;
-//			
-//			Font font = new Font("Default", Font.BOLD, 10);
-//			int fontHeight = g.getFontMetrics(font).getHeight();
-//			int fontAscent = g.getFontMetrics(font).getAscent();
-//			
-//			int dy = 2;
-//
-//			int dx = 5;
-//			
-//			
-//			int sw = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getWidth();
-//			int sh = (int) font.getStringBounds(this.gstrLabel, g.getFontRenderContext()).getHeight();
-//
-//			Color currentColor = g.getColor();
-//			Stroke currentStroke = g.getStroke();
-//
-//			if(!this.labelOnly()) this.closeRect = new Rectangle(w/2 + sw/2 + dx - fontAscent/2 - dx/2, dy ,fontAscent,fontAscent);
-//			
-//			g.setColor(ZoomingPaintable.BACKGROUND);
-//			g.fillRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2) , 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
-////			g.setColor(minusFocused ? Color.BLUE : BACKGROUND);
-////			g.fillRect(xMinus, yMinus, size, size);
-//			g.setColor(Color.BLACK);
-//			g.drawRect(w/2 - sw/2 - dx - (this.labelOnly()?0:this.closeRect.width/2+dx/2), 0 , sw + 2*dx + (this.labelOnly()?0:this.closeRect.width+dx), fontHeight + 2*dy);
-////			g.drawRect(xMinus, yMinus, size, size);
-//			g.setFont(font);
-//			g.drawString(this.gstrLabel, w/2 - sw/2 - (this.labelOnly()?0:this.closeRect.width/2+dx/2), dy+fontAscent);
-//			if(!this.labelOnly()) {
-//				//this.closeRect = new Rectangle(w/2 + sw/2 + dx,dy+fontAscent,fontAscent,fontAscent);
-//				g.setStroke(new BasicStroke(lineWidth));
-//				if(this.closeFocused) g.setColor(Color.BLUE);
-//				g.drawLine(this.closeRect.x,this.closeRect.y,this.closeRect.x+this.closeRect.width,this.closeRect.y+this.closeRect.height);
-//				g.drawLine(this.closeRect.x,this.closeRect.y+this.closeRect.height,this.closeRect.x+this.closeRect.width,this.closeRect.y);
-//			}
-//			g.setColor(currentColor);
-//			g.setStroke(currentStroke);
-//
-////			closeRect = new Rectangle(xPlus, yPlus, size, size);
-////			minusRect = new Rectangle(xMinus, yMinus, size, size);
-//		}
-//
-//		private boolean labelOnly() { return this.function==null; }
-//		
-//		@Override
-//		public boolean useTransform() {
-//			return false;
-//		}
-//
-//		@Override
-//		public void mouseDragged(MouseEvent e) {
-//		}
-//
-//		@Override
-//		public void mouseMoved(MouseEvent e) {
-//			boolean newCloseFocused = closeRect != null && closeRect.contains(e.getPoint());
-//			boolean changed = newCloseFocused != closeFocused;
-//
-//			closeFocused = newCloseFocused;
-////			minusFocused = newMinusFocused;
-//
-//			if (changed) {
-//				BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) viewer.getGraphMouse();
-//
-//				graphMouse.setPickingDeactivated(closeFocused);
-//				paint(viewer.getGraphics());
-//			}
-//		}
-//
-//		@Override
-//		public void mouseClicked(MouseEvent e) {
-//			if (e.getButton() == MouseEvent.BUTTON1 && (closeFocused)) {
-//				try {
-//					//this.function.call();
-//					this.function.run();
-//				} catch (Exception e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//			}
-//		}
-//
-//		@Override
-//		public void mousePressed(MouseEvent e) {
-//		}
-//
-//		@Override
-//		public void mouseReleased(MouseEvent e) {
-//		}
-//
-//		@Override
-//		public void mouseEntered(MouseEvent e) {
-//		}
-//
-//		@Override
-//		public void mouseExited(MouseEvent e) {
-//		}
-//	}
 	
 	@Override
 	public void setPerformTracing(boolean performTracing) {
@@ -808,20 +392,17 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	}
 
 	@Override
-	public Set getBoundaryNodes() {
-		// TODO Auto-generated method stub
+	public Set<GraphNode> getBoundaryNodes() {
 		return this.boundaryNodes;
 	}
 
 	@Override
 	public void addExplosionListener(ExplosionListener listener) {
-		// TODO Auto-generated method st
 		this.listenerList.add(ExplosionListener.class, listener);
 	}
 
 	@Override
 	public void removeExplosionListener(ExplosionListener listener) {
-		// TODO Auto-generated method stub
 		this.listenerList.remove(ExplosionListener.class, listener);
 	}
 

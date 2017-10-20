@@ -32,8 +32,6 @@ import java.awt.event.MouseMotionListener;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
-
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.FeatureAdapter;
 import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
@@ -71,13 +69,12 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 	public OsmCanvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
-		//logger.finest("entered");
+		
 		tileController = new TileController(new OsmTileSource.Mapnik(), new MemoryTileCache(), this);
 		lastZoom = -1;
 		lastTopLeft = null;
 		lastBottomRight = null;
 		viewer.addPostRenderPaintable(new PostPaintable());
-		//logger.finest("leaving");
 	}
 
 	public TileSource getTileSource() {
@@ -90,23 +87,18 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 	}
 
 	public void loadAllTiles() {
-		//logger.finest("entered");
 		int tileSize = tileController.getTileSource().getTileSize();
 		int maxTiles = (getCanvasSize().width / tileSize + 2) * (getCanvasSize().height / tileSize + 2);
 		MemoryTileCache tileCache = (MemoryTileCache) tileController.getTileCache();
 
 		tileCache.setCacheSize(Math.max(tileCache.getCacheSize(), maxTiles));
 		getTiles(true);
-		//logger.finest("leaving");
 	}
 
 	@Override
 	public void tileLoadingFinished(Tile tile, boolean success) {
-        //logger.finest("entered");
-		//logger.finest("success: " + (success?"true":"false"));
-		flushImage();
+        flushImage();
 		viewer.repaint();
-		//logger.finest("leaving");
 	}
 
 	@Override
@@ -137,7 +129,6 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 	}
 
 	private Map<Point, Tile> getTiles(boolean waitForLoading) {
-		//logger.finest("entered");
 		int w = getCanvasSize().width;
 		int h = getCanvasSize().height;
 		int tileSize = tileController.getTileSource().getTileSize();
@@ -160,12 +151,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 
 		Map<Point, Tile> tiles = new LinkedHashMap<>();
 
-		if (zoom < 0) {
-			//logger.finest("leaving tiles");
-			return tiles;
-		}
-
-		//logger.finest(String.format("startX: %d, maxX: %d, startY: %d, maxY: %d", startX, maxX, startY, maxY));
+		if (zoom < 0) return tiles;
 		
 		for (int ix = startX; ix <= maxX; ix++) {
 			for (int iy = startY; iy <= maxY; iy++) {
@@ -184,7 +170,6 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 			}
 		}
 		
-		//logger.finest("leaving");
 		return tiles;
 	}
 

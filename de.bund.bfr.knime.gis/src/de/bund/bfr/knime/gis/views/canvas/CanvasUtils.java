@@ -567,7 +567,6 @@ public class CanvasUtils {
 		int height = 1;
 		SVGDocument document = (SVGDocument) new SVGDOMImplementation().createDocument(null, "svg", null);
 		SVGGraphics2D g = new SVGGraphics2D(document);
-		int x = 0;
 
 		g.setSVGCanvasSize(new Dimension(width, height));
 

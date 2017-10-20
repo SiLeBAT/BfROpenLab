@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.vividsolutions.jts.geom.Polygon;
 
 import de.bund.bfr.jung.JungUtils;
@@ -39,7 +37,6 @@ import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 
 public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
@@ -55,7 +52,6 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 	public LocationOsmCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
 		this(nodes, new ArrayList<>(0), nodeSchema, new EdgePropertySchema(), naming, false, true);
-		//this(nodes, nodeSchema, naming, true);
 	}
 	
 //	public LocationOsmCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming, boolean allowCollapse) {
@@ -88,13 +84,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 				node.updateCenter(GisUtils.latLonToViz(node.getCenter()));
 			}
 		}
-
-		//invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
-		//invalidArea = this.placeNodes();
-		// TODO remove
-		this.nodes.stream().filter(n -> n.getId().equals("1082303994")).collect(Collectors.toSet()).forEach(n -> {
-			n.updateCenter(null);
-		});
+		
 		this.placeNodes(this.nodes,this.edges);
 	}
 	

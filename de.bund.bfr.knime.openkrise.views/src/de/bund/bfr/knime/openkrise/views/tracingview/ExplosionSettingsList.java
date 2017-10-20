@@ -1,30 +1,45 @@
+/*******************************************************************************
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.NodeSettings;
 
+/*
+ * class contains the settings for all explosion views
+ */
 public class ExplosionSettingsList extends NodeSettings {
 	
 	private final static String CFG_PREFIX = "CFG_EXPLOSION";
 	
-	private ArrayList<ExplosionSettings> explosionSettingsList;
-	private Stack<ExplosionSettings> activeExplosionSettingsList;
+	private ArrayList<ExplosionSettings> explosionSettingsList; // list of explosion settings
+	private Stack<ExplosionSettings> activeExplosionSettingsList; // stack of active explosion settings
 	
     protected ExplosionSettingsList() {
 		this.explosionSettingsList = new ArrayList<ExplosionSettings>();
@@ -37,10 +52,11 @@ public class ExplosionSettingsList extends NodeSettings {
 	
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
-		// TODO Auto-generated method stub
+		// determine the indices of setting objects by checking for a certain prefix structure
 		Pattern pattern = Pattern.compile("^" + CFG_PREFIX +  "_([0-9]+)_");
 		Set<Integer> indices = settings.keySet().stream().mapToInt(s -> getIndex(pattern, s)).filter(i -> (i>=0)).boxed().collect(Collectors.toSet());
-
+		
+		// for each found prefix do
 		indices.forEach(i -> {
 			ExplosionSettings eS = new ExplosionSettings();
 			eS.loadSettings(settings, getElementPrefix(i));
@@ -50,8 +66,9 @@ public class ExplosionSettingsList extends NodeSettings {
 		this.activeExplosionSettingsList.clear();
 	}
 	
-	
-	
+	/*
+	 * return the index out of the text if it matches the pattern otherwise -1
+	 */
 	private static int getIndex(Pattern pattern, String text) {
   	  Matcher matcher = pattern.matcher(text);
   	  return (matcher.find()? Integer.parseInt(matcher.group(1)):-1);
@@ -59,24 +76,16 @@ public class ExplosionSettingsList extends NodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		// TODO Auto-generated method stub
 		for(int i=this.explosionSettingsList.size()-1; i>=0; i--) {
-			this.explosionSettingsList.get(i).saveSettings(settings, this.getElementPrefix(i+1));
+			this.explosionSettingsList.get(i).saveSettings(settings, ExplosionSettingsList.getElementPrefix(i+1));
 		}
 	}
-		
-	public ExplosionSettings getExplosionSettings(String strKey, Set<String> containedNodes) {
-		//List<ExplosionSettings> oESL = this.gobjExplosionSettingsList.stream().filter(eS -> eS.getContainedNodes().equals(containedNodes)).collect(Collectors.toList());
-		List<ExplosionSettings> oESL = this.explosionSettingsList.stream().filter(eS -> eS.getKey().equals(strKey)).collect(Collectors.toList());
-		
-		return (oESL.size()==0?null:oESL.get(0));
-	}
-	
-	public ExplosionSettings getExplosionSettings(Set<String> containedNodesIds) {
-		
-		if(containedNodesIds == null || containedNodesIds.isEmpty()) return null;
-		
-		List<ExplosionSettings> oESL = this.explosionSettingsList.stream().filter(eS -> eS.getContainedNodesIds().equals(containedNodesIds)).collect(Collectors.toList());
+
+	/*
+	 * returns an explosion setting with the specified key if it exists otherwise null
+	 */
+	public ExplosionSettings getExplosionSettings(String key, Set<String> containedNodes) {
+		List<ExplosionSettings> oESL = this.explosionSettingsList.stream().filter(eS -> eS.getKey().equals(key)).collect(Collectors.toList());
 		
 		return (oESL.size()==0?null:oESL.get(0));
 	}
@@ -113,11 +122,11 @@ public class ExplosionSettingsList extends NodeSettings {
 		return true;
 	}
 
-	public ExplosionSettings setActiveExplosionSettings(String strKey, Set<String> containedNodesIds) {
-		ExplosionSettings objES = this.getExplosionSettings(strKey, containedNodesIds);
+	public ExplosionSettings setActiveExplosionSettings(String key, Set<String> containedNodesIds) {
+		ExplosionSettings objES = this.getExplosionSettings(key, containedNodesIds);
 		
 		if(objES==null) {
-			objES=new ExplosionSettings(strKey, containedNodesIds);
+			objES=new ExplosionSettings(key, containedNodesIds);
 			this.explosionSettingsList.add(objES);
 		}
 		
@@ -126,16 +135,6 @@ public class ExplosionSettingsList extends NodeSettings {
 	
 	public void clearActiveExplosionSettings() {
 	  if(this.activeExplosionSettingsList != null) this.activeExplosionSettingsList.clear();	
-	}
-	
-	public ExplosionSettings setActiveExplosionSettings(Set<String> containedNodes, boolean bolActive) {
-		if(containedNodes==null || containedNodes.isEmpty()) {
-			this.activeExplosionSettingsList.clear();
-		} else {
-			ExplosionSettings objES = this.getExplosionSettings(containedNodes);
-			if(objES!=null && this.setActiveExplosionSettings(objES,bolActive)) return objES;
-		}
-		return null;
 	}
 
 }
