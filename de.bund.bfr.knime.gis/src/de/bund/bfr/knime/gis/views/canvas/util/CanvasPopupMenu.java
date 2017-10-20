@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.util;
 
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
@@ -29,6 +30,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
 
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
@@ -74,8 +76,10 @@ public class CanvasPopupMenu extends JPopupMenu {
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem collapseSimpleChainsItem;
 	private JMenuItem clearCollapsedNodesItem;
+	
+	private JMenuItem openExplosionViewItem;
 
-	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges, boolean allowLayout, boolean allowCollapse) {
+	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges, boolean allowLayout, boolean allowCollapse, boolean allowOpenExplosionView) {
 		init(owner);
 
 		add(resetLayoutItem);
@@ -98,12 +102,16 @@ public class CanvasPopupMenu extends JPopupMenu {
 			nodeSelectionMenu.add(selectIncomingItem);
 			nodeSelectionMenu.add(selectOutgoingItem);
 
+			nodeSelectionMenu.add(new JSeparator());
+			
 			if (allowCollapse) {
-				nodeSelectionMenu.add(new JSeparator());
 				nodeSelectionMenu.add(collapseToNodeItem);
 				nodeSelectionMenu.add(expandFromNodeItem);
-				nodeSelectionMenu.add(nodeAllPropertiesItem);
 			}
+			
+			// in the previous version the following menu entry was dependent on allowCollapse,
+			// this dependency was removed
+			nodeSelectionMenu.add(nodeAllPropertiesItem); 
 
 			edgeSelectionMenu.add(edgePropertiesItem);
 			edgeSelectionMenu.add(edgeAllPropertiesItem);
@@ -151,6 +159,10 @@ public class CanvasPopupMenu extends JPopupMenu {
 			add(collapseSimpleChainsItem);
 			add(clearCollapsedNodesItem);
 		}
+		if (allowOpenExplosionView) {
+			nodeSelectionMenu.add(new JSeparator());
+			nodeSelectionMenu.add(this.openExplosionViewItem);
+		}
 	}
 
 	public void addClickListener(ClickListener listener) {
@@ -167,6 +179,10 @@ public class CanvasPopupMenu extends JPopupMenu {
 
 	public void setEdgeSelectionEnabled(boolean enabled) {
 		edgeSelectionMenu.setEnabled(enabled);
+	}
+	
+	public void setOpenExplosionViewEnabled(boolean enabled) {
+		this.openExplosionViewItem.setEnabled(enabled);
 	}
 
 	private void init(Canvas<?> owner) {
@@ -219,7 +235,10 @@ public class CanvasPopupMenu extends JPopupMenu {
 		collapseSimpleChainsItem = createItem("Collapse Simple Chains", ClickListener::collapseSimpleChainsItemClicked);
 		clearCollapsedNodesItem = createItem("Clear Collapsed " + owner.getNaming().Nodes(),
 				ClickListener::clearCollapsedNodesItemClicked);
-
+		this.openExplosionViewItem = createItem("Show Contained Nodes", ClickListener::openExplosionViewItemClicked);
+		this.openExplosionViewItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+		//this.openExplosionViewItem.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+		
 		layoutItems = new ArrayList<>();
 
 		for (LayoutType layoutType : LayoutType.values()) {
@@ -294,6 +313,8 @@ public class CanvasPopupMenu extends JPopupMenu {
 		void collapseSimpleChainsItemClicked();
 
 		void clearCollapsedNodesItemClicked();
+		
+		void openExplosionViewItemClicked();
 
 	}
 }

@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.BorderLayout;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import de.bund.bfr.jung.layout.Layout;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.UI;
+//import de.bund.bfr.knime.gis.views.canvas.Canvas.PostPaintable;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
@@ -61,6 +63,8 @@ import de.bund.bfr.knime.ui.Dialogs;
  * @author Christian Thoens
  */
 public class GraphCanvas extends Canvas<GraphNode> {
+	
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	private static final long serialVersionUID = 1L;
 	private static final boolean USE_FR_LAYOUT_TO_PLACE_NEW_NODES = true;
@@ -73,30 +77,36 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeSchema,
 			EdgePropertySchema edgeSchema, Naming naming, boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
-
-		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
+		
+		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse,true));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(
 				getOptionsPanel().getNodeSize(), getOptionsPanel().getNodeMaxSize(), null, null));
+	
 	}
 
 	public void initLayout() {
-		if (!nodes.isEmpty()) {
-			applyLayout(LayoutType.ISOM_LAYOUT, nodes, false);
+	
+		if (!this.getLayoutableNodes().isEmpty()) {
+			applyLayout(LayoutType.ISOM_LAYOUT, this.getLayoutableNodes(), false);
 		}
+		
 	}
 
 	public Map<String, Point2D> getNodePositions() {
 		updatePositionsOfCollapsedNodes();
+		
 		return getNodePositions(nodeSaveMap.values().stream().filter(n -> !collapsedNodes.containsKey(n.getId()))
 				.collect(Collectors.toList()));
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
+		
 		List<GraphNode> nodesWithoutPos = new ArrayList<>();
 
-		for (GraphNode node : nodeSaveMap.values()) {
+		for (GraphNode node :  nodeSaveMap.values()) {
 			if (collapsedNodes.containsKey(node.getId())) {
+				
 				Point2D centerOfCollapsedNodes = PointUtils
 						.getCenter(CanvasUtils.getElementsById(nodePositions, collapsedNodes.get(node.getId())));
 
@@ -115,7 +125,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				}
 			}
 		}
-
+		
 		if (!nodesWithoutPos.isEmpty()) {
 			if (USE_FR_LAYOUT_TO_PLACE_NEW_NODES) {
 				Layout<GraphNode, Edge<GraphNode>> layout = new FRLayout<>(viewer.getGraphLayout().getGraph(),
@@ -173,14 +183,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				nodesForLayout = selectedNodes;
 				break;
 			case NO:
-				nodesForLayout = nodes;
+				nodesForLayout = this.getLayoutableNodes();
 				break;
 			case CANCEL:
 			default:
 				return;
 			}
 		} else {
-			nodesForLayout = nodes;
+			nodesForLayout = this.getLayoutableNodes();
 		}
 
 		if (nodesForLayout.size() < 2) {
@@ -220,6 +230,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	protected GraphNode createMetaNode(String id, Collection<GraphNode> nodes) {
+		
 		GraphNode newNode = new GraphNode(id,
 				CanvasUtils.joinPropertiesOfNodes(nodes, nodeSchema, id, metaNodeProperty));
 
@@ -227,18 +238,30 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		return newNode;
 	}
+	
+	protected Set<GraphNode> getLayoutableNodes() { return this.nodes; }
+	
+	protected Rectangle2D getLayoutBounds() { return new Rectangle2D.Double(0.0, 0.0, viewer.getSize().getWidth(), viewer.getSize().getHeight()); }
 
-	private void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
+	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog, boolean signalLayoutProcessFinish) {
+		
+		Rectangle2D layoutBounds = this.getLayoutBounds();
+		Dimension s =  layoutBounds.getBounds().getSize();  //viewer.getSize();
+		
 		Layout<GraphNode, Edge<GraphNode>> layout = 
-				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout!=nodes)?
-				new FRLayout(viewer.getGraphLayout().getGraph(), viewer.getSize(),true):
-				layoutType.create(viewer.getGraphLayout().getGraph(), viewer.getSize()));
+				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != nodes)?
+				new FRLayout<>(viewer.getGraphLayout().getGraph(), s,true):
+				layoutType.create(viewer.getGraphLayout().getGraph(),s));
+		
+		
 		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
+		
 			Point2D pos = viewer.getGraphLayout().transform(node);
 
 			initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
+			
 			layout.setLocked(node, !nodesForLayout.contains(node));
 		}
 
@@ -278,18 +301,26 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				Sets.difference(nodeSaveMap.keySet(), collapsedNodes.values().stream().flatMap(Set::stream)
 						.collect(Collectors.toCollection(LinkedHashSet::new))));
 
+		
 		for (GraphNode node : nonCollapsedNodes) {
 			if (layoutResult.containsKey(node)) {
-				viewer.getGraphLayout().setLocation(node, layoutResult.get(node));
+
+				if(layout.isLocked(node)) {
+					viewer.getGraphLayout().setLocation(node, layoutResult.get(node));
+				} else {
+					Point2D pos = layoutResult.get(node);
+					viewer.getGraphLayout().setLocation(node, new Point2D.Double(pos.getX() + layoutBounds.getX(),pos.getY() + layoutBounds.getY()));
+				}
 			} else {
 				Point2D pos = viewer.getGraphLayout().transform(node);
-
+				
 				viewer.getGraphLayout().setLocation(node, transform.apply(pos.getX(), pos.getY()));
 			}
 		}
-
+		
+		 
 		if (layoutType == LayoutType.FR_LAYOUT) {
-			if(nodes==nodesForLayout) {
+			if(this.getLayoutableNodes()==nodesForLayout) {
 			  setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), PointUtils.getBounds(layoutResult.values()),
 					  null));
 			} else {
@@ -299,7 +330,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			setTransform(Transform.IDENTITY_TRANSFORM);
 		}
 
-		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
+		if(signalLayoutProcessFinish) Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
+	
+	}
+	
+	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
+		this.applyLayout(layoutType, nodesForLayout, showProgressDialog, true);
 	}
 
 	private void updatePositionsOfCollapsedNodes() {
@@ -317,4 +353,5 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		});
 	}
+
 }

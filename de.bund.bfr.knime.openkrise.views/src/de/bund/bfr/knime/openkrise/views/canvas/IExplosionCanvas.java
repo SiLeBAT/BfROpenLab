@@ -17,24 +17,19 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.jung;
+package de.bund.bfr.knime.openkrise.views.canvas;
 
-import java.awt.event.MouseEvent;
-import java.util.EventListener;
+import java.util.Set;
 
-public interface JungListener extends EventListener {
+/*
+ * Interfaces for an explosion canvas
+ */
+public interface IExplosionCanvas<V> {
+	
+  void addExplosionListener(ExplosionListener listener);
 
-	void pickingFinished();
-
-	void nodePickingFinished();
-
-	void edgePickingFinished();
-
-	void nodeMovementFinished();
-
-	void transformFinished();
-
-	void modeChangeFinished();
-
-	void doubleClickedOn(Object obj, MouseEvent e);
+  void removeExplosionListener(ExplosionListener listener);
+  
+  public Set<V> getBoundaryNodes();
+  
 }

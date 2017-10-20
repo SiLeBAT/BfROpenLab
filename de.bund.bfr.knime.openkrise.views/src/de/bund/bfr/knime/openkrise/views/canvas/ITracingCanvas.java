@@ -82,4 +82,5 @@ public interface ITracingCanvas<V extends Node> extends ICanvas<V> {
 	boolean isPerformTracing();
 
 	void setPerformTracing(boolean performTracing);
+
 }

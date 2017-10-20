@@ -69,7 +69,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 		invalidArea = null;
 		lastScaleX = null;
 
-		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true, true));
 		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(
 				getOptionsPanel().getNodeSize(), getOptionsPanel().getNodeMaxSize(), null, null));
@@ -86,6 +86,8 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
 	}
+	
+	public Polygon getInvalidArea() { return this.invalidArea; }
 
 	@Override
 	public Collection<RegionNode> getRegions() {

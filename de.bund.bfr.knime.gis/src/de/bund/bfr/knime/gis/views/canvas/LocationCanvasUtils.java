@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-
+import java.util.logging.Logger;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.vividsolutions.jts.geom.Polygon;
@@ -50,6 +50,11 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 
 public class LocationCanvasUtils {
 
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
+	public static double INVALID_AREA_RELATIVE_MARGIN = 0.2;
+	public static double INVALID_AREA_RELATIVE_BORDERWIDTH = 0.02;
+	
 	private LocationCanvasUtils() {
 	}
 
@@ -117,6 +122,7 @@ public class LocationCanvasUtils {
 
 	public static Polygon placeNodes(Collection<LocationNode> nodes, Collection<Edge<LocationNode>> edges,
 			Layout<LocationNode, Edge<LocationNode>> layout) {
+		logger.finest("entered");
 		Polygon invalidArea = null;
 
 		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
@@ -226,6 +232,7 @@ public class LocationCanvasUtils {
 			}
 		}
 
+		logger.finest("leaving");
 		return invalidArea;
 	}
 
@@ -244,6 +251,7 @@ public class LocationCanvasUtils {
 
 	public static LocationNode createMetaNode(String id, Collection<LocationNode> nodes, NodePropertySchema nodeSchema,
 			String metaNodeProperty, Layout<LocationNode, Edge<LocationNode>> layout) {
+
 		double x = nodes.stream().mapToDouble(n -> n.getCenter().getX()).average().getAsDouble();
 		double y = nodes.stream().mapToDouble(n -> n.getCenter().getY()).average().getAsDouble();
 		LocationNode newNode = new LocationNode(id,

@@ -119,4 +119,6 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 
 		this.pickingDeactivated = pickingDeactivated;
 	}
+	
+	// public BetterPickingGraphMousePlugin<V,E> getPickingPlugin() { return (BetterPickingGraphMousePlugin<V,E>) this.pickingPlugin; }
 }

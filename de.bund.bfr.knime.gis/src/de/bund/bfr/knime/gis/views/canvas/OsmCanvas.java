@@ -32,7 +32,6 @@ import java.awt.event.MouseMotionListener;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.FeatureAdapter;
 import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
@@ -58,6 +57,8 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements TileLoaderListener {
 
 	private static final long serialVersionUID = 1L;
+	
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	private TileController tileController;
 
@@ -68,6 +69,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 	public OsmCanvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
+		
 		tileController = new TileController(new OsmTileSource.Mapnik(), new MemoryTileCache(), this);
 		lastZoom = -1;
 		lastTopLeft = null;
@@ -95,7 +97,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 
 	@Override
 	public void tileLoadingFinished(Tile tile, boolean success) {
-		flushImage();
+        flushImage();
 		viewer.repaint();
 	}
 
@@ -149,10 +151,8 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 
 		Map<Point, Tile> tiles = new LinkedHashMap<>();
 
-		if (zoom < 0) {
-			return tiles;
-		}
-
+		if (zoom < 0) return tiles;
+		
 		for (int ix = startX; ix <= maxX; ix++) {
 			for (int iy = startY; iy <= maxY; iy++) {
 				Tile tile = tileController.getTile(ix, iy, zoom);
@@ -169,7 +169,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 				tiles.put(new Point((ix - startX) * tileSize + dx, (iy - startY) * tileSize + dy), tile);
 			}
 		}
-
+		
 		return tiles;
 	}
 

@@ -44,6 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -93,8 +94,11 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class CanvasUtils {
 
+	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	private static final int NODE_TEXTURE_SIZE = 3;
 	private static final int EDGE_TEXTURE_SIZE = 5;
+	
 	private static final Color[] COLORS = new Color[] { new Color(255, 85, 85), new Color(85, 85, 255),
 			new Color(85, 255, 85), new Color(255, 85, 255), new Color(85, 255, 255), new Color(255, 175, 175),
 			new Color(128, 128, 128), new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
@@ -498,11 +502,13 @@ public class CanvasUtils {
 
 	public static <V extends Node> Graph<V, Edge<V>> createGraph(BetterVisualizationViewer<V, Edge<V>> owner,
 			Collection<V> nodes, Collection<Edge<V>> edges) {
+		logger.finest("entered");
 		Graph<V, Edge<V>> graph = new BetterDirectedSparseMultigraph<>(owner);
 
 		nodes.forEach(n -> graph.addVertex(n));
 		edges.forEach(e -> graph.addEdge(e, e.getFrom(), e.getTo()));
 
+		logger.finest("leaving");
 		return graph;
 	}
 
@@ -561,7 +567,6 @@ public class CanvasUtils {
 		int height = 1;
 		SVGDocument document = (SVGDocument) new SVGDOMImplementation().createDocument(null, "svg", null);
 		SVGGraphics2D g = new SVGGraphics2D(document);
-		int x = 0;
 
 		g.setSVGCanvasSize(new Dimension(width, height));
 

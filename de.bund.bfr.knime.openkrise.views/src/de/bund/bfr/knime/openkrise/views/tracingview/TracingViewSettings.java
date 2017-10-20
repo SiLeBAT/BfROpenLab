@@ -27,13 +27,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.collect.Ordering;
-
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
@@ -46,6 +44,8 @@ import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingViewSettings extends NodeSettings {
+	
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
@@ -115,6 +115,7 @@ public class TracingViewSettings extends NodeSettings {
 
 	private GraphSettings graphSettings;
 	private GisSettings gisSettings;
+	private ExplosionSettingsList gobjExplosionSettingsList;
 
 	public TracingViewSettings() {
 		showGis = false;
@@ -151,6 +152,7 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings = new GraphSettings();
 		gisSettings = new GisSettings();
+		this.gobjExplosionSettingsList = new ExplosionSettingsList();
 	}
 
 	@Override
@@ -315,6 +317,7 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings.loadSettings(settings);
 		gisSettings.loadSettings(settings);
+		this.gobjExplosionSettingsList.loadSettings(settings);
 	}
 
 	@Override
@@ -353,6 +356,7 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings.saveSettings(settings);
 		gisSettings.saveSettings(settings);
+		this.gobjExplosionSettingsList.saveSettings(settings);
 	}
 
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
@@ -365,13 +369,18 @@ public class TracingViewSettings extends NodeSettings {
 		showEdgesInMetaNode = canvas.getOptionsPanel().isShowEdgesInMetaNode();
 		label = canvas.getOptionsPanel().getLabel();
 
-		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
-		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
+		setSelectedNodes(Ordering.natural().sortedCopy(canvas.getSelectedNodeIds()));
+		setSelectedEdges(Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds()));
+
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
 		editingMode = canvas.getOptionsPanel().getEditingMode();
-		collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
-
+		
+		if(gobjExplosionSettingsList.getActiveExplosionSettings()==null) {
+			collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
+		}
+		
+		
 		if (resized || canvasSize == null) {
 			canvasSize = canvas.getCanvasSize();
 		}
@@ -400,14 +409,15 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.getOptionsPanel().setLabel(label);
 		canvas.getOptionsPanel().setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.getOptionsPanel().setShowEdgesInMetaNode(showEdgesInMetaNode);
+		
 		canvas.setCollapsedNodes(BackwardUtils.toNewCollapseFormat(collapsedNodes));
-
+		
 		canvas.setNodeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils
 				.renameColumns(nodeHighlightConditions, canvas.getNodeSchema().getMap().keySet()));
 		canvas.setEdgeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils
 				.renameColumns(edgeHighlightConditions, canvas.getEdgeSchema().getMap().keySet()));
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(this.getSelectedNodes()));
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(this.getSelectedEdges()));
 
 		if (canvasSize != null) {
 			canvas.setCanvasSize(canvasSize);
@@ -428,13 +438,49 @@ public class TracingViewSettings extends NodeSettings {
 	}
 
 	public GraphSettings getGraphSettings() {
-		return graphSettings;
+		return (this.gobjExplosionSettingsList.getActiveExplosionSettings()==null? 
+				this.graphSettings:
+				this.gobjExplosionSettingsList.getActiveExplosionSettings().getGraphSettings());
 	}
 
 	public GisSettings getGisSettings() {
-		return gisSettings;
+		return (this.gobjExplosionSettingsList.getActiveExplosionSettings()==null? 
+				this.gisSettings:
+				this.gobjExplosionSettingsList.getActiveExplosionSettings().getGisSettings());
 	}
-
+	
+	private List<String> getSelectedNodes() {
+		return (this.gobjExplosionSettingsList.getActiveExplosionSettings()==null? 
+				this.selectedNodes:
+				this.gobjExplosionSettingsList.getActiveExplosionSettings().getSelectedNodes());
+	}
+	
+	private List<String> getSelectedEdges() {
+		return (this.gobjExplosionSettingsList.getActiveExplosionSettings()==null? 
+				this.selectedEdges:
+				this.gobjExplosionSettingsList.getActiveExplosionSettings().getSelectedEdges());
+	}
+	
+	private void setSelectedNodes(List<String> selectedNodes) {
+		if(this.gobjExplosionSettingsList.getActiveExplosionSettings()==null) {
+			this.selectedNodes = selectedNodes;
+		} else {
+			this.gobjExplosionSettingsList.getActiveExplosionSettings().setSelectedNodes(selectedNodes);
+		}
+	}
+	
+	private void setSelectedEdges(List<String> selectedEdges) {
+		if(this.gobjExplosionSettingsList.getActiveExplosionSettings()==null) {
+			this.selectedEdges = selectedEdges;
+		} else {
+			this.gobjExplosionSettingsList.getActiveExplosionSettings().setSelectedEdges(selectedEdges);
+		}
+	}
+	
+	public ExplosionSettingsList getExplosionSettingsList() {
+		return this.gobjExplosionSettingsList;
+	}
+	
 	public boolean isShowGis() {
 		return showGis;
 	}

@@ -73,9 +73,9 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 			E edge;
 
 			if ((node = getPickedNode(e)) != null) {
-				call(l -> l.doubleClickedOn(node));
+				call(l -> l.doubleClickedOn(node, e));
 			} else if ((edge = getPickedEdge(e)) != null) {
-				call(l -> l.doubleClickedOn(edge));
+				call(l -> l.doubleClickedOn(edge, e));
 			}
 		}
 	}
@@ -177,21 +177,24 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	@SuppressWarnings("unchecked")
 	public void mouseDragged(MouseEvent e) {
 		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
-
+        
 		if (vertex != null) {
 			if (allowMovingNodes && down != null) {
 				Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
 				Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
 				Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
 				Layout<V, E> layout = vv.getGraphLayout();
+				
 				PickedState<V> ps = vv.getPickedVertexState();
 
 				for (V v : ps.getPicked()) {
-					layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+					if(!layout.isLocked(v)) {
+						layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+						nodesMoved = true;
+					}
 				}
 
-				nodesMoved = true;
-				vv.repaint();
+				if(nodesMoved) vv.repaint();
 			}
 
 			down = e.getPoint();

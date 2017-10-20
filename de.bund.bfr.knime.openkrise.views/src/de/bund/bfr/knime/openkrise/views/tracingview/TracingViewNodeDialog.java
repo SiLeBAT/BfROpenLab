@@ -31,7 +31,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -61,6 +60,9 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionListener;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.IExplosionCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
 import de.bund.bfr.knime.ui.Dialogs;
@@ -70,7 +72,7 @@ import de.bund.bfr.knime.ui.Dialogs;
  * 
  * @author Christian Thoens
  */
-public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements CanvasListener, TracingListener {
+public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements ExplosionListener, CanvasListener, TracingListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -85,7 +87,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	private TracingViewSettings set;
 	private Deque<TracingChange> undoStack;
 	private Deque<TracingChange> redoStack;
-
+	
 	private Transform transform;
 	private Set<String> selectedNodes;
 	private Set<String> selectedEdges;
@@ -136,225 +138,270 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	private ItemListener gisBoxListener;
 
 	private JScrollPane northScrollPane;
+	
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
 	 */
 	protected TracingViewNodeDialog() {
-		set = new TracingViewSettings();
-		undoStack = new LinkedList<>();
-		redoStack = new LinkedList<>();
+//		this.initializeFileLogging();
+		this.set = new TracingViewSettings();
+		this.undoStack = new LinkedList<>();
+		this.redoStack = new LinkedList<>();
 
-		undoButton = new JButton("Undo");
-		undoButton.addActionListener(e -> undoRedoPressed(true));
-		redoButton = new JButton("Redo");
-		redoButton.addActionListener(e -> undoRedoPressed(false));
-		resetWeightsButton = new JButton("Reset Weights");
-		resetWeightsButton.addActionListener(e -> resetPressed(resetWeightsButton));
-		resetCrossButton = new JButton("Reset Cross Contamination");
-		resetCrossButton.addActionListener(e -> resetPressed(resetCrossButton));
-		resetKillButton = new JButton("Reset Kill Contamination");
-		resetKillButton.addActionListener(e -> resetPressed(resetKillButton));
-		resetObservedButton = new JButton("Reset Observed");
-		resetObservedButton.addActionListener(e -> resetPressed(resetObservedButton));
-		exportAsSvgBox = new JCheckBox("Export As Svg");
-		switchButton = new JButton();
-		switchButton.addActionListener(e -> switchPressed());
-		gisBox = new JComboBox<>();
-		gisBox.addItemListener(gisBoxListener = UI.newItemSelectListener(e -> gisTypeChanged()));
+		this.undoButton = new JButton("Undo");
+		this.undoButton.addActionListener(e -> undoRedoPressed(true));
+		this.redoButton = new JButton("Redo");
+		this.redoButton.addActionListener(e -> undoRedoPressed(false));
+		this.resetWeightsButton = new JButton("Reset Weights");
+		this.resetWeightsButton.addActionListener(e -> resetPressed(resetWeightsButton));
+		this.resetCrossButton = new JButton("Reset Cross Contamination");
+		this.resetCrossButton.addActionListener(e -> resetPressed(resetCrossButton));
+		this.resetKillButton = new JButton("Reset Kill Contamination");
+		this.resetKillButton.addActionListener(e -> resetPressed(resetKillButton));
+		this.resetObservedButton = new JButton("Reset Observed");
+		this.resetObservedButton.addActionListener(e -> resetPressed(resetObservedButton));
+		this.exportAsSvgBox = new JCheckBox("Export As Svg");
+		this.switchButton = new JButton();
+		this.switchButton.addActionListener(e -> switchPressed());
+		this.gisBox = new JComboBox<>();
+		this.gisBox.addItemListener(this.gisBoxListener = UI.newItemSelectListener(e -> gisTypeChanged()));
 
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
-		northPanel.add(UI.createHorizontalPanel(undoButton, redoButton, resetWeightsButton, resetCrossButton,
-				resetKillButton, resetObservedButton, exportAsSvgBox), BorderLayout.WEST);
-		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel("GIS Type:"), gisBox), BorderLayout.EAST);
+		northPanel.add(UI.createHorizontalPanel(this.undoButton, this.redoButton, this.resetWeightsButton, this.resetCrossButton,
+				this.resetKillButton, this.resetObservedButton, this.exportAsSvgBox), BorderLayout.WEST);
+		northPanel.add(UI.createHorizontalPanel(this.switchButton, new JLabel("GIS Type:"), this.gisBox), BorderLayout.EAST);
 		northScrollPane = new JScrollPane(northPanel);
 		panel = UI.createNorthPanel(northScrollPane);
 
-		addTab("Options", panel, false);
+		this.addTab("Options", panel, false);
 	}
+	
+//	private void initializeFileLogging() {
+//		// File Handler erzeugen
+//		try {
+//			FileHandler file_handler = new FileHandler("C:\\Temp\\FCL.log");
+//			// Formatter erzeugen
+//			// SimpleFormatter klartext = new SimpleFormatter();
+//			MyFormatter klartext = new MyFormatter();
+//			file_handler.setFormatter(klartext);
+//			logger.addHandler(file_handler);
+//			logger.setLevel(Level.ALL);
+//		} catch (SecurityException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}	finally
+//		{}
+//	}
+	
+//	private class MyFormatter extends Formatter {
+//
+//		@Override
+//		public String format(LogRecord arg0) {
+//			// TODO Auto-generated method stub
+//			Calendar cal = Calendar.getInstance();
+//			cal.setTimeInMillis(arg0.getMillis());
+//			Date date = cal.getTime();
+//			
+//			return arg0.getLevel().getName() + "\t" + 
+//			      String.format("%04d%02d%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)) + 
+//			      String.format("%02d%02d%02d.%03d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND)) + 
+//			      "\t" + 
+//			      arg0.getSourceClassName() + "\t" +
+//			      arg0.getSourceMethodName() + "\t" + 
+//			      arg0.getMessage() + "\r\n";
+//		}
+//		
+//	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
-		nodeTable = (BufferedDataTable) input[0];
-		edgeTable = (BufferedDataTable) input[1];
-		tracingTable = (BufferedDataTable) input[2];
-		shapeTable = (BufferedDataTable) input[3];
-		set.loadSettings(settings);
-
-		undoButton.setEnabled(false);
-		redoButton.setEnabled(false);
-		undoStack.clear();
-		redoStack.clear();
-
-		gisBox.removeItemListener(gisBoxListener);
-		gisBox.removeAllItems();
+		
+		this.nodeTable = (BufferedDataTable) input[0];
+		this.edgeTable = (BufferedDataTable) input[1];
+		this.tracingTable = (BufferedDataTable) input[2];
+		this.shapeTable = (BufferedDataTable) input[3];
+		this.set.loadSettings(settings);
+		
+		this.undoButton.setEnabled(false);
+		this.redoButton.setEnabled(false);
+		this.undoStack.clear();
+		this.redoStack.clear();
+		
+		this.gisBox.removeItemListener(this.gisBoxListener);
+		this.gisBox.removeAllItems();
 
 		for (GisType type : GisType.values()) {
-			if (shapeTable != null || type != GisType.SHAPEFILE) {
-				gisBox.addItem(type);
+			if (this.shapeTable != null || type != GisType.SHAPEFILE) {
+				this.gisBox.addItem(type);
 			}
 		}
 
-		if (shapeTable == null && set.getGisType() == GisType.SHAPEFILE) {
-			set.setGisType(GisType.MAPNIK);
+		if (this.shapeTable == null && this.set.getGisType() == GisType.SHAPEFILE) {
+			this.set.setGisType(GisType.MAPNIK);
 		}
 
-		gisBox.setSelectedItem(set.getGisType());
-		gisBox.addItemListener(gisBoxListener);
-		gisBox.setEnabled(set.isShowGis());
-		exportAsSvgBox.setSelected(set.isExportAsSvg());
-		resized = false;
-		panel.addComponentListener(new ComponentAdapter() {
+		this.gisBox.setSelectedItem(set.getGisType());
+		this.gisBox.addItemListener(gisBoxListener);
+		this.gisBox.setEnabled(set.isShowGis());
+		this.exportAsSvgBox.setSelected(set.isExportAsSvg());
+		this.resized = false;
+		this.panel.addComponentListener(new ComponentAdapter() {
 
 			@Override
 			public void componentResized(ComponentEvent e) {
 				if (SwingUtilities.getWindowAncestor(e.getComponent()).isActive()) {
-					resized = true;
+					TracingViewNodeDialog.this.resized = true;
 				}
 
-				if (northScrollPane.getSize().width < northScrollPane.getPreferredSize().width) {
-					if (northScrollPane
+				if (TracingViewNodeDialog.this.northScrollPane.getSize().width < TracingViewNodeDialog.this.northScrollPane.getPreferredSize().width) {
+					if (TracingViewNodeDialog.this.northScrollPane
 							.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
-						northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-						northScrollPane.getParent().revalidate();
+						TracingViewNodeDialog.this.northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+						TracingViewNodeDialog.this.northScrollPane.getParent().revalidate();
 					}
 				} else {
-					if (northScrollPane
+					if (TracingViewNodeDialog.this.northScrollPane
 							.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
-						northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-						northScrollPane.getParent().revalidate();
+						TracingViewNodeDialog.this.northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+						TracingViewNodeDialog.this.northScrollPane.getParent().revalidate();
 					}
 				}
 			}
 		});
 
-		createCanvas(false);
-		updateStatusVariables();
+		this.createCanvas(false);
+		this.updateStatusVariables();
+		
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		updateSettings();
-		set.saveSettings(settings);
+		this.updateSettings();
+		this.set.saveSettings(settings);
 	}
 
 	@Override
 	public void transformChanged(ICanvas<?> source) {
-		Transform newTransform = canvas.getTransform();
+		Transform newTransform = this.canvas.getTransform();
 
-		if (changeOccured(new TracingChange.Builder().transform(transform, newTransform).build())) {
-			transform = newTransform;
+		if (this.changeOccured(new TracingChange.Builder().transform(this.transform, newTransform).build())) {
+			this.transform = newTransform;
 		}
 	}
 
 	@Override
 	public void selectionChanged(ICanvas<?> source) {
-		Set<String> newNodeSelection = canvas.getSelectedNodeIds();
-		Set<String> newEdgeSelection = canvas.getSelectedEdgeIds();
+		Set<String> newNodeSelection = this.canvas.getSelectedNodeIds();
+		Set<String> newEdgeSelection = this.canvas.getSelectedEdgeIds();
 
-		if (changeOccured(new TracingChange.Builder().selectedNodes(selectedNodes, newNodeSelection)
-				.selectedEdges(selectedEdges, newEdgeSelection).build())) {
-			selectedNodes = new LinkedHashSet<>(newNodeSelection);
-			selectedEdges = new LinkedHashSet<>(newEdgeSelection);
+		if (this.changeOccured(new TracingChange.Builder().selectedNodes(this.selectedNodes, newNodeSelection)
+				.selectedEdges(this.selectedEdges, newEdgeSelection).build())) {
+			this.selectedNodes = new LinkedHashSet<>(newNodeSelection);
+			this.selectedEdges = new LinkedHashSet<>(newEdgeSelection);
 		}
 	}
 
 	@Override
 	public void nodeSelectionChanged(ICanvas<?> source) {
-		Set<String> newSelection = canvas.getSelectedNodeIds();
+		Set<String> newSelection = this.canvas.getSelectedNodeIds();
 
-		if (changeOccured(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection).build())) {
-			selectedNodes = new LinkedHashSet<>(newSelection);
+		if (this.changeOccured(new TracingChange.Builder().selectedNodes(this.selectedNodes, newSelection).build())) {
+			this.selectedNodes = new LinkedHashSet<>(newSelection);
 		}
 	}
 
 	@Override
 	public void edgeSelectionChanged(ICanvas<?> source) {
-		Set<String> newSelection = canvas.getSelectedEdgeIds();
+		Set<String> newSelection = this.canvas.getSelectedEdgeIds();
 
-		if (changeOccured(new TracingChange.Builder().selectedEdges(selectedEdges, newSelection).build())) {
-			selectedEdges = new LinkedHashSet<>(newSelection);
+		if (this.changeOccured(new TracingChange.Builder().selectedEdges(this.selectedEdges, newSelection).build())) {
+			this.selectedEdges = new LinkedHashSet<>(newSelection);
 		}
 	}
 
 	@Override
 	public void nodeHighlightingChanged(ICanvas<?> source) {
-		HighlightConditionList newHighlighting = canvas.getNodeHighlightConditions();
+		HighlightConditionList newHighlighting = this.canvas.getNodeHighlightConditions();
 
-		if (changeOccured(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newHighlighting).build())) {
-			nodeHighlighting = newHighlighting.copy();
+		if (this.changeOccured(new TracingChange.Builder().nodeHighlighting(this.nodeHighlighting, newHighlighting).build())) {
+			this.nodeHighlighting = newHighlighting.copy();
 		}
 	}
 
 	@Override
 	public void edgeHighlightingChanged(ICanvas<?> source) {
-		HighlightConditionList newHighlighting = canvas.getEdgeHighlightConditions();
+		HighlightConditionList newHighlighting = this.canvas.getEdgeHighlightConditions();
 
-		if (changeOccured(new TracingChange.Builder().edgeHighlighting(edgeHighlighting, newHighlighting).build())) {
-			edgeHighlighting = newHighlighting.copy();
+		if (this.changeOccured(new TracingChange.Builder().edgeHighlighting(this.edgeHighlighting, newHighlighting).build())) {
+			this.edgeHighlighting = newHighlighting.copy();
 		}
 	}
 
 	@Override
 	public void highlightingChanged(ICanvas<?> source) {
-		HighlightConditionList newNodeHighlighting = canvas.getNodeHighlightConditions();
-		HighlightConditionList newEdgeHighlighting = canvas.getEdgeHighlightConditions();
+		HighlightConditionList newNodeHighlighting = this.canvas.getNodeHighlightConditions();
+		HighlightConditionList newEdgeHighlighting = this.canvas.getEdgeHighlightConditions();
 
-		if (changeOccured(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newNodeHighlighting)
-				.edgeHighlighting(edgeHighlighting, newEdgeHighlighting).build())) {
-			nodeHighlighting = newNodeHighlighting.copy();
-			edgeHighlighting = newEdgeHighlighting.copy();
+		if (this.changeOccured(new TracingChange.Builder().nodeHighlighting(this.nodeHighlighting, newNodeHighlighting)
+				.edgeHighlighting(this.edgeHighlighting, newEdgeHighlighting).build())) {
+			this.nodeHighlighting = newNodeHighlighting.copy();
+			this.edgeHighlighting = newEdgeHighlighting.copy();
 		}
 	}
 
 	@Override
 	public void layoutProcessFinished(ICanvas<?> source) {
-		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
-		Transform newTransform = canvas.getTransform();
+		Map<String, Point2D> newPositions = ((GraphCanvas) this.canvas).getNodePositions();
+		Transform newTransform = this.canvas.getTransform();
 
-		if (changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions)
-				.transform(transform, newTransform).build())) {
-			nodePositions = new LinkedHashMap<>(newPositions);
-			transform = newTransform;
+		if (this.changeOccured(new TracingChange.Builder().nodePositions(this.nodePositions, newPositions)
+				.transform(this.transform, newTransform).build())) {
+			this.nodePositions = new LinkedHashMap<>(newPositions);
+			this.transform = newTransform;
 		}
 	}
 
 	@Override
 	public void nodePositionsChanged(ICanvas<?> source) {
-		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
+		Map<String, Point2D> newPositions = ((GraphCanvas) this.canvas).getNodePositions();
 
-		if (changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build())) {
-			nodePositions = new LinkedHashMap<>(newPositions);
+		if (this.changeOccured(new TracingChange.Builder().nodePositions(this.nodePositions, newPositions).build())) {
+			this.nodePositions = new LinkedHashMap<>(newPositions);
 		}
 	}
 
 	@Override
 	public void edgeJoinChanged(ICanvas<?> source) {
-		boolean newEdgeJoin = canvas.getOptionsPanel().isJoinEdges();
+		boolean newEdgeJoin = this.canvas.getOptionsPanel().isJoinEdges();
 
-		if (changeOccured(new TracingChange.Builder().joinEdges(joinEdges, newEdgeJoin).build())) {
-			joinEdges = newEdgeJoin;
+		if (this.changeOccured(new TracingChange.Builder().joinEdges(this.joinEdges, newEdgeJoin).build())) {
+			this.joinEdges = newEdgeJoin;
 		}
 	}
 
 	@Override
 	public void skipEdgelessChanged(ICanvas<?> source) {
-		boolean newSkipEdgeless = canvas.getOptionsPanel().isSkipEdgelessNodes();
+		boolean newSkipEdgeless = this.canvas.getOptionsPanel().isSkipEdgelessNodes();
 
-		if (changeOccured(new TracingChange.Builder().skipEdgelessNodes(skipEdgelessNodes, newSkipEdgeless).build())) {
-			skipEdgelessNodes = newSkipEdgeless;
+		if (this.changeOccured(new TracingChange.Builder().skipEdgelessNodes(this.skipEdgelessNodes, newSkipEdgeless).build())) {
+			this.skipEdgelessNodes = newSkipEdgeless;
 		}
 	}
 
 	@Override
 	public void showEdgesInMetaNodeChanged(ICanvas<?> source) {
-		boolean newShowEdgesInMeta = canvas.getOptionsPanel().isShowEdgesInMetaNode();
+		boolean newShowEdgesInMeta = this.canvas.getOptionsPanel().isShowEdgesInMetaNode();
 
-		if (changeOccured(
-				new TracingChange.Builder().showEdgesInMetaNode(showEdgesInMetaNode, newShowEdgesInMeta).build())) {
-			showEdgesInMetaNode = newShowEdgesInMeta;
+		if (this.changeOccured(
+				new TracingChange.Builder().showEdgesInMetaNode(this.showEdgesInMetaNode, newShowEdgesInMeta).build())) {
+			this.showEdgesInMetaNode = newShowEdgesInMeta;
 		}
 	}
 
@@ -614,14 +661,15 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	}
 
 	private void gisTypeChanged() {
-		updateSettings();
-		changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), set.isShowGis(), set.getGisType(),
-				(GisType) gisBox.getSelectedItem()));
+		this.updateSettings();
+		this.changeOccured(TracingChange.Builder.createViewChange(
+				set.isShowGis(), set.isShowGis(), set.getGisType(), (GisType) gisBox.getSelectedItem()));
 		set.setGisType((GisType) gisBox.getSelectedItem());
-		updateCanvas();
+		this.updateCanvas();
 	}
 
 	private String createCanvas(boolean isUpdate) throws NotConfigurableException {
+		
 		if (canvas != null) {
 			panel.remove(canvas.getComponent());
 		}
@@ -629,11 +677,21 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(nodeTable, edgeTable, tracingTable, shapeTable,
 				set);
 
-		canvas = set.isShowGis() ? creator.createGisCanvas() : creator.createGraphCanvas();
+		boolean isGisAvailable = creator.hasGisCoordinates();
+		boolean isGraphViewEnforced = (!isGisAvailable || set.getGisType() == GisType.SHAPEFILE) && set.isShowGis();
+		if(isGraphViewEnforced) this.forceGraphView();
+		
+		
+		if(this.set.getExplosionSettingsList().getActiveExplosionSettings()==null) {
+		    canvas = ((set.isShowGis() && isGisAvailable) ? creator.createGisCanvas() : creator.createGraphCanvas());
+		} else {
+			canvas = ((set.isShowGis() && isGisAvailable) ? creator.createExplosionGisCanvas() : creator.createExplosionGraphCanvas());
+		}
 		canvas.addCanvasListener(this);
 		canvas.addTracingListener(this);
-		switchButton.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
-		switchButton.setEnabled(creator.hasGisCoordinates());
+		if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas<?>) canvas).addExplosionListener(this);
+		switchButton.setText("Switch to " + ((canvas instanceof IGisCanvas) ? "Graph" : "GIS"));
+		switchButton.setEnabled(isGisAvailable);
 
 		String warningTable = null;
 
@@ -660,12 +718,19 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showInfoMessage(panel, TracingUtils.LOT_BASED_INFO));
 		}
 
+
 		panel.add(canvas.getComponent(), BorderLayout.CENTER);
+
 		panel.revalidate();
+		
+		if(isGraphViewEnforced) Dialogs.showInfoMessage(this.getPanel(), 
+				(isGisAvailable?
+						"An explosion is not supported for Shapefile views. Graph mode was activated.":
+						"No GIS information available. Graph mode was activated."));    
 
 		return warning;
 	}
-
+	
 	private void updateCanvas() {
 		undoButton.setEnabled(false);
 		redoButton.setEnabled(false);
@@ -691,7 +756,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 	private void updateSettings() {
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 		set.setFromCanvas(canvas, resized);
-
+		
 		if (canvas instanceof GraphCanvas) {
 			set.getGraphSettings().setFromCanvas((GraphCanvas) canvas);
 		} else if (canvas instanceof IGisCanvas) {
@@ -710,6 +775,25 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		redoButton.setEnabled(false);
 
 		return true;
+	}
+	
+	/**
+	 * Forces the view mode to graph mode and inserts an appropriate TracingChange to make this action available to undo
+	 */
+	private void forceGraphView() {
+		
+		if(!undoStack.isEmpty()) {
+			
+			TracingChange lastTracingChange = undoStack.pop();
+			TracingChange newTracingChange = TracingChange.Builder.createViewChange(
+					set.isShowGis(), false, set.getGisType(), set.getGisType());
+			
+			undoStack.push(newTracingChange);
+			undoStack.push(lastTracingChange);
+			
+		}
+		
+		this.set.setShowGis(false);
 	}
 
 	private void updateStatusVariables() {
@@ -779,17 +863,27 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			updateGisBox();
 			updateCanvas();
 		} else {
+			
 			canvas.removeCanvasListener(this);
 			canvas.removeTracingListener(this);
+			if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas<?>) canvas).removeExplosionListener(this);
 
 			if (undo) {
 				change.undo(canvas);
 			} else {
 				change.redo(canvas);
 			}
-
+			
+			if(canvas instanceof ExplosionTracingGraphCanvas) {
+				// this is needed because an undo/redo operation might effect the node positions, but the operation 
+				// does not effect the prepaintables which are responsible for drawing the boundary area
+				((ExplosionTracingGraphCanvas) canvas).placeBoundaryNodes(true);
+			}
+			
 			canvas.addCanvasListener(this);
 			canvas.addTracingListener(this);
+			if(canvas instanceof IExplosionCanvas) ((IExplosionCanvas<?>) canvas).addExplosionListener(this);
+		
 			updateStatusVariables();
 		}
 
@@ -827,8 +921,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 	private void switchPressed() {
 		updateSettings();
-		changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), !set.isShowGis(), set.getGisType(),
-				set.getGisType()));
+		this.changeOccured(TracingChange.Builder.createViewChange(
+				set.isShowGis(), !set.isShowGis(), set.getGisType(), set.getGisType()));
 		set.setShowGis(!set.isShowGis());
 		gisBox.setEnabled(set.isShowGis());
 		updateCanvas();
@@ -841,4 +935,45 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 
 		return copy;
 	}
+
+	@Override
+	public void openExplosionViewRequested(ICanvas<?> source, String strKey) { 
+		
+		updateSettings();
+		
+        ExplosionSettings objFromES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
+
+		ExplosionSettings objToES = this.set.getExplosionSettingsList().setActiveExplosionSettings(strKey, this.collapsedNodes.get(strKey)); //, containedNodes);
+		
+		this.changeOccured(TracingChange.Builder.createViewChange(
+				this.set.isShowGis(), this.set.isShowGis(), this.set.getGisType(),
+				this.set.getGisType(), objFromES, objToES, TracingChange.ExplosionViewAction.Opened));
+		
+		updateCanvas();
+	}
+	
+	@Override
+	public void closeExplosionViewRequested(IExplosionCanvas<?> source) {
+		
+		ExplosionSettings objCloseES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
+		if(objCloseES==null) return; 
+		
+		updateSettings();
+		
+		this.set.getExplosionSettingsList().setActiveExplosionSettings(objCloseES, false);
+		
+		this.changeOccured(TracingChange.Builder.createViewChange(
+				this.set.isShowGis(), this.set.isShowGis(), this.set.getGisType(),
+				this.set.getGisType(), objCloseES, this.set.getExplosionSettingsList().getActiveExplosionSettings(),TracingChange.ExplosionViewAction.Closed));
+		
+	    updateCanvas();
+	}
+	
+
+	@Override
+	public void nodeSubsetChanged(ICanvas<?> source) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

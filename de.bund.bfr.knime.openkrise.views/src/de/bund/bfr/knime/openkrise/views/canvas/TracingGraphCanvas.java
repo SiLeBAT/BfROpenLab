@@ -19,17 +19,18 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
@@ -39,6 +40,8 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<GraphNode> {
 
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	private static final long serialVersionUID = 1L;
 
 	private TracingDelegate<GraphNode> tracing;
@@ -52,6 +55,13 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased) {
 		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING,
 				true);
+		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
+	}
+	
+	public TracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, boolean allowCollapse) {
+		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING,
+				allowCollapse);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 
@@ -223,10 +233,20 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	public void applyChanges() {
 		tracing.applyChanges();
 	}
-
+	
 	@Override
-	public void doubleClickedOn(Object obj) {
-		tracing.doubleClickedOn(obj);
+	public void doubleClickedOn(Object obj, MouseEvent e) {
+		
+		if(e.isControlDown() && (obj instanceof Node) && this.collapsedNodes.containsKey(((Node) obj).getId())) {
+			// Strg + DoubleClick on meta node
+			
+			this.openExplosionViewItemClicked();
+			
+		} else {
+			
+			tracing.doubleClickedOn(obj);
+			
+		}		
 	}
 
 	@Override
@@ -238,6 +258,9 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 		return dialog;
 	}
 
+	@Override
+	protected boolean isExplosionViewSupported() { return true; }
+	
 	@Override
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		HighlightListDialog dialog = super.openEdgeHighlightDialog();
@@ -251,4 +274,5 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	protected PropertySelectorCreator createPropertySelectorCreator() {
 		return new TracingPropertySelectorCreator(metaNodeProperty);
 	}
+
 }

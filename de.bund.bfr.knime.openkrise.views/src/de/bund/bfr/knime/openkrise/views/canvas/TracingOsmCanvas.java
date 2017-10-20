@@ -19,17 +19,18 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
@@ -39,18 +40,25 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCanvas<LocationNode> {
 
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	private static final long serialVersionUID = 1L;
 
 	private TracingDelegate<LocationNode> tracing;
 
 	public TracingOsmCanvas() {
 		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(),
-				new LinkedHashMap<>(0), false);
+				new LinkedHashMap<>(0), false, true);
 	}
 
 	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
 			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased) {
-		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING);
+		this(nodes, edges, nodeProperties, edgeProperties, deliveries, lotBased, true);
+	}
+	
+	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries, boolean lotBased, boolean allowCollapse) {
+		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING, allowCollapse);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 
@@ -222,10 +230,23 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	public void applyChanges() {
 		tracing.applyChanges();
 	}
+	
+	@Override
+	protected boolean isExplosionViewSupported() { return true; }
 
 	@Override
-	public void doubleClickedOn(Object obj) {
-		tracing.doubleClickedOn(obj);
+	public void doubleClickedOn(Object obj, MouseEvent e) {
+			
+		if(e.isControlDown() && (obj instanceof Node) && this.collapsedNodes.containsKey(((Node) obj).getId())) {
+			// Strg + DoubleClick on meta node
+				
+			this.openExplosionViewItemClicked();
+				
+		} else {
+			
+			tracing.doubleClickedOn(obj);
+				
+		}		
 	}
 
 	@Override

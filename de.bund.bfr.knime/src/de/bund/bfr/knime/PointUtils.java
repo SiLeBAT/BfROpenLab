@@ -24,7 +24,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
 public class PointUtils {
-
+	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	
 	private PointUtils() {
 	}
 
@@ -37,17 +38,13 @@ public class PointUtils {
 	}
 
 	public static Point2D getCenter(Collection<Point2D> points) {
-		if (points.isEmpty()) {
-			return null;
-		}
+		if (points.isEmpty()) return null;
 
 		double x = 0.0;
 		double y = 0.0;
 
 		for (Point2D p : points) {
-			if (p == null) {
-				return null;
-			}
+			if (p == null) return null;
 
 			x += p.getX();
 			y += p.getY();
@@ -55,7 +52,7 @@ public class PointUtils {
 
 		x /= points.size();
 		y /= points.size();
-
+		
 		return new Point2D.Double(x, y);
 	}
 
