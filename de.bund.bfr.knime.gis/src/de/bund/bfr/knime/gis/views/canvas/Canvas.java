@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,6 +57,7 @@ import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
@@ -879,91 +881,94 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override 
 	public void collapseSimpleChainsItemClicked() {
 		// collect simple chains
-		ArrayList<ArrayList<String>> SCL = getSimpleChains();
+		List<List<V>> simpleChainList = getSimpleChains();
 		
-		Set<String> newCollapsedIds = new LinkedHashSet<>();
-
-		SCL.forEach(sc -> {
-			// for each simple chain add a new collapsed node
-			String newId = KnimeUtils.createNewValue("SC_" + sc.get(0).toString() + "_" + sc.get(sc.size()-1).toString(), nodeSaveMap.keySet());
-
-			collapsedNodes.put(newId,new HashSet<String>(sc));      
-			newCollapsedIds.add(newId);
-		});
-
-		applyChanges();
-		setSelectedNodeIdsWithoutListener(newCollapsedIds);
-		call(l -> l.collapsedNodesAndPickingChanged(this));
+		if (simpleChainList.size()>1) {
+			Set<String> simpleChainIds = new HashSet<>();
+			// c
+			Map<String, Set<String>> newCollapsedNodes = this.collapsedNodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<>(e.getValue())));
+	
+			simpleChainList.forEach(simpleChain -> {
+				// for each simple chain add a new collapsed node
+				String newId = KnimeUtils.createNewValue(
+						"SC:" + simpleChain.get(0).getId().toString() + "->" + simpleChain.get(simpleChain.size()-1).getId().toString(), nodeSaveMap.keySet());
+				
+				
+				newCollapsedNodes.put(newId, simpleChain.stream().map(n -> n.getId()).collect(Collectors.toSet()));
+				simpleChainIds.add(newId);
+			});
+			
+			this.setCollapsedNodes(newCollapsedNodes);
+//			applyChanges();
+			setSelectedNodeIdsWithoutListener(simpleChainIds);
+//			call(l -> l.collapsedNodesAndPickingChanged(this));
+		}
 	
 	}
 	
 	
 	/* *
-	 * @return list of nodeId - lists. Each nodeId list represents a simple chain.
+	 * @return list of node - lists. Each list element represents a simple chain.
 	 */
-	private ArrayList<ArrayList<String>> getSimpleChains() {
-		// create Neighbour structures
-		// fromNeighbours contains for each station X all stations station X gets a delivery from
-		// toNeighbours contains for each station X all stations which gets a delivery from station X
-		Map<String, Set<String>> fromNeighbours = new LinkedHashMap<>();
-		Map<String, Set<String>> toNeighbours = new LinkedHashMap<>();
-		edges.forEach(e -> {
-			if(fromNeighbours.containsKey(e.getTo().getId())) {
-				fromNeighbours.get(e.getTo().getId()).add(e.getFrom().getId());
-			} else {
-				fromNeighbours.put(e.getTo().getId(), new HashSet<>(Arrays.asList(e.getFrom().getId()))); 
-			}
-			if(toNeighbours.containsKey(e.getFrom().getId())) {
-				toNeighbours.get(e.getFrom().getId()).add(e.getTo().getId());
-			} else {
-				toNeighbours.put(e.getFrom().getId(), new HashSet<>(Arrays.asList(e.getTo().getId())));
-			}
-		});
-		// collect node sets which can start or end a simple chain
-		// be aware that an inner node is a potential start node and a potential end node
-		Set<String> scEndings = new HashSet<String>(); 
-		Set<String> scStarter = new HashSet<String>(); 
-		fromNeighbours.forEach((key, value) -> {
-			if(value.size()==1 && !value.contains(key)) scEndings.add(key);
-		});
-		toNeighbours.forEach((key, value) -> {
-			if(value.size()==1 && !value.contains(key)) scStarter.add(key); 
-		});
-		// collect the nodes that are already contained in other collapsed sets
-		Set<String> containedNodes = new HashSet<String>(); 
-		collapsedNodes.values().forEach(nS -> containedNodes.addAll(nS));
+	private List<List<V>> getSimpleChains() {
 		
-		// remove the already contained nodes and the collapsed nodes from the simple chain nodes
-		scEndings.removeAll(containedNodes);
-		scEndings.removeAll(collapsedNodes.keySet());
-		scStarter.removeAll(containedNodes);
-		scStarter.removeAll(collapsedNodes.keySet());
+		SetMultimap<V, V> inNodes = LinkedHashMultimap.create();
+		SetMultimap<V, V> outNodes = LinkedHashMultimap.create();
+		for(Edge<V> edge: this.edges) {
+			inNodes.put(edge.getTo(), edge.getFrom());
+			outNodes.put(edge.getFrom(), edge.getTo());
+		}
 		
-		// nodes that are already covered
-		Set<String> coveredNodes = new HashSet<String>();
-		ArrayList<ArrayList<String>> res = new ArrayList<ArrayList<String>>();
+		Set<V> blockedNodes = CanvasUtils.getElementsById(this.nodeSaveMap, this.collapsedNodes.keySet());
+		for(String metaKey: this.collapsedNodes.keySet()) {
+			blockedNodes.addAll(CanvasUtils.getElementsById(this.nodeSaveMap, this.collapsedNodes.get(metaKey)));
+		}
+		blockedNodes.addAll(inNodes.asMap().entrySet().stream().filter(e -> e.getValue().size()!=1).map(Map.Entry::getKey).collect(Collectors.toSet()));
+		blockedNodes.addAll(outNodes.asMap().entrySet().stream().filter(e -> e.getValue().size()!=1).map(Map.Entry::getKey).collect(Collectors.toSet()));
+		blockedNodes.addAll(Sets.difference(this.nodes, Sets.intersection(inNodes.keySet(),outNodes.keySet())));
 		
-		scStarter.forEach(k -> {
-			if(!coveredNodes.contains(k)) {
-				// this is a new chain (although it might be be to short)
-				String s = k;
-				// go to the head of the chain
-				while(scEndings.contains(s)) s = fromNeighbours.get(s).iterator().next();
-				
-				ArrayList<String> sc = new ArrayList<String>();
-				sc.add(s);
-				while(scStarter.contains(s)) {
-					// traverse the chain and collect the traversed nodes
-					s = toNeighbours.get(s).iterator().next();
-					sc.add(s);
-				}
-				// mark the chain nodes as covered
-				coveredNodes.addAll(sc);
-				// add the chain if it contains at least 2 nodes
-				if(sc.size()>1) res.add(sc);
-			}
-		});
-		return res;
+		Set<V> allowedNodes = new HashSet<>(Sets.difference(this.nodes, blockedNodes)); //.stream().collect(Collectors.toSet());
+		
+		Map<V,V> inNodeMap = allowedNodes.stream()
+				.collect(Collectors.toMap(Function.identity(), n -> Iterables.getOnlyElement(inNodes.get(n))));
+		Map<V,V> outNodeMap = allowedNodes.stream()
+				.collect(Collectors.toMap(Function.identity(), n -> Iterables.getOnlyElement(outNodes.get(n))));       
+		
+		List<List<V>> result = new ArrayList<>();
+	    
+	    while (!allowedNodes.isEmpty()) {
+	    	V node = allowedNodes.iterator().next();
+	    	V headNode = node;
+		    V headTrailNode;
+		    
+		    // find the start node
+		    do {
+		    	headTrailNode = headNode;
+		    	headNode = inNodeMap.get(headNode);
+		    } while (headNode != node && allowedNodes.contains(headNode));
+		    
+		    if (headNode == node) {
+		    	// this is a cycle
+		    	do {
+		    		allowedNodes.remove(node);
+		    		node = outNodeMap.get(node);
+		    	} while (node != headNode);
+		    	
+		    } else {
+		    	// collect the chain elements
+		    	List<V> newSC = new ArrayList<>();
+		    	node = headTrailNode;
+		    	do {
+		    		newSC.add(node);
+		    		allowedNodes.remove(node);
+		    		node = outNodeMap.get(node);
+		    	} while (allowedNodes.contains(node));
+		    	
+		    	if (newSC.size() > 1) result.add(newSC);
+		    }
+	    }
+			
+		return result;
 	}
 	
 	@SuppressWarnings("unchecked")
