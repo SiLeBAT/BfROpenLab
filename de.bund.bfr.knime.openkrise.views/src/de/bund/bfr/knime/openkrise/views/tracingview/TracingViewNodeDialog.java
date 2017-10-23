@@ -899,7 +899,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	}
 
 	private void resetPressed(JButton button) {
-		if (Dialogs.showOkCancelDialog(canvas.getComponent(), "This cannot be made undone. Proceed?",
+		if (Dialogs.showOkCancelDialog(canvas.getComponent(), "Undo/Redo history will be cleared after that action. Proceed?",
 				button.getText()) == Dialogs.OkCancelResult.OK) {
 			updateSettings();
 
