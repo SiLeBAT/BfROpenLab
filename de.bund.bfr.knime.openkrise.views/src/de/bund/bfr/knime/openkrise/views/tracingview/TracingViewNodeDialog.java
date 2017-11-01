@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemListener;
@@ -32,13 +31,9 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -143,8 +138,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	private ItemListener gisBoxListener;
 
 	private JScrollPane northScrollPane;
-	
-	private int lastSaveCode;
 	
 	
 	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
@@ -294,14 +287,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 		this.createCanvas(false);
 		this.updateStatusVariables();
-		this.lastSaveCode =  this.set.hashCode();
+		//this.lastSaveCode =  this.set.hashCode();
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		this.updateSettings();
 		this.set.saveSettings(settings);
-		this.lastSaveCode = this.set.hashCode();
+		//this.lastSaveCode = this.set.hashCode();
 	}
 
 	@Override
@@ -695,7 +688,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 				set);
 
 		boolean isGisAvailable = creator.hasGisCoordinates();
-		boolean isGraphViewEnforced = (!isGisAvailable || set.getGisType() == GisType.SHAPEFILE) && set.isShowGis();
+		//boolean isGraphViewEnforced = (!isGisAvailable || set.getGisType() == GisType.SHAPEFILE) && set.isShowGis();
+		boolean isGraphViewEnforced = !isGisAvailable && set.isShowGis();
 		if(isGraphViewEnforced) this.forceGraphView();
 		
 		
@@ -740,10 +734,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 		panel.revalidate();
 		
-		if(isGraphViewEnforced) Dialogs.showInfoMessage(this.getPanel(), 
-				(isGisAvailable?
-						"An explosion is not supported for Shapefile views. Graph mode was activated.":
-						"No GIS information available. Graph mode was activated."));    
+		if(isGraphViewEnforced) Dialogs.showInfoMessage(this.getPanel(), "No GIS information available. Graph mode was activated.");    
 
 		return warning;
 	}
@@ -991,32 +982,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	public void nodeSubsetChanged(ICanvas<?> source) {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	private boolean isDataUnsaved() {
-		if (this.lastSaveCode != this.set.hashCode()) return true;
-		
-		for(TracingChange tc: this.undoStack) {
-			if (!(tc.isViewChange() || tc.isIdentity())) return true;
-		}
-		
-		return false;
-	}
-	
-	@Override
-	public void onClose() {
-//		if (this.isDataUnsaved() && !this.isWriteProtected()) {
-//			switch (Dialogs.showYesNoCancelDialog(this, "There exists unsaved changes. Do you want to save them?", "Confirm"))
-//		case YES:
-//			this.saveSettings
-//			break;
-//		case NO:
-//			break;
-//		case CANCEL:
-//		default:
-//			return;
-//		}
-//		}
 	}
 	
 }

@@ -43,6 +43,7 @@ import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingOsmCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingShapefileCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
@@ -246,13 +247,13 @@ public class TracingViewCanvasCreator {
 		//this.filterExplosionData(nodes, edges, deliveries);
 		
 		if (set.getGisType() == GisType.SHAPEFILE) {
-			// this point should not be reached
-			throw(new NotConfigurableException("An explosion is not supported for shapefile view."));
+//			// this point should not be reached
+//			throw(new NotConfigurableException("An explosion is not supported for shapefile view."));
 		
-//			canvas = new ExplosionTracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
-//					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased, 
-//					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(),
-//					this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodesIds());
+			canvas = new ExplosionTracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased, 
+					this.set.getExplosionSettingsList().getActiveExplosionSettings().getKey(),
+					this.set.getExplosionSettingsList().getActiveExplosionSettings().getContainedNodesIds());
 		} else {
 			canvas = new ExplosionTracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries,
 					lotBased,

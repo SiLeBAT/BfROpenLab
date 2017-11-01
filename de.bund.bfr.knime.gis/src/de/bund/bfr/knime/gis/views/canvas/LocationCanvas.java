@@ -24,6 +24,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -84,7 +85,12 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 			region.updatePolygon(GisUtils.latLonToViz(region.getPolygon()));
 		}
 
-		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
+		//invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
+		this.placeNodes(this.nodes, this.edges);
+	}
+	
+	protected void placeNodes(Set<LocationNode> nodes, Set<Edge<LocationNode>> edges) {
+		this.invalidArea = LocationCanvasUtils.placeNodes(nodes, edges, viewer.getGraphLayout());
 	}
 	
 	public Polygon getInvalidArea() { return this.invalidArea; }
@@ -139,4 +145,5 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	protected LocationNode createMetaNode(String id, Collection<LocationNode> nodes) {
 		return LocationCanvasUtils.createMetaNode(id, nodes, nodeSchema, metaNodeProperty, viewer.getGraphLayout());
 	}
+
 }
