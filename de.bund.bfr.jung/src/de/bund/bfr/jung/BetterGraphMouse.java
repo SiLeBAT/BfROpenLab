@@ -32,17 +32,30 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 	private EventListenerList listeners;
 
 	private boolean pickingDeactivated;
+	
+	private PickingAndTranslatingGraphMousePlugin<V,E> picktransPlugin;
 
 	public BetterGraphMouse(BetterPickingGraphMousePlugin<V, E> pickingPlugin,
-			BetterScalingGraphMousePlugin scalingPlugin) {
+			BetterScalingGraphMousePlugin scalingPlugin, boolean mergePickingAndTranslatingPlugins) {
 		super(1, 1);
 
-		listeners = new EventListenerList();
-		translatingPlugin = new BetterTranslatingGraphMousePlugin();
+		this.listeners = new EventListenerList();
+		this.translatingPlugin = new BetterTranslatingGraphMousePlugin();
 		this.pickingPlugin = pickingPlugin;
 		this.scalingPlugin = scalingPlugin;
-		pickingDeactivated = false;
+		this.pickingDeactivated = false;
+		if(mergePickingAndTranslatingPlugins) {
+			this.picktransPlugin = new PickingAndTranslatingGraphMousePlugin<>(pickingPlugin, (BetterTranslatingGraphMousePlugin) translatingPlugin);
+			this.add(this.picktransPlugin);
+		} else {
+			this.picktransPlugin = null;
+		}
 		add(scalingPlugin);
+	}
+	
+	public BetterGraphMouse(BetterPickingGraphMousePlugin<V, E> pickingPlugin,
+			BetterScalingGraphMousePlugin scalingPlugin) {
+		this(pickingPlugin, scalingPlugin, true);
 	}
 
 	public Mode getMode() {
@@ -53,20 +66,21 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		super.mouseClicked(e);
-
-		if (e.getButton() == MouseEvent.BUTTON2) {
-			BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
-
-			if (mode == Mode.TRANSFORMING) {
-				setMode(Mode.PICKING);
-				vv.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			} else {
-				setMode(Mode.TRANSFORMING);
-				vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		if (this.picktransPlugin == null) {
+			if (e.getButton() == MouseEvent.BUTTON2) {
+				BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
+	
+				if (mode == Mode.TRANSFORMING) {
+					setMode(Mode.PICKING);
+					vv.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				} else {
+					setMode(Mode.TRANSFORMING);
+					vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				}
 			}
+	
+			Stream.of(listeners.getListeners(JungListener.class)).forEach(l -> l.modeChangeFinished());
 		}
-
-		Stream.of(listeners.getListeners(JungListener.class)).forEach(l -> l.modeChangeFinished());
 	}
 
 	@Override
@@ -75,33 +89,49 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	@Override
 	protected void setPickingMode() {
-		remove(translatingPlugin);
-
-		if (!pickingDeactivated) {
-			add(pickingPlugin);
+		if(this.picktransPlugin == null) {
+			remove(translatingPlugin);
+	
+			if (!pickingDeactivated) {
+				add(pickingPlugin);
+			}
 		}
 	}
 
 	@Override
 	protected void setTransformingMode() {
-		remove(pickingPlugin);
-		add(translatingPlugin);
+		if(this.picktransPlugin == null) {
+			remove(pickingPlugin);
+			add(translatingPlugin);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addChangeListener(JungListener listener) {
 		listeners.add(JungListener.class, listener);
-		((BetterTranslatingGraphMousePlugin) translatingPlugin).addChangeListener(listener);
+		//((BetterTranslatingGraphMousePlugin) translatingPlugin).addChangeListener(listener);
 		((BetterScalingGraphMousePlugin) scalingPlugin).addChangeListener(listener);
-		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addChangeListener(listener);
+		//((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addChangeListener(listener);
+		if (this.picktransPlugin == null) {
+			((BetterTranslatingGraphMousePlugin) translatingPlugin).addChangeListener(listener);
+			((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addChangeListener(listener);
+		} else {
+			this.picktransPlugin.addChangeListener(listener);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public void removeChangeListener(JungListener listener) {
 		listeners.remove(JungListener.class, listener);
-		((BetterTranslatingGraphMousePlugin) translatingPlugin).removeChangeListener(listener);
+//		((BetterTranslatingGraphMousePlugin) translatingPlugin).removeChangeListener(listener);
 		((BetterScalingGraphMousePlugin) scalingPlugin).removeChangeListener(listener);
-		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removeChangeListener(listener);
+//		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removeChangeListener(listener);
+		if (this.picktransPlugin == null) {
+			((BetterTranslatingGraphMousePlugin) translatingPlugin).removeChangeListener(listener);
+			((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removeChangeListener(listener);
+		} else {
+			this.picktransPlugin.removeChangeListener(listener);
+		}
 	}
 
 	public boolean isPickingDeactivated() {
@@ -109,16 +139,18 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 	}
 
 	public void setPickingDeactivated(boolean pickingDeactivated) {
-		if (pickingDeactivated != this.pickingDeactivated && mode == Mode.PICKING) {
-			if (pickingDeactivated) {
-				remove(pickingPlugin);
-			} else {
-				add(pickingPlugin);
+		if(pickingDeactivated && (this.picktransPlugin != null)) {
+			// do nothing 
+		} else {
+			if (pickingDeactivated != this.pickingDeactivated && mode == Mode.PICKING) {
+				if (pickingDeactivated) {
+					remove(pickingPlugin);
+				} else {
+					add(pickingPlugin);
+				}
 			}
-		}
-
-		this.pickingDeactivated = pickingDeactivated;
-	}
 	
-	// public BetterPickingGraphMousePlugin<V,E> getPickingPlugin() { return (BetterPickingGraphMousePlugin<V,E>) this.pickingPlugin; }
+			this.pickingDeactivated = pickingDeactivated;
+		}
+	}
 }

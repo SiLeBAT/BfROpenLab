@@ -213,10 +213,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		super.expandFromNodeItemClicked();
 	}
 
-	@Override
-	public void editingModeChanged() {
-		super.editingModeChanged();
-	}
+//	@Override
+//	public void editingModeChanged() {
+//		super.editingModeChanged();
+//	}
 
 	@Override
 	protected void applyTransform() {
