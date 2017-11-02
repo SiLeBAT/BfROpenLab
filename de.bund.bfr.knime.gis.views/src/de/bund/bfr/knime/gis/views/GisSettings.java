@@ -174,7 +174,7 @@ public class GisSettings extends Settings {
 		fontSize = canvas.getOptionsPanel().getFontSize();
 		fontBold = canvas.getOptionsPanel().isFontBold();
 		borderAlpha = canvas.getOptionsPanel().getBorderAlpha();
-//		editingMode = canvas.getOptionsPanel().getEditingMode();
+		editingMode = canvas.getOptionsPanel().getEditingMode();
 		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		label = canvas.getOptionsPanel().getLabel();
@@ -189,7 +189,7 @@ public class GisSettings extends Settings {
 		canvas.getOptionsPanel().setFontSize(fontSize);
 		canvas.getOptionsPanel().setFontBold(fontBold);
 		canvas.getOptionsPanel().setBorderAlpha(borderAlpha);
-//		canvas.getOptionsPanel().setEditingMode(editingMode);
+		canvas.getOptionsPanel().setEditingMode(editingMode);
 		canvas.setNodeHighlightConditions(nodeHighlightConditions);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.getOptionsPanel().setLabel(label);

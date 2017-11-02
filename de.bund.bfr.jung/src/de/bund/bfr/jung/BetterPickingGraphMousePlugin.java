@@ -176,7 +176,6 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	@Override
 	@SuppressWarnings("unchecked")
 	public void mouseDragged(MouseEvent e) {
-		System.out.println("PP.mouseDragged");
 		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
         
 		if (vertex != null) {

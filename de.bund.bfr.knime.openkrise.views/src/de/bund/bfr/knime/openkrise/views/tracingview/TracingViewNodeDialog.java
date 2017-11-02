@@ -139,7 +139,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 	private JScrollPane northScrollPane;
 	
-	
 	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	/**
@@ -179,16 +178,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		panel = UI.createNorthPanel(northScrollPane);
 
 		this.addTab("Options", panel, false);
-		//JComponent component = (JFrame) SwingUtilities.getWindowAncestor(this.getPanel());
-//		Container topFrame = this.getPanel().getTopLevelAncestor();
-//		String tmp = "test";
-		//this.getPanel().get
 	}
 	
-//	private JComponent getParentWindow() {
-//		JComponent component = this.getPanel();
-//		while (component.getPa)
-//	}
 //	private void initializeFileLogging() {
 //		// File Handler erzeugen
 //		try {
@@ -287,14 +278,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 		this.createCanvas(false);
 		this.updateStatusVariables();
-		//this.lastSaveCode =  this.set.hashCode();
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		this.updateSettings();
 		this.set.saveSettings(settings);
-		//this.lastSaveCode = this.set.hashCode();
 	}
 
 	@Override

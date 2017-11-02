@@ -322,7 +322,7 @@ public class GraphSettings extends Settings {
 		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
-//		editingMode = canvas.getOptionsPanel().getEditingMode();
+		editingMode = canvas.getOptionsPanel().getEditingMode();
 		collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
 
 		if (resized || canvasSize == null) {
@@ -336,7 +336,7 @@ public class GraphSettings extends Settings {
 
 	public void setToCanvas(Canvas<?> canvas) {
 		canvas.getOptionsPanel().setShowLegend(showLegend);
-//		canvas.getOptionsPanel().setEditingMode(editingMode);
+		canvas.getOptionsPanel().setEditingMode(editingMode);
 		canvas.getOptionsPanel().setNodeSize(nodeSize);
 		canvas.getOptionsPanel().setNodeMaxSize(nodeMaxSize);
 		canvas.getOptionsPanel().setEdgeThickness(edgeThickness);

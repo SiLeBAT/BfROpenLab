@@ -374,7 +374,7 @@ public class TracingViewSettings extends NodeSettings {
 
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
-//		editingMode = canvas.getOptionsPanel().getEditingMode();
+		editingMode = canvas.getOptionsPanel().getEditingMode();
 		
 		if(gobjExplosionSettingsList.getActiveExplosionSettings()==null) {
 			collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
@@ -401,7 +401,7 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setToCanvas(ITracingCanvas<?> canvas) {
 		canvas.getOptionsPanel().setShowLegend(showLegend);
-//		canvas.getOptionsPanel().setEditingMode(editingMode);
+		canvas.getOptionsPanel().setEditingMode(editingMode);
 		canvas.getOptionsPanel().setJoinEdges(joinEdges);
 		canvas.getOptionsPanel().setArrowHeadType(hideArrowHead ? ArrowHeadType.HIDE
 				: (arrowHeadInMiddle ? ArrowHeadType.IN_MIDDLE : ArrowHeadType.AT_TARGET));
@@ -524,11 +524,4 @@ public class TracingViewSettings extends NodeSettings {
 		observedNodes.clear();
 		observedEdges.clear();
 	}
-	
-//	@Override
-//	public int hashCode() {
-//		int hashCode;
-//		this.gisType.hashCode();
-//		return hashCode;
-//	}
 }
