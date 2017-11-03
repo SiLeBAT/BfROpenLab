@@ -39,6 +39,11 @@
 				Address of the Gisgraphy Server.
 			</option>
 		</tab>
+		<tab name="Photon">
+			<option name="Server Address">
+				Address of the Photon Server.
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
