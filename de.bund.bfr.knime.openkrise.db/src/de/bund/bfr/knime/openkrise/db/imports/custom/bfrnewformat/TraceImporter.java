@@ -508,7 +508,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			s.setAddress(generateAddress(s));
 			if (s.getDbId() == null) s.setDbId(genDbId(""+s.getName()+s.getAddress()));	
 			if (p.getDbId() == null) p.setDbId(genDbId(""+s.getDbId()+p.getName()+p.getFlexible(XlsProduct.EAN("en"))));	
-			if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + l.getNumber()+l.getFlexible(XlsLot.MHD("en"))));
+			String dd = d.getDepartureDay() == null || d.getDepartureMonth() == null || d.getDepartureYear() == null ? d.getId() : "" + d.getDepartureDay()+d.getDepartureMonth()+d.getDepartureYear();
+			String ln = l.getNumber() == null && l.getFlexible(XlsLot.MHD("en")) == null ? dd : l.getNumber()+l.getFlexible(XlsLot.MHD("en"));
+			if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + ln));
 			if (d.getUnitNumber() != null && d.getUnitUnit() != null) d.addFlexibleField("Amount", d.getUnitNumber() + " " + d.getUnitUnit());
 			else if (d.getUnitNumber() != null) d.addFlexibleField("Amount", d.getUnitNumber()+"");
 			Station r = d.getReceiver();
