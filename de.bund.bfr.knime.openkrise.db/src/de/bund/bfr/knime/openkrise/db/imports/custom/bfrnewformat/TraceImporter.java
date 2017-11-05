@@ -825,7 +825,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
 								d.setId(dID+"");
 								olddelsRow.put((i+1)+"", d);
-								if (!olddelsLot.containsKey(d.getLot().getNumber())) olddelsLot.put(d.getLot().getNumber(), new HashSet<>());
+								if (!olddelsLot.containsKey(d.getLot().getNumber())) olddelsLot.put(d.getLot().getNumber(), new HashSet<Delivery>());
 								olddelsLot.get(d.getLot().getNumber()).add(d);
 							}
 							else {

@@ -422,7 +422,7 @@ Erinnerung an die alten Template inhaber senden?
 						rowIndex++;
 						if (generateAllData) {
 							Integer key = rs.getInt("ChargenVerbindungen.Produkt");
-							if (!furtherLots.containsKey(key)) furtherLots.put(key, new HashSet<>());
+							if (!furtherLots.containsKey(key)) furtherLots.put(key, new HashSet<Integer>());
 							furtherLots.get(key).add(rowIndex);
 						}
 					}
@@ -949,7 +949,7 @@ Erinnerung an die alten Template inhaber senden?
 					if (generateAllData) {
 						if (rs.getObject("ChargenVerbindungen.Zutat") != null) {
 							Integer key = rs.getInt("ChargenVerbindungen.Zutat");
-							if (!furtherDels.containsKey(key)) furtherDels.put(key, new HashSet<>());
+							if (!furtherDels.containsKey(key)) furtherDels.put(key, new HashSet<Integer>());
 							furtherDels.get(key).add(rowIndex);
 							//System.err.println(key + " -> " + rowIndex);
 						}
