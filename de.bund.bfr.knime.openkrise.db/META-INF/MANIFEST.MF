@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DB-GUI
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise.db;singleton:=true
-Bundle-Version: 1.1.34.qualifier
+Bundle-Version: 1.1.35.qualifier
 Bundle-Activator: de.bund.bfr.knime.openkrise.db.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
