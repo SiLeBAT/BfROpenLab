@@ -107,7 +107,10 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	private static final String URL_PATTERN_MAPQUEST5BOX = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&street=" + PATTERN_CODE_STREET + "&city=" + PATTERN_CODE_CITY + "&postalCode=" + PATTERN_CODE_ZIP + "&country=" + PATTERN_CODE_COUNTRY;
 	private static final String URL_PATTERN_BKG = "https://sg.geodatenzentrum.de/gdz_geokodierung__" + PATTERN_CODE_KEY + "/geosearch?query=" + PATTERN_CODE_ADDRESS;
 	private static final String URL_PATTERN_GISGRAPHY = PATTERN_CODE_SERVER + "?address=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY + "&format=json";
-	private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&osm_tag=highway:residential&limit=2";
+	//private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&osm_tag=highway:residential&limit=2";
+	private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&limit=2";
+	
+	private static final String OSM_KEY_HIGHWAY = "highway";
 	
 	private GeocodingSettings set;
 
@@ -420,8 +423,10 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 			for (Object jsonResult : jsonResults) {
 				DocumentContext r = JsonPath.parse(jsonResult);
-
-				results.add(new GeocodingResult(url, read(r, "$.properties.name"),   // the osm_tag highway seems to cause that the name is set as the street 
+				String osm_key = read(r, "$.properties.osm_key");
+				//results.add(new GeocodingResult(url, read(r, "$.properties.name"),   // the osm_tag highway seems to cause that the name is set as the street
+				//results.add(new GeocodingResult(url, read(r, "$.properties.street"),   // without osm_tag=highway street is set as street
+				results.add(new GeocodingResult(url, (OSM_KEY_HIGHWAY.equals(osm_key)? read(r, "$.properties.name"): read(r, "$.properties.street")),   // if key==highway the street is in the name attribute otherwise street
 						read(r, "$.properties.city"), null, read(r, "$.properties.state"),
 						read(r, "$.properties.country"), read(r, "$.properties.postcode"), readDouble(r, "$.geometry.coordinates[1]"),
 						readDouble(r, "$.geometry.coordinates[0]")));
