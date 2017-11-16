@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.4 TP" sequenceNumber="25">
+<?pde version="3.8"?><target name="KNIME 3.4 TP" sequenceNumber="27">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -14,14 +14,14 @@
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="3.4.0.v201702101156"/>
 <unit id="org.knime.features.ext.osm.feature.group" version="3.4.0.v201702101156"/>
 <unit id="org.knime.features.ext.svg.feature.group" version="3.4.0.v201702101156"/>
-<unit id="org.knime.features.ext.textprocessing.feature.group" version="3.4.1.v201709090838"/>
-<unit id="org.knime.features.js.views.feature.group" version="3.4.1.v201709070952"/>
-<unit id="org.knime.features.network.feature.group" version="3.4.1.v201709070952"/>
+<unit id="org.knime.features.ext.textprocessing.feature.group" version="3.4.2.v201710091239"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.4.2.v201711100940"/>
+<unit id="org.knime.features.network.feature.group" version="3.4.2.v201709221023"/>
 <unit id="org.knime.features.quickform.legacy.feature.group" version="3.4.0.v201702101159"/>
 <unit id="org.knime.features.r.feature.group" version="3.4.1.v201709070953"/>
-<unit id="org.knime.features.rest.feature.group" version="3.4.0.v201705241329"/>
+<unit id="org.knime.features.rest.feature.group" version="3.4.2.v201711100926"/>
 <unit id="org.knime.features.testingapplication.feature.group" version="3.4.0.v201709070951"/>
-<unit id="org.knime.product.desktop" version="3.4.1.v201709070953"/>
+<unit id="org.knime.product.desktop" version="3.4.2.v201711100944"/>
 <repository location="http://update.knime.org/analytics-platform/3.4/"/>
 </location>
 </locations>
