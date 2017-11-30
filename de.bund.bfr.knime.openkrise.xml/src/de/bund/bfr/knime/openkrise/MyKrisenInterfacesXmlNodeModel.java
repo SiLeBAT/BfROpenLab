@@ -377,6 +377,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		cells = new DataCell[specD.getNumColumns()];
 		
 		HashMap<String, List<String>> identicalLieferungen = new HashMap<>();
+		HashMap<String, List<String>> identicalLots = new HashMap<>();
 		List<String[]> linkList = new ArrayList<>();
 		if (caseNumber != null) {
 			Collection<Kontrollpunktmeldung> kpms = nrw.getFaelle().get(caseNumber).getKpms();
@@ -390,7 +391,9 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 							String refDel = "D" + index;
 							for (Betrieb b : we.getBetrieb()) {
 								if (b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {
-									String deliveryKey = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), kpm.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung(), kpm.getMeldung().getNummer(), we.getId(), null, b.getTyp(), refDel);
+									String[] keys = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), kpm.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung(), kpm.getMeldung().getNummer(), we.getId(), null, b.getTyp(), refDel);
+									String lotKey = keys[0];
+									String deliveryKey = keys[1];
 									
 									if (!identicalLieferungen.containsKey(deliveryKey)) {
 										List<String> l = new ArrayList<String>();
@@ -401,6 +404,15 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 									else {
 										List<String> l = identicalLieferungen.get(deliveryKey);
 										l.add("D" + index);								
+									}
+									if (!identicalLots.containsKey(lotKey)) {
+										List<String> l = new ArrayList<String>();
+										l.add("D" + index);								
+										identicalLots.put(lotKey, l);
+									}
+									else {
+										List<String> l = identicalLots.get(lotKey);
+										l.add("D" + index);																		
 									}
 									weIDs.put(we.getId(), "D" + index);
 									index++;
@@ -421,7 +433,9 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 							String refDel = "D" + index;
 							for (Betrieb b : wa.getBetrieb()) {
 								if (b.getBetriebsnummer() != null && kpm.getBetrieb().getBetriebsnummer() != null) {
-									String deliveryKey = fillDeliveries(specD, cells, "D" + index, kpm.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung(), kpm.getMeldung().getNummer(), null, wa.getId(), b.getTyp(), refDel);
+									String[] keys = fillDeliveries(specD, cells, "D" + index, kpm.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung(), kpm.getMeldung().getNummer(), null, wa.getId(), b.getTyp(), refDel);
+									String lotKey = keys[0];
+									String deliveryKey = keys[1];
 									
 									if (!identicalLieferungen.containsKey(deliveryKey)) {
 										List<String> l = new ArrayList<String>();
@@ -433,14 +447,25 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 										List<String> l = identicalLieferungen.get(deliveryKey);
 										l.add("D" + index);								
 									}
+									if (!identicalLots.containsKey(lotKey)) {
+										List<String> l = new ArrayList<String>();
+										l.add("D" + index);								
+										identicalLots.put(lotKey, l);
+									}
+									else {
+										List<String> l = identicalLots.get(lotKey);
+										l.add("D" + index);																		
+									}
 									if (prods.containsKey(wa.getProduktionId())) {
 										Produktion p = prods.get(wa.getProduktionId());
 										for (WareneingangVerwendet wev : p.getWareneingaengeVerwendet().getWareneingangVerwendet()) {
 											if (weIDs.containsKey(wev.getWareneingangId())) {
-												String[] link = new String[2];
-												link[0] = weIDs.get(wev.getWareneingangId());
-												link[1] = "D" + index;
-												linkList.add(link);
+												for (String lid : identicalLots.get(lotKey)) {
+													String[] link = new String[2];
+													link[0] = weIDs.get(wev.getWareneingangId());
+													link[1] = lid;
+													linkList.add(link);
+												}
 											}
 										}
 									}
@@ -477,7 +502,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
 	}
 	
-	private String fillDeliveries(DataTableSpec specD, DataCell[] cells, String deliveryId, String from, String to, Produkt p, Warenumfang wu, Lieferung l, String kontrollpunktnummer, String we_id, String wa_id, String betriebsTyp, String referenceDelivery) {
+	private String[] fillDeliveries(DataTableSpec specD, DataCell[] cells, String deliveryId, String from, String to, Produkt p, Warenumfang wu, Lieferung l, String kontrollpunktnummer, String we_id, String wa_id, String betriebsTyp, String referenceDelivery) {
 		fillCell(specD, cells, TracingColumns.ID, createCell(deliveryId));
 		fillCell(specD, cells, TracingColumns.FROM, createCell(from));
 		fillCell(specD, cells, TracingColumns.TO, createCell(to));
@@ -487,7 +512,8 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, TracingColumns.NAME, createCell(hn));
 		fillCell(specD, cells, TracingColumns.PRODUCT_NUMBER, createCell(p == null ? null : p.getArtikelnummer()));
 		fillCell(specD, cells, "EAN", createCell(p == null ? null : p.getEan()));
-		fillCell(specD, cells, TracingColumns.LOT_ID, createCell(from + "_" + hn + "_" + los));
+		String lot_id = from + "_" + hn + "_" + los;
+		fillCell(specD, cells, TracingColumns.LOT_ID, createCell(lot_id));
 		fillCell(specD, cells, TracingColumns.LOT_NUMBER, createCell(los));
 		fillCell(specD, cells, "Chargennummer", createCell(p == null ? null : p.getChargenNummer()));
 		fillCell(specD, cells, "Bezeichnung", createCell(p == null ? null : p.getProduktBezeichnung()));
@@ -506,8 +532,10 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, "WA_ID", createCell(wa_id));
 		fillCell(specD, cells, "BetriebsTyp", createCell(betriebsTyp));
 		fillCell(specD, cells, "ReferenzDelivery", createCell(referenceDelivery));
+		
+		String delivery_id = from + ";;;" + to + ";;;" + los + ";;;" + ld;
 
-		return from + ";;;" + to + ";;;" + los + ";;;" + ld;
+		return new String[] {lot_id, delivery_id};
 	}	
 	private boolean deleteDir(File folder) {
 	    File[] contents = folder.listFiles();
