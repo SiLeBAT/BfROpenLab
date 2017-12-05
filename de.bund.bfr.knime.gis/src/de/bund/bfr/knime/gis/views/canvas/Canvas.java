@@ -967,7 +967,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 		return result;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void editingModeChanged() {
 		

@@ -61,7 +61,6 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
 	private static final String CFG_SELECTED_NODES = "GraphSelectedNodes";
 	private static final String CFG_SELECTED_EDGES = "GraphSelectedEdges";
-	private static final String CFG_EDITING_MODE = "GraphEditingMode2";
 	private static final String CFG_CANVAS_SIZE = "GraphCanvasSize";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "GraphNodeHighlightConditions";
 	private static final String CFG_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
@@ -91,7 +90,6 @@ public class TracingViewSettings extends NodeSettings {
 	private boolean arrowHeadInMiddle;
 	private LabelPosition nodeLabelPosition;
 	private boolean showLegend;
-	private Mode editingMode;
 	private Dimension canvasSize;
 	private List<String> selectedNodes;
 	private List<String> selectedEdges;
@@ -128,7 +126,6 @@ public class TracingViewSettings extends NodeSettings {
 		arrowHeadInMiddle = false;
 		nodeLabelPosition = LabelPosition.BOTTOM_RIGHT;
 		showLegend = false;
-		editingMode = Mode.PICKING;
 		canvasSize = null;
 		selectedNodes = new ArrayList<>();
 		selectedEdges = new ArrayList<>();
@@ -205,11 +202,6 @@ public class TracingViewSettings extends NodeSettings {
 
 		try {
 			showLegend = settings.getBoolean(CFG_SHOW_LEGEND);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			editingMode = Mode.valueOf(settings.getString(CFG_EDITING_MODE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -332,7 +324,6 @@ public class TracingViewSettings extends NodeSettings {
 		settings.addBoolean(CFG_ARROW_HEAD_IN_MIDDLE, arrowHeadInMiddle);
 		settings.addString(CFG_NODE_LABEL_POSITION, nodeLabelPosition.name());
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
-		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
 		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
 		settings.addString(CFG_SELECTED_EDGES, SERIALIZER.toXml(selectedEdges));
@@ -374,7 +365,6 @@ public class TracingViewSettings extends NodeSettings {
 
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
-		editingMode = canvas.getOptionsPanel().getEditingMode();
 		
 		if(gobjExplosionSettingsList.getActiveExplosionSettings()==null) {
 			collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
@@ -401,7 +391,6 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setToCanvas(ITracingCanvas<?> canvas) {
 		canvas.getOptionsPanel().setShowLegend(showLegend);
-		canvas.getOptionsPanel().setEditingMode(editingMode);
 		canvas.getOptionsPanel().setJoinEdges(joinEdges);
 		canvas.getOptionsPanel().setArrowHeadType(hideArrowHead ? ArrowHeadType.HIDE
 				: (arrowHeadInMiddle ? ArrowHeadType.IN_MIDDLE : ArrowHeadType.AT_TARGET));

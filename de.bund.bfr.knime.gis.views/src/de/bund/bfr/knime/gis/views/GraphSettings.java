@@ -40,7 +40,6 @@ import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GraphSettings extends Settings {
 
@@ -67,7 +66,6 @@ public class GraphSettings extends Settings {
 	private static final String CFG_FONT_BOLD = "GraphTextBold";
 	private static final String CFG_SELECTED_NODES = "GraphSelectedNodes";
 	private static final String CFG_SELECTED_EDGES = "GraphSelectedEdges";
-	private static final String CFG_EDITING_MODE = "GraphEditingMode2";
 	private static final String CFG_CANVAS_SIZE = "GraphCanvasSize";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "GraphNodeHighlightConditions";
 	private static final String CFG_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
@@ -92,7 +90,6 @@ public class GraphSettings extends Settings {
 	private Integer edgeMaxThickness;
 	private int fontSize;
 	private boolean fontBold;
-	private Mode editingMode;
 	private Dimension canvasSize;
 	private List<String> selectedNodes;
 	private List<String> selectedEdges;
@@ -120,7 +117,6 @@ public class GraphSettings extends Settings {
 		edgeMaxThickness = null;
 		fontSize = 12;
 		fontBold = false;
-		editingMode = Mode.PICKING;
 		canvasSize = null;
 		selectedNodes = new ArrayList<>();
 		selectedEdges = new ArrayList<>();
@@ -225,11 +221,6 @@ public class GraphSettings extends Settings {
 		}
 
 		try {
-			editingMode = Mode.valueOf(settings.getString(CFG_EDITING_MODE));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
 			canvasSize = (Dimension) SERIALIZER.fromXml(settings.getString(CFG_CANVAS_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
@@ -291,7 +282,6 @@ public class GraphSettings extends Settings {
 		settings.addInt(CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
-		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
 		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
 		settings.addString(CFG_SELECTED_EDGES, SERIALIZER.toXml(selectedEdges));
@@ -322,7 +312,6 @@ public class GraphSettings extends Settings {
 		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
-		editingMode = canvas.getOptionsPanel().getEditingMode();
 		collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
 
 		if (resized || canvasSize == null) {
@@ -336,7 +325,6 @@ public class GraphSettings extends Settings {
 
 	public void setToCanvas(Canvas<?> canvas) {
 		canvas.getOptionsPanel().setShowLegend(showLegend);
-		canvas.getOptionsPanel().setEditingMode(editingMode);
 		canvas.getOptionsPanel().setNodeSize(nodeSize);
 		canvas.getOptionsPanel().setNodeMaxSize(nodeMaxSize);
 		canvas.getOptionsPanel().setEdgeThickness(edgeThickness);

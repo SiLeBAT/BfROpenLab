@@ -35,7 +35,6 @@ import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GisSettings extends Settings {
 
@@ -49,7 +48,6 @@ public class GisSettings extends Settings {
 	private static final String CFG_FONT_SIZE = "TextSize";
 	private static final String CFG_FONT_BOLD = "TextBold";
 	private static final String CFG_BORDER_ALPHA = "BorderAlpha";
-	private static final String CFG_EDITING_MODE = "EditingMode";
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
 	private static final String CFG_SELECTED_NODES = "SelectedNodes";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
@@ -62,7 +60,6 @@ public class GisSettings extends Settings {
 	private int fontSize;
 	private boolean fontBold;
 	private int borderAlpha;
-	private Mode editingMode;
 	private Dimension canvasSize;
 	private List<String> selectedNodes;
 	private HighlightConditionList nodeHighlightConditions;
@@ -76,7 +73,6 @@ public class GisSettings extends Settings {
 		fontSize = 12;
 		fontBold = false;
 		borderAlpha = 255;
-		editingMode = Mode.PICKING;
 		selectedNodes = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
 		canvasSize = null;
@@ -123,11 +119,6 @@ public class GisSettings extends Settings {
 		}
 
 		try {
-			editingMode = Mode.valueOf(settings.getString(CFG_EDITING_MODE));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
 			selectedNodes = (List<String>) SERIALIZER.fromXml(settings.getString(CFG_SELECTED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
@@ -161,7 +152,6 @@ public class GisSettings extends Settings {
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
-		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
 		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS, SERIALIZER.toXml(nodeHighlightConditions));
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
@@ -174,7 +164,6 @@ public class GisSettings extends Settings {
 		fontSize = canvas.getOptionsPanel().getFontSize();
 		fontBold = canvas.getOptionsPanel().isFontBold();
 		borderAlpha = canvas.getOptionsPanel().getBorderAlpha();
-		editingMode = canvas.getOptionsPanel().getEditingMode();
 		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		label = canvas.getOptionsPanel().getLabel();
@@ -189,7 +178,6 @@ public class GisSettings extends Settings {
 		canvas.getOptionsPanel().setFontSize(fontSize);
 		canvas.getOptionsPanel().setFontBold(fontBold);
 		canvas.getOptionsPanel().setBorderAlpha(borderAlpha);
-		canvas.getOptionsPanel().setEditingMode(editingMode);
 		canvas.setNodeHighlightConditions(nodeHighlightConditions);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.getOptionsPanel().setLabel(label);
