@@ -48,13 +48,11 @@ implements MouseListener, MouseMotionListener, JungListener, KeyListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		//System.out.println(System.currentTimeMillis() + "mouseClicked");
 		if (this.pickingPlugin != null) this.pickingPlugin.mouseClicked(e);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		//System.out.println(System.currentTimeMillis() + "mousePressed");
 		
 		boolean isPickingEvent = (e.getButton() == MouseEvent.BUTTON1) && (e.isShiftDown() || this.hoversMouseOverEdgeOrNode(e));
 		boolean isTranslatingEvent = (e.getButton() == MouseEvent.BUTTON1) && !isPickingEvent;
