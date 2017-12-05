@@ -423,12 +423,9 @@ public abstract class Canvas<V extends Node> extends JPanel
 		call(l -> l.nodePositionsChanged(this));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void modeChangeFinished() {
-//		optionsPanel.removeChangeListener(this);
-//		optionsPanel.setEditingMode(((BetterGraphMouse<V, Edge<V>>) viewer.getGraphMouse()).getMode());
-//		optionsPanel.addChangeListener(this);
+
 	}
 
 	@Override
