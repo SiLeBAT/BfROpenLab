@@ -68,14 +68,31 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-			V node;
-			E edge;
-
-			if ((node = getPickedNode(e)) != null) {
-				call(l -> l.doubleClickedOn(node, e));
-			} else if ((edge = getPickedEdge(e)) != null) {
-				call(l -> l.doubleClickedOn(edge, e));
+		if (e.getButton() == MouseEvent.BUTTON1) {
+			if (e.getClickCount() == 2) {
+		
+				V node;
+				E edge;
+	
+				if ((node = getPickedNode(e)) != null) {
+					call(l -> l.doubleClickedOn(node, e));
+				} else if ((edge = getPickedEdge(e)) != null) {
+					call(l -> l.doubleClickedOn(edge, e));
+				}
+				
+			} else if (!e.isShiftDown() && this.getPickedEdge(e)==null && this.getPickedNode(e)==null) {
+				// OneClick & NoShift & Mouse does not hover over node or edge 
+				@SuppressWarnings("unchecked")
+				VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+				
+				if (!vv.getPickedVertexState().getPicked().isEmpty()) {
+					vv.getPickedVertexState().clear();
+					call(l -> l.nodePickingFinished());
+				} 
+				if (!vv.getPickedEdgeState().getPicked().isEmpty()) {
+					vv.getPickedEdgeState().clear();
+					call(l -> l.edgePickingFinished());
+				} 
 			}
 		}
 	}
