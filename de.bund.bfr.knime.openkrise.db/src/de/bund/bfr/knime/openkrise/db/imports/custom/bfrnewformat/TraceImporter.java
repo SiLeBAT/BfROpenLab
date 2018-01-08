@@ -307,36 +307,40 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			} catch (Exception e) {
 				exceptions.add(e);
 			}
-			if (miDbId == null) exceptions.add(new Exception("File already imported"));
-			
-			// Predefine DB IDs for Format_2017
-			predefineIDs(deliveries.values());
+			if (miDbId == null) exceptions.add(new Exception("Template already imported"));
+			if (deliveries.size() == 0) {
+				exceptions.add(new Exception("Template contains no deliveries"));
+			}
+			else {
+				// Predefine DB IDs for Format_2017
+				predefineIDs(deliveries.values());
 
-			for (Delivery d : deliveries.values()) {
-				try {
-					d.getID(miDbId, false, mydbi);
-				} catch (Exception e) {
-					exceptions.add(e);
-				}
-				//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-				if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
-				
-			}
-			
-			HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
-			for (D2D dl : recipes) {
-				try {
-					dl.getId(miDbId, mydbi);
-				} catch (Exception e) {
-					exceptions.add(e);
+				for (Delivery d : deliveries.values()) {
+					try {
+						d.getID(miDbId, false, mydbi);
+					} catch (Exception e) {
+						exceptions.add(e);
+					}
+					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+					
 				}
 				
-				// collect data for checks if data is missing...
-				Delivery d = dl.getTargetDelivery();
-				if (!ingredients.containsKey(d)) ingredients.put(d, new HashSet<Integer>());
-				HashSet<Integer> hd = ingredients.get(d);
-				if (dl.getIngredient() != null) hd.add(dl.getIngredient().getDbId());
-			}
+				HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
+				for (D2D dl : recipes) {
+					try {
+						dl.getId(miDbId, mydbi);
+					} catch (Exception e) {
+						exceptions.add(e);
+					}
+					
+					// collect data for checks if data is missing...
+					Delivery d = dl.getTargetDelivery();
+					if (!ingredients.containsKey(d)) ingredients.put(d, new HashSet<Integer>());
+					HashSet<Integer> hd = ingredients.get(d);
+					if (dl.getIngredient() != null) hd.add(dl.getIngredient().getDbId());
+				}
+			}			
 
 			return exceptions;
 		}
