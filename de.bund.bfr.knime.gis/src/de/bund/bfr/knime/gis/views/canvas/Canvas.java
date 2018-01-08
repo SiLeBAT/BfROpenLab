@@ -425,9 +425,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void modeChangeFinished() {
-		optionsPanel.removeChangeListener(this);
-		optionsPanel.setEditingMode(((BetterGraphMouse<V, Edge<V>>) viewer.getGraphMouse()).getMode());
-		optionsPanel.addChangeListener(this);
 	}
 
 	@Override
@@ -970,10 +967,9 @@ public abstract class Canvas<V extends Node> extends JPanel
 		return result;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void editingModeChanged() {
-		((BetterGraphMouse<V, Edge<V>>) viewer.getGraphMouse()).setMode(optionsPanel.getEditingMode());
+		
 	}
 
 	@Override
