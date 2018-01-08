@@ -578,7 +578,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		HashMap<Integer, Lot> lots = new HashMap<>();
 		HashMap<Integer, Delivery> dels = new HashMap<>();
 		LinkedHashMap<String, Delivery> olddelsRow = new LinkedHashMap<>();
-		LinkedHashMap<String, HashSet<Delivery>> olddelsLot = new LinkedHashMap<>();
+		LinkedHashMap<Integer, HashSet<Delivery>> olddelsLot = new LinkedHashMap<>();
+		HashMap<String, Integer> lotNumber2ID = new HashMap<>();
+		HashSet<String> lotDoublettes = new HashSet<>();
 
 		if (sheet != null) {
 			Station focusS = null;
@@ -829,8 +831,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
 								d.setId(dID+"");
 								olddelsRow.put((i+1)+"", d);
-								if (!olddelsLot.containsKey(d.getLot().getNumber())) olddelsLot.put(d.getLot().getNumber(), new HashSet<Delivery>());
-								olddelsLot.get(d.getLot().getNumber()).add(d);
+								if (!olddelsLot.containsKey(d.getLot().getId())) olddelsLot.put(d.getLot().getId(), new HashSet<Delivery>());
+								olddelsLot.get(d.getLot().getId()).add(d);
+								if (lotNumber2ID.containsKey(d.getLot().getNumber())) {
+									if (lotNumber2ID.get(d.getLot().getNumber()).intValue() != d.getLot().getId().intValue()) {
+										lotDoublettes.add(d.getLot().getNumber());
+									}
+								}
+								lotNumber2ID.put(d.getLot().getNumber(), d.getLot().getId());
 							}
 							else {
 								if (dels.containsKey(dID)) {
@@ -884,8 +892,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							if (xlsD.getChargenLinkCol() >= 0) {
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
 								if (key != null) {
-									if (olddelsLot.containsKey(key)) {
-										HashSet<Delivery> odhs = olddelsLot.get(key);
+									if (lotNumber2ID.containsKey(key)) {
+										if (lotDoublettes.contains(key)) {
+											exceptions.add(new Exception("[" + (i+1) + "] Unclear to which lot the ingredients should be connected - same Lot number (" + key + ") is used for different products.\nTry to make use of the Line Number as connection key."));											
+										}
+
+										HashSet<Delivery> odhs = olddelsLot.get(lotNumber2ID.get(key));
 										if (odhs != null) {
 											for (Delivery od : odhs) {
 												if (od != null) {
@@ -1061,7 +1073,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					s.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + ": " + s.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)));
 				}
 				for (Delivery d : olddelsRow.values()) {
-					System.err.println(d.getId());
+					//System.err.println(d.getId() + "\t" + d.getLot().getNumber() + "\t" + d.getLot().getProduct().getName() + "\t" + d.getLot().getProduct().getId());
 					d.insertIntoDb(mydbi);
 					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
