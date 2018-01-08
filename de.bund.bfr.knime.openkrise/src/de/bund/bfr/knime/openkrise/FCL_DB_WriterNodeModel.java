@@ -76,11 +76,14 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 			if (id != null) {
 				Station s = new Station();
 				String cs = IO.getCleanString(row.getCell(nameIndex));
-				String address = IO.getCleanString(row.getCell(addressIndex));
 				s.setName(cs);
-				s.setAddress(address);
-				s.setCountry(IO.getCleanString(row.getCell(countryIndex)));
-				s.setTypeOfBusiness(IO.getCleanString(row.getCell(tobIndex)));
+				String address = null;
+				if (addressIndex >= 0) {
+					address = IO.getCleanString(row.getCell(addressIndex));
+					s.setAddress(address);
+				}
+				if (countryIndex >= 0) s.setCountry(IO.getCleanString(row.getCell(countryIndex)));
+				if (tobIndex >= 0) s.setTypeOfBusiness(IO.getCleanString(row.getCell(tobIndex)));
 				int sID = genDbId(""+cs+address);
 				s.setId(""+sID);	
 				
