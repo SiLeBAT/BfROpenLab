@@ -186,7 +186,7 @@ public class SimSearchTable extends JScrollPane{
                         if(((SimSearch.SimSearchTableModel) table.getModel()).remove(convertViewRowsToModelRows(table.getSelectedRows()))) {
                           updateRowHeader();
                         }
-                      } catch (IllegalOperationException e) {
+                      } catch (SimSearch.SimSearchTableModel.IllegalOperationException e) {
                         JOptionPane.showMessageDialog(SimSearchTable.this.getTopLevelAncestor(), e.getMessage());
                       }
                     }
@@ -376,10 +376,10 @@ public class SimSearchTable extends JScrollPane{
         
     }
     
-    public void loadData(SimSearchTableModel tableModel) {
+    public void loadData(SimSearch.SimSearchTableModel tableModel) {
     	this.loadData(tableModel, this.viewSettings);
     }
-    public void loadData(SimSearchTableModel tableModel, ViewSettings viewSettings) {
+    public void loadData(SimSearch.SimSearchTableModel tableModel, ViewSettings viewSettings) {
         this.table.setModel(tableModel);
         this.rowHeaderColumnTable.setModel(tableModel);
         //this.table.createDefaultColumnsFromModel();

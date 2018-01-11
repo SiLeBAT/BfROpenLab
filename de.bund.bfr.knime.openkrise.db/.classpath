@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang3-3.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-text-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/universalserialiser-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/universalserialiser-commons-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gisgraphy-commons-4.0-beta1.jar"/>

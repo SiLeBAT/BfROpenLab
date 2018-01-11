@@ -324,7 +324,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 	}
 
   @Override
-  public void dataLoaded(SimSearchTableModel tableModel, int index) {
+  public void dataLoaded(SimSearch.SimSearchTableModel tableModel, int index) {
     // TODO Auto-generated method stub
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
