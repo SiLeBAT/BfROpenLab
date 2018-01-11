@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -157,8 +158,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 		topPanel.add(undoRedoPanel, BorderLayout.CENTER);
 		
 		this.undoButton = new JButton("undo");
+		this.undoButton.setToolTipText("undo merge/unmerge operation"); //  bundle.getString("MainFrame.button10.toolTipText"));
+        this.undoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/undo.gif")));
 		this.redoButton = new JButton("redo");
+		this.redoButton.setToolTipText("redo merge/unmerge operation"); //  bundle.getString("MainFrame.button10.toolTipText"));
+        this.redoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/redo.gif")));
 		this.ignoreButton = new JButton("ignore");
+		this.ignoreButton.setToolTipText("toggle ignore status"); //  bundle.getString("MainFrame.button10.toolTipText"));
+        this.ignoreButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/ignore.gif")));
 		Arrays.asList(this.undoButton, this.redoButton, this.ignoreButton).forEach(c -> undoRedoPanel.add(c));
 		
 		//topPanel.add(this.ignoreButton, BorderLayout.LINE_END);

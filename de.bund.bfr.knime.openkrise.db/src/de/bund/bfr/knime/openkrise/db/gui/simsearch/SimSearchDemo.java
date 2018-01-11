@@ -28,10 +28,12 @@ public class SimSearchDemo {
 
             @Override
             public void run() {
-            	SimSearchJFrame frame = new SimSearchJFrame();
-            	frame.setPreferredSize(new Dimension(1200,800));
-                frame.setVisible(true);
-                frame.startSearch();
+              TestFrame frame = new TestFrame();
+              frame.setVisible(true);
+            	//SimSearchJFrame frame = new SimSearchJFrame();
+            	//frame.setPreferredSize(new Dimension(1200,800));
+                //frame.setVisible(true);
+                //frame.startSearch();
             }
         });
 	  }

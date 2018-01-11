@@ -30,6 +30,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.security.spec.ECGenParameterSpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -57,361 +58,498 @@ import javax.swing.table.TableColumnModel;
 import javafx.scene.input.MouseButton;
 
 public class SimSearchTable extends JScrollPane{
-    
-//    private static class MyJTable extends JTable {
+
+  //    private static class MyJTable extends JTable {
+  //
+  //      
+  //        @Override
+  //        public void createDefaultColumnsFromModel() {
+  //            if(this.getModel()!=null) {
+  //                super.createDefaultColumnsFromModel();
+  //            }
+  //        }
+  //    }
+
+  public static class ViewSettings {
+    private List<Integer> frozenColumns;
+    private List<Integer> columnOrdering;
+    private List<Integer> rowSorting;
+    // add sortkey
+  }
+  private TableColumnModel tableColumnModel;
+  private TableColumnModel rowHeaderColumnModel;
+  private List<Integer> frozenColumns = Arrays.asList(0,2);
+  private Set<Integer> invisibleColumns = new HashSet<>(Arrays.asList(1));
+  private SimSearchJTable table;
+  private SimSearchJTable rowHeaderColumnTable;
+  private ViewSettings viewSettings;
+  private JTextField filterTextBox;
+  private JCheckBox useRegexFilterCheckBox;
+  private Color filterColor;
+
+
+  public SimSearchTable() {
+    super(); //new SimSearchJTable());
+    this.init();
+  }
+
+  private void init() {
+    this.viewSettings = new ViewSettings();
+    this.initTables();
+    // Create a column model for the main table. This model ignores the
+    // first
+    // column added, and sets a minimum width of 150 pixels for all others.
+    //this.initColumnModels();
+
+    //MyTableModel model = new MyTableModel(data,columnNames,columnClasses,remove,mergeTo);
+    //    	if(this.getViewport().getView() instanceof SimSearchJTable) {
+    //    		this.table = (SimSearchJTable) this.getViewport().getView();
+    //    	} else {
+    //    		int a = 9;
+    //    		System.out.println(a);
+    //    	}
+//    this.table = new SimSearchJTable();
+//    this.getViewport().setView(this.table);
+//    this.rowHeaderColumnTable = new SimSearchJTable();
 //
-//      
-//        @Override
-//        public void createDefaultColumnsFromModel() {
-//            if(this.getModel()!=null) {
-//                super.createDefaultColumnsFromModel();
+//    this.table.setColumnModel(this.tableColumnModel);
+//    this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
+//    this.rowHeaderColumnTable.getTableHeader().setReorderingAllowed(false);
+
+
+    //        JViewport view = this.getViewport();
+    //        Component[] components = view.getComponents();
+    //        for (int i = 0; i < components.length; ++i) {
+    //          if (components[i] instanceof SimSearchJTable) {
+    //              this.table = (SimSearchJTable) components[i];
+    //              break;
+    //          }
+    //        }
+    //this.table = new MyJTable(); //null, this.tableColumnModel);
+    //this.setViewportView(this.table);
+    //        this.table.setColumnModel(this.tableColumnModel);
+    //        //this.rowHeaderColumnTable = new SimSearchJTable(); //null, this.rowHeaderColumnModel);
+    //        this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
+    //        this.rowHeaderColumnTable.getTableHeader().setReorderingAllowed(false);
+
+//    SimSearchTableRowTransferHandler transferHandler = new SimSearchTableRowTransferHandler(this);
+//    //Arrays.asList(this.table, this.rowHeaderColumnTable).forEach( t -> {
+//    Arrays.asList(this.table).forEach( t -> {
+//      t.setTransferHandler(transferHandler);
+//      t.setDropMode(DropMode.ON_OR_INSERT_ROWS);
+//      t.setDragEnabled(true);
+//    });
+
+//    MouseAdapter mouseAdapter = new MouseAdapter() { 
+//      public void mouseClicked(MouseEvent e) { 
+//        mouseClickedOnTableHeader(e); 
+//      } 
+//    };
+//    this.table.getTableHeader().addMouseListener(mouseAdapter);
+//    this.rowHeaderColumnTable.getTableHeader().addMouseListener(mouseAdapter);
+
+
+    //JTable table = new JTable(model, cm);
+
+    // Set up the header column and get it hooked up to everything
+    // JTable headerColumnTable = new JTable(model, rowHeaderModel);
+    //table.createDefaultColumnsFromModel();
+    //headerColumnTable.createDefaultColumnsFromModel();
+
+    // Make sure that selections between the main table and the header stay
+    // in sync (by sharing the same model)
+//    table.setSelectionModel(this.rowHeaderColumnTable.getSelectionModel());
+//
+//    // Make the header column look pretty
+//    //headerColumn.setBorder(BorderFactory.createEtchedBorder());
+//    //this.rowHeaderColumnTable.setBackground(Color.lightGray);
+//    this.rowHeaderColumnTable.setColumnSelectionAllowed(false);
+//    this.rowHeaderColumnTable.setCellSelectionEnabled(false);
+
+//    KeyListener keyListener = new KeyListener() {
+//
+//      @Override
+//      public void keyPressed(KeyEvent arg0) {
+//
+//        if(arg0.getKeyCode() == KeyEvent.VK_DELETE) {
+//          SimSearchJTable table = (SimSearchJTable) arg0.getSource();
+//          if(table.getSelectedRowCount()>0) {
+//
+//            try {
+//              if(((SimSearch.SimSearchTableModel) table.getModel()).remove(convertViewRowsToModelRows(table.getSelectedRows()))) {
+//                updateRowHeader();
+//              }
+//            } catch (SimSearch.SimSearchTableModel.IllegalOperationException e) {
+//              JOptionPane.showMessageDialog(SimSearchTable.this.getTopLevelAncestor(), e.getMessage());
 //            }
+//          }
 //        }
-//    }
-	
-	public static class ViewSettings {
-		private List<Integer> frozenColumns;
-		private List<Integer> columnOrdering;
-		private List<Integer> rowSorting;
-		// add sortkey
-	}
-    private TableColumnModel tableColumnModel;
-    private TableColumnModel rowHeaderColumnModel;
-    private List<Integer> frozenColumns = Arrays.asList(0,2);
-    private Set<Integer> invisibleColumns = new HashSet<>(Arrays.asList(1));
-    private SimSearchJTable table;
-    private SimSearchJTable rowHeaderColumnTable;
-    private ViewSettings viewSettings;
-    private JTextField filterTextBox;
-    private JCheckBox useRegexFilterCheckBox;
-    private Color filterColor;
-    
-    
-    public SimSearchTable() {
-        super(new SimSearchJTable());
-        this.viewSettings = new ViewSettings();
-        // Create a column model for the main table. This model ignores the
-        // first
-        // column added, and sets a minimum width of 150 pixels for all others.
-        this.tableColumnModel = new DefaultTableColumnModel() {
-                        
-            public void addColumn(TableColumn tc) {
-              // Drop the frozen columns . . . that'll be the row header
-              if(frozenColumns.contains(tc.getModelIndex()) || invisibleColumns.contains(tc.getModelIndex())) {  
-                return;
-              }
-              tc.setMinWidth(150); // just for looks, really...
-              super.addColumn(tc);
-            }
-          };
-        
-      this.rowHeaderColumnModel = new DefaultTableColumnModel() {
-          
-          public void addColumn(TableColumn tc) {
-            if(frozenColumns.contains(tc.getModelIndex()) && !invisibleColumns.contains(tc.getModelIndex())) {
-              if(tc.getModelIndex()==0) {
-                tc.setMaxWidth(tc.getPreferredWidth());
-                tc.setMinWidth(tc.getPreferredWidth());
-              } else {
-                tc.setMinWidth(10);
-                tc.setMaxWidth(100);
-              }
-              //tc.setMaxWidth(tc.getPreferredWidth());
-              super.addColumn(tc);
-            }
-            // Drop the rest of the columns . . . this is the header column
-            // only
-          }
-        };
-        //MyTableModel model = new MyTableModel(data,columnNames,columnClasses,remove,mergeTo);
-        JViewport view = this.getViewport();
-        Component[] components = view.getComponents();
-        for (int i = 0; i < components.length; ++i) {
-          if (components[i] instanceof SimSearchJTable) {
-              this.table = (SimSearchJTable) components[i];
-              break;
-          }
-        }
-        //this.table = new MyJTable(); //null, this.tableColumnModel);
-        //this.setViewportView(this.table);
-        this.table.setColumnModel(this.tableColumnModel);
-        this.rowHeaderColumnTable = new SimSearchJTable(); //null, this.rowHeaderColumnModel);
-        this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
-        this.rowHeaderColumnTable.getTableHeader().setReorderingAllowed(false);
-        
-        SimSearchTableRowTransferHandler transferHandler = new SimSearchTableRowTransferHandler(this);
-        //Arrays.asList(this.table, this.rowHeaderColumnTable).forEach( t -> {
-        Arrays.asList(this.table).forEach( t -> {
-          t.setTransferHandler(transferHandler);
-          t.setDropMode(DropMode.ON_OR_INSERT_ROWS);
-          t.setDragEnabled(true);
-        });
-        
-        MouseAdapter mouseAdapter = new MouseAdapter() { 
-            public void mouseClicked(MouseEvent e) { 
-                mouseClickedOnTableHeader(e); 
-            } 
-        };
-        this.table.getTableHeader().addMouseListener(mouseAdapter);
-        this.rowHeaderColumnTable.getTableHeader().addMouseListener(mouseAdapter);
-       
-        
-        //JTable table = new JTable(model, cm);
-              
-           // Set up the header column and get it hooked up to everything
-             // JTable headerColumnTable = new JTable(model, rowHeaderModel);
-              //table.createDefaultColumnsFromModel();
-              //headerColumnTable.createDefaultColumnsFromModel();
-
-              // Make sure that selections between the main table and the header stay
-              // in sync (by sharing the same model)
-              table.setSelectionModel(this.rowHeaderColumnTable.getSelectionModel());
-
-              // Make the header column look pretty
-              //headerColumn.setBorder(BorderFactory.createEtchedBorder());
-              //this.rowHeaderColumnTable.setBackground(Color.lightGray);
-              this.rowHeaderColumnTable.setColumnSelectionAllowed(false);
-              this.rowHeaderColumnTable.setCellSelectionEnabled(false);
-        
-              KeyListener keyListener = new KeyListener() {
-
-                @Override
-                public void keyPressed(KeyEvent arg0) {
-                  
-                  if(arg0.getKeyCode() == KeyEvent.VK_DELETE) {
-                    SimSearchJTable table = (SimSearchJTable) arg0.getSource();
-                    if(table.getSelectedRowCount()>0) {
-                      
-                      try {
-                        if(((SimSearch.SimSearchTableModel) table.getModel()).remove(convertViewRowsToModelRows(table.getSelectedRows()))) {
-                          updateRowHeader();
-                        }
-                      } catch (SimSearch.SimSearchTableModel.IllegalOperationException e) {
-                        JOptionPane.showMessageDialog(SimSearchTable.this.getTopLevelAncestor(), e.getMessage());
-                      }
-                    }
-                  }
-                }
-
-                @Override
-                public void keyReleased(KeyEvent arg0) {}
-
-                @Override
-                public void keyTyped(KeyEvent arg0) {}
-                
-              };
-          
-              this.table.addKeyListener(keyListener);
-              this.rowHeaderColumnTable.addKeyListener(keyListener);
-              
-              MouseListener mouseListener = new MouseListener() {
-
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                  if(e.getButton()==MouseEvent.BUTTON1) {
-                    e.consume();
-                    SimSearchTable.this.table.updateUI();
-                    SimSearchTable.this.rowHeaderColumnTable.updateUI();
-                  }
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                  // TODO Auto-generated method stub
-                  
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                  // TODO Auto-generated method stub
-                  
-                }
-
-                @Override
-                public void mousePressed(MouseEvent e) {
-                  // TODO Auto-generated method stub
-                  
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                  // TODO Auto-generated method stub
-                  
-                }
-                
-              };
-              
-              this.table.getTableHeader().addMouseListener(mouseListener);
-              // Put it in a viewport that we can control a bit
-              JViewport jv = new JViewport();
-              jv.setView(this.rowHeaderColumnTable);
-              jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
-
-              // With out shutting off autoResizeMode, our tables won't scroll
-              // correctly (horizontally, anyway)
-              table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-              
-              this.setRowHeader(jv);
-              
-              this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
-                  .getTableHeader());
-              
-    }
-    
-    private int[] convertViewRowsToModelRows(int[] rows) {
-      for(int i=0; i<rows.length; ++i) rows[i] = this.table.getRowSorter().convertRowIndexToModel(rows[i]);
-      return rows;
-    }
-    
-    protected void updateRowHeader() {
-      ((SimSearchJTable.RowHeaderColumnRenderer)  this.rowHeaderColumnTable.getColumnModel().getColumn(0).getCellRenderer()).emptyCache();
-      this.table.updateUI();
-      this.rowHeaderColumnTable.updateUI();
-    }
-    
-//    public boolean areRowsMovableTo(int[] rowsSource, int rowTarget) {
-//      if(this.table==null) return false;
-//      for(int i=0; i<rowsSource.length; ++i) if(rowsSource[i]==rowTarget) return false;
-//      
-//      
-//      int modelTarget = this.convertViewRowsToModelRows(new int[] {rowTarget})[0];
-//      int mergeTarget = ((SimSearch.SimSearchTableModel) this.table.getModel()).getMergeTo(modelTarget);
-//      
-//      rowsSource = this.convertViewRowsToModelRows(rowsSource);
-//      if(mergeTarget>=0) {
-//        
-//        return false;
-//      } else {
-//        
 //      }
-//    }
-    
-    private void textFilterChanged() {
-      
-      if(this.filterTextBox==null || this.table.getRowSorter()==null) return;
-      
-      if(this.useRegexFilterCheckBox!=null && this.useRegexFilterCheckBox.isSelected()) {
-        try {
-          Pattern pattern = Pattern.compile( this.filterTextBox.getText() );
-          this.filterTextBox.setBackground(Color.white);
-          ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter(pattern);
-        } catch(PatternSyntaxException e) {
-          ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter("");
-          this.filterTextBox.setBackground(Color.RED);
+//
+//      @Override
+//      public void keyReleased(KeyEvent arg0) {}
+//
+//      @Override
+//      public void keyTyped(KeyEvent arg0) {}
+//
+//    };
+//
+//    this.table.addKeyListener(keyListener);
+//    this.rowHeaderColumnTable.addKeyListener(keyListener);
+
+//    MouseListener mouseListener = new MouseListener() {
+//
+//      @Override
+//      public void mouseClicked(MouseEvent e) {
+//        if(e.getButton()==MouseEvent.BUTTON1) {
+//          e.consume();
+//          SimSearchTable.this.table.updateUI();
+//          SimSearchTable.this.rowHeaderColumnTable.updateUI();
+//        }
+//      }
+//
+//      @Override
+//      public void mouseEntered(MouseEvent e) {
+//        // TODO Auto-generated method stub
+//
+//      }
+//
+//      @Override
+//      public void mouseExited(MouseEvent e) {
+//        // TODO Auto-generated method stub
+//
+//      }
+//
+//      @Override
+//      public void mousePressed(MouseEvent e) {
+//        // TODO Auto-generated method stub
+//
+//      }
+//
+//      @Override
+//      public void mouseReleased(MouseEvent e) {
+//        // TODO Auto-generated method stub
+//
+//      }
+//
+//    };
+//
+//    this.table.getTableHeader().addMouseListener(mouseListener);
+    // Put it in a viewport that we can control a bit
+    JViewport jv = new JViewport();
+    jv.setView(this.rowHeaderColumnTable);
+    jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
+
+    // With out shutting off autoResizeMode, our tables won't scroll
+    // correctly (horizontally, anyway)
+    table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+    this.setRowHeader(jv);
+
+    this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
+        .getTableHeader());
+  }
+
+  @SuppressWarnings("serial")	private void initColumnModels() {
+    this.tableColumnModel = new DefaultTableColumnModel() {
+
+      @Override 
+      public void addColumn(TableColumn tc) {
+        // Drop the frozen columns . . . that'll be the row header
+        if(frozenColumns.contains(tc.getModelIndex()) || invisibleColumns.contains(tc.getModelIndex())) {  
+          return;
         }
-      } else {
-        ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter(this.filterTextBox.getText());
-        this.filterTextBox.setBackground(Color.white);
+        tc.setMinWidth(150); // just for looks, really...
+        super.addColumn(tc);
       }
-      
-      this.table.updateUI();
-      this.rowHeaderColumnTable.updateUI();
-//      SimSearchRowSorter rowSorter = (SimSearchRowSorter) this.table.getRowSorter();
-//      this.table.setRowSorter(null);
-//      this.rowHeaderColumnTable.setRowSorter(null);
-//      this.table.setRowSorter(rowSorter);
-//      this.rowHeaderColumnTable.setRowSorter(rowSorter);
-    }
+    };
 
-    
-    public void registerRowFilter(JTextField filterTextBox, JCheckBox useRegExFilterCheckBox) {
-      
-      if(filterTextBox!=null) {
-        
-        this.filterTextBox = filterTextBox;
-        this.filterColor = this.filterTextBox.getBackground();
-        this.filterTextBox.getDocument().addDocumentListener(new DocumentListener() {
+    this.rowHeaderColumnModel = new DefaultTableColumnModel() {
 
-          @Override
-          public void changedUpdate(DocumentEvent e) {
-            // TODO Auto-generated method stub
-            SimSearchTable.this.textFilterChanged();
+      public void addColumn(TableColumn tc) {
+        if(frozenColumns.contains(tc.getModelIndex()) && !invisibleColumns.contains(tc.getModelIndex())) {
+          if(tc.getModelIndex()==0) {
+            tc.setMaxWidth(tc.getPreferredWidth());
+            tc.setMinWidth(tc.getPreferredWidth());
+          } else {
+            tc.setMinWidth(10);
+            tc.setMaxWidth(100);
           }
+          //tc.setMaxWidth(tc.getPreferredWidth());
+          super.addColumn(tc);
+        }
+        // Drop the rest of the columns . . . this is the header column
+        // only
+      }
+    };
+  }
 
-          @Override
-          public void insertUpdate(DocumentEvent e) {
-            // TODO Auto-generated method stub
-            SimSearchTable.this.textFilterChanged();
-          }
+  private void addMouseListenerToTable() {
+    MouseListener mouseListener = new MouseListener() {
 
-          @Override
-          public void removeUpdate(DocumentEvent e) {
-            // TODO Auto-generated method stub
-            SimSearchTable.this.textFilterChanged();
-          }
-          
-        });
-//        this.filterTextBox.addKeyListener(new KeyListener() {
-//          }
-//        );
-//      
-//        this.filterTextBox.addActionListener(new ActionListener() {
-//  
-//          @Override
-//          public void actionPerformed(ActionEvent arg0) {
-//            // TODO Auto-generated method stub
-//            SimSearchTable.this.textFilterChanged(); //((JTextField) arg0.getSource()).getText());
-//          }
-//          
-//        });
-        if(useRegExFilterCheckBox!=null) {
-          this.useRegexFilterCheckBox = useRegExFilterCheckBox;
-                  
-          this.useRegexFilterCheckBox.addChangeListener(new ChangeListener()  {
-            @Override
-            public void stateChanged(ChangeEvent arg0) {
-              // TODO Auto-generated method stub
-              SimSearchTable.this.textFilterChanged();
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if(e.getButton()==MouseEvent.BUTTON1) {
+          e.consume();
+          SimSearchTable.this.table.updateUI();
+          SimSearchTable.this.rowHeaderColumnTable.updateUI();
+        }
+      }
+
+      @Override
+      public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void mousePressed(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void mouseReleased(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+      }
+
+    };
+
+    this.table.getTableHeader().addMouseListener(mouseListener);
+  }
+  
+  private void addKeyListenerToTables() {
+    KeyListener keyListener = new KeyListener() {
+
+      @Override
+      public void keyPressed(KeyEvent arg0) {
+
+        if(arg0.getKeyCode() == KeyEvent.VK_DELETE) {
+          SimSearchJTable table = (SimSearchJTable) arg0.getSource();
+          if(table.getSelectedRowCount()>0) {
+
+            try {
+              if(((SimSearch.SimSearchTableModel) table.getModel()).remove(convertViewRowsToModelRows(table.getSelectedRows()))) {
+                updateRowHeader();
+              }
+            } catch (SimSearch.SimSearchTableModel.IllegalOperationException e) {
+              JOptionPane.showMessageDialog(SimSearchTable.this.getTopLevelAncestor(), e.getMessage());
             }
           }
-          );   
-      
         }
       }
+
+      @Override
+      public void keyReleased(KeyEvent arg0) {}
+
+      @Override
+      public void keyTyped(KeyEvent arg0) {}
+
+    };
+
+    this.table.addKeyListener(keyListener);
+    this.rowHeaderColumnTable.addKeyListener(keyListener);
+  }
+  
+  private void addDragAndDropFeature() {
+    SimSearchTableRowTransferHandler transferHandler = new SimSearchTableRowTransferHandler(this);
+    Arrays.asList(this.table).forEach( t -> {
+      t.setTransferHandler(transferHandler);
+      t.setDropMode(DropMode.ON_OR_INSERT_ROWS);
+      t.setDragEnabled(true);
+    });
+  }
+  
+  private void initTables() {
+    this.initColumnModels();
+
+    this.table = new SimSearchJTable();
+    this.getViewport().setView(this.table);
+    this.rowHeaderColumnTable = new SimSearchJTable();
+
+    this.table.setColumnModel(this.tableColumnModel);
+    this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
+    this.rowHeaderColumnTable.getTableHeader().setReorderingAllowed(false);
+    
+ // Make sure that selections between the main table and the header stay
+    // in sync (by sharing the same model)
+//    Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(t -> {
+//    
+//    });
+    table.setSelectionModel(this.rowHeaderColumnTable.getSelectionModel());
+
+    // Make the header column look pretty
+    //headerColumn.setBorder(BorderFactory.createEtchedBorder());
+    //this.rowHeaderColumnTable.setBackground(Color.lightGray);
+    //this.rowHeaderColumnTable.setColumnSelectionAllowed(false);
+    //this.rowHeaderColumnTable.setCellSelectionEnabled(false);
+    
+    this.addMouseListenerToTable();
+    this.addKeyListenerToTables();
+    this.addDragAndDropFeature();
+  }
+
+  private int[] convertViewRowsToModelRows(int[] rows) {
+    for(int i=0; i<rows.length; ++i) rows[i] = this.table.getRowSorter().convertRowIndexToModel(rows[i]);
+    return rows;
+  }
+
+  protected void updateRowHeader() {
+    ((SimSearchJTable.RowHeaderColumnRenderer)  this.rowHeaderColumnTable.getColumnModel().getColumn(0).getCellRenderer()).emptyCache();
+    this.table.updateUI();
+    this.rowHeaderColumnTable.updateUI();
+  }
+
+  //    public boolean areRowsMovableTo(int[] rowsSource, int rowTarget) {
+  //      if(this.table==null) return false;
+  //      for(int i=0; i<rowsSource.length; ++i) if(rowsSource[i]==rowTarget) return false;
+  //      
+  //      
+  //      int modelTarget = this.convertViewRowsToModelRows(new int[] {rowTarget})[0];
+  //      int mergeTarget = ((SimSearch.SimSearchTableModel) this.table.getModel()).getMergeTo(modelTarget);
+  //      
+  //      rowsSource = this.convertViewRowsToModelRows(rowsSource);
+  //      if(mergeTarget>=0) {
+  //        
+  //        return false;
+  //      } else {
+  //        
+  //      }
+  //    }
+
+  private void textFilterChanged() {
+
+    if(this.filterTextBox==null || this.table.getRowSorter()==null) return;
+
+    if(this.useRegexFilterCheckBox!=null && this.useRegexFilterCheckBox.isSelected()) {
+      try {
+        Pattern pattern = Pattern.compile( this.filterTextBox.getText() );
+        this.filterTextBox.setBackground(Color.white);
+        ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter(pattern);
+      } catch(PatternSyntaxException e) {
+        ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter("");
+        this.filterTextBox.setBackground(Color.RED);
+      }
+    } else {
+      ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter(this.filterTextBox.getText());
+      this.filterTextBox.setBackground(Color.white);
     }
-    
-    
-    
-    public void updateView() {
-        
-    }
-    
-    public void loadData(SimSearch.SimSearchTableModel tableModel) {
-    	this.loadData(tableModel, this.viewSettings);
-    }
-    public void loadData(SimSearch.SimSearchTableModel tableModel, ViewSettings viewSettings) {
-        this.table.setModel(tableModel);
-        this.rowHeaderColumnTable.setModel(tableModel);
-        //this.table.createDefaultColumnsFromModel();
-        //this.rowHeaderColumnTable.createDefaultColumnsFromModel();
-        
-        //this.table.getColumn(table.getColumnName(0)).sizeWidthToFit();
-        //this.table.getTableHeader().addMouseListener(new );
-        
-        table.setRowSorter(new SimSearchRowSorter(tableModel));
-        this.rowHeaderColumnTable.setRowSorter(table.getRowSorter());
-        
-        
-     // Put it in a viewport that we can control a bit
-      JViewport jv = new JViewport();
-      jv.setView(this.rowHeaderColumnTable);
-      jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
-      this.setRowHeader(jv);
-          
-      this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
-                  .getTableHeader());
-    }
-    
-    private void mouseClickedOnTableHeader(MouseEvent e) {
-        if(e.getClickCount()==2 && e.getButton()==MouseEvent.BUTTON1) {
-            JTableHeader tableHeader = (JTableHeader) e.getSource();
-            // search TableColumn and resize it
-            
-//          int columnIndex = this.table.getTableHeader().columnAtPoint(e.getPoint()); 
-//          Component comp = tableHeader.getComponentAt(e.getPoint());
-//          
-            System.out.println("Mouse double clicked on " + e.getSource().toString()+"\n");
-//          System.out.println("Mouse double clicked on " + comp.toString() +"\n");
+
+    this.table.updateUI();
+    this.rowHeaderColumnTable.updateUI();
+    //      SimSearchRowSorter rowSorter = (SimSearchRowSorter) this.table.getRowSorter();
+    //      this.table.setRowSorter(null);
+    //      this.rowHeaderColumnTable.setRowSorter(null);
+    //      this.table.setRowSorter(rowSorter);
+    //      this.rowHeaderColumnTable.setRowSorter(rowSorter);
+  }
+
+
+  public void registerRowFilter(JTextField filterTextBox, JCheckBox useRegExFilterCheckBox) {
+
+    if(filterTextBox!=null) {
+
+      this.filterTextBox = filterTextBox;
+      this.filterColor = this.filterTextBox.getBackground();
+      this.filterTextBox.getDocument().addDocumentListener(new DocumentListener() {
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+          // TODO Auto-generated method stub
+          SimSearchTable.this.textFilterChanged();
         }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+          // TODO Auto-generated method stub
+          SimSearchTable.this.textFilterChanged();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+          // TODO Auto-generated method stub
+          SimSearchTable.this.textFilterChanged();
+        }
+
+      });
+      //        this.filterTextBox.addKeyListener(new KeyListener() {
+      //          }
+      //        );
+      //      
+      //        this.filterTextBox.addActionListener(new ActionListener() {
+      //  
+      //          @Override
+      //          public void actionPerformed(ActionEvent arg0) {
+      //            // TODO Auto-generated method stub
+      //            SimSearchTable.this.textFilterChanged(); //((JTextField) arg0.getSource()).getText());
+      //          }
+      //          
+      //        });
+      if(useRegExFilterCheckBox!=null) {
+        this.useRegexFilterCheckBox = useRegExFilterCheckBox;
+
+        this.useRegexFilterCheckBox.addChangeListener(new ChangeListener()  {
+          @Override
+          public void stateChanged(ChangeEvent arg0) {
+            // TODO Auto-generated method stub
+            SimSearchTable.this.textFilterChanged();
+          }
+        }
+            );   
+
+      }
     }
+  }
+
+
+
+  public void updateView() {
+
+  }
+
+  public void loadData(SimSearch.SimSearchTableModel tableModel) {
+    this.loadData(tableModel, this.viewSettings);
+  }
+  public void loadData(SimSearch.SimSearchTableModel tableModel, ViewSettings viewSettings) {
+    this.table.setModel(tableModel);
+    this.rowHeaderColumnTable.setModel(tableModel);
+    //this.table.createDefaultColumnsFromModel();
+    //this.rowHeaderColumnTable.createDefaultColumnsFromModel();
+
+    //this.table.getColumn(table.getColumnName(0)).sizeWidthToFit();
+    //this.table.getTableHeader().addMouseListener(new );
+
+    table.setRowSorter(new SimSearchRowSorter(tableModel));
+    this.rowHeaderColumnTable.setRowSorter(table.getRowSorter());
+
+
+    // Put it in a viewport that we can control a bit
+    JViewport jv = new JViewport();
+    jv.setView(this.rowHeaderColumnTable);
+    jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
+    this.setRowHeader(jv);
+
+    this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
+        .getTableHeader());
+  }
+
+  private void mouseClickedOnTableHeader(MouseEvent e) {
+    if(e.getClickCount()==2 && e.getButton()==MouseEvent.BUTTON1) {
+      JTableHeader tableHeader = (JTableHeader) e.getSource();
+      // search TableColumn and resize it
+
+      //          int columnIndex = this.table.getTableHeader().columnAtPoint(e.getPoint()); 
+      //          Component comp = tableHeader.getComponentAt(e.getPoint());
+      //          
+      System.out.println("Mouse double clicked on " + e.getSource().toString()+"\n");
+      //          System.out.println("Mouse double clicked on " + comp.toString() +"\n");
+    }
+  }
 }
