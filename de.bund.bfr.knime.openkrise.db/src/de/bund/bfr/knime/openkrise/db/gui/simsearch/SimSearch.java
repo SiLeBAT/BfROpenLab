@@ -86,6 +86,7 @@ public final class SimSearch {
     public Type getType() { return this.type; }
     private List<String> getIdList() { return this.idList; }
     public String getReferenceId() { return this.referenceId; }
+    public List<String> getIDList() { return this.idList; }
     
     void addId(String id) { 
     	if(idList.isEmpty()) this.referenceId = id;
@@ -190,22 +191,22 @@ public final class SimSearch {
   
   
   
-  public SimSearchTableModel loadStationTable(SimSet simSet) {
-	  final String[] columnNames = new String[] {"Status", "ID", "Name", "Address", "Country", "Products"};
-	  final Class<?>[] columnClasses = new Class<?>[] {Integer.class, String.class, 
-		  Alignment.AlignedSequence.class, Alignment.AlignedSequence.class, String.class, List.class};
-	 final int columnCount = columnNames.length;
-     Object[][] data = new Object[simSet.getIdList().size()][columnCount];
-     for(int row=0; row<simSet.getIdList().size(); ++row) {
-    	 data[row][0] = 0;
-    	 data[row][1] = simSet.idList.get(row);
-    	 data[row][2] = RandomDummy.manipulateText("Marmeladen Hersteller", 5);
-    	 data[row][3] = RandomDummy.manipulateText("Am Teichgraben 28, 34567 Heuyerswerder", 7);
-    	 data[row][4] = RandomDummy.manipulateText("Deutschland", 3);
-    	 data[row][5] = Arrays.asList(RandomDummy.getRandomTexts(4, 7));
-     }
-     return new SimSearchTableModel(this, simSet, data, columnNames, columnClasses);
-  }
+//  public SimSearchTableModel loadStationTable(SimSet simSet) {
+//	  final String[] columnNames = new String[] {"Status", "ID", "Name", "Address", "Country", "Products"};
+//	  final Class<?>[] columnClasses = new Class<?>[] {Integer.class, String.class, 
+//		  Alignment.AlignedSequence.class, Alignment.AlignedSequence.class, String.class, List.class};
+//	 final int columnCount = columnNames.length;
+//     Object[][] data = new Object[simSet.getIdList().size()][columnCount];
+//     for(int row=0; row<simSet.getIdList().size(); ++row) {
+//    	 data[row][0] = 0;
+//    	 data[row][1] = simSet.idList.get(row);
+//    	 data[row][2] = RandomDummy.manipulateText("Marmeladen Hersteller", 5);
+//    	 data[row][3] = RandomDummy.manipulateText("Am Teichgraben 28, 34567 Heuyerswerder", 7);
+//    	 data[row][4] = RandomDummy.manipulateText("Deutschland", 3);
+//    	 data[row][5] = Arrays.asList(RandomDummy.getRandomTexts(4, 7));
+//     }
+//     return new SimSearchTableModel(this, simSet, data, columnNames, columnClasses);
+//  }
   
   public void loadData(int simSetIndex) {
     SimSet simSet = this.simSetList.get(simSetIndex);
@@ -238,15 +239,20 @@ public final class SimSearch {
     //		resList.add(new DBEntity("sds"));
     //		resList.add(this.dbData.get(SimSet.SimType.Station).get("sdsd"));
     //SimSearchTableModel tableModel = null;
-    try {
-      if(simSet.getType()==SimSet.Type.STATION) {
-        final SimSearchTableModel tableModel = loadStationTable(simSet);
-        call(l->l.dataLoaded(tableModel, simSetIndex));
-      } 
-    } catch(Exception err) {
-      err.printStackTrace();
-      call(l->l.simSearchError(err));
-    }
+    SimSearchDataLoader dataLoader = new SimSearchDataLoader(simSet, dataManipulationHandler);
+    SimSearchTableModel tableModel = new SimSearchTableModel(simSet, dataManipulationHandler, dataLoader);
+    
+    call(l->l.dataLoaded(tableModel, simSetIndex));
+    
+//    try {
+//      if(simSet.getType()==SimSet.Type.STATION) {
+//        final SimSearchTableModel tableModel = loadStationTable(simSet);
+//        call(l->l.dataLoaded(tableModel, simSetIndex));
+//      } 
+//    } catch(Exception err) {
+//      err.printStackTrace();
+//      call(l->l.simSearchError(err));
+//    }
   }
 
 //  List<StationDBEntity> loadStationData(List<String> idList) {

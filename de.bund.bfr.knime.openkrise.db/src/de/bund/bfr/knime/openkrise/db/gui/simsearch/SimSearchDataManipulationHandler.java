@@ -13,7 +13,7 @@ public class SimSearchDataManipulationHandler {
     Merge, Unmerge;
   }
   
-  private static class DataManipulationSet {
+  private static class DataManipulation {
     
     public static class MergeMap implements Cloneable {
       public class MergeException extends Exception {
@@ -63,47 +63,47 @@ public class SimSearchDataManipulationHandler {
     private Map<SimSearch.SimSet.Type, MergeMap> mergeMap;
     private ManipulationType type;
     
-    private DataManipulationSet(ManipulationType type) {
+    private DataManipulation(ManipulationType type) {
       this.mergeMap = new HashMap<>();
       this.type = type;
       for(SimSearch.SimSet.Type simSetType: SimSearch.SimSet.Type.class.getEnumConstants()) this.mergeMap.put(simSetType,  new MergeMap());
     }
     
-    private DataManipulationSet(DataManipulationSet dataManipulationSet) {
+    private DataManipulation(DataManipulation dataManipulation) {
       this.mergeMap = new HashMap<>();
       for(SimSearch.SimSet.Type type: SimSearch.SimSet.Type.class.getEnumConstants()) this.mergeMap.put(type,  new MergeMap());
     }
   }
   
-  private Stack<DataManipulationSet> undo;
-  private Stack<DataManipulationSet> redo;
+  private Stack<DataManipulation> undo;
+  private Stack<DataManipulation> redo;
   
-  protected SimSearchDataManipulation() {
+  protected SimSearchDataManipulationHandler() {
     this.undo = new Stack<>();
     this.redo = new Stack<>();
   }
   
-  private void merge(SimSearch.SimSet.Type simSetType, List<String> idsToMerge, String idToMergeInto) throws DataManipulationSet.MergeMap.MergeException {
-    DataManipulationSet manipulationSet = (this.undo.isEmpty()?new DataManipulationSet(ManipulationType.Merge):this.undo.peek()); 
+  private void merge(SimSearch.SimSet.Type simSetType, List<String> idsToMerge, String idToMergeInto) throws DataManipulation.MergeMap.MergeException {
+    DataManipulation manipulation = (this.undo.isEmpty()?new DataManipulation(ManipulationType.Merge):this.undo.peek()); 
 //    try {
-      for(String id: idsToMerge) manipulationSet.mergeMap.get(simSetType).mergeInto(id, idToMergeInto); 
+      for(String id: idsToMerge) manipulation.mergeMap.get(simSetType).mergeInto(id, idToMergeInto); 
 //    } catch (DataManipulationSet.MergeMap.MergeException e) {
 //      // TODO Auto-generated catch block
 //      e.printStackTrace();
 //    }
-    this.undo.push(manipulationSet);
+    this.undo.push(manipulation);
     this.redo.clear();
   }
   
-  private void unmerge(SimSearch.SimSet.Type simSetType, List<String> idsToUnmerge) throws DataManipulationSet.MergeMap.MergeException {
-    DataManipulationSet manipulationSet = (this.undo.isEmpty()?new DataManipulationSet(ManipulationType.Unmerge):this.undo.peek()); 
+  private void unmerge(SimSearch.SimSet.Type simSetType, List<String> idsToUnmerge) throws DataManipulation.MergeMap.MergeException {
+    DataManipulation manipulation = (this.undo.isEmpty()?new DataManipulation(ManipulationType.Unmerge):this.undo.peek()); 
 //    try {
-    for(String id: idsToUnmerge) manipulationSet.mergeMap.get(simSetType).unmerge(id); 
+    for(String id: idsToUnmerge) manipulation.mergeMap.get(simSetType).unmerge(id); 
 //    } catch (DataManipulationSet.MergeMap.MergeException e) {
 //      // TODO Auto-generated catch block
 //      e.printStackTrace();
 //    }
-    this.undo.push(manipulationSet);
+    this.undo.push(manipulation);
     this.redo.clear();
   }
 }

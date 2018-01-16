@@ -68,6 +68,8 @@ private final static int IDCOLUMN = 1;
 
 private final SimSet simSet;
 private final SimSearch simSearch;
+private final SimSearchDataManipulationHandler dataManipulationHandler;
+private final SimSearchDataLoader dataLoader;
 
 public static class IllegalOperationException extends Exception {
   
@@ -76,27 +78,52 @@ public static class IllegalOperationException extends Exception {
   }
 }
 
-SimSearchTableModel(SimSearch simSearch, SimSet simSet, Object[][] data, String[] columnNames, Class<?>[] columnClasses) {
-  super();
-  this.simSearch = simSearch;
-  this.simSet = simSet;
-  this.data = data;
-  this.columnNames = columnNames;
-  this.columnClasses = columnClasses;
-  this.columnCount = columnNames.length;
-  this.rowCount = data.length;
-  this.createAlignments();
-  this.initArrays();
-//  if(simSet.simType==StationDBEntity.class) {
-//    this.loadStationData();
-////  } else 
-//   // if(simSet.simType==ProductDBEntity.class) {
-//    //loadProductData();
-//  } else {
-//    throw(new Exception());
-//  }
-  //SimSearch.this.loadData(, idList);
-}
+//SimSearchTableModel(SimSearch simSearch, SimSet simSet, Object[][] data, String[] columnNames, Class<?>[] columnClasses) {
+//  super();
+//  this.simSearch = simSearch;
+//  this.simSet = simSet;
+//  this.dataManipulationHandler = dataManipulationHandler;
+//  this.data = data;
+//  this.columnNames = columnNames;
+//  this.columnClasses = columnClasses;
+//  this.columnCount = columnNames.length;
+//  this.rowCount = data.length;
+//  this.createAlignments();
+//  this.initArrays();
+////  if(simSet.simType==StationDBEntity.class) {
+////    this.loadStationData();
+//////  } else 
+////   // if(simSet.simType==ProductDBEntity.class) {
+////    //loadProductData();
+////  } else {
+////    throw(new Exception());
+////  }
+//  //SimSearch.this.loadData(, idList);
+//}
+
+SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipulationHandler, SimSearchDataLoader dataLoader) {
+	  super();
+//	  this.simSearch = simSearch;
+	  this.simSet = simSet;
+	  this.dataManipulationHandler = dataManipulationHandler;
+	  this.dataLoader = dataLoader;
+	  this.data = dataLoader.data;
+	  this.columnNames = dataLoader.columnNames;
+	  this.columnClasses = dataLoader.columnClasses;
+	  this.columnCount = columnNames.length;
+	  this.rowCount = data.length;
+	  this.createAlignments();
+	  this.initArrays();
+	//  if(simSet.simType==StationDBEntity.class) {
+//	    this.loadStationData();
+	////  } else 
+	//   // if(simSet.simType==ProductDBEntity.class) {
+//	    //loadProductData();
+	//  } else {
+//	    throw(new Exception());
+	//  }
+	  //SimSearch.this.loadData(, idList);
+	}
 
 private void initArrays() {
   this.mergeTo = new int[this.rowCount];
@@ -105,7 +132,7 @@ private void initArrays() {
   Arrays.fill(this.mergeTo, -1);
   Arrays.fill(this.toRemove, false);
   Map<String, Integer> idToIndexMap = null;
-  for(String id : this.simSet.idList) if(simSearch.mergeMap.get(simSet.type).mergedIntoResult.containsKey(id)) {
+  for(String id : this.simSet.getIDList())        if(simSearch.mergeMap.get(simSet.type).mergedIntoResult.containsKey(id)) {
     if(idToIndexMap==null) idToIndexMap = getIdToRowIndexMap();
 
     this.mergeTo[idToIndexMap.get(id)] = idToIndexMap.get(simSearch.mergeMap.get(simSet.type).mergedIntoResult.get(id));
