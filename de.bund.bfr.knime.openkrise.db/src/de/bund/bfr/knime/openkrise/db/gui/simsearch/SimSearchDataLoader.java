@@ -44,9 +44,12 @@ public class SimSearchDataLoader {
   }
   
   private void loadData() throws SQLException {
+      
 	  switch(simSet.getType()) {
 	  case STATION:
-    	loadTableData(DBInfo.TABLE.STATION, simSet.getIDList(), null);
+    	loadTableData(DBInfo.TABLE.STATION, simSet.getIdList(), null);
+      default:
+        throw(new SQLException("Unkown SimSet Type: " + simSet.getType()));
     }
   }
   
@@ -54,7 +57,7 @@ public class SimSearchDataLoader {
 	  
   }
   
-  private void loadTableData(DBInfo.TABLE table, List<String> idList, List<DBInfo.COLUMN> childColumns) throws SQLException {
+  private void loadTableData(DBInfo.TABLE table, List<Integer> idList, List<DBInfo.COLUMN> childColumns) throws SQLException {
 	  MyDBI myDBI = DBKernel.myDBi;
 	  Connection con = (myDBI==null?null:myDBI.getConn());
 	  if (con != null) {
@@ -77,10 +80,10 @@ public class SimSearchDataLoader {
 		  this.columnClasses = new Class<?>[this.columnCount];
 		  for(int i=0; i<this.columnCount; ++i) {
 			  this.columnNames[i] = rsmd.getColumnName(i);
-			  if(!this.typeMap.containsKey(rsmd.getColumnType(i))) throw(new SQLException("sdsdksdkj"));
+			  if(!this.typeMap.containsKey(rsmd.getColumnType(i))) throw(new SQLException("Unkown DB Type: " + rsmd.getColumnType(i)));
 			  this.columnClasses[i] = this.typeMap.get(rsmd.getColumnType(i));
 		  }
-		  this.data = new Object[simSet.getIDList().size()][this.columnCount];
+		  this.data = new Object[simSet.getIdList().size()][this.columnCount];
 		  int row = -1;
 		  while(rs.next()) {
 			  ++row;

@@ -21,8 +21,8 @@ public class SimSearchDataManipulationHandler {
           super(message);
         }
       }
-      private Map<String,String> mergedIntoAssignment;
-      private Map<String,String> mergedIntoResult;
+      private Map<Integer,Integer> mergedIntoAssignment;
+      private Map<Integer,Integer> mergedIntoResult;
 
       public MergeMap() {
         this.mergedIntoAssignment = new HashMap<>();
@@ -30,9 +30,9 @@ public class SimSearchDataManipulationHandler {
       }
 
       //public String getMergeResult(String id) { return this.mergedIntoResult.get(id); }
-      public String getMergeAssignment(String id) { return this.mergedIntoAssignment.get(id); }
+      public Integer getMergeAssignment(Integer id) { return this.mergedIntoAssignment.get(id); }
 
-      public void mergeInto(String idToMerge, String idToMergeInto) throws MergeException {
+      public void mergeInto(Integer idToMerge, Integer idToMergeInto) throws MergeException {
         if(mergedIntoAssignment.containsKey(idToMergeInto)) throw(new MergeException("Cascading merges are not allowed."));
         if(mergedIntoAssignment.containsKey(idToMerge)) throw(new MergeException("ID is already merged."));
 
@@ -42,7 +42,7 @@ public class SimSearchDataManipulationHandler {
 //        });
       }
       
-      public void unmerge(String id) throws MergeException {
+      public void unmerge(Integer id) throws MergeException {
         if(mergedIntoAssignment.containsKey(id)) {
           this.mergedIntoAssignment.remove(id);
         } else if (mergedIntoAssignment.containsValue(id)) {
@@ -83,10 +83,10 @@ public class SimSearchDataManipulationHandler {
     this.redo = new Stack<>();
   }
   
-  private void merge(SimSearch.SimSet.Type simSetType, List<String> idsToMerge, String idToMergeInto) throws DataManipulation.MergeMap.MergeException {
+  public void merge(SimSearch.SimSet.Type simSetType, List<Integer> idsToMerge, Integer idToMergeInto) throws DataManipulation.MergeMap.MergeException {
     DataManipulation manipulation = (this.undo.isEmpty()?new DataManipulation(ManipulationType.Merge):this.undo.peek()); 
 //    try {
-      for(String id: idsToMerge) manipulation.mergeMap.get(simSetType).mergeInto(id, idToMergeInto); 
+      for(Integer id: idsToMerge) manipulation.mergeMap.get(simSetType).mergeInto(id, idToMergeInto); 
 //    } catch (DataManipulationSet.MergeMap.MergeException e) {
 //      // TODO Auto-generated catch block
 //      e.printStackTrace();
@@ -95,15 +95,19 @@ public class SimSearchDataManipulationHandler {
     this.redo.clear();
   }
   
-  private void unmerge(SimSearch.SimSet.Type simSetType, List<String> idsToUnmerge) throws DataManipulation.MergeMap.MergeException {
+  public void unmerge(SimSearch.SimSet.Type simSetType, List<Integer> idsToUnmerge) throws DataManipulation.MergeMap.MergeException {
     DataManipulation manipulation = (this.undo.isEmpty()?new DataManipulation(ManipulationType.Unmerge):this.undo.peek()); 
 //    try {
-    for(String id: idsToUnmerge) manipulation.mergeMap.get(simSetType).unmerge(id); 
+    for(Integer id: idsToUnmerge) manipulation.mergeMap.get(simSetType).unmerge(id); 
 //    } catch (DataManipulationSet.MergeMap.MergeException e) {
 //      // TODO Auto-generated catch block
 //      e.printStackTrace();
 //    }
     this.undo.push(manipulation);
     this.redo.clear();
+  }
+  
+  public Integer getMergedInto(SimSearch.SimSet.Type simSetType, Integer id) {
+    return (this.undo.empty()?null:this.undo.peek().mergeMap.get(simSetType).getMergeAssignment(id));
   }
 }

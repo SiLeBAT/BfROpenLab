@@ -42,8 +42,10 @@ private final Class<?>[] columnClasses;
 
 private Object[][] data;
 
-private boolean[] toRemove;
+//private boolean[] toRemove;
 private int[] mergeTo;
+private int[][] mergesFrom;
+private boolean[] belongsToSimSet;
 
 private final int rowCount;
 private final int columnCount;
@@ -127,26 +129,41 @@ SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipula
 
 private void initArrays() {
   this.mergeTo = new int[this.rowCount];
-  this.toRemove = new boolean[this.rowCount];
-  
+  //this.toRemove = new boolean[this.rowCount];
+  this.mergesFrom = new int[this.rowCount][];
+  Set<Integer> ids = new HashSet<>(simSet.getIdList()); 
   Arrays.fill(this.mergeTo, -1);
-  Arrays.fill(this.toRemove, false);
-  Map<String, Integer> idToIndexMap = null;
-  for(String id : this.simSet.getIDList())        if(simSearch.mergeMap.get(simSet.type).mergedIntoResult.containsKey(id)) {
-    if(idToIndexMap==null) idToIndexMap = getIdToRowIndexMap();
-
-    this.mergeTo[idToIndexMap.get(id)] = idToIndexMap.get(simSearch.mergeMap.get(simSet.type).mergedIntoResult.get(id));
+  //Arrays.fill(this.belongsToSimSet, false);
+  //Arrays.fill(this.toRemove, false);
+  Map<Integer, List<Integer>> mergesFrom = new HashMap<>();
+  Map<Integer, Integer> idToIndexMap = getIdToRowIndexMap();
+  for(Integer id : ids) {
+    Integer idInto = dataManipulationHandler.getMergedInto(simSet.getType(), id);     //if(simSearch.mergeMap.get(simSet.type).mergedIntoResult.containsKey(id)) {
+    if(idInto!=null) {
+      //if(idToIndexMap==null) idToIndexMap = getIdToRowIndexMap();
+      int idIndex = idToIndexMap.get(id);
+      int idIntoIndex = idToIndexMap.get(idInto);
+      this.mergeTo[idIndex] = idToIndexMap.get(idIntoIndex);
+      if(!mergesFrom.containsKey(idIntoIndex)) mergesFrom.put(idIntoIndex, Arrays.asList(idIndex));
+      else mergesFrom.get(idIntoIndex).add(idIndex);
+    }
   }
-  for(String id: Sets.intersection(simSearch.removeMap.get(simSet.type), new HashSet<>(simSet.idList))) {
-    if(idToIndexMap==null) idToIndexMap = getIdToRowIndexMap();
-    this.toRemove[idToIndexMap.get(id)] = true;
-  }
-  this.mergeTo[2] = 0;
+  mergesFrom.entrySet().forEach(e -> {
+    this.mergesFrom[e.getKey()] = new int[e.getValue().size()];
+    for(int i =0; i>e.getValue().size(); ++i)  this.mergesFrom[e.getKey()][i] = e.getValue().get(i);
+  });
+  for(int i=0; i<this.rowCount; ++i) ids.contains(this.data[i][IDCOLUMN]);
+  //mergesFrom.forEach(e -> this.mergesFrom[e.getKey()] = e.getValue().toArray());
+//  for(String id: Sets.intersection(simSearch.removeMap.get(simSet.type), new HashSet<>(simSet.idList))) {
+//    if(idToIndexMap==null) idToIndexMap = getIdToRowIndexMap();
+//    this.toRemove[idToIndexMap.get(id)] = true;
+//  }
+//  this.mergeTo[2] = 0;
 }
 
-private Map<String, Integer> getIdToRowIndexMap() {
-  Map<String, Integer> idToIndexMap = new HashMap<>();
-  for(int row=0; row < this.rowCount; ++row) idToIndexMap.put((String) data[row][IDCOLUMN], row);
+private Map<Integer, Integer> getIdToRowIndexMap() {
+  Map<Integer, Integer> idToIndexMap = new HashMap<>();
+  for(int row=0; row < this.rowCount; ++row) idToIndexMap.put((Integer) data[row][IDCOLUMN], row);
   return idToIndexMap;
 }
 

@@ -19,17 +19,24 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.swing.table.DefaultTableModel;
 import com.google.common.collect.Sets;
+import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet.Type;
 
 public final class SimSearch {
   
@@ -40,19 +47,36 @@ public final class SimSearch {
     private boolean checkStations;
     private int stationNameSim;
     private int stationAddressSim;
+    private int stationZipSim;
+    private int stationStreetSim;
+    private int stationHouseNumberSim;
+    private int stationCitySim;
     private int stationCountrySim;
+    private boolean useAllInOneAddress = true;
+    private boolean useLevenshtein;
 
     public Settings() {
       this.checkStations = true;
       this.stationNameSim = 90;
       this.stationAddressSim = 90;
+      this.stationZipSim = 90;
+      this.stationStreetSim = 90;
+      this.stationHouseNumberSim = 90;
+      this.stationCitySim = 90;
       this.stationCountrySim = 90;
+      this.useLevenshtein = false;
     }
 
     public boolean getCheckStations() { return this.checkStations; }
     public int getStationNameSim() { return this.stationNameSim; }
     public int getStationAddressSim() { return this.stationAddressSim; }
     public int getStationCountrySim() { return this.stationCountrySim; }
+    public int getStationZipSim() { return this.stationZipSim; }
+    public int getStationStreetSim() { return this.stationStreetSim; }
+    public int getStationHouseNumberSim() { return this.stationHouseNumberSim; }
+    public int getStationCitySim() { return this.stationCitySim; }
+    public boolean getUseAllInOneAddress() { return this.useAllInOneAddress; }
+    public boolean getUseLevenshtein() { return this.useLevenshtein; }
   }
 
   public interface SimSearchListener {
@@ -73,31 +97,54 @@ public final class SimSearch {
 
     //protected SimType simType;
     private Type type;
-    private List<String> idList;
-    private String referenceId;
+    private List<Integer> idList;
+    private Integer referenceId;
     //private String alignmentReferenceID;
 
     //public SimSet(SimType simType) {
-    public SimSet(Type type) {
+    public SimSet(Type type, List<Integer> idList) {
       this.type = type;
-      this.idList = new ArrayList<>();
+      this.idList = Collections.unmodifiableList(idList);
     }
     
     public Type getType() { return this.type; }
-    private List<String> getIdList() { return this.idList; }
-    public String getReferenceId() { return this.referenceId; }
-    public List<String> getIDList() { return this.idList; }
+    public List<Integer> getIdList() { return this.idList; }
+    public Integer getReferenceId() { return this.referenceId; }
     
-    void addId(String id) { 
-    	if(idList.isEmpty()) this.referenceId = id;
-    	this.idList.add(id); 
-    }
-    void removeId(String id) { 
-    	this.idList.remove(id);
-    	if(id.equals(this.referenceId)) this.referenceId = null;
-    }
+//    void addId(String id) { 
+//    	if(idList.isEmpty()) this.referenceId = id;
+//    	this.idList.add(id); 
+//    }
+//    void removeId(String id) { 
+//    	this.idList.remove(id);
+//    	if(id.equals(this.referenceId)) this.referenceId = null;
+//    }
   }
 
+  protected static abstract class DataSource {
+    public interface DataSourceListener {
+      public void similaritiesFound(SimSet.Type simSetType, List<Integer> idList);
+    }
+    private DataSourceListener listener;
+    private boolean searchStopped;
+    
+    protected DataSource(DataSourceListener listener) {
+      this.listener = listener;
+    }
+    public abstract void findSimilarities(Settings settings) throws SQLException;
+    //public void findSimilarStations();
+    public abstract SimSearchDataLoader getDataLoader();
+    
+    public final void stopSearch() {
+      this.searchStopped = true;
+    }
+    
+    public final boolean getSearchStopped() { return this.searchStopped; }
+    
+    final void newSimilarityMatchFound(SimSet.Type simSetType, List<Integer> idList) {
+      if(listener!=null) listener.similaritiesFound(simSetType, idList);
+    }
+  }
   
   private Settings simSearchSettings;
   private List<SimSet> simSetList;
@@ -108,6 +155,7 @@ public final class SimSearch {
   private boolean searchStopped;
   private List<SimSearchListener> simSearchListenerList;
   private SimSearchDataManipulationHandler dataManipulationHandler;
+  private DataSource dataSource;
   
   //private Map<SimSet, String> alignmentReferenceMap;
   
@@ -128,6 +176,15 @@ public final class SimSearch {
 
   public SimSearch() {
     this.simSearchListenerList = new ArrayList<>();
+    this.dataSource = new SimSearchDataSource(new DataSource.DataSourceListener() {
+      
+      @Override
+      public void similaritiesFound(Type simSetType, List<Integer> idList) {
+        // TODO Auto-generated method stub
+        SimSearch.this.simSetList.add(new SimSet(simSetType, idList));
+        SimSearch.this.call(l -> l.newSimSetFound());
+      }
+    });
 //    this.dataManipulationHandler = new SimSearchDataManipulationHandler();
   }
 
@@ -345,13 +402,19 @@ public final class SimSearch {
 //          RandomDummy.manipulateText("An Teichgraben 8", 4),
 //          RandomDummy.manipulateText("Germany",2)));
 //    });
-//  }
+//  } 
   
   private void runSearch() {
-    if(this.preprocessDatabase()) {
-      if(!this.searchStopped && this.simSearchSettings.getCheckStations()) this.findSimilarStations();
+    try {
+      this.dataSource.findSimilarities(this.simSearchSettings);
+    } catch (SQLException err) {
+      call(l->l.simSearchError(err));
+      //e.printStackTrace();
     }
-    this.postProcessDatabase();
+//    if(this.preprocessDatabase()) {
+//      if(!this.searchStopped && this.simSearchSettings.getCheckStations()) this.findSimilarStations();
+//    }
+//    this.postProcessDatabase();
     if(this.searchStopped) {
       call(l->l.searchCanceled());
     } else {
@@ -364,30 +427,30 @@ public final class SimSearch {
     //Stream.of(getListeners(CanvasListener.class)).forEach(action);
   }
 
-  private void findSimilarStations() {
-    for(int iR = 1; iR <= RESULT_NUMBER; iR++) {
-      if(this.searchStopped) return; 
-      try {
-        Thread.sleep(500);
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      SimSet simSet = new SimSet(SimSet.Type.STATION);
-      for(int iS=1; iS<=STATION_NUMBER; iS++) {
-        if(this.searchStopped) return;
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-        simSet.addId(RandomDummy.getRandomText(8));
-      }
-      this.simSetList.add(simSet);
-      call(l -> l.newSimSetFound());
-    }
-  }
+//  private void findSimilarStations() {
+//    for(int iR = 1; iR <= RESULT_NUMBER; iR++) {
+//      if(this.searchStopped) return; 
+//      try {
+//        Thread.sleep(500);
+//      } catch (InterruptedException e) {
+//        // TODO Auto-generated catch block
+//        e.printStackTrace();
+//      }
+//      SimSet simSet = new SimSet(SimSet.Type.STATION);
+//      for(int iS=1; iS<=STATION_NUMBER; iS++) {
+//        if(this.searchStopped) return;
+//        try {
+//          Thread.sleep(100);
+//        } catch (InterruptedException e) {
+//          // TODO Auto-generated catch block
+//          e.printStackTrace();
+//        }
+//        simSet.addId(RandomDummy.getRandomText(8));
+//      }
+//      this.simSetList.add(simSet);
+//      call(l -> l.newSimSetFound());
+//    }
+//  }
 
 
   private boolean preprocessDatabase() {

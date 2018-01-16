@@ -14,7 +14,13 @@ public class DBInfo {
 	}
 	
 	public enum COLUMN {
-		STATION_NAME("name", TABLE.STATION), STATION_ID("id", TABLE.STATION);
+	  STATION_ID("id", TABLE.STATION),
+	  STATION_NAME("name", TABLE.STATION), 
+	  STATION_ADDRESS("adresse", TABLE.STATION),
+	  STATION_ZIP("plz", TABLE.STATION), 
+	  STATION_STREET("strasse", TABLE.STATION), 
+	  STATION_HOUSENUMBER("housenumber", TABLE.STATION),
+	  STATION_CITY("ort", TABLE.STATION), ;
 		
 		private final String name;
 		private final TABLE table;
