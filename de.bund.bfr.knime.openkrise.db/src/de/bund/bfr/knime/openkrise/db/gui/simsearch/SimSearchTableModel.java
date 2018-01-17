@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,12 +45,14 @@ private Object[][] data;
 //private boolean[] toRemove;
 private int[] mergeTo;
 private int[][] mergesFrom;
-private boolean[] belongsToSimSet;
+private int[] mergeCount;
+//private boolean[] isMerged;
 
 private final int rowCount;
 private final int columnCount;
 
 private final static int IDCOLUMN = 1;
+private final static int NOTMERGED = -2;
 //private int alignmentReferenceRow;
 //private int referenceRow;
 
@@ -129,36 +132,42 @@ SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipula
 
 private void initArrays() {
   this.mergeTo = new int[this.rowCount];
-  //this.toRemove = new boolean[this.rowCount];
   this.mergesFrom = new int[this.rowCount][];
+  this.mergeCount = new int[this.rowCount];
   Set<Integer> ids = new HashSet<>(simSet.getIdList()); 
-  Arrays.fill(this.mergeTo, -1);
-  //Arrays.fill(this.belongsToSimSet, false);
-  //Arrays.fill(this.toRemove, false);
+  Arrays.fill(this.mergeTo, NOTMERGED); //noMerge
+  Arrays.fill(this.mergeCount, 0);
+  
   Map<Integer, List<Integer>> mergesFrom = new HashMap<>();
   Map<Integer, Integer> idToIndexMap = getIdToRowIndexMap();
+  
   for(Integer id : ids) {
     Integer idInto = dataManipulationHandler.getMergedInto(simSet.getType(), id);     //if(simSearch.mergeMap.get(simSet.type).mergedIntoResult.containsKey(id)) {
     if(idInto!=null) {
-      //if(idToIndexMap==null) idToIndexMap = getIdToRowIndexMap();
       int idIndex = idToIndexMap.get(id);
-      int idIntoIndex = idToIndexMap.get(idInto);
-      this.mergeTo[idIndex] = idToIndexMap.get(idIntoIndex);
-      if(!mergesFrom.containsKey(idIntoIndex)) mergesFrom.put(idIntoIndex, Arrays.asList(idIndex));
-      else mergesFrom.get(idIntoIndex).add(idIndex);
+            
+      Integer idIntoIndex = idToIndexMap.get(idInto);
+      
+      if(idIntoIndex!=null) {
+        this.mergeTo[idIndex] = idIntoIndex;
+        if(!mergesFrom.containsKey(idIntoIndex)) mergesFrom.put(idIntoIndex, Arrays.asList(idIndex));
+        else mergesFrom.get(idIntoIndex).add(idIndex);
+      } else {
+        // outside merge
+        this.mergeTo[idIndex] = -1;
+      }
     }
   }
   mergesFrom.entrySet().forEach(e -> {
     this.mergesFrom[e.getKey()] = new int[e.getValue().size()];
     for(int i =0; i>e.getValue().size(); ++i)  this.mergesFrom[e.getKey()][i] = e.getValue().get(i);
   });
-  for(int i=0; i<this.rowCount; ++i) ids.contains(this.data[i][IDCOLUMN]);
-  //mergesFrom.forEach(e -> this.mergesFrom[e.getKey()] = e.getValue().toArray());
-//  for(String id: Sets.intersection(simSearch.removeMap.get(simSet.type), new HashSet<>(simSet.idList))) {
-//    if(idToIndexMap==null) idToIndexMap = getIdToRowIndexMap();
-//    this.toRemove[idToIndexMap.get(id)] = true;
-//  }
-//  this.mergeTo[2] = 0;
+  for(int i=0; i<this.rowCount; ++i) {
+    // ids.contains(this.data[i][IDCOLUMN]);
+    this.mergeCount[i] = this.dataManipulationHandler.getMergeCount(this.simSet.getType(),(Integer) this.data[i][IDCOLUMN]);
+  }
+      
+  
 }
 
 private Map<Integer, Integer> getIdToRowIndexMap() {
@@ -203,20 +212,12 @@ public boolean isMergeValid(List<Integer> rowsToMerge, int rowToMergeInto) {
     return false;
 }
 
-public void merge(int[] rowsToMerge, int rowToMergeInto) {
-    
-}
-
-public void unMerge(int[] rowsToUnMerge) {
-    
-}
-
 public boolean isMerged(int row) {
-    return mergeTo[row]>=0;
+    return mergeTo[row]!=NOTMERGED;
 }
 
 public int getMergeCount(int row) {
-  return -1;
+  return this.mergeCount[row];
 }
 
 public boolean isSimReferenceRow(int row) {
@@ -227,6 +228,57 @@ public boolean isAlignmentReferenceRow(int row) {
   return false; //((String) this.data[row][IDCOLUMN]).equals(simSearch.alignmentReferenceMap.get(simSet));
 }
 
+public boolean isMergeValid(int[] rowsToMerge, int rowToMergeInto) {
+  if(this.dataManipulationHandler.isMerged(this.simSet.getType(), rowToMergeInto)) {
+    return false;
+  } else {
+    for(int i=0; i<rowsToMerge.length; ++i) if(this.dataManipulationHandler.isMerged(this.simSet.getType(), rowsToMerge[i])) return false;
+  }
+  return true;
+}
+
+public void mergeRows(int[] rowsToMerge, int rowToMergeInto) {
+  if(this.isMergeValid(rowsToMerge,rowToMergeInto)) {
+    List<Integer> idsToMerge = new ArrayList<>();
+    for(int i=0; i< rowsToMerge.length; ++i) idsToMerge.add((Integer) this.data[rowsToMerge[i]][IDCOLUMN]);
+    Integer idToMergeInto = (Integer) this.data[rowToMergeInto][IDCOLUMN];
+    try {
+      this.dataManipulationHandler.merge(this.simSet.getType(), idsToMerge, idToMergeInto);
+      //for(int i=0; i<rowsToMerge.length; ++i) this.mergeTo[i] = rowToMergeInto;
+      //this.mergeCount[rowToMerge]
+      this.initArrays();
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+}
+
+public void undo() {
+  this.dataManipulationHandler.undo();
+  this.initArrays();
+}
+
+public void redo() {
+  this.dataManipulationHandler.redo();
+  this.initArrays();
+}
+
+public boolean isUndoAvailable() {
+  return this.dataManipulationHandler.isUndoAvailable();
+}
+
+public boolean isRedoAvailable() {
+  return this.dataManipulationHandler.isRedoAvailable();
+}
+
+public String getUndoType() {
+  return this.dataManipulationHandler.getUndoType();
+}
+
+public String getRedoType() {
+  return this.dataManipulationHandler.getRedoType();
+}
 //private void loadStationData() {
 //  List<StationDBEntity> stationList = this.simSearch.loadStationData(this.simSet.idList, true);
 //  if(stationList==null) return;

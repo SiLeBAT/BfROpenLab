@@ -65,15 +65,25 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
       boolean isDropable = info.isDrop() && info.isDataFlavorSupported(dataFlavor);
       if(isDropable) {
         JTable.DropLocation dropLocation = (JTable.DropLocation) info.getDropLocation();
-        
-//        if(dropLocation.isInsertRow()) {
-//          isDropable = this.simSearchTable.areRowsMovableTo((int[]) info.getTransferable().getTransferData(dataFlavor), dropLocation.getRow());
-//          
-//        } else if(!dropLocation.isInsertColumn()) {
-//          isDropable = this.simSearchTable.areRowsMergeableTo(); 
-//        } else {
-//          isDropable = false;
-//        }
+        if(!dropLocation.isInsertColumn()) {
+          
+          try {
+            int[] rowsDragged = (int[]) info.getTransferable().getTransferData(this.dataFlavor);
+            if(dropLocation.isInsertRow()) {
+              //isDropable = this.simSearchTable.areRowsMovableTo((int[]) info.getTransferable().getTransferData(dataFlavor), dropLocation.getRow());
+              isDropable = this.simSearchTable.isRowMoveValid(rowsDragged, dropLocation.getRow());
+            } else {
+              isDropable = this.simSearchTable.isMergeValid(rowsDragged, dropLocation.getRow());
+            }
+          } catch (UnsupportedFlavorException e) {
+            // TODO Auto-generated catch block
+            //e.printStackTrace();
+            isDropable = false;
+          } catch (IOException e) {
+            // TODO Auto-generated catch block
+            isDropable = false;
+          }
+        }
       }
       
       table.setCursor(isDropable ? DragSource.DefaultMoveDrop : DragSource.DefaultMoveNoDrop);
@@ -90,26 +100,50 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
       if (!canImport(info)) {
         return false;
       }
-      TransferHandler.DropLocation tdl = info.getDropLocation();
-      if (!(tdl instanceof JTable.DropLocation)) {
+      //TransferHandler.DropLocation dropLocation = info.getDropLocation();
+      if (!(info.getDropLocation() instanceof JTable.DropLocation)) {
         return false;
       }
+      boolean dataImported = false;
+      JTable.DropLocation dropLocation = (JTable.DropLocation) info.getDropLocation();
+      if(dropLocation.isInsertRow()) {
+        // move rows
+      } else if(dropLocation.isInsertColumn()) {
+        // do nothing 
+      } else {
+        int[] rowsToMerge;
+        try {
+          rowsToMerge = (int[]) info.getTransferable().getTransferData(this.dataFlavor);
+          this.simSearchTable.mergeRows(rowsToMerge, dropLocation.getRow());
+          dataImported = true;
+        } catch (UnsupportedFlavorException e) {
+          // TODO Auto-generated catch block
+          //e.printStackTrace();
+          e.printStackTrace();
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
       
-      JTable.DropLocation dl = (JTable.DropLocation) tdl;
-      JTable target = (JTable) info.getComponent();
-//      System.out.println("getUserDropAction(): " + info.getUserDropAction());
-//      System.out.println("getSourceDropActions(): " + info.getSourceDropActions());
-//      System.out.println("getDropAction(): " + info.getDropAction());
-      System.out.println("getDropLocation(): " + info.getDropLocation());
-//      if(info.getDropAction()==TransferHandler.MOVE) {
-//        System.out.println("Move row");
-//      } else if(info.getDropAction()==TransferHandler.COPY) {
-//        System.out.println("Merge row");
-//      } else {
-//        System.out.println("Undecided operation");
-//      }
-      target.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      return true;
+      
+//      JTable.DropLocation dl = (JTable.DropLocation) tdl;
+//      JTable target = (JTable) info.getComponent();
+////      System.out.println("getUserDropAction(): " + info.getUserDropAction());
+////      System.out.println("getSourceDropActions(): " + info.getSourceDropActions());
+////      System.out.println("getDropAction(): " + info.getDropAction());
+//      System.out.println("getDropLocation(): " + info.getDropLocation());
+////      if(info.getDropAction()==TransferHandler.MOVE) {
+////        System.out.println("Move row");
+////      } else if(info.getDropAction()==TransferHandler.COPY) {
+////        System.out.println("Merge row");
+////      } else {
+////        System.out.println("Undecided operation");
+////      }
+      info.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      //target.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      return dataImported;
+//      return true;
 //      DefaultTableModel model = (DefaultTableModel) target.getModel();
 //      int index = dl.getRow();
 //      int max = model.getRowCount();
@@ -133,7 +167,7 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
 //      return false;
     }
     @Override protected void exportDone(JComponent c, Transferable data, int action) {
-      System.out.println("Export done");
+      //System.out.println("Export done");
       //cleanup(c, action == TransferHandler.MOVE);
     }
 

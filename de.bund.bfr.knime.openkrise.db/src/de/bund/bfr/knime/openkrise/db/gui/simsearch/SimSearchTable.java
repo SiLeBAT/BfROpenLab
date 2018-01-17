@@ -55,6 +55,8 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import com.sun.javafx.scene.control.ReadOnlyUnbackedObservableList;
+import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchJTable.RowHeaderColumnRenderer;
 import javafx.scene.input.MouseButton;
 
 public class SimSearchTable extends JScrollPane{
@@ -70,6 +72,10 @@ public class SimSearchTable extends JScrollPane{
   //        }
   //    }
 
+  public interface UndoRedoListener {
+    public void anUndoRedoEventOccured();
+  }
+  
   public static class ViewSettings {
     private List<Integer> frozenColumns;
     private List<Integer> columnOrdering;
@@ -86,10 +92,12 @@ public class SimSearchTable extends JScrollPane{
   private JTextField filterTextBox;
   private JCheckBox useRegexFilterCheckBox;
   private Color filterColor;
+  private UndoRedoListener undoRedoListener;
 
 
-  public SimSearchTable() {
+  public SimSearchTable(UndoRedoListener undoRedoListener) {
     super(); //new SimSearchJTable());
+    this.undoRedoListener = undoRedoListener;
     this.init();
   }
 
@@ -507,11 +515,71 @@ public class SimSearchTable extends JScrollPane{
       }
     }
   }
+  
+  public void undo() {
+    ((SimSearchTableModel) this.table.getModel()).undo();
+    if(this.undoRedoListener!=null) this.undoRedoListener.anUndoRedoEventOccured();
+    this.updateView();
+  }
+  
+  public void redo() {
+    ((SimSearchTableModel) this.table.getModel()).redo();
+    if(this.undoRedoListener!=null) this.undoRedoListener.anUndoRedoEventOccured();
+    this.updateView();
+  }
+  
+  public boolean isUndoAvailable() {
+    return ((SimSearchTableModel) this.table.getModel()).isUndoAvailable();
+  }
+  
+  public boolean isRedoAvailable() {
+    return ((SimSearchTableModel) this.table.getModel()).isRedoAvailable();
+  }
+  
+  public String getUndoType() {
+    return ((SimSearchTableModel) this.table.getModel()).getUndoType();
+  }
+  
+  public String getRedoType() {
+    return ((SimSearchTableModel) this.table.getModel()).getRedoType();
+  }
+  
+  public boolean isMergeValid(int[] rowsToMerge, int rowToMergeTo) {
+    rowsToMerge = convertViewRowsToModelRows(rowsToMerge);
+    rowToMergeTo = convertViewRowsToModelRows(new int[] {rowToMergeTo})[0];
+    return ((SimSearchTableModel) this.table.getModel()).isMergeValid(rowsToMerge, rowToMergeTo);
+  }
+  
+  public void mergeRows(int[] rowsToMerge, int rowToMergeTo) {
+    rowsToMerge = convertViewRowsToModelRows(rowsToMerge);
+    rowToMergeTo = convertViewRowsToModelRows(new int[] {rowToMergeTo})[0];
+    ((SimSearchTableModel) this.table.getModel()).mergeRows(rowsToMerge, rowToMergeTo);
+    ((SimSearchRowSorter) this.table.getRowSorter()).sort();
+    this.updateView();
+  }
 
-
-
+  public boolean isRowMoveValid(int[] rowsToMove, int rowToMoveBefore) {
+    //rowsToMove = convertViewRowsToModelRows(rowsToMove);
+    //rowToMoveBefore = convertViewRowsToModelRows(new int[] {rowToMoveBefore})[0];
+    return true; //    this.table.getRowSorter().isMoveValid(rowsToMove, rowToMoveBefore);
+  }
+  
+  public void moveRows(int[] rowsToMove, int rowToMoveBefore) {
+    rowsToMove = convertViewRowsToModelRows(rowsToMove);
+    rowToMoveBefore = convertViewRowsToModelRows(new int[] {rowToMoveBefore})[0];
+    ((SimSearchRowSorter) this.table.getRowSorter()).moveRows(rowsToMove, rowToMoveBefore);
+    this.updateView();
+  }
+  
+  public void showInactiveRows(boolean value) {
+    ((SimSearchRowSorter) this.table.getRowSorter()).showInactiveRows(value);
+    this.updateView();
+  }
+ 
   public void updateView() {
-
+    ((RowHeaderColumnRenderer) this.rowHeaderColumnTable.getColumnModel().getColumn(0).getCellRenderer()).emptyCache();
+    this.table.updateUI();
+    this.rowHeaderColumnTable.updateUI();
   }
 
   public void loadData(SimSearchTableModel tableModel) {

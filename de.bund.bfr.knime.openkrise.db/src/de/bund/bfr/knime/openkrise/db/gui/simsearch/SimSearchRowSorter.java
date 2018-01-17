@@ -57,6 +57,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
     //private RowFilter<SimSearchTableModel, Integer> rowFilter;
     private String rowFilterText;
     private Pattern rowFilterPattern;
+    private boolean showInactiveRows;
     
     static {
         Map<Class<?>, MyComparator<?>> compMap = new HashMap<>();
@@ -150,6 +151,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
 //            this.modelToView.add(i);
 //            this.viewToModel.add(i);
 //        }
+        this.showInactiveRows = false;
         this.sortKeys = new ArrayList<>();
         this.columnComparators = new MyComparator<?>[model.getColumnCount()];
         for(int i=0; i < model.getColumnCount(); ++i) columnComparators[i] = comparatorMap.get(model.getColumnClass(i));  
@@ -267,7 +269,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
         
     }
     
-    private void sort() {
+    public void sort() {
         //
       List<Integer> alwaysOnTop = new ArrayList<>(); // so far not considered
       
@@ -343,6 +345,12 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
       for(int i=0; i<this.getViewRowCount(); ++i) modelToView[viewToModel.get(i)] = i;
     }
     
+    
+    public void showInactiveRows(boolean value) {
+      this.showInactiveRows = value;
+      this.filterRows();
+    }
+    
     public void setRowFilter(String text) {
       this.rowFilterPattern = null;
       this.rowFilterText = text;
@@ -362,6 +370,23 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
         return new SortKey(key.getColumn(), SortOrder.ASCENDING);
     }
     
+    
+    public void moveRows(int[] rowsToMove, int rowToMoveBefore) {
+      List<Integer> unmovedRows = this.unfilteredViewToModel.stream().collect(Collectors.toList());
+      List<Integer> movedRows = this.unfilteredViewToModel.stream().collect(Collectors.toList());
+      
+      List<Integer> rowsToMoveList = new ArrayList<>();
+      for(int i=0; i<rowsToMove.length; ++i) rowsToMoveList.add(rowsToMove[i]);
+      
+      unmovedRows.removeAll(rowsToMoveList);
+      movedRows.retainAll(rowsToMoveList);
+      
+      unmovedRows.addAll(unmovedRows.indexOf(rowToMoveBefore), movedRows);
+      this.unfilteredViewToModel = unmovedRows;
+      
+      this.sortKeys.clear();
+      this.sort();
+    }
     
     @Override
     public int convertRowIndexToModel(int index) {

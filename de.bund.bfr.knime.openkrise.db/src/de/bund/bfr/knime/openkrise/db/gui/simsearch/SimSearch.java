@@ -122,8 +122,10 @@ public final class SimSearch {
     //private String alignmentReferenceID;
 
     //public SimSet(SimType simType) {
-    private SimSet(Type type, List<Integer> idList) {
+    private SimSet(Type type, List<Integer> idList) throws Exception {
       this.type = type;
+      if(idList==null || idList.isEmpty()) throw(new Exception("The parameter idList may not be null or empty."));
+      this.referenceId = idList.get(1);
       this.idList = Collections.unmodifiableList(idList);
     }
     
@@ -202,8 +204,16 @@ public final class SimSearch {
       @Override
       public void similaritiesFound(Type simSetType, List<Integer> idList) {
         // TODO Auto-generated method stub
-        SimSearch.this.simSetList.add(new SimSearch.SimSet(simSetType, idList));
-        SimSearch.this.call(l -> l.newSimSetFound());
+        
+        try {
+          SimSearch.this.simSetList.add(new SimSearch.SimSet(simSetType, idList));
+          SimSearch.this.call(l -> l.newSimSetFound());
+        } catch (Exception err) {
+          // TODO Auto-generated catch block
+          err.printStackTrace();
+          SimSearch.this.call(l -> l.simSearchError(err));
+        }
+        
       }
     });
 //    this.dataManipulationHandler = new SimSearchDataManipulationHandler();
