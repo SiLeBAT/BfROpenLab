@@ -331,19 +331,19 @@ public class SimSearchTable extends JScrollPane{
       @Override
       public void keyPressed(KeyEvent arg0) {
 
-        if(arg0.getKeyCode() == KeyEvent.VK_DELETE) {
-          SimSearchJTable table = (SimSearchJTable) arg0.getSource();
-          if(table.getSelectedRowCount()>0) {
-
-            try {
-              if(((SimSearch.SimSearchTableModel) table.getModel()).remove(convertViewRowsToModelRows(table.getSelectedRows()))) {
-                updateRowHeader();
-              }
-            } catch (SimSearch.SimSearchTableModel.IllegalOperationException e) {
-              JOptionPane.showMessageDialog(SimSearchTable.this.getTopLevelAncestor(), e.getMessage());
-            }
-          }
-        }
+//        if(arg0.getKeyCode() == KeyEvent.VK_DELETE) {
+//          SimSearchJTable table = (SimSearchJTable) arg0.getSource();
+//          if(table.getSelectedRowCount()>0) {
+//
+//            try {
+//              if(((SimSearch.SimSearchTableModel) table.getModel()).remove(convertViewRowsToModelRows(table.getSelectedRows()))) {
+//                updateRowHeader();
+//              }
+//            } catch (SimSearch.SimSearchTableModel.IllegalOperationException e) {
+//              JOptionPane.showMessageDialog(SimSearchTable.this.getTopLevelAncestor(), e.getMessage());
+//            }
+//          }
+//        }
       }
 
       @Override
@@ -514,10 +514,10 @@ public class SimSearchTable extends JScrollPane{
 
   }
 
-  public void loadData(SimSearch.SimSearchTableModel tableModel) {
+  public void loadData(SimSearchTableModel tableModel) {
     this.loadData(tableModel, this.viewSettings);
   }
-  public void loadData(SimSearch.SimSearchTableModel tableModel, ViewSettings viewSettings) {
+  public void loadData(SimSearchTableModel tableModel, ViewSettings viewSettings) {
     this.table.setModel(tableModel);
     this.rowHeaderColumnTable.setModel(tableModel);
     //this.table.createDefaultColumnsFromModel();

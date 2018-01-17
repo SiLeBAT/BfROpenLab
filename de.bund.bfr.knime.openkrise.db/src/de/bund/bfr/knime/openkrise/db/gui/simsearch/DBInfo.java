@@ -11,16 +11,17 @@ public class DBInfo {
 			this.primaryKey = primaryKey;
 		}
 	    public String getName() { return this.name; }
+	    public COLUMN getPrimaryKey() { return this.primaryKey; }
 	}
 	
 	public enum COLUMN {
-	  STATION_ID("id", TABLE.STATION),
-	  STATION_NAME("name", TABLE.STATION), 
-	  STATION_ADDRESS("adresse", TABLE.STATION),
-	  STATION_ZIP("plz", TABLE.STATION), 
-	  STATION_STREET("strasse", TABLE.STATION), 
-	  STATION_HOUSENUMBER("housenumber", TABLE.STATION),
-	  STATION_CITY("ort", TABLE.STATION), ;
+	  STATION_ID("ID", TABLE.STATION),
+	  STATION_NAME("Name", TABLE.STATION), 
+	  STATION_ADDRESS("Adresse", TABLE.STATION),
+	  STATION_ZIP("PLZ", TABLE.STATION), 
+	  STATION_STREET("Strasse", TABLE.STATION), 
+	  STATION_HOUSENUMBER("Hausnummer", TABLE.STATION),
+	  STATION_CITY("Ort", TABLE.STATION), ;
 		
 		private final String name;
 		private final TABLE table;

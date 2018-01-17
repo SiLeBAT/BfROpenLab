@@ -31,6 +31,8 @@ import javax.swing.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch;
+
 /**
  * @author Armin Weiser
  */
@@ -41,6 +43,7 @@ public class PlausibleDialog4Krise extends JDialog {
 	private static final long serialVersionUID = 4250627311147927549L;
 	public boolean okPressed = false;
 	private boolean isFormat2017;
+	private SimSearch.Settings simSearchSettings;
 	
 	public PlausibleDialog4Krise(Frame owner, boolean isFormat2017) {
 		super(owner);
@@ -48,9 +51,58 @@ public class PlausibleDialog4Krise extends JDialog {
 		okPressed = false;
 		initComponents();
 	}
+	
+	public PlausibleDialog4Krise(Frame owner, SimSearch.Settings settings) {
+		super(owner);
+		this.isFormat2017 = settings.getUseAllInOneAddress();
+		okPressed = false;
+		initComponents();
+		this.applySettingsToDialog();
+	}
+	
+	private void applySettingsToDialog() {
+		if(this.simSearchSettings!=null) {
+			this.cs.setSelected(this.simSearchSettings.getCheckStations());
+			this.cp.setSelected(this.simSearchSettings.getCheckProducts());
+			this.cl.setSelected(this.simSearchSettings.getCheckLots());
+			this.cd.setSelected(this.simSearchSettings.getCheckDeliveries());
+			
+			this.sn.setValue(this.simSearchSettings.getStationNameSim());
+			if(this.simSearchSettings.getUseAllInOneAddress()) {
+				this.sz.setValue(this.simSearchSettings.getStationAddressSim());
+			} else {
+				this.sz.setValue(this.simSearchSettings.getStationZipSim());
+				this.ss.setValue(this.simSearchSettings.getStationStreetSim());
+				this.sc.setValue(this.simSearchSettings.getStationCitySim());
+				this.snum.setValue(this.simSearchSettings.getStationHouseNumberSim());
+			}
+		}
+	}
+	
+	private void applySettingsFromDialog() {
+		if(this.simSearchSettings!=null) {
+			this.simSearchSettings.setCheckStations(this.cs.isSelected());
+//			this.cs.setSelected(this.simSearchSettings.getCheckStations());
+//			this.cp.setSelected(this.simSearchSettings.getCheckProducts());
+//			this.cl.setSelected(this.simSearchSettings.getCheckLots());
+//			this.cd.setSelected(this.simSearchSettings.getCheckDeliveries());
+			
+			this.simSearchSettings.setStationNameSim((Integer) this.sn.getValue());
+			
+			if(this.simSearchSettings.getUseAllInOneAddress()) {
+				this.simSearchSettings.setStationAddressSim((Integer) this.sz.getValue());
+			} else {
+				this.simSearchSettings.setStationZipSim((Integer) this.sz.getValue());
+				this.simSearchSettings.setStationStreetSim((Integer) this.ss.getValue());
+				this.simSearchSettings.setStationCitySim((Integer) this.sc.getValue());
+				this.simSearchSettings.setStationHouseNumberSim((Integer) this.snum.getValue());
+			}
+		}
+	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
 		okPressed = true;
+		this.applySettingsFromDialog();
 		dispose();
 	}
 

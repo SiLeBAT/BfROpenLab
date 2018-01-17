@@ -2,6 +2,7 @@ package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,8 +17,8 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   }
   
   @Override
-  public void findSimilarities(SimSearch.Settings settings) throws SQLException {
-    if(this.getSearchStopped() && settings.getCheckStations()) findSimilarStations(settings);
+  public void findSimilarities(SimSearch.Settings settings) throws Exception {
+    if(!this.getSearchStopped() && settings.getCheckStations()) findSimilarStations(settings);
   }
   
   private class SimCheck {
@@ -29,14 +30,14 @@ public class SimSearchDataSource extends SimSearch.DataSource{
     }
   }
   
-  private void findSimilarStations(SimSearch.Settings settings) throws SQLException {
+  private void findSimilarStations(SimSearch.Settings settings) throws Exception {
     if(settings.getUseAllInOneAddress()) {
       this.findSimilaritiesInTable(
           DBInfo.TABLE.STATION, 
           Arrays.asList(
               new SimCheck(DBInfo.COLUMN.STATION_NAME, settings.getStationNameSim()),
               new SimCheck(DBInfo.COLUMN.STATION_ADDRESS, settings.getStationAddressSim())), 
-          null, null, null, SimSearch.SimSet.Type.STATION);
+          null, null, null, SimSearch.SimSet.Type.STATION, settings);
     } else {
       this.findSimilaritiesInTable(
           DBInfo.TABLE.STATION, 
@@ -46,12 +47,12 @@ public class SimSearchDataSource extends SimSearch.DataSource{
               new SimCheck(DBInfo.COLUMN.STATION_STREET, settings.getStationStreetSim()),
               new SimCheck(DBInfo.COLUMN.STATION_HOUSENUMBER, settings.getStationHouseNumberSim()),
               new SimCheck(DBInfo.COLUMN.STATION_CITY, settings.getStationCitySim())), 
-          null, null, null, SimSearch.SimSet.Type.STATION);
+          null, null, null, SimSearch.SimSet.Type.STATION, settings);
     }
   }
   
   private void findSimilaritiesInTable(DBInfo.TABLE table, List<SimCheck> simCheckList,
-      String otherTable, String otherTableField, String[] otherTableDesires, SimSearch.SimSet.Type simSetType) throws SQLException {
+      String otherTable, String otherTableField, String[] otherTableDesires, SimSearch.SimSet.Type simSetType, SimSearch.Settings settings) throws Exception {
       
       int simCheckCount = simCheckList.size();
       SimCheck[] tmp = new SimCheck[] {new SimCheck(DBInfo.COLUMN.STATION_ID,8)};
@@ -72,7 +73,8 @@ public class SimSearchDataSource extends SimSearch.DataSource{
 
               // Firstly - fieldnames
               int id = rs.getInt("ID");
-              List<Integer> idList = Arrays.asList(id);
+              List<Integer> idList = new ArrayList<>(); //Arrays.asList(id);
+              idList.add(id);
               resRowFirst[0] = id+"";
               String result = ""+id;
               Object[] fieldVals = new Object[simCheckCount];
@@ -172,6 +174,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                       // Match - fieldnames
                       result += rs2.getInt("ID");
                       resRowOther[0] = rs2.getInt("ID")+"";
+                      idList.add(rs2.getInt("ID"));
                                           
                       for (int i=0;i<simCheckCount;i++) {
                       //for (int i=0;i<fieldnames.length;i++) {
@@ -200,7 +203,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                           if (rs3 != null && rs3.first()) {
                               do {
                                   result += rs3.getInt("ID");
-                                  idList.add(rs3.getInt("ID"));
+                                  //idList.add(rs3.getInt("ID"));
                                   if (resRowOther[simCheckCount+1] == null || resRowOther[simCheckCount+1].isEmpty()) resRowOther[simCheckCount+1] = rs3.getInt("ID")+"";
                                   //if (resRowOther[fieldnames.length+1] == null || resRowOther[fieldnames.length+1].isEmpty()) resRowOther[fieldnames.length+1] = rs3.getInt("ID")+"";
                                   else resRowOther[simCheckCount+1] += "," + rs3.getInt("ID")+"";
@@ -222,7 +225,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                       result += "\n";
                   } while(rs2.next());
                   //ldResult.put(resRowFirst, resSetOther);
-                  if(idList.size()>2) throw(new SQLException("Impelementation error."));
+                  if(idList.size()<2) throw(new SQLException("Implementation error."));
                   //if (ldResult.size() == 0) System.err.println(result);
                   this.newSimilarityMatchFound(simSetType, idList);
               }

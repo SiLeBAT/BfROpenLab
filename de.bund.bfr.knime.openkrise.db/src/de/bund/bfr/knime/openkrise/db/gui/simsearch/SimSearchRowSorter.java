@@ -39,7 +39,7 @@ import javax.swing.SortOrder;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.table.TableRowSorter;
 
-public class SimSearchRowSorter extends RowSorter<SimSearch.SimSearchTableModel>{
+public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
     
     private interface MyComparator<T> {
         public int compareObjects(Object o1, Object o2);
@@ -47,7 +47,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearch.SimSearchTableModel>
     }
     
     
-    private SimSearch.SimSearchTableModel model;
+    private SimSearchTableModel model;
     private int[] modelToView;
     private List<Integer> viewToModel;
     private List<Integer> unfilteredViewToModel;
@@ -142,7 +142,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearch.SimSearchTableModel>
         comparatorMap = Collections.unmodifiableMap(compMap);
     }
 
-    public SimSearchRowSorter(SimSearch.SimSearchTableModel model) {
+    public SimSearchRowSorter(SimSearchTableModel model) {
         this.model = model;
         //this.modelToView = new ArrayList<>(model.getRowCount());
         //this.viewToModel = new ArrayList<>(model.getRowCount());
@@ -438,7 +438,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearch.SimSearchTableModel>
     
     
 @Override
-public SimSearch.SimSearchTableModel getModel() {
+public SimSearchTableModel getModel() {
     // TODO Auto-generated method stub
     return this.model;
 }

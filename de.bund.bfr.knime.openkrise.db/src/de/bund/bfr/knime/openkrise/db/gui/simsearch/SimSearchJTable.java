@@ -113,7 +113,7 @@ public class SimSearchJTable extends JTable {
      */
     public static class DefaultColumnRenderer extends DefaultTableCellRenderer { 
       private Color defaultBackgroundColor = null;
-      private static final Color obsoleteBackgroundColor= Color.LIGHT_GRAY;
+      private static final Color inactiveBackgroundColor= Color.LIGHT_GRAY;
       @Override
       public Component getTableCellRendererComponent(JTable table,
                                                      Object value,
@@ -127,17 +127,17 @@ public class SimSearchJTable extends JTable {
 
         Color color = getBackground();
         if(defaultBackgroundColor==null) defaultBackgroundColor = color;
-        if(color.equals(defaultBackgroundColor) || color.equals(obsoleteBackgroundColor)) {
+        if(color.equals(defaultBackgroundColor) || color.equals(inactiveBackgroundColor)) {
         
           int modelRow = table.getRowSorter().convertRowIndexToModel(row);
 //          Color color = getBackground();
 //          JFrame frame;
 //          frame.getRootPane().
           //System.out.println("getTableCellRendererComponent:BackgroundColor:" + color.toString());
-          if(((SimSearch.SimSearchTableModel) table.getModel()).isMerged(modelRow) || ((SimSearch.SimSearchTableModel) table.getModel()).getRemove(modelRow)) {
-            setBackground(Color.LIGHT_GRAY);
+          if(((SimSearchTableModel) table.getModel()).isMerged(modelRow)) { // || ((SimSearchTableModel) table.getModel()).getRemove(modelRow)) {
+            setBackground(inactiveBackgroundColor);
           } else {
-            setBackground(Color.white);
+            setBackground(defaultBackgroundColor);
           }
         }
         return this;
@@ -247,7 +247,7 @@ public class SimSearchJTable extends JTable {
       }
       
       private String createRowHeaderText(JTable table, int modelRow) {
-        SimSearch.SimSearchTableModel tableModel = (SimSearch.SimSearchTableModel) table.getModel();
+        SimSearchTableModel tableModel = (SimSearchTableModel) table.getModel();
         List<String> tagList = new ArrayList<>();
 
         if(tableModel.isSimReferenceRow(modelRow)) {
@@ -262,9 +262,9 @@ public class SimSearchJTable extends JTable {
           }
         } 
         
-        if(tableModel.getEffectiveRemove(modelRow)) {
-          tagList.add(SYMBOL_REMOVE);
-        }
+//        if(tableModel.getEffectiveRemove(modelRow)) {
+//          tagList.add(SYMBOL_REMOVE);
+//        }
         
         return "<html>" + String.join(SYMBOL_GAP, tagList) + "</html>";
       }

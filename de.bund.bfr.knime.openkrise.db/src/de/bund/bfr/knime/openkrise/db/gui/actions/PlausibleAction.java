@@ -44,6 +44,7 @@ import de.bund.bfr.knime.openkrise.db.MyTable;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren.MyIDFilter;
+import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchJFrame;
 
 /**
  * @author Armin
@@ -69,32 +70,35 @@ public class PlausibleAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		isFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
-	  	final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(DBKernel.mainFrame, isFormat2017); 
-	  	pd4.setVisible(true);
-	  	if (pd4.okPressed) {
-		  	Runnable runnable = new Runnable() {
-		        @Override
-				public void run() {
-		  		    try {		  
-	        			go4ISM(pd4);
-						IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();							
-						if (eclipseWindow != null) {						
-							MessageDialog.openInformation(eclipseWindow.getShell(), "Similarity Search!", "Finished!");
-						} else {
-							JOptionPane pane = new JOptionPane("Finished!", JOptionPane.INFORMATION_MESSAGE);
-							JDialog dialog = pane.createDialog("Similarity Search!");
-							dialog.setAlwaysOnTop(true);
-							dialog.setVisible(true);
-						}
-				    }
-				    catch (Exception e) {MyLogger.handleException(e);}
-		      }
-		    };
-		    
-		    Thread thread = new Thread(runnable);
-		    thread.start();
-	  	}
+		final SimSearchJFrame simSearchFrame = new SimSearchJFrame(DBKernel.mainFrame);
+		
+		simSearchFrame.setVisible(true);
+//		isFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
+//	  	final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(DBKernel.mainFrame, isFormat2017); 
+//	  	pd4.setVisible(true);
+//	  	if (pd4.okPressed) {
+//		  	Runnable runnable = new Runnable() {
+//		        @Override
+//				public void run() {
+//		  		    try {		  
+//	        			go4ISM(pd4);
+//						IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();							
+//						if (eclipseWindow != null) {						
+//							MessageDialog.openInformation(eclipseWindow.getShell(), "Similarity Search!", "Finished!");
+//						} else {
+//							JOptionPane pane = new JOptionPane("Finished!", JOptionPane.INFORMATION_MESSAGE);
+//							JDialog dialog = pane.createDialog("Similarity Search!");
+//							dialog.setAlwaysOnTop(true);
+//							dialog.setVisible(true);
+//						}
+//				    }
+//				    catch (Exception e) {MyLogger.handleException(e);}
+//		      }
+//		    };
+//		    
+//		    Thread thread = new Thread(runnable);
+//		    thread.start();
+//	  	}
 	}
 	private void go4ISM(PlausibleDialog4Krise pd4) throws SQLException {
 		useLevenshtein = false;

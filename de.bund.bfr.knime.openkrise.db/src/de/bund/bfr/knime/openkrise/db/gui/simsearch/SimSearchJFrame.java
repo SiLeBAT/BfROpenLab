@@ -26,6 +26,9 @@ import java.awt.ComponentOrientation;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -47,12 +50,14 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+
+import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
 //import com.sun.glass.ui.Cursor;
 //import DBMergeServer.SimSearch;
 //import SimSearch.SimSearchListener;
 //import DBMergeServer.SimSearch.SimSearchTableModel;
 
-public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListener {
+public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListener, WindowListener {
 	
 	private final SimSearchTable table = new SimSearchTable();
 	
@@ -77,6 +82,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 	
 	private int currentSimSetIndex;
 	private boolean userIsWaiting;
+	
+	public SimSearchJFrame(Frame owner) {
+		this();
+		this.setDefaultLookAndFeelDecorated(false);
+		this.addWindowListener(this);
+		this.initComponents();
+		this.userIsWaiting = false;
+	}
 	
 	public SimSearchJFrame() {
 		super();
@@ -159,13 +172,13 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 		
 		this.undoButton = new JButton("undo");
 		this.undoButton.setToolTipText("undo merge/unmerge operation"); //  bundle.getString("MainFrame.button10.toolTipText"));
-        this.undoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/undo.gif")));
+        //this.undoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/undo.gif")));
 		this.redoButton = new JButton("redo");
 		this.redoButton.setToolTipText("redo merge/unmerge operation"); //  bundle.getString("MainFrame.button10.toolTipText"));
-        this.redoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/redo.gif")));
+        //this.redoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/redo.gif")));
 		this.ignoreButton = new JButton("ignore");
 		this.ignoreButton.setToolTipText("toggle ignore status"); //  bundle.getString("MainFrame.button10.toolTipText"));
-        this.ignoreButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/ignore.gif")));
+        //this.ignoreButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/ignore.gif")));
 		Arrays.asList(this.undoButton, this.redoButton, this.ignoreButton).forEach(c -> undoRedoPanel.add(c));
 		
 		//topPanel.add(this.ignoreButton, BorderLayout.LINE_END);
@@ -320,18 +333,19 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 	@Override
 	public void simSearchError(Exception err) {
 		// TODO Auto-generated method stub
+		String message = err.getMessage();
 		SwingUtilities.invokeLater(new Runnable() {
 		    public void run() {
 		      // Here, we can safely update the GUI
 		      // because we'll be called from the
 		      // event dispatch thread
-		      JOptionPane.showMessageDialog(SimSearchJFrame.this, err.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		      JOptionPane.showMessageDialog(SimSearchJFrame.this, err.getStackTrace().toString(), "Error", JOptionPane.ERROR_MESSAGE);
 		    }
 		  });
 	}
 
   @Override
-  public void dataLoaded(SimSearch.SimSearchTableModel tableModel, int index) {
+  public void dataLoaded(SimSearchTableModel tableModel, int index) {
     // TODO Auto-generated method stub
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
@@ -349,5 +363,52 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       }
     });
   }
+
+@Override
+public void windowOpened(WindowEvent e) {
+	// TODO Auto-generated method stub
+	this.simSearchSettings = new SimSearch.Settings();
+	final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(this, this.simSearchSettings); 
+  	pd4.setVisible(true);
+  	if (pd4.okPressed) {
+  		this.startSearch();
+  	}
+}
+
+@Override
+public void windowClosing(WindowEvent e) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowClosed(WindowEvent e) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowIconified(WindowEvent e) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowDeiconified(WindowEvent e) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowActivated(WindowEvent e) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void windowDeactivated(WindowEvent e) {
+	// TODO Auto-generated method stub
+	
+}
 	
 }

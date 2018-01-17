@@ -35,6 +35,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.swing.table.DefaultTableModel;
 import com.google.common.collect.Sets;
+
+import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet.Type;
 
@@ -45,15 +47,21 @@ public final class SimSearch {
 
   public static class Settings {
     private boolean checkStations;
+    private boolean checkProducts;
+    private boolean checkLots;
+    private boolean checkDeliveries;
     private int stationNameSim;
     private int stationAddressSim;
     private int stationZipSim;
     private int stationStreetSim;
     private int stationHouseNumberSim;
     private int stationCitySim;
-    private int stationCountrySim;
-    private boolean useAllInOneAddress = true;
+    //private int stationCountrySim;
+    //private boolean useAllInOneAddress = true;
     private boolean useLevenshtein;
+    private boolean frozen;
+    private boolean useFormat2017;
+    
 
     public Settings() {
       this.checkStations = true;
@@ -63,19 +71,31 @@ public final class SimSearch {
       this.stationStreetSim = 90;
       this.stationHouseNumberSim = 90;
       this.stationCitySim = 90;
-      this.stationCountrySim = 90;
+      //this.stationCountrySim = 90;
       this.useLevenshtein = false;
+      this.useFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
     }
 
     public boolean getCheckStations() { return this.checkStations; }
+    public void setCheckStations(boolean value) { if(!this.frozen) this.checkStations = value; }
+    public boolean getCheckProducts() { return this.checkProducts; }
+    public boolean getCheckLots() { return this.checkLots; }
+    public boolean getCheckDeliveries() { return this.checkDeliveries; }
     public int getStationNameSim() { return this.stationNameSim; }
+    public void setStationNameSim(int value) { if(!this.frozen) this.stationNameSim = value; }
     public int getStationAddressSim() { return this.stationAddressSim; }
-    public int getStationCountrySim() { return this.stationCountrySim; }
+    public void setStationAddressSim(int value) { if(!this.frozen) this.stationAddressSim = value; }
+//    public int getStationCountrySim() { return this.stationCountrySim; }
+//    public void setStationCountrySim(int value) { if(!this.frozen) this.stationNameSim = value; }
     public int getStationZipSim() { return this.stationZipSim; }
+    public void setStationZipSim(int value) { if(!this.frozen) this.stationZipSim = value; }
     public int getStationStreetSim() { return this.stationStreetSim; }
+    public void setStationStreetSim(int value) { if(!this.frozen) this.stationStreetSim = value; }
     public int getStationHouseNumberSim() { return this.stationHouseNumberSim; }
+    public void setStationHouseNumberSim(int value) { if(!this.frozen) this.stationHouseNumberSim = value; }
     public int getStationCitySim() { return this.stationCitySim; }
-    public boolean getUseAllInOneAddress() { return this.useAllInOneAddress; }
+    public void setStationCitySim(int value) { if(!this.frozen) this.stationCitySim = value; }
+    public boolean getUseAllInOneAddress() { return this.useFormat2017; }
     public boolean getUseLevenshtein() { return this.useLevenshtein; }
   }
 
@@ -102,7 +122,7 @@ public final class SimSearch {
     //private String alignmentReferenceID;
 
     //public SimSet(SimType simType) {
-    public SimSet(Type type, List<Integer> idList) {
+    private SimSet(Type type, List<Integer> idList) {
       this.type = type;
       this.idList = Collections.unmodifiableList(idList);
     }
@@ -130,8 +150,9 @@ public final class SimSearch {
     
     protected DataSource(DataSourceListener listener) {
       this.listener = listener;
+      this.searchStopped = false;
     }
-    public abstract void findSimilarities(Settings settings) throws SQLException;
+    public abstract void findSimilarities(Settings settings) throws Exception;
     //public void findSimilarStations();
     public abstract SimSearchDataLoader getDataLoader();
     
@@ -181,7 +202,7 @@ public final class SimSearch {
       @Override
       public void similaritiesFound(Type simSetType, List<Integer> idList) {
         // TODO Auto-generated method stub
-        SimSearch.this.simSetList.add(new SimSet(simSetType, idList));
+        SimSearch.this.simSetList.add(new SimSearch.SimSet(simSetType, idList));
         SimSearch.this.call(l -> l.newSimSetFound());
       }
     });
@@ -194,6 +215,7 @@ public final class SimSearch {
     if(settings==null) return;
     this.simSetList = Collections.synchronizedList(new ArrayList<SimSet>());
     this.dataManipulationHandler = new SimSearchDataManipulationHandler();
+    //this.dataSource = new SimSearchDataSource();
     //this.initMaps();
     //this.dbData = new HashMap<>();
 //    this.stationData = new HashMap<>();
@@ -297,9 +319,18 @@ public final class SimSearch {
     //		resList.add(this.dbData.get(SimSet.SimType.Station).get("sdsd"));
     //SimSearchTableModel tableModel = null;
     SimSearchDataLoader dataLoader = new SimSearchDataLoader(simSet, dataManipulationHandler);
-    SimSearchTableModel tableModel = new SimSearchTableModel(simSet, dataManipulationHandler, dataLoader);
+    try {
+		dataLoader.loadData();
+		SimSearchTableModel tableModel = new SimSearchTableModel(simSet, dataManipulationHandler, dataLoader);
+		call(l->l.dataLoaded(tableModel, simSetIndex));
+	} catch (Exception err) {
+		// TODO Auto-generated catch block
+		call(l -> l.simSearchError(err));
+		//e.printStackTrace();
+	}
     
-    call(l->l.dataLoaded(tableModel, simSetIndex));
+    
+    
     
 //    try {
 //      if(simSet.getType()==SimSet.Type.STATION) {
@@ -407,7 +438,7 @@ public final class SimSearch {
   private void runSearch() {
     try {
       this.dataSource.findSimilarities(this.simSearchSettings);
-    } catch (SQLException err) {
+    } catch (Exception err) {
       call(l->l.simSearchError(err));
       //e.printStackTrace();
     }

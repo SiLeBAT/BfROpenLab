@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
@@ -43,11 +44,12 @@ public class SimSearchDataLoader {
     this.dataManipulationHandler = dataManipulationHandler;
   }
   
-  private void loadData() throws SQLException {
+  public void loadData() throws Exception {
       
 	  switch(simSet.getType()) {
 	  case STATION:
     	loadTableData(DBInfo.TABLE.STATION, simSet.getIdList(), null);
+    	break;
       default:
         throw(new SQLException("Unkown SimSet Type: " + simSet.getType()));
     }
@@ -57,17 +59,18 @@ public class SimSearchDataLoader {
 	  
   }
   
-  private void loadTableData(DBInfo.TABLE table, List<Integer> idList, List<DBInfo.COLUMN> childColumns) throws SQLException {
+  private void loadTableData(DBInfo.TABLE table, List<Integer> idList, List<DBInfo.COLUMN> childColumns) throws Exception {
 	  MyDBI myDBI = DBKernel.myDBi;
-	  Connection con = (myDBI==null?null:myDBI.getConn());
-	  if (con != null) {
+	  Connection con = DBKernel.getDBConnection();
+	  //Connection con = (myDBI==null?null:myDBI.getConn(true));
+	  if (myDBI!=null && con != null) {
 		  //if(preparedStatementLoadTableData==null) 
 		  //this.preparedStatementLoadTableData = con.prepareStatement("Select * from " + table.getName() + " where ID IN (?)") ;
-		  this.preparedStatementLoadTableData = con.prepareStatement(myDBI.getTable(table.getName()).getSelectSQL() + " where ID IN (?)");
+		  this.preparedStatementLoadTableData = con.prepareStatement(myDBI.getTable(table.getName()).getSelectSQL() + " where "  + DBKernel.delimitL(table.getPrimaryKey().getName()) + " IN (?)");
 //				  ResultSet.TYPE_SCROLL_INSENSITIVE, 
 //				  ResultSet.CONCUR_READ_ONLY);
 		  //preparedStatementLoadTableData.
-		  Array array = con.createArrayOf("VARCHAR", idList.toArray()); //      new Object[]{"1", "2","3"});
+		  Array array = con.createArrayOf("BIGINT", idList.toArray()); //      new Object[]{"1", "2","3"});
 		  preparedStatementLoadTableData.setArray(1, array);
 		  ResultSet rs = preparedStatementLoadTableData.executeQuery();
 		  //rs.last();
@@ -91,6 +94,6 @@ public class SimSearchDataLoader {
 		  }
 		  rs.close();
 		  
-	  }
+	  } else throw(new Exception("DBConnection was not available."));
   }
 }

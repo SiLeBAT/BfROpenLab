@@ -9,9 +9,8 @@ import java.util.Set;
 import javax.swing.table.DefaultTableModel;
 import com.google.common.collect.Sets;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet;
-import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSearchTableModel.IllegalOperationException;
 
-public final static class SimSearchTableModel extends DefaultTableModel{
+public final class SimSearchTableModel extends DefaultTableModel{
   
   protected class DataManipulation {
     
@@ -69,7 +68,7 @@ private final static int IDCOLUMN = 1;
 //  }
 
 private final SimSet simSet;
-private final SimSearch simSearch;
+//private final SimSearch simSearch;
 private final SimSearchDataManipulationHandler dataManipulationHandler;
 private final SimSearchDataLoader dataLoader;
 
@@ -114,8 +113,9 @@ SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipula
 	  this.columnClasses = dataLoader.columnClasses;
 	  this.columnCount = columnNames.length;
 	  this.rowCount = data.length;
-	  this.createAlignments();
+	  
 	  this.initArrays();
+	  this.createAlignments();
 	//  if(simSet.simType==StationDBEntity.class) {
 //	    this.loadStationData();
 	////  } else 
@@ -168,31 +168,31 @@ private Map<Integer, Integer> getIdToRowIndexMap() {
 }
 
 private void createAlignments() {
-    if(!simSearch.alignmentReferenceMap.containsKey(this.simSet)) {
-        if(this.simSet.getReferenceId()!=null) simSearch.alignmentReferenceMap.put(this.simSet, this.simSet.getReferenceId());
-    }
-    String referenceId = simSearch.alignmentReferenceMap.get(this.simSet);
-    int referenceIndex = -1;
-    if(referenceId!=null && !referenceId.isEmpty()) {
-        for(int row=0; row<this.rowCount; ++row) {
-            if(referenceId.equals((String) data[row][IDCOLUMN])) {
-                referenceIndex = row;
-                break;
-            }
-        }
-    }
-    for(int column=0; column < this.columnCount; ++column) {
-        if(this.columnClasses[column]==Alignment.AlignedSequence.class) {
-            String[] sequences = new String[this.rowCount];
-            for(int row=0; row<this.rowCount; ++row) {
-                sequences[row] = (String) data[row][column];
-            }
-            Alignment.AlignedSequence[] alignedSeqs= Alignment.alignSequences(sequences, referenceIndex);
-            for(int row=0; row<this.rowCount; ++row) {
-                data[row][column] = alignedSeqs[row];
-            }
-        }
-    }
+//    if(!simSearch.alignmentReferenceMap.containsKey(this.simSet)) {
+//        if(this.simSet.getReferenceId()!=null) simSearch.alignmentReferenceMap.put(this.simSet, this.simSet.getReferenceId());
+//    }
+//    String referenceId = simSearch.alignmentReferenceMap.get(this.simSet);
+//    int referenceIndex = -1;
+//    if(referenceId!=null && !referenceId.isEmpty()) {
+//        for(int row=0; row<this.rowCount; ++row) {
+//            if(referenceId.equals((String) data[row][IDCOLUMN])) {
+//                referenceIndex = row;
+//                break;
+//            }
+//        }
+//    }
+//    for(int column=0; column < this.columnCount; ++column) {
+//        if(this.columnClasses[column]==Alignment.AlignedSequence.class) {
+//            String[] sequences = new String[this.rowCount];
+//            for(int row=0; row<this.rowCount; ++row) {
+//                sequences[row] = (String) data[row][column];
+//            }
+//            Alignment.AlignedSequence[] alignedSeqs= Alignment.alignSequences(sequences, referenceIndex);
+//            for(int row=0; row<this.rowCount; ++row) {
+//                data[row][column] = alignedSeqs[row];
+//            }
+//        }
+//    }
 }
 
 public boolean areRowsDraggable(List<Integer> indexList) {
@@ -220,11 +220,11 @@ public int getMergeCount(int row) {
 }
 
 public boolean isSimReferenceRow(int row) {
-  return ((String) this.data[row][IDCOLUMN]).equals(simSet.referenceId);
+  return ((Integer) this.data[row][IDCOLUMN]).equals(simSet.getReferenceId());
 }
 
 public boolean isAlignmentReferenceRow(int row) {
-  return ((String) this.data[row][IDCOLUMN]).equals(simSearch.alignmentReferenceMap.get(simSet));
+  return false; //((String) this.data[row][IDCOLUMN]).equals(simSearch.alignmentReferenceMap.get(simSet));
 }
 
 //private void loadStationData() {
@@ -256,30 +256,30 @@ public boolean isAlignmentReferenceRow(int row) {
 //  }
 //}
 
-public boolean remove(int[] rows) throws IllegalOperationException{
-  if(rows.length>0) {
-    //List<Integer> rowList = new ArrayList<>(rows.length);
-    //for(int i=0; i<rows.length; ++i) rowList.add(rows[i]);
-    Set<String> ids = new HashSet<>(simSearch.mergeMap.get(simSet.type).mergedIntoAssignment.values());
-    //if(rowList.stream().anyMatch(i -> ids.contains(data[i][IDCOLUMN]))) {
-    for(int i=0; i<rows.length; ++i) if(ids.contains(data[i][IDCOLUMN])) {
-      throw(new IllegalOperationException("Remove operation cannot be performed. Because at least one item is the target"));
-    }
-    for(int i=0; i<rows.length; ++i) {
-      simSearch.mergeMap.get(simSet.type).mergedIntoAssignment.remove(data[rows[i]][IDCOLUMN]);
-      simSearch.mergeMap.get(simSet.type).mergedIntoResult.remove(data[rows[i]][IDCOLUMN]);
-      simSearch.removeMap.get(simSet.type).add((String) data[rows[i]][IDCOLUMN]);
-      this.toRemove[rows[i]] = true;
-    }
-  }
-  return true;
-}
+//public boolean remove(int[] rows) throws IllegalOperationException{
+//  if(rows.length>0) {
+//    //List<Integer> rowList = new ArrayList<>(rows.length);
+//    //for(int i=0; i<rows.length; ++i) rowList.add(rows[i]);
+//    Set<String> ids = new HashSet<>(simSearch.mergeMap.get(simSet.type).mergedIntoAssignment.values());
+//    //if(rowList.stream().anyMatch(i -> ids.contains(data[i][IDCOLUMN]))) {
+//    for(int i=0; i<rows.length; ++i) if(ids.contains(data[i][IDCOLUMN])) {
+//      throw(new IllegalOperationException("Remove operation cannot be performed. Because at least one item is the target"));
+//    }
+//    for(int i=0; i<rows.length; ++i) {
+//      simSearch.mergeMap.get(simSet.type).mergedIntoAssignment.remove(data[rows[i]][IDCOLUMN]);
+//      simSearch.mergeMap.get(simSet.type).mergedIntoResult.remove(data[rows[i]][IDCOLUMN]);
+//      simSearch.removeMap.get(simSet.type).add((String) data[rows[i]][IDCOLUMN]);
+//      this.toRemove[rows[i]] = true;
+//    }
+//  }
+//  return true;
+//}
 
-public boolean getRemove(int row) { return this.toRemove[row]; }
-
-public boolean getEffectiveRemove(int row) { 
-  return this.toRemove[row] || simSearch.removeMap.get(simSet.type).contains(simSearch.mergeMap.get(simSet.type).mergedIntoResult.get(data[row][IDCOLUMN])); 
-}
+//public boolean getRemove(int row) { return this.toRemove[row]; }
+//
+//public boolean getEffectiveRemove(int row) { 
+//  return this.toRemove[row] || simSearch.removeMap.get(simSet.type).contains(simSearch.mergeMap.get(simSet.type).mergedIntoResult.get(data[row][IDCOLUMN])); 
+//}
 
 public int getMergeTo(int row) { return this.mergeTo[row]; }
 
