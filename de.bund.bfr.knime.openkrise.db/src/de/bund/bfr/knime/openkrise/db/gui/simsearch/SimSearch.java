@@ -30,9 +30,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.swing.table.DefaultTableModel;
 import com.google.common.collect.Sets;
 
@@ -46,56 +48,63 @@ public final class SimSearch {
   private final static int RESULT_NUMBER = 5;
 
   public static class Settings {
-    private boolean checkStations;
-    private boolean checkProducts;
-    private boolean checkLots;
-    private boolean checkDeliveries;
-    private int stationNameSim;
-    private int stationAddressSim;
-    private int stationZipSim;
-    private int stationStreetSim;
-    private int stationHouseNumberSim;
-    private int stationCitySim;
-    //private int stationCountrySim;
-    //private boolean useAllInOneAddress = true;
+    
+    public enum Attribute {
+      StationName(90), StationAddress(90), StationZip(90), StationStreet(90), StationCity(90), StationHousenumber(0),
+      ProductStation(100), ProductDescription(75),
+      LotProduct(100), LotNumber(75),
+      DeliveryLot(100), DeliveryDate(0), DeliveryRecipient(100);
+      
+      private final int defaultTreshold;
+      
+      Attribute(int defaultTreshold) {
+        this.defaultTreshold = defaultTreshold;
+      }
+      
+      public int getDefaultTreshold() { return this.defaultTreshold; }
+    }
+    
+    private Set<SimSet.Type> checkList;
+    private Map<Attribute, Integer> attributeTresholdMap;
+ 
     private boolean useLevenshtein;
-    private boolean frozen;
     private boolean useFormat2017;
+    private boolean readOnly;
+    
     
 
     public Settings() {
-      this.checkStations = true;
-      this.stationNameSim = 90;
-      this.stationAddressSim = 90;
-      this.stationZipSim = 90;
-      this.stationStreetSim = 90;
-      this.stationHouseNumberSim = 90;
-      this.stationCitySim = 90;
-      //this.stationCountrySim = 90;
+      this.attributeTresholdMap = new HashMap<>();
+      for(Attribute a: Attribute.class.getEnumConstants()) this.attributeTresholdMap.put(a, a.getDefaultTreshold());
+      this.checkList = new HashSet<>();
       this.useLevenshtein = false;
       this.useFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
+      this.readOnly = false;
+    }
+    
+    public Settings(Settings settingsToCopyFrom) {
+      this.attributeTresholdMap = settingsToCopyFrom.attributeTresholdMap.entrySet().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+      this.checkList = settingsToCopyFrom.checkList.stream().collect(Collectors.toSet());
+      
+      this.useLevenshtein = settingsToCopyFrom.useLevenshtein;
+      this.useFormat2017 = settingsToCopyFrom.useFormat2017;
+      this.readOnly = false;
     }
 
-    public boolean getCheckStations() { return this.checkStations; }
-    public void setCheckStations(boolean value) { if(!this.frozen) this.checkStations = value; }
-    public boolean getCheckProducts() { return this.checkProducts; }
-    public boolean getCheckLots() { return this.checkLots; }
-    public boolean getCheckDeliveries() { return this.checkDeliveries; }
-    public int getStationNameSim() { return this.stationNameSim; }
-    public void setStationNameSim(int value) { if(!this.frozen) this.stationNameSim = value; }
-    public int getStationAddressSim() { return this.stationAddressSim; }
-    public void setStationAddressSim(int value) { if(!this.frozen) this.stationAddressSim = value; }
-//    public int getStationCountrySim() { return this.stationCountrySim; }
-//    public void setStationCountrySim(int value) { if(!this.frozen) this.stationNameSim = value; }
-    public int getStationZipSim() { return this.stationZipSim; }
-    public void setStationZipSim(int value) { if(!this.frozen) this.stationZipSim = value; }
-    public int getStationStreetSim() { return this.stationStreetSim; }
-    public void setStationStreetSim(int value) { if(!this.frozen) this.stationStreetSim = value; }
-    public int getStationHouseNumberSim() { return this.stationHouseNumberSim; }
-    public void setStationHouseNumberSim(int value) { if(!this.frozen) this.stationHouseNumberSim = value; }
-    public int getStationCitySim() { return this.stationCitySim; }
-    public void setStationCitySim(int value) { if(!this.frozen) this.stationCitySim = value; }
+    public int getTreshold(Attribute attribute) { return this.attributeTresholdMap.get(attribute); }
+    public void setTreshold(Attribute attribute, int treshold) { this.attributeTresholdMap.put(attribute, treshold); }
+    
+    public boolean isChecked(SimSet.Type simSetType) { return this.checkList.contains(simSetType); }
+    public void setChecked(SimSet.Type simSetType, boolean isChecked) {
+      if(isChecked) this.checkList.add(simSetType);
+      else this.checkList.remove(simSetType);
+    }
+    
+    public void freeze() { this.readOnly = true; }
+    public boolean isReadOnly() { return this.readOnly; }
+    
     public boolean getUseAllInOneAddress() { return this.useFormat2017; }
+    public boolean getUseArrivedDate() { return this.useFormat2017; }
     public boolean getUseLevenshtein() { return this.useLevenshtein; }
   }
 

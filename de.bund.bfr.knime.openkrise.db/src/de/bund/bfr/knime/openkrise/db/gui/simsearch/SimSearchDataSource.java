@@ -18,12 +18,39 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   
   @Override
   public void findSimilarities(SimSearch.Settings settings) throws Exception {
-    if(!this.getSearchStopped() && settings.getCheckStations()) findSimilarStations(settings);
+    if(this.addLDFunctionToDB(settings)) {
+      if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.STATION)) findSimilarStations(settings);
+      if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.PRODUCT)) findSimilarProducts(settings);
+      if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.LOT)) findSimilarLots(settings);
+      if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.DELIVERY)) findSimilarDeliveries(settings);
+      this.removeLDFunctionFromDB();
+    }
+  }
+    
+  private boolean addLDFunctionToDB(SimSearch.Settings settings) {
+    return DBKernel.sendRequest(
+        "CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
+        (settings.getUseLevenshtein() ? "RETURNS INT\n" : "RETURNS DOUBLE\n") + 
+        "NO SQL\n" +
+        "LANGUAGE JAVA\n" +
+        "PARAMETER STYLE JAVA\n" +
+        (settings.getUseLevenshtein() ? "EXTERNAL NAME 'CLASSPATH:de.bund.bfr.knime.openkrise.db.Levenshtein.LD'" :
+        "EXTERNAL NAME 'CLASSPATH:de.bund.bfr.knime.openkrise.db.StringSimilarity.diceCoefficientOptimized'") // diceCoefficientOptimized compareStringsStrikeAMatch
+        , false, true) &&
+        DBKernel.sendRequest(
+                "GRANT EXECUTE ON FUNCTION LD TO " +
+        DBKernel.delimitL("WRITE_ACCESS") + "," + DBKernel.delimitL("SUPER_WRITE_ACCESS"),
+        false, true); 
+  }
+  
+  private void removeLDFunctionFromDB() {
+    DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false, true);
   }
   
   private class SimCheck {
     private final String columnName;
     private final int maxScore;
+    
     private SimCheck(DBInfo.COLUMN column, int maxScore) {
       this.columnName = column.getName();
       this.maxScore = maxScore;
@@ -31,31 +58,65 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   }
   
   private void findSimilarStations(SimSearch.Settings settings) throws Exception {
-    if(settings.getUseAllInOneAddress()) {
-      this.findSimilaritiesInTable(
+    List<SimCheck> simCheckList = new ArrayList<>(Arrays.asList(new SimCheck(DBInfo.COLUMN.STATION_NAME, settings.getTreshold(SimSearch.Settings.Attribute.StationName))));
+    
+    if(settings.getUseAllInOneAddress()) simCheckList.add(new SimCheck(DBInfo.COLUMN.STATION_ADDRESS, settings.getTreshold(SimSearch.Settings.Attribute.StationAddress)));
+    else simCheckList.addAll(Arrays.asList(
+              new SimCheck(DBInfo.COLUMN.STATION_ZIP, settings.getTreshold(SimSearch.Settings.Attribute.StationZip)),
+              new SimCheck(DBInfo.COLUMN.STATION_STREET, settings.getTreshold(SimSearch.Settings.Attribute.StationStreet)),
+              new SimCheck(DBInfo.COLUMN.STATION_HOUSENUMBER, settings.getTreshold(SimSearch.Settings.Attribute.StationHousenumber)),
+              new SimCheck(DBInfo.COLUMN.STATION_CITY, settings.getTreshold(SimSearch.Settings.Attribute.StationCity))));
+    
+    this.findSimilaritiesInTable(
           DBInfo.TABLE.STATION, 
-          Arrays.asList(
-              new SimCheck(DBInfo.COLUMN.STATION_NAME, settings.getStationNameSim()),
-              new SimCheck(DBInfo.COLUMN.STATION_ADDRESS, settings.getStationAddressSim())), 
+          simCheckList,
           null, null, null, SimSearch.SimSet.Type.STATION, settings);
-    } else {
-      this.findSimilaritiesInTable(
-          DBInfo.TABLE.STATION, 
+  }
+  
+  private void findSimilarProducts(SimSearch.Settings settings) throws Exception {
+    this.findSimilaritiesInTable(
+          DBInfo.TABLE.PRODUCT,
           Arrays.asList(
-              new SimCheck(DBInfo.COLUMN.STATION_NAME, settings.getStationNameSim()),
-              new SimCheck(DBInfo.COLUMN.STATION_ZIP, settings.getStationZipSim()),
-              new SimCheck(DBInfo.COLUMN.STATION_STREET, settings.getStationStreetSim()),
-              new SimCheck(DBInfo.COLUMN.STATION_HOUSENUMBER, settings.getStationHouseNumberSim()),
-              new SimCheck(DBInfo.COLUMN.STATION_CITY, settings.getStationCitySim())), 
-          null, null, null, SimSearch.SimSet.Type.STATION, settings);
-    }
+              new SimCheck(DBInfo.COLUMN.PRODUCT_STATION, settings.getTreshold(SimSearch.Settings.Attribute.ProductStation)),
+              new SimCheck(DBInfo.COLUMN.PRODUCT_DESCRIPTION, settings.getTreshold(SimSearch.Settings.Attribute.ProductDescription))),
+          null, null, null, SimSearch.SimSet.Type.PRODUCT, settings);
+  }
+  
+  private void findSimilarLots(SimSearch.Settings settings) throws Exception {
+    this.findSimilaritiesInTable(
+          DBInfo.TABLE.LOT,
+          Arrays.asList(
+              new SimCheck(DBInfo.COLUMN.LOT_PRODUCT, settings.getTreshold(SimSearch.Settings.Attribute.LotProduct)),
+              new SimCheck(DBInfo.COLUMN.LOT_NUMBER, settings.getTreshold(SimSearch.Settings.Attribute.LotNumber))),
+          null, null, null, SimSearch.SimSet.Type.LOT, settings);
+  }
+  
+  private void findSimilarDeliveries(SimSearch.Settings settings) throws Exception {
+    List<SimCheck> simCheckList = new ArrayList<>(Arrays.asList(
+        new SimCheck(DBInfo.COLUMN.DELIVERY_LOT, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryLot)),
+        new SimCheck(DBInfo.COLUMN.DELIVERY_RECIPIENT, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryRecipient))));
+    
+    
+    if(settings.getUseArrivedDate()) simCheckList.addAll(Arrays.asList(
+        new SimCheck(DBInfo.COLUMN.DELIVERY_ARIVEDON_DAY, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
+        new SimCheck(DBInfo.COLUMN.DELIVERY_ARIVEDON_MONTH, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
+        new SimCheck(DBInfo.COLUMN.DELIVERY_ARIVEDON_YEAR, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate))));
+    else simCheckList.addAll(Arrays.asList(
+        new SimCheck(DBInfo.COLUMN.DELIVERY_DELIVEREDON_DAY, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
+        new SimCheck(DBInfo.COLUMN.DELIVERY_DELIVEREDON_MONTH, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
+        new SimCheck(DBInfo.COLUMN.DELIVERY_DELIVEREDON_YEAR, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate))));
+    
+    this.findSimilaritiesInTable(
+        DBInfo.TABLE.DELIVERY, 
+        simCheckList,
+        null, null, null, SimSearch.SimSet.Type.DELIVERY, settings);
   }
   
   private void findSimilaritiesInTable(DBInfo.TABLE table, List<SimCheck> simCheckList,
       String otherTable, String otherTableField, String[] otherTableDesires, SimSearch.SimSet.Type simSetType, SimSearch.Settings settings) throws Exception {
       
       int simCheckCount = simCheckList.size();
-      SimCheck[] tmp = new SimCheck[] {new SimCheck(DBInfo.COLUMN.STATION_ID,8)};
+      
       StringBuilder sqlSb = new StringBuilder("SELECT " + DBKernel.delimitL("ID"));
       //String sql = "SELECT " + DBKernel.delimitL("ID");
       for(SimCheck simCheck : simCheckList) sqlSb.append("," + DBKernel.delimitL(simCheck.columnName));

@@ -348,6 +348,7 @@ public class SimSearchJTable extends JTable {
 //      }
 //		  
 //		});
+		
 	}
 	
 //	private int[] convertViewRowsToModelRows(int[] rows) {

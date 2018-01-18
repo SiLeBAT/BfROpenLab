@@ -368,7 +368,7 @@ public class SimSearchTable extends JScrollPane{
   
   private void addDragAndDropFeature() {
     SimSearchTableRowTransferHandler transferHandler = new SimSearchTableRowTransferHandler(this);
-    Arrays.asList(this.table).forEach( t -> {
+    Arrays.asList(this.table,this.rowHeaderColumnTable).forEach( t -> {
       t.setTransferHandler(transferHandler);
       t.setDropMode(DropMode.ON_OR_INSERT_ROWS);
       t.setDragEnabled(true);

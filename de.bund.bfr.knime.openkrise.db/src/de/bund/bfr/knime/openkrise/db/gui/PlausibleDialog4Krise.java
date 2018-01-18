@@ -23,9 +23,11 @@
 
 package de.bund.bfr.knime.openkrise.db.gui;
 
-import java.awt.*;
+import java.awt.Frame;
 import java.awt.event.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.swing.*;
 
 import com.jgoodies.forms.factories.*;
@@ -44,6 +46,7 @@ public class PlausibleDialog4Krise extends JDialog {
 	public boolean okPressed = false;
 	private boolean isFormat2017;
 	private SimSearch.Settings simSearchSettings;
+	private List<SimSearch.Settings> settingList;
 	
 	public PlausibleDialog4Krise(Frame owner, boolean isFormat2017) {
 		super(owner);
@@ -55,60 +58,98 @@ public class PlausibleDialog4Krise extends JDialog {
 	public PlausibleDialog4Krise(Frame owner, SimSearch.Settings settings) {
 		super(owner);
 		this.isFormat2017 = settings.getUseAllInOneAddress();
+		this.simSearchSettings = settings;
 		okPressed = false;
 		initComponents();
 		this.applySettingsToDialog();
 	}
 	
+	private PlausibleDialog4Krise(Frame owner, List<SimSearch.Settings> settingList) {
+      this(owner, settingList.get(0));
+      this.settingList = settingList;
+	}
+	
 	private void applySettingsToDialog() {
-		if(this.simSearchSettings!=null) {
-			this.cs.setSelected(this.simSearchSettings.getCheckStations());
-			this.cp.setSelected(this.simSearchSettings.getCheckProducts());
-			this.cl.setSelected(this.simSearchSettings.getCheckLots());
-			this.cd.setSelected(this.simSearchSettings.getCheckDeliveries());
-			
-			this.sn.setValue(this.simSearchSettings.getStationNameSim());
-			if(this.simSearchSettings.getUseAllInOneAddress()) {
-				this.sz.setValue(this.simSearchSettings.getStationAddressSim());
-			} else {
-				this.sz.setValue(this.simSearchSettings.getStationZipSim());
-				this.ss.setValue(this.simSearchSettings.getStationStreetSim());
-				this.sc.setValue(this.simSearchSettings.getStationCitySim());
-				this.snum.setValue(this.simSearchSettings.getStationHouseNumberSim());
-			}
-		}
+	  if(this.simSearchSettings!=null) {
+	    this.cs.setSelected(this.simSearchSettings.isChecked(SimSearch.SimSet.Type.STATION));
+	    this.cp.setSelected(this.simSearchSettings.isChecked(SimSearch.SimSet.Type.PRODUCT));
+	    this.cl.setSelected(this.simSearchSettings.isChecked(SimSearch.SimSet.Type.LOT));
+	    this.cd.setSelected(this.simSearchSettings.isChecked(SimSearch.SimSet.Type.DELIVERY));
+
+	    this.sn.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.StationName));
+	    this.sz.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.StationAddress));
+	    this.sz.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.StationZip));
+	    this.ss.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.StationStreet));
+	    this.sc.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.StationCity));
+	    this.snum.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.StationHousenumber));
+
+	    this.ps.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.ProductStation));
+	    this.pd.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.ProductDescription));
+
+	    this.la.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.LotProduct));
+	    this.ll.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.LotNumber));
+
+	    this.dl.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.DeliveryLot));
+	    this.dd.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate));
+	    this.dr.setValue(this.simSearchSettings.getTreshold(SimSearch.Settings.Attribute.DeliveryRecipient));
+	  }
 	}
 	
 	private void applySettingsFromDialog() {
 		if(this.simSearchSettings!=null) {
-			this.simSearchSettings.setCheckStations(this.cs.isSelected());
-//			this.cs.setSelected(this.simSearchSettings.getCheckStations());
-//			this.cp.setSelected(this.simSearchSettings.getCheckProducts());
-//			this.cl.setSelected(this.simSearchSettings.getCheckLots());
-//			this.cd.setSelected(this.simSearchSettings.getCheckDeliveries());
+			this.simSearchSettings.setChecked(SimSearch.SimSet.Type.STATION, this.cs.isSelected());
+			this.simSearchSettings.setChecked(SimSearch.SimSet.Type.PRODUCT, this.cp.isSelected());
+			this.simSearchSettings.setChecked(SimSearch.SimSet.Type.LOT, this.cl.isSelected());
+			this.simSearchSettings.setChecked(SimSearch.SimSet.Type.DELIVERY, this.cd.isSelected());
 			
-			this.simSearchSettings.setStationNameSim((Integer) this.sn.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationName, (Integer) this.sn.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationAddress, (Integer) this.sz.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationZip, (Integer) this.sz.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationStreet, (Integer) this.ss.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationCity, (Integer) this.sc.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationHousenumber, (Integer) this.snum.getValue());
 			
-			if(this.simSearchSettings.getUseAllInOneAddress()) {
-				this.simSearchSettings.setStationAddressSim((Integer) this.sz.getValue());
-			} else {
-				this.simSearchSettings.setStationZipSim((Integer) this.sz.getValue());
-				this.simSearchSettings.setStationStreetSim((Integer) this.ss.getValue());
-				this.simSearchSettings.setStationCitySim((Integer) this.sc.getValue());
-				this.simSearchSettings.setStationHouseNumberSim((Integer) this.snum.getValue());
-			}
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.ProductStation, (Integer) this.ps.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.ProductDescription, (Integer) this.pd.getValue());
+			
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.LotProduct, (Integer) this.la.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.LotNumber, (Integer) this.ll.getValue());
+			
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.DeliveryLot, (Integer) this.dl.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.DeliveryDate, (Integer) this.dd.getValue());
+			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.DeliveryRecipient, (Integer) this.dr.getValue());
 		}
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
 		okPressed = true;
-		this.applySettingsFromDialog();
+		if(!this.simSearchSettings.isReadOnly()) {
+		  SimSearch.Settings settings = new SimSearch.Settings();
+		  this.applySettingsFromDialog(settings);
+		  if(this.simSearchSettings.areSettingsIdentically(settings)) {
+		    JOptionPane.showConfirmDialog(this, "The settings cannot be modified anymore.");
+	        return;
+		  }
+		} else {
+		  this.applySettingsFromDialog(settings);
 		dispose();
 	}
 
 	private void cancelButtonActionPerformed(ActionEvent e) {
 		okPressed = false;
 		dispose();
+	}
+	
+	public static SimSearch.Settings showSettings(Frame owner, SimSearch.Settings settings) {
+	  List<SimSearch.Settings> settingList = new ArrayList<>(Arrays.asList(settings));
+	  
+	  final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(owner, settingList); 
+      pd4.setVisible(true);
+      if (pd4.okPressed) {
+        this.startSearch(settings);
+      } else {
+        this.dispose();
+      }
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {

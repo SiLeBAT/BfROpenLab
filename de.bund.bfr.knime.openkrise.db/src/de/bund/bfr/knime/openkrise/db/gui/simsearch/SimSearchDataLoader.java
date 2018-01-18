@@ -23,6 +23,7 @@ import de.bund.bfr.knime.openkrise.db.MyTable;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet;
 
 public class SimSearchDataLoader {
+  private static final String ID_COLUMN_NAME = "ID";
   private static final Map<Integer, Class<?>> typeMap;
   
   public String[] columnNames;
@@ -53,6 +54,15 @@ public class SimSearchDataLoader {
 	  case STATION:
     	loadTableData(DBInfo.TABLE.STATION, simSet.getIdList(), null);
     	break;
+	  case PRODUCT:
+        loadTableData(DBInfo.TABLE.PRODUCT, simSet.getIdList(), null);
+        break;
+	  case LOT:
+        loadTableData(DBInfo.TABLE.LOT, simSet.getIdList(), null);
+        break;
+	  case DELIVERY:
+        loadTableData(DBInfo.TABLE.DELIVERY, simSet.getIdList(), null);
+        break;
       default:
         throw(new SQLException("Unkown SimSet Type: " + simSet.getType()));
     }
@@ -78,7 +88,7 @@ public class SimSearchDataLoader {
         //Array array = con.createArrayOf("INTEGER", idList.toArray()); //      new Object[]{"1", "2","3"});
         //preparedStatementLoadTableData.set
         //preparedStatementLoadTableData.setArray(1, array);
-        String sql = myDBI.getTable(table.getName()).getSelectSQL() + " where "  + DBKernel.delimitL(table.getPrimaryKey().getName()) + " IN (" + String.join(", ", idList.stream().map(e->e.toString()).collect(Collectors.toList())) +  ")";
+        String sql = myDBI.getTable(table.getName()).getSelectSQL() + " where " + ID_COLUMN_NAME + " IN (" + String.join(", ", idList.stream().map(e->e.toString()).collect(Collectors.toList())) +  ")";
         //ResultSet rs = preparedStatementLoadTableData.executeQuery();
         
         ResultSet rs = DBKernel.getResultSet(sql, false);
@@ -107,7 +117,7 @@ public class SimSearchDataLoader {
             Object[] data = new Object[this.columnCount+1];
             //for(int column=0; column < this.columnCount; ++column) this.data[row][column+1] = this.columnClasses[column+1].cast(rs.getObject(column+1));
             for(int column=0; column < this.columnCount; ++column) data[column+1] = this.columnClasses[column+1].cast(rs.getObject(column+1));
-            idToDataMap.put((Integer) rs.getObject(table.getPrimaryKey().getName()), data);
+            idToDataMap.put((Integer) rs.getObject(ID_COLUMN_NAME), data);
           } while(rs.next());
           rs.close();
         }
