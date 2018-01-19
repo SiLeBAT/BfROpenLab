@@ -63,7 +63,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import de.bund.bfr.knime.openkrise.db.gui.MainFrame;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
-import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchTable.UndoRedoListener;
 //import com.sun.glass.ui.Cursor;
 //import DBMergeServer.SimSearch;
 //import SimSearch.SimSearchListener;
@@ -93,7 +92,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
   private JLabel simSetCountLabel;
 
-  private JCheckBoxMenuItem showInactiveRowsMenuItem; 
+  private JCheckBoxMenuItem hideInactiveRowsMenuItem; 
 
   private SimSearch simSearch;
   private SimSearch.Settings simSearchSettings;
@@ -122,6 +121,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
     this.simSearch = new SimSearch();
     this.simSearch.addEventListener(this);
+    this.simSearch.getDataManipulationHandler().registerDataOperationListener(new SimSearchDataManipulationHandler.DataOperationListener() {
+      
+      @Override
+      public void DataOperationOccured() {
+        SimSearchJFrame.this.processDataOperationEventOccured();
+        
+      }
+    });
     this.setUserIsWaiting(true);
     this.showWaitDialog("Searching for similarities ...");
     this.searchIsOn = true;
@@ -158,7 +165,9 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.addTopPanel();
     this.addTable();
     this.addBottomPanel();
-    this.table.registerRowFilter(this.filterText, null);
+    this.table.registerRowTextFilter(this.filterText, null);
+    this.table.registerInactiveRowFilterSwitch(this.hideInactiveRowsMenuItem);
+    //this.showInactiveRowsMenuItem.setSelected(!this.table.isInactiveRowFilterEnabled());
     //table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     //table.setTransferHandler(handler);
 
@@ -329,22 +338,18 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       // do nothing
     } 
   }
+  
+  private void processDataOperationEventOccured() {
+    this.redoButton.setEnabled(this.simSearch.getDataManipulationHandler().isRedoAvailable());
+    this.undoButton.setEnabled(this.simSearch.getDataManipulationHandler().isUndoAvailable());
+  }
 
   private void addTable() {
     //this.table.setEnabled(false);
     //JScrollPane scrollPane = new JScrollPane(this.table);
     //p.setBorder(BorderFactory.createTitledBorder("Similarity Search"));
     //scrollPane.setBorder(BorderFactory.createTitledBorder("Results"));
-    this.table = new SimSearchTable(new UndoRedoListener() {
-
-      @Override
-      public void anUndoRedoEventOccured() {
-        // TODO Auto-generated method stub
-        SimSearchJFrame.this.redoButton.setEnabled(SimSearchJFrame.this.table.isRedoAvailable());
-        SimSearchJFrame.this.undoButton.setEnabled(SimSearchJFrame.this.table.isUndoAvailable());
-      }
-
-    });
+    this.table = new SimSearchTable();
 
     this.table.setBorder(BorderFactory.createTitledBorder("Results"));
     this.getContentPane().add(this.table, BorderLayout.CENTER);
@@ -358,18 +363,18 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     bar.setBorder(bo);
     // Erzeugung eines Objektes der Klasse JMenu
     JMenu menu = new JMenu("View");
-    this.showInactiveRowsMenuItem =  new JCheckBoxMenuItem("Show inactive rows");
-    this.showInactiveRowsMenuItem.setSelected(true);
-    this.showInactiveRowsMenuItem.addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(ActionEvent arg0) {
-        // TODO Auto-generated method stub
-        SimSearchJFrame.this.table.showInactiveRows(((JCheckBoxMenuItem) arg0.getSource()).isSelected());
-      }
-
-    });
-    menu.add(this.showInactiveRowsMenuItem);
+    this.hideInactiveRowsMenuItem =  new JCheckBoxMenuItem("Hide inactive rows");
+    this.hideInactiveRowsMenuItem.setSelected(false);
+//    this.hideInactiveRowsMenuItem.addActionListener(new ActionListener() {
+//
+//      @Override
+//      public void actionPerformed(ActionEvent arg0) {
+//        // TODO Auto-generated method stub
+//        SimSearchJFrame.this.table.setInactiveRowFilterEnabled(!((JCheckBoxMenuItem) arg0.getSource()).isSelected());
+//      }
+//
+//    });
+    menu.add(this.hideInactiveRowsMenuItem);
     
     JMenuItem menuItem = new JMenuItem("Show search settings ..");
     menuItem.addActionListener(new ActionListener() {
@@ -377,7 +382,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       @Override
       public void actionPerformed(ActionEvent arg0) {
         // TODO Auto-generated method stub
-        SimSearchJFrame.this.table.processOpenSettingsRequest();
+        SimSearchJFrame.this.processOpenSettingsRequest();
       }
 
     });
@@ -511,37 +516,53 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
   @Override
   public void dataLoaded(SimSearchTableModel tableModel, int index) {
-    // TODO Auto-generated method stub
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         // Here, we can safely update the GUI
         // because we'll be called from the
         // event dispatch thread
-        if(SimSearchJFrame.this.currentSimSetIndex>=0) SimSearchJFrame.this.saveTableSettings();
-        SimSearchJFrame.this.setUserIsWaiting(false);
-        SimSearchJFrame.this.navToFirst.setEnabled(index>0);
-        SimSearchJFrame.this.navBack.setEnabled(index>0);
-        SimSearchJFrame.this.navForward.setEnabled(index<SimSearchJFrame.this.simSearch.getSimSetCount()-1);
-        SimSearchJFrame.this.navToLast.setEnabled(!SimSearchJFrame.this.searchIsOn && index<SimSearchJFrame.this.simSearch.getSimSetCount()-1);
-        SimSearchJFrame.this.currentSimSetIndex=index;
-        SimSearchJFrame.this.updateSimSetCountLabel();
-        SimSearchJFrame.this.filterText.setEnabled(true);
-        SimSearchJFrame.this.table.loadData(tableModel);
+        SimSearchJFrame.this.processDataLoadedEvent(tableModel, index);
+//        if(SimSearchJFrame.this.currentSimSetIndex>=0) SimSearchJFrame.this.saveTableSettings();
+//        SimSearchJFrame.this.setUserIsWaiting(false);
+//        SimSearchJFrame.this.navToFirst.setEnabled(index>0);
+//        SimSearchJFrame.this.navBack.setEnabled(index>0);
+//        SimSearchJFrame.this.navForward.setEnabled(index<SimSearchJFrame.this.simSearch.getSimSetCount()-1);
+//        SimSearchJFrame.this.navToLast.setEnabled(!SimSearchJFrame.this.searchIsOn && index<SimSearchJFrame.this.simSearch.getSimSetCount()-1);
+//        SimSearchJFrame.this.currentSimSetIndex=index;
+//        SimSearchJFrame.this.updateSimSetCountLabel();
+//        SimSearchJFrame.this.filterText.setEnabled(true);
+//        SimSearchJFrame.this.table.loadData(tableModel);
       }
     });
   }
 
+  private void processDataLoadedEvent(SimSearchTableModel tableModel, int index) {
+    if(this.currentSimSetIndex>=0) this.saveTableSettings();
+    this.setUserIsWaiting(false);
+    this.navToFirst.setEnabled(index>0);
+    this.navBack.setEnabled(index>0);
+    this.navForward.setEnabled(index<this.simSearch.getSimSetCount()-1);
+    this.navToLast.setEnabled(!this.searchIsOn && index<this.simSearch.getSimSetCount()-1);
+    this.currentSimSetIndex=index;
+    this.updateSimSetCountLabel();
+    this.filterText.setEnabled(true);
+    this.table.loadData(tableModel);
+  }
 
   public void processWindowOpenedEvent() {
     if(this.simSearchSettings==null ) {
-      SimSearch.Settings settings = new SimSearch.Settings();
-      final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(this, settings); 
-      pd4.setVisible(true);
-      if (pd4.okPressed) {
-        this.startSearch(settings);
-      } else {
-        this.dispose();
-      }
+      // Initial openEvent
+      this.simSearchSettings = PlausibleDialog4Krise.showSettings(this);
+      if(this.simSearchSettings==null) this.dispose();
+      else this.startSearch(this.simSearchSettings);
+//      SimSearch.Settings settings = new SimSearch.Settings();
+//      final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(this, settings); 
+//      pd4.setVisible(true);
+//      if (pd4.okPressed) {
+//        this.startSearch(settings);
+//      } else {
+//        this.dispose();
+//      }
     }
   }
 
@@ -553,7 +574,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.dispose();
   }
   
-  private processOpenSettingsRequest() {
-    SimSearch.Settings settings = PlausibleDialog4Krise.showSettings(this, this.simSearchSettings);
+  private void processOpenSettingsRequest() {
+    PlausibleDialog4Krise.showSettings(this, this.simSearchSettings);
   }
 }

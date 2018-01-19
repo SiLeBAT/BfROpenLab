@@ -33,6 +33,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -306,13 +308,15 @@ public class SimSearchJTable extends JTable {
     }
 	
 	//private SimSearchTableModel table;
-
+    //private Set<Integer> selectedIds;
+    
 	public SimSearchJTable() {
 		//this.setAutoCreateRowSorter(false);
 		//final JTableHeader header = this.getTableHeader();
         //header.setDefaultRenderer(new HeaderRenderer(table));
 		//gradesTable.getColumn("Passed").setCellRenderer(createPassedColumnRenderer());
 		super();
+		
 //		this.addKeyListener(new KeyListener() {
 //
 //      @Override

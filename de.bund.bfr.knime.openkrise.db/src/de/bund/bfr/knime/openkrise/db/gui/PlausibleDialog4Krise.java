@@ -23,6 +23,10 @@
 
 package de.bund.bfr.knime.openkrise.db.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -55,6 +59,15 @@ public class PlausibleDialog4Krise extends JDialog {
 		initComponents();
 	}
 	
+	public PlausibleDialog4Krise(Frame owner) {
+      super(owner);
+      this.simSearchSettings = new SimSearch.Settings();
+      this.isFormat2017 = this.simSearchSettings.getUseAllInOneAddress();
+      okPressed = false;
+      initComponents();
+      this.applySettingsToDialog();
+    }
+	
 	public PlausibleDialog4Krise(Frame owner, SimSearch.Settings settings) {
 		super(owner);
 		this.isFormat2017 = settings.getUseAllInOneAddress();
@@ -62,10 +75,19 @@ public class PlausibleDialog4Krise extends JDialog {
 		okPressed = false;
 		initComponents();
 		this.applySettingsToDialog();
+		this.okButton.setEnabled(false);
 	}
 	
 	private PlausibleDialog4Krise(Frame owner, List<SimSearch.Settings> settingList) {
-      this(owner, settingList.get(0));
+      //this(owner, settingList.get(0));
+	  super(owner);
+	  SimSearch.Settings settings = (settingList.isEmpty()?new SimSearch.Settings():settingList.get(0));
+	  this.isFormat2017 = settings.getUseAllInOneAddress();
+      this.simSearchSettings = settings;
+      okPressed = false;
+      initComponents();
+      this.applySettingsToDialog();
+      this.okButton.setEnabled(!settings.isReadOnly());
       this.settingList = settingList;
 	}
 	
@@ -95,43 +117,46 @@ public class PlausibleDialog4Krise extends JDialog {
 	  }
 	}
 	
-	private void applySettingsFromDialog() {
-		if(this.simSearchSettings!=null) {
-			this.simSearchSettings.setChecked(SimSearch.SimSet.Type.STATION, this.cs.isSelected());
-			this.simSearchSettings.setChecked(SimSearch.SimSet.Type.PRODUCT, this.cp.isSelected());
-			this.simSearchSettings.setChecked(SimSearch.SimSet.Type.LOT, this.cl.isSelected());
-			this.simSearchSettings.setChecked(SimSearch.SimSet.Type.DELIVERY, this.cd.isSelected());
+	private void applySettingsFromDialog(SimSearch.Settings settings) {
+		if(settings!=null) {
+		  settings.setChecked(SimSearch.SimSet.Type.STATION, this.cs.isSelected());
+		  settings.setChecked(SimSearch.SimSet.Type.PRODUCT, this.cp.isSelected());
+		  settings.setChecked(SimSearch.SimSet.Type.LOT, this.cl.isSelected());
+		  settings.setChecked(SimSearch.SimSet.Type.DELIVERY, this.cd.isSelected());
 			
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationName, (Integer) this.sn.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationAddress, (Integer) this.sz.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationZip, (Integer) this.sz.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationStreet, (Integer) this.ss.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationCity, (Integer) this.sc.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.StationHousenumber, (Integer) this.snum.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.StationName, (Integer) this.sn.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.StationAddress, (Integer) this.sz.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.StationZip, (Integer) this.sz.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.StationStreet, (Integer) this.ss.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.StationCity, (Integer) this.sc.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.StationHousenumber, (Integer) this.snum.getValue());
 			
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.ProductStation, (Integer) this.ps.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.ProductDescription, (Integer) this.pd.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.ProductStation, (Integer) this.ps.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.ProductDescription, (Integer) this.pd.getValue());
 			
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.LotProduct, (Integer) this.la.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.LotNumber, (Integer) this.ll.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.LotProduct, (Integer) this.la.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.LotNumber, (Integer) this.ll.getValue());
 			
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.DeliveryLot, (Integer) this.dl.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.DeliveryDate, (Integer) this.dd.getValue());
-			this.simSearchSettings.setTreshold(SimSearch.Settings.Attribute.DeliveryRecipient, (Integer) this.dr.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.DeliveryLot, (Integer) this.dl.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.DeliveryDate, (Integer) this.dd.getValue());
+		  settings.setTreshold(SimSearch.Settings.Attribute.DeliveryRecipient, (Integer) this.dr.getValue());
 		}
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
 		okPressed = true;
-		if(!this.simSearchSettings.isReadOnly()) {
-		  SimSearch.Settings settings = new SimSearch.Settings();
-		  this.applySettingsFromDialog(settings);
-		  if(this.simSearchSettings.areSettingsIdentically(settings)) {
-		    JOptionPane.showConfirmDialog(this, "The settings cannot be modified anymore.");
-	        return;
-		  }
-		} else {
-		  this.applySettingsFromDialog(settings);
+		if(this.simSearchSettings!=null && !this.simSearchSettings.isReadOnly()) {
+		  this.applySettingsFromDialog(this.simSearchSettings);
+		  this.settingList.clear();
+		  this.settingList.add(this.simSearchSettings);
+//		  if(!this.simSearchSettings.isReadOnly()) {
+//		  SimSearch.Settings settings = new SimSearch.Settings();
+//		  this.applySettingsFromDialog(settings);
+//		  if(this.simSearchSettings.areSettingsIdentically(settings)) {
+//		    JOptionPane.showConfirmDialog(this, "The settings cannot be modified anymore.");
+//	        return;
+//		  }
+		} 
 		dispose();
 	}
 
@@ -141,17 +166,17 @@ public class PlausibleDialog4Krise extends JDialog {
 	}
 	
 	public static SimSearch.Settings showSettings(Frame owner, SimSearch.Settings settings) {
-	  List<SimSearch.Settings> settingList = new ArrayList<>(Arrays.asList(settings));
+	  List<SimSearch.Settings> settingList = new ArrayList<>();
+	  if(settings!=null) settingList.add(settings);
 	  
 	  final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(owner, settingList); 
       pd4.setVisible(true);
-      if (pd4.okPressed) {
-        this.startSearch(settings);
-      } else {
-        this.dispose();
-      }
+      if (pd4.okPressed && !settingList.isEmpty()) return settingList.get(0);
+      else return null;
 	}
 
+	public static SimSearch.Settings showSettings(Frame owner) { return showSettings(owner, null); }
+	
 	private void button1ActionPerformed(ActionEvent e) {
 		// Direkter Zugang zur SimSuche über Menü! Mergen Selbsterklärender machen!
 		String help = "Firstly:\n";

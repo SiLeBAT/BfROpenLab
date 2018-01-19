@@ -225,15 +225,17 @@ public final class SimSearch {
         
       }
     });
-//    this.dataManipulationHandler = new SimSearchDataManipulationHandler();
+    this.dataManipulationHandler = new SimSearchDataManipulationHandler();
   }
 
-
+  public SimSearchDataManipulationHandler getDataManipulationHandler() {
+    return this.dataManipulationHandler;
+  }
 
   public void startSearch(Settings settings) {
     if(settings==null) return;
     this.simSetList = Collections.synchronizedList(new ArrayList<SimSet>());
-    this.dataManipulationHandler = new SimSearchDataManipulationHandler();
+    //this.dataManipulationHandler = new SimSearchDataManipulationHandler();
     //this.dataSource = new SimSearchDataSource();
     //this.initMaps();
     //this.dbData = new HashMap<>();

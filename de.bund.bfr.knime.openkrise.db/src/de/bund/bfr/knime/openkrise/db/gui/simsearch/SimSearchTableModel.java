@@ -150,8 +150,8 @@ private void initArrays() {
       
       if(idIntoIndex!=null) {
         this.mergeTo[idIndex] = idIntoIndex;
-        if(!mergesFrom.containsKey(idIntoIndex)) mergesFrom.put(idIntoIndex, Arrays.asList(idIndex));
-        else mergesFrom.get(idIntoIndex).add(idIndex);
+        if(!mergesFrom.containsKey(idIntoIndex)) mergesFrom.put(idIntoIndex, new ArrayList<>());
+        mergesFrom.get(idIntoIndex).add(idIndex);
       } else {
         // outside merge
         this.mergeTo[idIndex] = -1;
@@ -168,6 +168,14 @@ private void initArrays() {
   }
       
   
+}
+
+public Integer getID(int row) {
+  return (Integer) this.data[row][IDCOLUMN];
+}
+
+public boolean isInactive(int row) {
+  return this.isMerged(row);
 }
 
 private Map<Integer, Integer> getIdToRowIndexMap() {
@@ -229,10 +237,10 @@ public boolean isAlignmentReferenceRow(int row) {
 }
 
 public boolean isMergeValid(int[] rowsToMerge, int rowToMergeInto) {
-  if(this.dataManipulationHandler.isMerged(this.simSet.getType(), rowToMergeInto)) {
+  if(this.dataManipulationHandler.isMerged(this.simSet.getType(), (Integer) this.data[rowToMergeInto][IDCOLUMN])) {
     return false;
   } else {
-    for(int i=0; i<rowsToMerge.length; ++i) if(this.dataManipulationHandler.isMerged(this.simSet.getType(), rowsToMerge[i])) return false;
+    for(int i=0; i<rowsToMerge.length; ++i) if(this.dataManipulationHandler.isMerged(this.simSet.getType(), (Integer) this.data[rowsToMerge[i]][IDCOLUMN])) return false;
   }
   return true;
 }

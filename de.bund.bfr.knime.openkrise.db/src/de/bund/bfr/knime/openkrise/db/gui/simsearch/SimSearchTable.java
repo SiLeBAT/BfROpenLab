@@ -21,6 +21,7 @@ package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.ItemSelectable;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,13 +33,19 @@ import java.awt.event.MouseListener;
 import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import javax.swing.AbstractButton;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.DropMode;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -50,11 +57,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import com.google.common.collect.Sets;
 import com.sun.javafx.scene.control.ReadOnlyUnbackedObservableList;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchJTable.RowHeaderColumnRenderer;
 import javafx.scene.input.MouseButton;
@@ -71,10 +81,6 @@ public class SimSearchTable extends JScrollPane{
   //            }
   //        }
   //    }
-
-  public interface UndoRedoListener {
-    public void anUndoRedoEventOccured();
-  }
   
   public static class ViewSettings {
     private List<Integer> frozenColumns;
@@ -92,18 +98,19 @@ public class SimSearchTable extends JScrollPane{
   private JTextField filterTextBox;
   private JCheckBox useRegexFilterCheckBox;
   private Color filterColor;
-  private UndoRedoListener undoRedoListener;
+  private Set<Integer> selectedModelIndices;
+  private AbstractButton inactiveRowFilterSwitch;
 
 
-  public SimSearchTable(UndoRedoListener undoRedoListener) {
+  public SimSearchTable() {
     super(); //new SimSearchJTable());
-    this.undoRedoListener = undoRedoListener;
     this.init();
   }
 
   private void init() {
     this.viewSettings = new ViewSettings();
     this.initTables();
+    this.selectedModelIndices = new HashSet<>();
     // Create a column model for the main table. This model ignores the
     // first
     // column added, and sets a minimum width of 150 pixels for all others.
@@ -379,6 +386,7 @@ public class SimSearchTable extends JScrollPane{
     this.initColumnModels();
 
     this.table = new SimSearchJTable();
+    
     this.getViewport().setView(this.table);
     this.rowHeaderColumnTable = new SimSearchJTable();
 
@@ -391,7 +399,21 @@ public class SimSearchTable extends JScrollPane{
 //    Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(t -> {
 //    
 //    });
+    
     table.setSelectionModel(this.rowHeaderColumnTable.getSelectionModel());
+    System.out.println(table.getSelectionModel().getClass().getName());
+    table.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+      public void valueChanged(ListSelectionEvent event) {
+        
+        SimSearchTable.this.proccessSelectionEvent(event);
+//        for(int i=event.getFirstIndex(); i<= event.getLastIndex(); ++i) {
+//          if(SimSearchTable.this.table.isRowSelected(i)) {
+//            if()
+//          }
+//        }
+//          System.out.println(table.getValueAt(table.getSelectedRow(), 0).toString());
+      }
+  });
 
     // Make the header column look pretty
     //headerColumn.setBorder(BorderFactory.createEtchedBorder());
@@ -404,9 +426,39 @@ public class SimSearchTable extends JScrollPane{
     this.addDragAndDropFeature();
   }
 
+  private SimSearchTableModel getModel() {
+    return ((this.table==null || this.table.getModel()==null) ? null :  (SimSearchTableModel) this.table.getModel());
+  }
+  
+  private SimSearchRowSorter getRowSorter() {
+    return ((this.table==null || this.table.getRowSorter()==null) ? null :  (SimSearchRowSorter) this.table.getRowSorter());
+  }
+  
+  private void proccessSelectionEvent(ListSelectionEvent event) {
+    this.selectedModelIndices = new HashSet<>();
+    for(int i=event.getFirstIndex(); i<= event.getLastIndex(); ++i) {
+      if(this.table.isRowSelected(i)) this.selectedModelIndices.add(this.getRowSorter().convertRowIndexToModel(i));
+      //else this.selectedIds.remove(this.getModel().getID(this.getRowSorter().convertRowIndexToModel(i)));
+    }
+  }
+  
+  public void updateSelection() {
+    Set<Integer> selectedModelIndices = this.selectedModelIndices.stream().collect(Collectors.toSet());
+    this.table.getSelectionModel().clearSelection();
+    Map<Integer, Integer> modelIndexToViewIndexMap = new HashMap<>();
+    for(int i=0; i<this.table.getRowCount(); ++i) modelIndexToViewIndexMap.put(this.table.getRowSorter().convertRowIndexToModel(i), i);
+    selectedModelIndices = Sets.intersection(selectedModelIndices, modelIndexToViewIndexMap.keySet()).stream().collect(Collectors.toSet());
+    for(Integer id: selectedModelIndices) table.addRowSelectionInterval(modelIndexToViewIndexMap.get(id), modelIndexToViewIndexMap.get(id)); 
+    this.selectedModelIndices = selectedModelIndices;
+  }
+  
   private int[] convertViewRowsToModelRows(int[] rows) {
     for(int i=0; i<rows.length; ++i) rows[i] = this.table.getRowSorter().convertRowIndexToModel(rows[i]);
     return rows;
+  }
+  
+  private int convertDropRowToModelRow(int row) {
+    return (row>=this.table.getRowCount()?-1:this.table.getRowSorter().convertRowIndexToModel(row));
   }
 
   protected void updateRowHeader() {
@@ -432,15 +484,40 @@ public class SimSearchTable extends JScrollPane{
   //      }
   //    }
 
-  private void textFilterChanged() {
+  private void processInactiveRowFilterEnabledChangedEvent() {
+    if(this.getRowSorter()!=null) {
+      this.getRowSorter().setInactiveRowFilterEnabled(this.inactiveRowFilterSwitch.isSelected());
+      this.updateSelection();
+      this.updateView();
+    }
+  }
+  
+  private void processTextFilterChangedEvent() {
 
-    if(this.filterTextBox==null || this.table.getRowSorter()==null) return;
+    if(this.filterTextBox==null || this.getRowSorter()==null) return;
 
+    this.applyTextFilterToRowSorter();
+
+//    this.table.updateUI();
+//    this.rowHeaderColumnTable.updateUI();
+    this.updateSelection();
+    this.updateView();
+    
+    //      SimSearchRowSorter rowSorter = (SimSearchRowSorter) this.table.getRowSorter();
+    //      this.table.setRowSorter(null);
+    //      this.rowHeaderColumnTable.setRowSorter(null);
+    //      this.table.setRowSorter(rowSorter);
+    //      this.rowHeaderColumnTable.setRowSorter(rowSorter);
+  }
+  
+  private void applyTextFilterToRowSorter() {
+    if(this.filterTextBox==null || this.getRowSorter()==null) return;
+    
     if(this.useRegexFilterCheckBox!=null && this.useRegexFilterCheckBox.isSelected()) {
       try {
         Pattern pattern = Pattern.compile( this.filterTextBox.getText() );
         this.filterTextBox.setBackground(Color.white);
-        ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter(pattern);
+        this.getRowSorter().setRowFilter(pattern);
       } catch(PatternSyntaxException e) {
         ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter("");
         this.filterTextBox.setBackground(Color.RED);
@@ -449,18 +526,10 @@ public class SimSearchTable extends JScrollPane{
       ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter(this.filterTextBox.getText());
       this.filterTextBox.setBackground(Color.white);
     }
-
-    this.table.updateUI();
-    this.rowHeaderColumnTable.updateUI();
-    //      SimSearchRowSorter rowSorter = (SimSearchRowSorter) this.table.getRowSorter();
-    //      this.table.setRowSorter(null);
-    //      this.rowHeaderColumnTable.setRowSorter(null);
-    //      this.table.setRowSorter(rowSorter);
-    //      this.rowHeaderColumnTable.setRowSorter(rowSorter);
   }
 
 
-  public void registerRowFilter(JTextField filterTextBox, JCheckBox useRegExFilterCheckBox) {
+  public void registerRowTextFilter(JTextField filterTextBox, JCheckBox useRegExFilterCheckBox) {
 
     if(filterTextBox!=null) {
 
@@ -470,44 +539,28 @@ public class SimSearchTable extends JScrollPane{
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-          // TODO Auto-generated method stub
-          SimSearchTable.this.textFilterChanged();
+          SimSearchTable.this.processTextFilterChangedEvent();
         }
 
         @Override
         public void insertUpdate(DocumentEvent e) {
-          // TODO Auto-generated method stub
-          SimSearchTable.this.textFilterChanged();
+          SimSearchTable.this.processTextFilterChangedEvent();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
-          // TODO Auto-generated method stub
-          SimSearchTable.this.textFilterChanged();
+          SimSearchTable.this.processTextFilterChangedEvent();
         }
 
       });
-      //        this.filterTextBox.addKeyListener(new KeyListener() {
-      //          }
-      //        );
-      //      
-      //        this.filterTextBox.addActionListener(new ActionListener() {
-      //  
-      //          @Override
-      //          public void actionPerformed(ActionEvent arg0) {
-      //            // TODO Auto-generated method stub
-      //            SimSearchTable.this.textFilterChanged(); //((JTextField) arg0.getSource()).getText());
-      //          }
-      //          
-      //        });
+      
       if(useRegExFilterCheckBox!=null) {
         this.useRegexFilterCheckBox = useRegExFilterCheckBox;
 
         this.useRegexFilterCheckBox.addChangeListener(new ChangeListener()  {
           @Override
           public void stateChanged(ChangeEvent arg0) {
-            // TODO Auto-generated method stub
-            SimSearchTable.this.textFilterChanged();
+            SimSearchTable.this.processTextFilterChangedEvent();
           }
         }
             );   
@@ -516,16 +569,73 @@ public class SimSearchTable extends JScrollPane{
     }
   }
   
+  public void registerInactiveRowFilterSwitch(AbstractButton inactiveRowFilterSwitch) {
+    if(inactiveRowFilterSwitch==null) return;
+    this.inactiveRowFilterSwitch = inactiveRowFilterSwitch;
+    inactiveRowFilterSwitch.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        // TODO Auto-generated method stub
+        SimSearchTable.this.processInactiveRowFilterEnabledChangedEvent();
+        //SimSearchJFrame.this.table.setInactiveRowFilterEnabled(!((JCheckBoxMenuItem) arg0.getSource()).isSelected());
+      }
+
+    });
+//    if(filterTextBox!=null) {
+//
+//      this.filterTextBox = filterTextBox;
+//      this.filterColor = this.filterTextBox.getBackground();
+//      this.filterTextBox.getDocument().addDocumentListener(new DocumentListener() {
+//
+//        @Override
+//        public void changedUpdate(DocumentEvent e) {
+//          SimSearchTable.this.processTextFilterChangedEvent();
+//        }
+//
+//        @Override
+//        public void insertUpdate(DocumentEvent e) {
+//          //SimSearchTable.this.textFilterChanged();
+//        }
+//
+//        @Override
+//        public void removeUpdate(DocumentEvent e) {
+//          //SimSearchTable.this.textFilterChanged();
+//        }
+//
+//      });
+//      
+//      if(useRegExFilterCheckBox!=null) {
+//        this.useRegexFilterCheckBox = useRegExFilterCheckBox;
+//
+//        this.useRegexFilterCheckBox.addChangeListener(new ChangeListener()  {
+//          @Override
+//          public void stateChanged(ChangeEvent arg0) {
+//            SimSearchTable.this.processTextFilterChangedEvent();
+//          }
+//        }
+//            );   
+//
+//      }
+//    }
+  }
+  
   public void undo() {
-    ((SimSearchTableModel) this.table.getModel()).undo();
-    if(this.undoRedoListener!=null) this.undoRedoListener.anUndoRedoEventOccured();
-    this.updateView();
+    if(this.getModel()!=null) {
+      this.getModel().undo();
+      if(this.getRowSorter()!=null) this.getRowSorter().sort();
+      this.updateSelection();
+      this.updateView();
+    }
   }
   
   public void redo() {
-    ((SimSearchTableModel) this.table.getModel()).redo();
-    if(this.undoRedoListener!=null) this.undoRedoListener.anUndoRedoEventOccured();
-    this.updateView();
+    if(this.getModel()!=null) {
+      this.getModel().redo();
+      if(this.getRowSorter()!=null) this.getRowSorter().sort();
+      this.updateSelection();
+      this.updateView();
+    }
   }
   
   public boolean isUndoAvailable() {
@@ -550,31 +660,41 @@ public class SimSearchTable extends JScrollPane{
     return ((SimSearchTableModel) this.table.getModel()).isMergeValid(rowsToMerge, rowToMergeTo);
   }
   
+  
   public void mergeRows(int[] rowsToMerge, int rowToMergeTo) {
     rowsToMerge = convertViewRowsToModelRows(rowsToMerge);
     rowToMergeTo = convertViewRowsToModelRows(new int[] {rowToMergeTo})[0];
     ((SimSearchTableModel) this.table.getModel()).mergeRows(rowsToMerge, rowToMergeTo);
     ((SimSearchRowSorter) this.table.getRowSorter()).sort();
+    this.updateSelection();
     this.updateView();
   }
 
   public boolean isRowMoveValid(int[] rowsToMove, int rowToMoveBefore) {
-    //rowsToMove = convertViewRowsToModelRows(rowsToMove);
-    //rowToMoveBefore = convertViewRowsToModelRows(new int[] {rowToMoveBefore})[0];
-    return true; //    this.table.getRowSorter().isMoveValid(rowsToMove, rowToMoveBefore);
+    //System.out.println("RowsToMove: " + Arrays.toString(rowsToMove));
+    //System.out.println("RowToMoveBefore: " + rowToMoveBefore);
+    rowsToMove = convertViewRowsToModelRows(rowsToMove);
+    rowToMoveBefore = convertDropRowToModelRow(rowToMoveBefore);
+    return ((SimSearchRowSorter) this.table.getRowSorter()).isRowMoveValid(rowsToMove, rowToMoveBefore);
   }
   
   public void moveRows(int[] rowsToMove, int rowToMoveBefore) {
     rowsToMove = convertViewRowsToModelRows(rowsToMove);
-    rowToMoveBefore = convertViewRowsToModelRows(new int[] {rowToMoveBefore})[0];
+    rowToMoveBefore = convertDropRowToModelRow(rowToMoveBefore);
     ((SimSearchRowSorter) this.table.getRowSorter()).moveRows(rowsToMove, rowToMoveBefore);
+    this.updateSelection();
     this.updateView();
   }
   
-  public void showInactiveRows(boolean value) {
-    ((SimSearchRowSorter) this.table.getRowSorter()).showInactiveRows(value);
-    this.updateView();
-  }
+//  public void setInactiveRowFilterEnabled(boolean value) {
+//    if(this.getRowSorter()!=null && this.getRowSorter().isInactiveRowFilterEnabled()!=value) {
+//      this.getRowSorter().setInactiveRowFilterEnabled(value);
+//      this.updateView();
+//      this.updateSelection();
+//    }
+//  }
+  
+  private boolean isInactiveRowFilterEnabled() { return (this.inactiveRowFilterSwitch==null?false:this.inactiveRowFilterSwitch.isSelected()); }
  
   public void updateView() {
     ((RowHeaderColumnRenderer) this.rowHeaderColumnTable.getColumnModel().getColumn(0).getCellRenderer()).emptyCache();
@@ -593,10 +713,11 @@ public class SimSearchTable extends JScrollPane{
 
     //this.table.getColumn(table.getColumnName(0)).sizeWidthToFit();
     //this.table.getTableHeader().addMouseListener(new );
-
-    table.setRowSorter(new SimSearchRowSorter(tableModel));
-    this.rowHeaderColumnTable.setRowSorter(table.getRowSorter());
-
+    SimSearchRowSorter rowSorter = new SimSearchRowSorter(tableModel);
+    rowSorter.setInactiveRowFilterEnabled(this.isInactiveRowFilterEnabled());
+    table.setRowSorter(rowSorter);
+    this.rowHeaderColumnTable.setRowSorter(rowSorter);
+    if(this.filterTextBox.getText()!=null && this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
 
     // Put it in a viewport that we can control a bit
     JViewport jv = new JViewport();
@@ -606,6 +727,8 @@ public class SimSearchTable extends JScrollPane{
 
     this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
         .getTableHeader());
+    
+    //this.selectedModelIndices.clear();
   }
 
   private void mouseClickedOnTableHeader(MouseEvent e) {

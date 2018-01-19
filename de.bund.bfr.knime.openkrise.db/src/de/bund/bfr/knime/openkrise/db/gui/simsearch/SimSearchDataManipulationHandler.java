@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,9 @@ import java.util.stream.Collectors;
 
 public class SimSearchDataManipulationHandler {
   
+  public interface DataOperationListener {
+    public void DataOperationOccured();
+  }
   private enum ManipulationType {
     Merge, Unmerge;
   }
@@ -85,10 +89,12 @@ public class SimSearchDataManipulationHandler {
   
   private Stack<DataManipulation> undoStack;
   private Stack<DataManipulation> redoStack;
+  private List<DataOperationListener> dataOperationListeners;
   
   protected SimSearchDataManipulationHandler() {
     this.undoStack = new Stack<>();
     this.redoStack = new Stack<>();
+    this.dataOperationListeners = new ArrayList<>();
   }
   
   public void merge(SimSearch.SimSet.Type simSetType, List<Integer> idsToMerge, Integer idToMergeInto) throws DataManipulation.MergeMap.MergeException {
@@ -101,6 +107,7 @@ public class SimSearchDataManipulationHandler {
 //    }
     this.undoStack.push(manipulation);
     this.redoStack.clear();
+    this.informListeners();
   }
   
   public void unmerge(SimSearch.SimSet.Type simSetType, List<Integer> idsToUnmerge) throws DataManipulation.MergeMap.MergeException {
@@ -113,6 +120,7 @@ public class SimSearchDataManipulationHandler {
 //    }
     this.undoStack.push(manipulation);
     this.redoStack.clear();
+    this.informListeners();
   }
   
   public Integer getMergedInto(SimSearch.SimSet.Type simSetType, Integer id) {
@@ -124,12 +132,20 @@ public class SimSearchDataManipulationHandler {
   }
   
   public void undo() {
-    if(!this.undoStack.isEmpty()) this.redoStack.push(this.undoStack.pop());
+    if(!this.undoStack.isEmpty()) {
+      this.redoStack.push(this.undoStack.pop());
+      this.informListeners();
+    }
   }
 
   public void redo() {
-    if(!this.redoStack.isEmpty()) this.undoStack.push(this.redoStack.pop());
+    if(!this.redoStack.isEmpty()) {
+      this.undoStack.push(this.redoStack.pop());
+      this.informListeners();
+    }
   }
+  
+  public void informListeners() { for(DataOperationListener listener: this.dataOperationListeners) listener.DataOperationOccured(); }
 
   public boolean isUndoAvailable() {
     return !this.undoStack.isEmpty();
@@ -175,5 +191,9 @@ public class SimSearchDataManipulationHandler {
     } else {
       return this.undoStack.peek().mergeMap.get(simSetType).getMergeCount(id);
     }
+  }
+  
+  public void registerDataOperationListener(DataOperationListener listener) {
+    this.dataOperationListeners.add(listener);
   }
 }

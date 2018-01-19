@@ -57,7 +57,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
     //private RowFilter<SimSearchTableModel, Integer> rowFilter;
     private String rowFilterText;
     private Pattern rowFilterPattern;
-    private boolean showInactiveRows;
+    private boolean filterInactiveRows;
     
     static {
         Map<Class<?>, MyComparator<?>> compMap = new HashMap<>();
@@ -84,7 +84,13 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
             @Override
             public int compareObjects(Object o1, Object o2) {
                 // TODO Auto-generated method stub
-                return ((Integer) o1).compareTo((Integer) o2);
+              if(o1==null) {
+                if(o2==null) return 0;
+                else return -1;
+              } else if(o2==null) return 1;
+                
+              return Integer.compare((Integer) o1, (Integer) o2);
+              //return ((Integer) o1).compareTo((Integer) o2);
             }
             
             public boolean isMatch(Integer o, String searchString) {
@@ -151,7 +157,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
 //            this.modelToView.add(i);
 //            this.viewToModel.add(i);
 //        }
-        this.showInactiveRows = false;
+        this.filterInactiveRows = false;
         this.sortKeys = new ArrayList<>();
         this.columnComparators = new MyComparator<?>[model.getColumnCount()];
         for(int i=0; i < model.getColumnCount(); ++i) columnComparators[i] = comparatorMap.get(model.getColumnClass(i));  
@@ -285,17 +291,17 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
       }
       
       
-      MyRowComparator myRowComparator = new MyRowComparator();
+      MyRowComparator myRowComparator = (this.sortKeys.isEmpty()?null:new MyRowComparator());
       
       this.unfilteredViewToModel.removeAll(alwaysOnTop);
-      Collections.sort(alwaysOnTop, myRowComparator);
+      if(myRowComparator!=null) Collections.sort(alwaysOnTop, myRowComparator);
       
       for(List<Integer> rowList : dependentRows.values()) {
-        Collections.sort(rowList, myRowComparator);
+        if(myRowComparator!=null) Collections.sort(rowList, myRowComparator);
         this.unfilteredViewToModel.removeAll(rowList);
       }
       
-      Collections.sort(this.unfilteredViewToModel, new MyRowComparator());
+      if(myRowComparator!=null) Collections.sort(this.unfilteredViewToModel, new MyRowComparator());
       
       this.unfilteredViewToModel.addAll(0, alwaysOnTop);
       
@@ -311,19 +317,25 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
     
     private void filterRows() {
       this.viewToModel = this.unfilteredViewToModel.stream().collect(Collectors.toList());
-      Set<Integer> keepRows = new HashSet<>();
+      
       List<Integer> filterRows = new ArrayList<>();
       
       if(this.rowFilterText!=null || this.rowFilterPattern!=null) {
+        
+        Set<Integer> keepRows = new HashSet<>();
+        
         for(Integer modelRow : this.viewToModel) {
-          boolean bolFilter = true;
-          for(int column=0; column<this.model.getColumnCount(); ++column) {
-            if(this.model.getValueAt(modelRow, column)!=null && 
-                (this.rowFilterText!=null?
-                    this.model.getValueAt(modelRow, column).toString().contains(this.rowFilterText):
-                    this.rowFilterPattern.matcher(this.model.getValueAt(modelRow, column).toString()).matches())) {
-              bolFilter = false;
-              break;
+          boolean bolFilter = true;  // in the sense of filter out
+          if(!this.filterInactiveRows || !this.model.isInactive(modelRow)) {
+            for(int column=0; column<this.model.getColumnCount(); ++column) {
+              if(this.model.getValueAt(modelRow, column)!=null && 
+                  (this.rowFilterText!=null?
+                      this.model.getValueAt(modelRow, column).toString().contains(this.rowFilterText):
+                      this.rowFilterPattern.matcher(this.model.getValueAt(modelRow, column).toString()).matches())) {
+                // match
+                bolFilter = false;
+                break;
+              }
             }
           }
           if(bolFilter) {
@@ -333,8 +345,14 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
             keepRows.add(this.model.getMergeTo(modelRow));
           }
         }
-      } 
-      filterRows.removeAll(keepRows);
+        filterRows.removeAll(keepRows);
+        
+      } else if(this.filterInactiveRows) {
+        
+        for(Integer modelRow : this.viewToModel) if(this.model.isInactive(modelRow)) filterRows.add(modelRow);
+        
+      }
+      
       this.viewToModel.removeAll(filterRows);
       
       this.modelToView = new int[this.getModelRowCount()];
@@ -345,10 +363,15 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
       for(int i=0; i<this.getViewRowCount(); ++i) modelToView[viewToModel.get(i)] = i;
     }
     
+    public boolean isRowMoveValid(int[] rowsToMove, int rowToMoveBefore) {
+      return true;
+    }
     
-    public void showInactiveRows(boolean value) {
-      this.showInactiveRows = value;
-      this.filterRows();
+    public void setInactiveRowFilterEnabled(boolean value) {
+      if(this.filterInactiveRows != value) {
+        this.filterInactiveRows = value;
+        this.filterRows();
+      }
     }
     
     public void setRowFilter(String text) {
@@ -381,17 +404,20 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
       unmovedRows.removeAll(rowsToMoveList);
       movedRows.retainAll(rowsToMoveList);
       
-      unmovedRows.addAll(unmovedRows.indexOf(rowToMoveBefore), movedRows);
+      if(rowToMoveBefore>=0) unmovedRows.addAll(unmovedRows.indexOf(rowToMoveBefore), movedRows);
+      else unmovedRows.addAll(movedRows);
+      
       this.unfilteredViewToModel = unmovedRows;
       
       this.sortKeys.clear();
       this.sort();
+      this.fireSortOrderChanged();
     }
     
     @Override
     public int convertRowIndexToModel(int index) {
         // TODO Auto-generated method stub
-        //System.out.println("convertRowIndexToModel: " + index + " -> " + viewToModel.get(index));
+        //System.out.println("convertRowIndexToModel (RowIndex: " + index + ", ViewCount: " + this.getViewRowCount() + ", ModelCount: " + this.getModelRowCount()); //  viewToModel.get(index));
         return viewToModel.get(index);
     }
 

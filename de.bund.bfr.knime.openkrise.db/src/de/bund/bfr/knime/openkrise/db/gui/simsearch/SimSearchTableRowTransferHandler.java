@@ -25,6 +25,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DragSource;
 import java.io.IOException;
+import java.util.Arrays;
 import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
 import javax.swing.JComponent;
@@ -48,16 +49,24 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
     }
     
     @Override protected Transferable createTransferable(JComponent c) {
-      JTable table = (JTable) c;
-      //SimSearch.SimSearchTableModel model = (SimSearch.SimSearchTableModel) table.getModel();
-      //List<Integer> list = new ArrayList<>();
-      int[] indices = table.getSelectedRows();
-//      for (int i : indices) {
-//        list.add(model.getDataVector().get(i));
-//      }
-      //Object[] transferedObjects = list.toArray();
-      return new DataHandler(indices, dataFlavor.getMimeType());
-      //return new DataHandler(transferedObjects, localObjectFlavor.getMimeType());
+      if(c instanceof SimSearchJTable) {
+        SimSearchJTable table = (SimSearchJTable) c;
+        int[] indices = table.getSelectedRows();
+        return new DataHandler(indices, dataFlavor.getMimeType());
+      }
+      return null;
+//      JTable table = (JTable) c;
+//      //SimSearch.SimSearchTableModel model = (SimSearch.SimSearchTableModel) table.getModel();
+//      //List<Integer> list = new ArrayList<>();
+//      int[] indices = table.getSelectedRows();
+//      System.out.println("createTransferable: " + Arrays.toString(indices));
+////      for (int i : indices) {
+////        list.add(model.getDataVector().get(i));
+////      }
+//      //Object[] transferedObjects = list.toArray();
+      //return new DataHandler(indices, dataFlavor.getMimeType());
+      //return new DataHandler(new Object[0], dataFlavor.getMimeType());
+//      //return new DataHandler(transferedObjects, localObjectFlavor.getMimeType());
     }
     @Override public boolean canImport(TransferHandler.TransferSupport info) {
       SimSearchJTable table = (SimSearchJTable) info.getComponent();
@@ -67,22 +76,25 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
         JTable.DropLocation dropLocation = (JTable.DropLocation) info.getDropLocation();
         if(!dropLocation.isInsertColumn()) {
           
-          try {
-            int[] rowsDragged = (int[]) info.getTransferable().getTransferData(this.dataFlavor);
+//          try {
+            //int[] rowsDragged = (int[]) info.getTransferable().getTransferData(this.dataFlavor);
+            int[] rowsDragged = table.getSelectedRows(); 
+           
             if(dropLocation.isInsertRow()) {
               //isDropable = this.simSearchTable.areRowsMovableTo((int[]) info.getTransferable().getTransferData(dataFlavor), dropLocation.getRow());
               isDropable = this.simSearchTable.isRowMoveValid(rowsDragged, dropLocation.getRow());
             } else {
               isDropable = this.simSearchTable.isMergeValid(rowsDragged, dropLocation.getRow());
             }
-          } catch (UnsupportedFlavorException e) {
-            // TODO Auto-generated catch block
-            //e.printStackTrace();
-            isDropable = false;
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            isDropable = false;
-          }
+//          } 
+//          catch (UnsupportedFlavorException e) {
+//            // TODO Auto-generated catch block
+//            //e.printStackTrace();
+//            isDropable = false;
+//          } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            isDropable = false;
+//          }
         }
       }
       
@@ -97,35 +109,38 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
       //return TransferHandler.COPY;
     }
     @Override public boolean importData(TransferHandler.TransferSupport info) {
-      if (!canImport(info)) {
-        return false;
-      }
-      //TransferHandler.DropLocation dropLocation = info.getDropLocation();
-      if (!(info.getDropLocation() instanceof JTable.DropLocation)) {
-        return false;
-      }
       boolean dataImported = false;
-      JTable.DropLocation dropLocation = (JTable.DropLocation) info.getDropLocation();
-      if(dropLocation.isInsertRow()) {
-        // move rows
-      } else if(dropLocation.isInsertColumn()) {
-        // do nothing 
-      } else {
-        int[] rowsToMerge;
-        try {
-          rowsToMerge = (int[]) info.getTransferable().getTransferData(this.dataFlavor);
-          this.simSearchTable.mergeRows(rowsToMerge, dropLocation.getRow());
-          dataImported = true;
-        } catch (UnsupportedFlavorException e) {
-          // TODO Auto-generated catch block
-          //e.printStackTrace();
-          e.printStackTrace();
-        } catch (IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+      if(canImport(info)) { 
+
+        if ((info.getDropLocation() instanceof JTable.DropLocation)) {
+
+
+          JTable.DropLocation dropLocation = (JTable.DropLocation) info.getDropLocation();
+          if(!dropLocation.isInsertColumn()) { //dropLocation.isInsertRow()) {
+            // //move rows
+          //} else if(dropLocation.isInsertColumn()) {
+            // do nothing 
+          //} else {
+            //int[] rowsDragged = 
+//            try {
+              //int[] rowsDragged = (int[]) info.getTransferable().getTransferData(this.dataFlavor);
+              int[] rowsDragged = ((JTable) info.getComponent()).getSelectedRows();
+              
+              if(dropLocation.isInsertRow())  this.simSearchTable.moveRows(rowsDragged, dropLocation.getRow());
+              else this.simSearchTable.mergeRows(rowsDragged, dropLocation.getRow());
+              
+              dataImported = true;
+//            } catch (UnsupportedFlavorException e) {
+//              // TODO Auto-generated catch block
+//              //e.printStackTrace();
+//              e.printStackTrace();
+//            } catch (IOException e) {
+//              // TODO Auto-generated catch block
+//              e.printStackTrace();
+//            }
+          }
         }
       }
-      
       
 //      JTable.DropLocation dl = (JTable.DropLocation) tdl;
 //      JTable target = (JTable) info.getComponent();
@@ -167,6 +182,7 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
 //      return false;
     }
     @Override protected void exportDone(JComponent c, Transferable data, int action) {
+      c.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       //System.out.println("Export done");
       //cleanup(c, action == TransferHandler.MOVE);
     }
