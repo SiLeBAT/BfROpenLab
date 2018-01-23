@@ -59,24 +59,24 @@ public class PlausibleDialog4Krise extends JDialog {
 		initComponents();
 	}
 	
-	public PlausibleDialog4Krise(Frame owner) {
-      super(owner);
-      this.simSearchSettings = new SimSearch.Settings();
-      this.isFormat2017 = this.simSearchSettings.getUseAllInOneAddress();
-      okPressed = false;
-      initComponents();
-      this.applySettingsToDialog();
-    }
+//	public PlausibleDialog4Krise(Frame owner) {
+//      super(owner);
+//      this.simSearchSettings = new SimSearch.Settings();
+//      this.isFormat2017 = this.simSearchSettings.getUseAllInOneAddress();
+//      okPressed = false;
+//      initComponents();
+//      this.applySettingsToDialog();
+//    }
 	
-	public PlausibleDialog4Krise(Frame owner, SimSearch.Settings settings) {
-		super(owner);
-		this.isFormat2017 = settings.getUseAllInOneAddress();
-		this.simSearchSettings = settings;
-		okPressed = false;
-		initComponents();
-		this.applySettingsToDialog();
-		this.okButton.setEnabled(false);
-	}
+//	public PlausibleDialog4Krise(Frame owner, SimSearch.Settings settings) {
+//		super(owner);
+//		this.isFormat2017 = settings.getUseAllInOneAddress();
+//		this.simSearchSettings = settings;
+//		okPressed = false;
+//		initComponents();
+//		this.applySettingsToDialog();
+//		this.okButton.setEnabled(false);
+//	}
 	
 	private PlausibleDialog4Krise(Frame owner, List<SimSearch.Settings> settingList) {
       //this(owner, settingList.get(0));
@@ -89,6 +89,28 @@ public class PlausibleDialog4Krise extends JDialog {
       this.applySettingsToDialog();
       this.okButton.setEnabled(!settings.isReadOnly());
       this.settingList = settingList;
+      this.registerCancelAndOkButtons();
+	}
+	
+	private void registerCancelAndOkButtons() {
+		getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "CANCEL");
+		getRootPane().getActionMap().put("CANCEL", //cancelButton.getAction());
+		new AbstractAction(){
+		    @Override
+		    public void actionPerformed(ActionEvent e)
+		    {
+		    	PlausibleDialog4Krise.this.processUserCancelRequest();
+		    }
+		});
+		getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ENTER");
+		getRootPane().getActionMap().put("ENTER", //okButton.getAction());
+		new AbstractAction(){
+		    @Override
+		    public void actionPerformed(ActionEvent e)
+		    {
+		    	PlausibleDialog4Krise.this.processUserOkRequest();
+		    }
+		});
 	}
 	
 	private void applySettingsToDialog() {
@@ -144,6 +166,19 @@ public class PlausibleDialog4Krise extends JDialog {
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
+		this.processUserOkRequest();
+	}
+
+	private void cancelButtonActionPerformed(ActionEvent e) {
+		this.processUserCancelRequest();
+	}
+	
+	private void processUserCancelRequest() {
+		okPressed = false;
+		dispose();
+	}
+	
+	private void processUserOkRequest() {
 		okPressed = true;
 		if(this.simSearchSettings!=null && !this.simSearchSettings.isReadOnly()) {
 		  this.applySettingsFromDialog(this.simSearchSettings);
@@ -157,11 +192,6 @@ public class PlausibleDialog4Krise extends JDialog {
 //	        return;
 //		  }
 		} 
-		dispose();
-	}
-
-	private void cancelButtonActionPerformed(ActionEvent e) {
-		okPressed = false;
 		dispose();
 	}
 	
