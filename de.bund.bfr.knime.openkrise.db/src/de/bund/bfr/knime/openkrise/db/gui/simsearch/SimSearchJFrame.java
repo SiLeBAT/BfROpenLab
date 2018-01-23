@@ -30,6 +30,7 @@ import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -41,10 +42,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -55,6 +58,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -320,6 +324,27 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       }
     });
   }
+  
+  private void registerCancelAndOkButtons() {
+		getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "CANCEL");
+		getRootPane().getActionMap().put("CANCEL", //cancelButton.getAction());
+		new AbstractAction(){
+		    @Override
+		    public void actionPerformed(ActionEvent e)
+		    {
+		    	SimSearchJFrame.this.processWindowCloseRequest();
+		    }
+		});
+		getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ENTER");
+		getRootPane().getActionMap().put("ENTER", //okButton.getAction());
+		new AbstractAction(){
+		    @Override
+		    public void actionPerformed(ActionEvent e)
+		    {
+		    	SimSearchJFrame.this.processUserSaveRequest();
+		    }
+		});
+	}
 
   private void processNavigationRequest(JButton source) {
     if(source==this.navToFirst) this.simSearch.loadData(0);
@@ -572,6 +597,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
   private void processWindowCloseRequest() {
     this.dispose();
+  }
+  
+  private void processUserSaveRequest() {
+	  if(this.simSearch==null || this.simSearch.save()) this.dispose();
+  }
+  
+  private void processUserApplyRequest() {
+	  if(this.simSearch!=null) this.simSearch.save();
   }
   
   private void processOpenSettingsRequest() {
