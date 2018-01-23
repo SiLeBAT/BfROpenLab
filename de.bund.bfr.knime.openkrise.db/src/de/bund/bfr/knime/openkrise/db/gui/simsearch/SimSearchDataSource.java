@@ -1,12 +1,16 @@
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Map;
+import java.util.Map.Entry;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 
 public class SimSearchDataSource extends SimSearch.DataSource{
@@ -302,4 +306,44 @@ public class SimSearchDataSource extends SimSearch.DataSource{
     return null;
   }
 
+  @Override
+  public boolean save(SimSearchDataManipulationHandler dataManipulations) throws Exception {
+    Connection con = DBKernel.getDBConnection();
+    if(con!=null) {
+      
+      Map<SimSearch.SimSet.Type, String> simSetTypeToTableNameMap = createSimSetTypeToTableNameMap();
+      Map<SimSearch.SimSet.Type, Map<Integer, Integer>> mergeMap = dataManipulations.getMergeMap();
+      for(SimSearch.SimSet.Type simSetType: mergeMap.keySet()) {
+        String tableName=simSetTypeToTableNameMap.get(simSetType);
+        for(Entry<Integer,Integer> e: mergeMap.get(simSetType).entrySet()) {
+          DBKernel.mergeIDs(con, tableName, e.getKey(), e.getValue());
+        }
+      }
+      for(SimSearch.SimSet.Type simSetType: mergeMap.keySet()) {
+        String tableName=simSetTypeToIgnoreTableNameMap.get(simSetType);
+        PreparedStatement preparedStatement = con.createStatement("INSERT INTO Users (\"n" + 
+            "    st.setString(1, user.getName());\r\n" + 
+            "    st.setString(2, user.getFirstName());\r\n" + 
+            "    st.setString(3, user.getLastName());\r\n" + 
+            "    st.setString(4, user.getCompanyName());\r\n" + 
+            "    st.setString(5, user.getEmail());\r\n" + 
+            "    st.setString(6, user.getPrivacy());\r\n" + 
+            "\r\n" + 
+            "    // execute the preparedstatement insert\r\n" + 
+            "    st.executeUpdate();\r\n" + 
+            "    st.close();
+      this.idSetsToIgnore.remove(new HashSet<>(simSet.getIdList()));
+      return true;
+    }
+    return false;
+  }
+    
+  private Map<SimSearch.SimSet.Type, String> createSimSetTypeToTableNameMap() {
+    Map<SimSearch.SimSet.Type, String> simSetTypeToTableNameMap = new HashMap<>();
+    simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.STATION, DBInfo.TABLE.STATION.getName());
+    simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.PRODUCT, DBInfo.TABLE.PRODUCT.getName());
+    simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.LOT, DBInfo.TABLE.LOT.getName());
+    simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.DELIVERY, DBInfo.TABLE.DELIVERY.getName());
+    return simSetTypeToTableNameMap;
+  }
 }

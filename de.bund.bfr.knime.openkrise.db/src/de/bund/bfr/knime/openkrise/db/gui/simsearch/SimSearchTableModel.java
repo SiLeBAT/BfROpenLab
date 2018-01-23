@@ -280,6 +280,10 @@ public boolean isRedoAvailable() {
   return this.dataManipulationHandler.isRedoAvailable();
 }
 
+public boolean isSimSetIgnored() {
+  return this.dataManipulationHandler.isSimSetIgnored(simSet);
+}
+
 public String getUndoType() {
   return this.dataManipulationHandler.getUndoType();
 }

@@ -6,6 +6,10 @@ public class DBInfo {
 		PRODUCT("Produktkatalog", COLUMN.PRODUCT_ID),
 		LOT("Chargen", COLUMN.LOT_ID),
 		DELIVERY("Lieferungen", COLUMN.DELIVERY_ID),
+		STATION_IGNORE("IgnorierteStationenAehnlichkeiten"),
+		PRODUCT_IGNORE("IgnorierteProduktkatalogAehnlichkeiten"),
+		LOT_IGNORE("IgnorierteChargenAehnlichkeiten"),
+		DELIVERY_IGNORE("IgnorierteLieferungenAehnlichkeiten")
 		; 
 		
 		private final String name;
@@ -14,6 +18,10 @@ public class DBInfo {
 			this.name = name; 
 			this.primaryKey = primaryKey;
 		}
+		TABLE(String name) { 
+          this.name = name; 
+          this.primaryKey = null;
+       }
 	    public String getName() { return this.name; }
 	    public COLUMN getPrimaryKey() { return this.primaryKey; }
 	}

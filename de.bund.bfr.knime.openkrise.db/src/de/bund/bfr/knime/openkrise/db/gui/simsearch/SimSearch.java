@@ -163,9 +163,12 @@ public final class SimSearch {
       this.listener = listener;
       this.searchStopped = false;
     }
+    
     public abstract void findSimilarities(Settings settings) throws Exception;
     //public void findSimilarStations();
     public abstract SimSearchDataLoader getDataLoader();
+    
+    public abstract boolean save(SimSearchDataManipulationHandler dataManipulations) throws Exception;
     
     public final void stopSearch() {
       this.searchStopped = true;
@@ -228,8 +231,12 @@ public final class SimSearch {
     this.dataManipulationHandler = new SimSearchDataManipulationHandler();
   }
 
-  public SimSearchDataManipulationHandler getDataManipulationHandler() {
-    return this.dataManipulationHandler;
+//  public SimSearchDataManipulationHandler getDataManipulationHandler() {
+//    return this.dataManipulationHandler;
+//  }
+  
+  public void registerDataManipulationListener(SimSearchDataManipulationHandler.DataOperationListener listener) {
+    this.dataManipulationHandler.registerDataOperationListener(listener);
   }
 
   public void startSearch(Settings settings) {
@@ -254,6 +261,13 @@ public final class SimSearch {
     Thread thread = new Thread(runnable);
     thread.start();
   }
+  
+  public void save() {
+    
+  }
+  
+  
+  
   
 //  private void initMaps() {
 //    this.removeMap = new HashMap<>();

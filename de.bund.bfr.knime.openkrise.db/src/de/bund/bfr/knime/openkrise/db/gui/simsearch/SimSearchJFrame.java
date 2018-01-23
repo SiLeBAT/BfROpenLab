@@ -121,11 +121,11 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
     this.simSearch = new SimSearch();
     this.simSearch.addEventListener(this);
-    this.simSearch.getDataManipulationHandler().registerDataOperationListener(new SimSearchDataManipulationHandler.DataOperationListener() {
+    this.simSearch.registerDataManipulationListener(new SimSearchDataManipulationHandler.DataOperationListener() {
       
       @Override
-      public void DataOperationOccured() {
-        SimSearchJFrame.this.processDataOperationEventOccured();
+      public void DataManipulationOccured() {
+        SimSearchJFrame.this.processDataManipulationEventOccured();
         
       }
     });
@@ -339,9 +339,10 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     } 
   }
   
-  private void processDataOperationEventOccured() {
-    this.redoButton.setEnabled(this.simSearch.getDataManipulationHandler().isRedoAvailable());
-    this.undoButton.setEnabled(this.simSearch.getDataManipulationHandler().isUndoAvailable());
+  private void processDataManipulationEventOccured() {
+    this.redoButton.setEnabled(this.table.isRedoAvailable());
+    this.undoButton.setEnabled(this.table.isUndoAvailable());
+    this.ignoreButton.setSelected(this.table.isSimSetIgnored());
   }
 
   private void addTable() {
@@ -547,6 +548,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.updateSimSetCountLabel();
     this.filterText.setEnabled(true);
     this.table.loadData(tableModel);
+    this.ignoreButton.setSelected(this.table.isSimSetIgnored());
   }
 
   public void processWindowOpenedEvent() {

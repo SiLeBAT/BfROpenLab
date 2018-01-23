@@ -654,6 +654,10 @@ public class SimSearchTable extends JScrollPane{
     return ((SimSearchTableModel) this.table.getModel()).getRedoType();
   }
   
+  public boolean isSimSetIgnored() {
+    return (this.getModel()==null?false:this.getModel().isSimSetIgnored());
+  }
+  
   public boolean isMergeValid(int[] rowsToMerge, int rowToMergeTo) {
     rowsToMerge = convertViewRowsToModelRows(rowsToMerge);
     rowToMergeTo = convertViewRowsToModelRows(new int[] {rowToMergeTo})[0];
