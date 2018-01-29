@@ -1692,6 +1692,29 @@ public class DBKernel {
 		}
 		return false;
 	}
+	
+	public static boolean mergeIDs(Statement statement, final String tableName, int oldID, int newID) throws SQLException {
+      if(statement==null || statement.isClosed()) return false;
+      
+	  String sql = "SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " + " WHERE PKTABLE_NAME = '" + tableName + "'";
+	  ResultSet resultSet = statement.executeQuery(sql);
+
+	  if (resultSet == null) return false;
+	  
+	    
+	  while(resultSet.next()) {
+	    String fkt = resultSet.getObject("FKTABLE_NAME") != null ? resultSet.getString("FKTABLE_NAME") : "";
+	    String fkc = resultSet.getObject("FKCOLUMN_NAME") != null ? resultSet.getString("FKCOLUMN_NAME") : "";
+
+	    sql = "UPDATE " + DBKernel.delimitL(fkt) + " SET " + DBKernel.delimitL(fkc) + "=" + newID + " WHERE " + DBKernel.delimitL(fkc) + "="
+	        + oldID;
+	    statement.execute(sql);
+	  } 
+
+	  sql = "DELETE FROM " + DBKernel.delimitL(tableName) + " WHERE " + DBKernel.delimitL("ID") + "=" + oldID;
+	  statement.execute(sql);
+	  return true;
+	}
 
 	public static int getUsagecountOfID(final String tableName, int id) {
 		int result = 0;

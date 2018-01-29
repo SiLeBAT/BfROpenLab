@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -33,8 +34,10 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
   private static final Map<Integer, Class<?>> typeMap;
   private static final Map<String, String> tableToLabelColumnMap;
   private static final Map<String, SimSearch.SimSet.Type> tableToSimSetTypeMap;
+  private static final Map<String, Object> foreignKeyMap;
   
   private Map<SimSearch.SimSet.Type, Map<Integer, String>> foreignDataCacheMap;
+  
   
   public String[] columnNames;
   public Class<?>[] columnClasses;
@@ -42,6 +45,40 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
   public int rowCount;
   public int columnCount;
   public SimSearch.SimSet.Type[] columnSimSetTypes;
+  
+  private class ForeignField {
+    
+  }
+  
+  
+  private class ForeignChilds extends ForeignField {
+    private String tableName;
+    private Function<String[], String> formatFunction; 
+    private String[] labelColumns;
+    private ForeignChilds foreignChilds;
+    
+    private ForeignChilds(String tableName, String formatString, String[] labelColumns) {
+      this.tableName = tableName;
+      this.labelColumns = labelColumns;
+      this.formatFunction = new Function<String[], String>() {
+        public String apply(String[] arg) {
+          return String.format(formatString, (Object[]) arg);
+        }
+      };
+    }
+    
+    private ForeignChilds(String tableName, Function<String[], String> formatFunction, String[] labelColumns) {
+      this.tableName = tableName;
+      this.labelColumns = labelColumns;
+      this.formatFunction = formatFunction;
+    }
+    
+    private ForeignChilds(String tableName, ForeignChilds foreignChildList) {
+      this.
+    }
+  }
+  
+  private class ForeignElement
   
   static {
 	  typeMap = new HashMap<>();
@@ -63,7 +100,12 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
 	  
 	  //tableToLabelColumnMap.put(DBInfo.TABLE.LOT.getName(), DBInfo.COLUMN.LOT_.getName());
 	  //tableToLabelColumnMap.put(DBInfo.TABLE.STATION.getName(), DBInfo.COLUMN.STATION_NAME.getName());
+	  
+	  // create ForeignMaps
+	  foreignKeyMap.put(DBInfo.COLUMN.STATION_AGENTS.getName(), value)
   }
+  
+  
   private SimSearch.SimSet simSet;
   private SimSearchDataManipulationHandler dataManipulationHandler;
   private PreparedStatement preparedStatementLoadTableData;

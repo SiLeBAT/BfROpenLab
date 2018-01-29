@@ -13,6 +13,8 @@ public class DBInfo {
 		IGNORESIM("IgnorierteAehnlichkeiten"),
 		MATRIX("Matrices", COLUMN.MATRIX_ID),
 		AGENT("Agenzien", COLUMN.AGENT_ID),
+		//STATION_AGENT("Station_Agenzien")
+		
 		; 
 		
 		private final String name;
@@ -39,6 +41,7 @@ public class DBInfo {
 	  STATION_STREET("Strasse", TABLE.STATION), 
 	  STATION_HOUSENUMBER("Hausnummer", TABLE.STATION),
 	  STATION_CITY("Ort", TABLE.STATION),
+	  STATION_AGENTS("Erregernachweis", TABLE.STATION),
 	  
 	  PRODUCT_ID("ID", TABLE.PRODUCT),
 	  PRODUCT_STATION("Station", TABLE.PRODUCT),
@@ -67,6 +70,7 @@ public class DBInfo {
 	  
 	  AGENT_ID("id", TABLE.AGENT),
 	  AGENT_NAME("Agensname", TABLE.AGENT),
+	  
 	  
 //	  IGNORESTATIONSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNORESTATIONSIM),
 //	  IGNORESTATIONSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNORESTATIONSIM),
