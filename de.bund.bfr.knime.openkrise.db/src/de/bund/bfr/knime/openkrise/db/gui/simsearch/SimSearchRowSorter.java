@@ -65,7 +65,11 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
 
             @Override
             public int compareObjects(Object o1, Object o2) {
-                // TODO Auto-generated method stub
+                if(o1==null) {
+                    if(o2==null) return 0;
+                    else return -1;
+                  } else if(o2==null) return 1;
+                    
                 return ((String) o1).compareTo((String) o2);
             }
             

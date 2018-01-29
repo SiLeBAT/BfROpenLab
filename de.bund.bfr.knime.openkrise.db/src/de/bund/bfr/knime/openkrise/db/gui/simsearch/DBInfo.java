@@ -6,14 +6,18 @@ public class DBInfo {
 		PRODUCT("Produktkatalog", COLUMN.PRODUCT_ID),
 		LOT("Chargen", COLUMN.LOT_ID),
 		DELIVERY("Lieferungen", COLUMN.DELIVERY_ID),
-		STATION_IGNORE("IgnorierteStationenAehnlichkeiten"),
-		PRODUCT_IGNORE("IgnorierteProduktkatalogAehnlichkeiten"),
-		LOT_IGNORE("IgnorierteChargenAehnlichkeiten"),
-		DELIVERY_IGNORE("IgnorierteLieferungenAehnlichkeiten")
+//		IGNORESTATIONSIM("IgnorierteStationenAehnlichkeiten"),
+//		IGNOREPRODUCTSIM("IgnorierteProduktkatalogAehnlichkeiten"),
+//		IGNORELOTSIM("IgnorierteChargenAehnlichkeiten"),
+//		IGNOREDELIVERYSIM("IgnorierteLieferungenAehnlichkeiten"),
+		IGNORESIM("IgnorierteAehnlichkeiten"),
+		MATRIX("Matrices", COLUMN.MATRIX_ID),
+		AGENT("Agenzien", COLUMN.AGENT_ID),
 		; 
 		
 		private final String name;
 		private final COLUMN primaryKey;
+	
 		TABLE(String name, COLUMN primaryKey) { 
 			this.name = name; 
 			this.primaryKey = primaryKey;
@@ -26,14 +30,7 @@ public class DBInfo {
 	    public COLUMN getPrimaryKey() { return this.primaryKey; }
 	}
 	
-//	checkTable4ISM("Lieferungen", new String[]{"Charge","ad_day","ad_month","ad_year","Empfänger"},
-//        new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null)
-//    :
-//    null;
-//}
-//else {
-//vals4 = pd4.cd.isSelected() ?
-//checkTable4ISM("Lieferungen", new String[]{"Charge","dd_day","dd_month","dd_year","Empfänger"},
+
 	public enum COLUMN {
 	  STATION_ID("ID", TABLE.STATION),
 	  STATION_NAME("Name", TABLE.STATION), 
@@ -60,6 +57,27 @@ public class DBInfo {
       DELIVERY_DELIVEREDON_MONTH("ad_month", TABLE.DELIVERY),
       DELIVERY_DELIVEREDON_YEAR("dd_year", TABLE.DELIVERY),
 	  DELIVERY_RECIPIENT("Empfänger", TABLE.DELIVERY),
+	  
+	  IGNORESIM_ID1("id_1", TABLE.IGNORESIM),
+	  IGNORESIM_ID2("id_2", TABLE.IGNORESIM),
+	  IGNORESIM_TYPE("type", TABLE.IGNORESIM),
+	  
+	  MATRIX_ID("id", TABLE.MATRIX),
+	  MATRIX_NAME("Matrixname", TABLE.MATRIX),
+	  
+	  AGENT_ID("id", TABLE.AGENT),
+	  AGENT_NAME("Agensname", TABLE.AGENT),
+	  
+//	  IGNORESTATIONSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNORESTATIONSIM),
+//	  IGNORESTATIONSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNORESTATIONSIM),
+//	  IGNOREPRODUCTSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNOREPRODUCTSIM),
+//	  IGNOREPRODUCTSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNOREPRODUCTSIM),
+//	  IGNORELOTSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNORELOTSIM),
+//	  IGNORELOTSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNORELOTSIM),
+//	  IGNOREDELIVERYSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNOREDELIVERYSIM),
+//	  IGNOREDELIVERYSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNOREDELIVERYSIM),
+	  
+	  
 	  ;
 	  
 		

@@ -70,6 +70,7 @@ public final class SimSearch {
     private boolean useLevenshtein;
     private boolean useFormat2017;
     private boolean readOnly;
+    private boolean ignoreNonSimilarLists;
     
     
 
@@ -80,6 +81,7 @@ public final class SimSearch {
       this.useLevenshtein = false;
       this.useFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
       this.readOnly = false;
+      this.ignoreNonSimilarLists = false;
     }
     
     public Settings(Settings settingsToCopyFrom) {
@@ -88,16 +90,19 @@ public final class SimSearch {
       
       this.useLevenshtein = settingsToCopyFrom.useLevenshtein;
       this.useFormat2017 = settingsToCopyFrom.useFormat2017;
+      this.ignoreNonSimilarLists = settingsToCopyFrom.ignoreNonSimilarLists;
       this.readOnly = false;
     }
 
     public int getTreshold(Attribute attribute) { return this.attributeTresholdMap.get(attribute); }
-    public void setTreshold(Attribute attribute, int treshold) { this.attributeTresholdMap.put(attribute, treshold); }
+    public void setTreshold(Attribute attribute, int treshold) { if(!readOnly) this.attributeTresholdMap.put(attribute, treshold); }
     
     public boolean isChecked(SimSet.Type simSetType) { return this.checkList.contains(simSetType); }
     public void setChecked(SimSet.Type simSetType, boolean isChecked) {
-      if(isChecked) this.checkList.add(simSetType);
-      else this.checkList.remove(simSetType);
+      if(!this.readOnly) {
+    	  if(isChecked) this.checkList.add(simSetType);
+    	  else this.checkList.remove(simSetType);
+      }
     }
     
     public void freeze() { this.readOnly = true; }
@@ -106,22 +111,34 @@ public final class SimSearch {
     public boolean getUseAllInOneAddress() { return this.useFormat2017; }
     public boolean getUseArrivedDate() { return this.useFormat2017; }
     public boolean getUseLevenshtein() { return this.useLevenshtein; }
+    public void setUseLevenshtein(boolean value) { if(!this.readOnly) this.useLevenshtein=value; }
+    
+    public boolean getIgnoreNonSimilarLists() { return this.ignoreNonSimilarLists; }
+    public void setIgnoreNonSimilarLists(boolean value) { this.ignoreNonSimilarLists = value; }
   }
 
   public interface SimSearchListener {
-    public void searchFinished();
-    public void searchCanceled();
+    //public void searchFinished();
+    //public void searchCanceled();
     public void newSimSetFound();
     public void searchProgressed();
-    public void dataLoaded(SimSearchTableModel tableModel, int index);
-    public void dataSaved(boolean complete);
-    public void simSearchError(Exception err);
+    //public void dataLoaded(SimSearchTableModel tableModel, int index);
+    //public void dataSaved(boolean complete);
+    //public void simSearchError(Exception err);
   }
 
 
   public static class SimSet {
 	  public static enum Type {
-	      STATION, PRODUCT, LOT, DELIVERY
+	      STATION(0), PRODUCT(1), LOT(2), DELIVERY(3);
+		  
+		  private final int value;
+		  
+		  Type(int value) {
+			  this.value = value;
+		  }
+		  
+		  public int getValue() { return this.value; }
 	  }
 
     //protected SimType simType;
@@ -130,12 +147,11 @@ public final class SimSearch {
     private Integer referenceId;
     //private String alignmentReferenceID;
 
-    //public SimSet(SimType simType) {
     private SimSet(Type type, List<Integer> idList) throws Exception {
       this.type = type;
       if(idList==null || idList.isEmpty()) throw(new Exception("The parameter idList may not be null or empty."));
       this.referenceId = idList.get(1);
-      this.idList = Collections.unmodifiableList(idList);
+      this.idList = idList; //Collections.unmodifiableList(idList);
     }
     
     public Type getType() { return this.type; }
@@ -154,8 +170,26 @@ public final class SimSearch {
 
   protected static abstract class DataSource {
     public interface DataSourceListener {
-      public void similaritiesFound(SimSet.Type simSetType, List<Integer> idList);
+      public void similaritiesFound(SimSet.Type simSetType, List<Integer> idList) throws Exception;
     }
+    
+    protected static class ForeignField {
+    	private int id;
+    	private String label;
+    	private ForeignField(Integer id, String label) {
+    		this.id = id;
+    		this.label = label;
+    	}
+    	public int getId() { return this.id; }
+    	public String getLabel() { return this.label; }
+    	public void setLabel(String value) { this.label = value; }
+    	@Override
+    	public String toString() { return this.label; }
+    }
+    protected static abstract class DataLoader {
+    	ForeignField createForeignField(Integer id, String label) { return new ForeignField(id, label); }
+    }
+    
     private DataSourceListener listener;
     private boolean searchStopped;
     
@@ -170,43 +204,27 @@ public final class SimSearch {
     
     public abstract boolean save(SimSearchDataManipulationHandler dataManipulations) throws Exception;
     
+    //public static boolean isIgnoreSimFeatureAvailable() { return false; }
+    
+    //public abstract boolean makeIgnoreSimFeatureAvailable() throws Exception;
+    
     public final void stopSearch() {
       this.searchStopped = true;
     }
     
     public final boolean getSearchStopped() { return this.searchStopped; }
     
-    final void newSimilarityMatchFound(SimSet.Type simSetType, List<Integer> idList) {
+    final void newSimilarityMatchFound(SimSet.Type simSetType, List<Integer> idList) throws Exception {
       if(listener!=null) listener.similaritiesFound(simSetType, idList);
     }
   }
   
   private Settings simSearchSettings;
   private List<SimSet> simSetList;
-  //private Map<SimSet.SimType, Map<String, DBEntity>> dbData;
-  //private Map<String, StationDBEntity> stationData;
-  //private Map<String, ProductDBEntity> productData;
-  //private Map<Class<? extends DBEntity>, Map<String, DBEntity>> dbData;
-  private boolean searchStopped;
+  private volatile boolean searchStopped;
   private List<SimSearchListener> simSearchListenerList;
   private SimSearchDataManipulationHandler dataManipulationHandler;
   private DataSource dataSource;
-  
-  //private Map<SimSet, String> alignmentReferenceMap;
-  
-//  private static class RedoUndoAction {
-//	//private Map<SimSet.Type, MergeMap> mergeMap;
-//	//private Map<SimSet.Type, Set<String>> removeMap;
-//	//private Map<SimSet, String> alignmentReferenceMap;
-//    
-//    
-//	  
-//	  RedoUndoAction(Map<SimSet.Type, MergeMap> mergeMap, Map<SimSet.Type, Set<String>> removeMap, Map<SimSet, String> alignmentReferenceMap) {
-//		  this.mergeMap = mergeMap;
-//		  this.removeMap = removeMap;
-//		  this.alignmentReferenceMap = alignmentReferenceMap;
-//	  }
-//  }
 
 
   public SimSearch() {
@@ -214,278 +232,70 @@ public final class SimSearch {
     this.dataSource = new SimSearchDataSource(new DataSource.DataSourceListener() {
       
       @Override
-      public void similaritiesFound(Type simSetType, List<Integer> idList) {
-        // TODO Auto-generated method stub
+      public void similaritiesFound(Type simSetType, List<Integer> idList) throws Exception {
         
-        try {
           SimSearch.this.simSetList.add(new SimSearch.SimSet(simSetType, idList));
           SimSearch.this.call(l -> l.newSimSetFound());
-        } catch (Exception err) {
-          // TODO Auto-generated catch block
-          err.printStackTrace();
-          SimSearch.this.call(l -> l.simSearchError(err));
-        }
         
       }
     });
     this.dataManipulationHandler = new SimSearchDataManipulationHandler();
   }
-
-//  public SimSearchDataManipulationHandler getDataManipulationHandler() {
-//    return this.dataManipulationHandler;
-//  }
   
   public void registerDataManipulationListener(SimSearchDataManipulationHandler.DataOperationListener listener) {
     this.dataManipulationHandler.registerDataOperationListener(listener);
   }
 
-  public void startSearch(Settings settings) {
-    if(settings==null) return;
+  public boolean search(Settings settings) throws Exception {
+    if(settings==null) return false;
     this.simSetList = Collections.synchronizedList(new ArrayList<SimSet>());
-    //this.dataManipulationHandler = new SimSearchDataManipulationHandler();
-    //this.dataSource = new SimSearchDataSource();
-    //this.initMaps();
-    //this.dbData = new HashMap<>();
-//    this.stationData = new HashMap<>();
-//    this.productData = new HashMap<>();
     this.searchStopped = false;
     this.simSearchSettings = settings;
-    
-    Runnable runnable = new Runnable(){
-
-      public void run(){
-         SimSearch.this.runSearch();
-      }
-    };
-
-    Thread thread = new Thread(runnable);
-    thread.start();
+    this.dataSource.findSimilarities(this.simSearchSettings);
+    return true;
   }
   
-  public void save() {
-    
+  //public boolean isIgnoreSimFeatureAvailable() { return (this.dataSource==null?false:this.dataSource.isIgnoreSimFeatureAvailable()); }
+  
+  //public boolean makeIgnoreSimFeatureAvailable() throws Exception { return (this.dataSource==null?false:this.dataSource.makeIgnoreSimFeatureAvailable()); }
+  
+  public boolean save() throws Exception {
+    if(this.dataSource!=null) {
+    	if(this.dataSource.save(this.dataManipulationHandler)) {
+    		// remove discarded simsets
+    		this.simSetList.removeIf(simSet -> this.dataManipulationHandler.isSimSetIgnored(simSet));
+    		
+    		// remove merge ids from simsets
+    		for(SimSearch.SimSet simSet: this.simSetList) simSet.getIdList().removeIf(id -> this.dataManipulationHandler.isMerged(simSet.getType(), id));
+    		
+    		// remove simsets which are cleared
+    		this.simSetList.removeIf(simSet -> simSet.idList.size()<=1 || !simSet.idList.contains(simSet.referenceId));
+    		
+    		this.dataManipulationHandler.clearManipulations();
+    		return true;
+    	}
+    }
+    return false;
   }
-  
-  
-  
-  
-//  private void initMaps() {
-//    this.removeMap = new HashMap<>();
-//    this.mergeMap = new HashMap<>();
-//    for(SimSet.Type simSetType : Arrays.asList(SimSet.Type.class.getEnumConstants())) {
-//      this.removeMap.put(simSetType, new HashSet<>());
-//      this.mergeMap.put(simSetType, new MergeMap());
-//    }
-//    this.alignmentReferenceMap = new HashMap<>();
-//  }
-
-//  public void mergeInto(SimSet.Type simSetType, List<String> idToMerge, String idToMergeInto) {
-//	  
-//  }
-
-
-//  private <X extends DBEntity> void loadData(Class<X> simType, List<String> idList) {
-//    idList = idList.stream().filter(s -> !this.dbData.get(simType).containsKey(s)).collect(Collectors.toList());
-//    if(!idList.isEmpty()) {
-//      if(simType== StationDBEntity.class) {
-//        //List<X> resList = loadStationData(idList);
-//      } else {
-//        call(l -> l.simSearchError(new Exception("Unknown simType")));
-//      }
-//    }
-//  }
 
   public int getSimSetCount() { return (this.simSetList==null?0:this.simSetList.size()); }
   
+  public int getSimSetIndex(SimSet simSet) { return (this.simSetList==null?-1:this.simSetList.indexOf(simSet)); }
   
+  public SimSet getSimSet(int index) { return (this.simSetList==null || this.simSetList.size()<=index?null:this.simSetList.get(index)); }
   
-  
-  
-  
-  
-  
-  
-//  public SimSearchTableModel loadStationTable(SimSet simSet) {
-//	  final String[] columnNames = new String[] {"Status", "ID", "Name", "Address", "Country", "Products"};
-//	  final Class<?>[] columnClasses = new Class<?>[] {Integer.class, String.class, 
-//		  Alignment.AlignedSequence.class, Alignment.AlignedSequence.class, String.class, List.class};
-//	 final int columnCount = columnNames.length;
-//     Object[][] data = new Object[simSet.getIdList().size()][columnCount];
-//     for(int row=0; row<simSet.getIdList().size(); ++row) {
-//    	 data[row][0] = 0;
-//    	 data[row][1] = simSet.idList.get(row);
-//    	 data[row][2] = RandomDummy.manipulateText("Marmeladen Hersteller", 5);
-//    	 data[row][3] = RandomDummy.manipulateText("Am Teichgraben 28, 34567 Heuyerswerder", 7);
-//    	 data[row][4] = RandomDummy.manipulateText("Deutschland", 3);
-//    	 data[row][5] = Arrays.asList(RandomDummy.getRandomTexts(4, 7));
-//     }
-//     return new SimSearchTableModel(this, simSet, data, columnNames, columnClasses);
-//  }
-  
-  public void loadData(int simSetIndex) {
+  public SimSearchTableModel loadData(int simSetIndex) throws Exception {
     SimSet simSet = this.simSetList.get(simSetIndex);
-    if(simSet==null) {
-      call(l -> l.simSearchError(new Exception("Simset was not found")));
-      return;
-    }
-    //List<String> idList = simSet.idList.stream().filter(s -> !this.dbData.get(simSet.simType).containsKey(s)).collect(Collectors.toList());
-
-    //		if(!idList.isEmpty()) {
-    //			switch(simSet.simType) {
-    //			case Station :
-    //				loadStationData(idList);
-    //			default : 
-    //				call(l -> l.simSearchError(new Exception("Unknown simType")));
-    //			}
-    //		}
-    // collect Data, this is a read only list
-    //List<? extends DBEntity> resList;
-    //		switch(simSet.simType) {
-    //		case Station :
-    //			resList = new ArrayList<StationDBEntity>();
-    //		default : 
-    //			throw(new Exception());
-    //		}
-
-    //resList = simSet.idList.stream().map(id -> this.dbData.get(SimSet.SimType.Station).get(id)).collect(Collectors.toList());
-    //this.dbData.get(SimSet.SimType.Station)
-    //		simSet.idList.forEach(id -> resList.add(this.dbData.get(SimSet.SimType.Station).get(id)));
-    //		resList.add(new DBEntity("sds"));
-    //		resList.add(this.dbData.get(SimSet.SimType.Station).get("sdsd"));
-    //SimSearchTableModel tableModel = null;
+    if(simSet==null) throw(new Exception("Simset was not found"));
+    
     SimSearchDataLoader dataLoader = new SimSearchDataLoader(simSet, dataManipulationHandler);
-    try {
-		dataLoader.loadData();
-		SimSearchTableModel tableModel = new SimSearchTableModel(simSet, dataManipulationHandler, dataLoader);
-		call(l->l.dataLoaded(tableModel, simSetIndex));
-	} catch (Exception err) {
-		// TODO Auto-generated catch block
-		call(l -> l.simSearchError(err));
-		//e.printStackTrace();
-	}
-    
-    
-    
-    
-//    try {
-//      if(simSet.getType()==SimSet.Type.STATION) {
-//        final SimSearchTableModel tableModel = loadStationTable(simSet);
-//        call(l->l.dataLoaded(tableModel, simSetIndex));
-//      } 
-//    } catch(Exception err) {
-//      err.printStackTrace();
-//      call(l->l.simSearchError(err));
-//    }
+   
+	dataLoader.loadData();
+	return new SimSearchTableModel(simSet, dataManipulationHandler, dataLoader);
   }
-
-//  List<StationDBEntity> loadStationData(List<String> idList) {
-//    return this.loadStationData(idList, true);
-////    idList.forEach(id -> {
-////      if(this.searchStopped) return;
-////      this.dbData.get(SimSet.SimType.Station).put(id, new StationDBEntity(
-////          id, 
-////          RandomDummy.manipulateText("Hersteller GmbH", 4), 
-////          RandomDummy.manipulateText("An Teichgraben 8", 4),
-////          RandomDummy.manipulateText("Germany",2)));
-////    });
-//  }
   
-//  private List<StationDBEntity> loadStationData(List<String> idList, boolean complete) {
-//    List<StationDBEntity> stationList = new ArrayList<>();
-////    List<String> productIdList = new ArrayList<>();
-//    for(String id: idList) {
-//      if(this.searchStopped) return null;
-//      StationDBEntity station = this.stationData.get(id);
-//      if(station==null || (complete && station.getProductIDs()==null)) {
-//        station = loadStationFromRandomSource(id, complete);
-////        if(complete && station!=null) {
-////          for(String productId: station.getProductIDs()) {
-////            ProductDBEntity product = this.productData.get(productId);
-////            if(product==null) productIdList.add(productId);
-////          }
-////        }
-//      }
-//      if(station!=null) stationList.add(station);
-//    }
-////    if(!productIdList.isEmpty()) loadProductsFromRandomSource(productIdList, false);
-//    
-//    return stationList;
-//  }
-  
-//  private StationDBEntity loadStationFromRandomSource(String id, boolean complete) {
-//    if(this.searchStopped) return null;
-//    StationDBEntity station = new StationDBEntity(
-//          id, 
-//          RandomDummy.manipulateText("Hersteller GmbH", 4), 
-//          RandomDummy.manipulateText("An Teichgraben 8", 4),
-//          RandomDummy.manipulateText("Germany",2),
-//          Arrays.asList(RandomDummy.getRandomTexts(4, id.length())));
-//    for(String productId : station.getProductIDs()) {
-//      ProductDBEntity product = new ProductDBEntity(
-//          productId, 
-//          RandomDummy.manipulateText("Erdbeermarmelade", 4), 
-//          id);
-//      this.productData.put(product.getID(), product);
-//    }
-//    this.stationData.put(id, station);
-//    return station;
-//  }
-  
-//  private List<ProductDBEntity> loadProductData(List<String> idList, boolean complete) {
-//    List<ProductDBEntity> productList = new ArrayList<>();
-////    List<String> productIdList = new ArrayList<>();
-//    for(String id: idList) {
-//      if(this.searchStopped) return null;
-//      ProductDBEntity product = this.productData.get(id);
-//      
-//      if(product!=null) productList.add(product);
-//    }
-////    if(!productIdList.isEmpty()) loadProductsFromRandomSource(productIdList, false);
-//    
-//    return productList;
-//  }
-//  private List<StationDBEntity> loadStationsFromDB(List<String> idList, boolean complete) {
-//    List<StationDBEntity> stationList= new ArrayList<>();
-//    for(String id: idList) {
-//      if(this.searchStopped) return null;
-//      StationDBEntity station = new StationDBEntity(
-//          id, 
-//          RandomDummy.manipulateText("Hersteller GmbH", 4), 
-//          RandomDummy.manipulateText("An Teichgraben 8", 4),
-//          RandomDummy.manipulateText("Germany",2),
-//          Arrays.asList(RandomDummy.getRandomTexts(4, id.length())));
-//      this.stationData.put(id, station);
-//    }
-//    return stationList;
-//  }
-  
-//  private List<StationDBEntity> loadStationData(List<String> idList, boolean loadComplete) {
-//    idList.forEach(id -> {
-//      if(this.searchStopped) return;
-//      this.dbData.get(SimSet.SimType.Station).put(id, new StationDBEntity(
-//          id, 
-//          RandomDummy.manipulateText("Hersteller GmbH", 4), 
-//          RandomDummy.manipulateText("An Teichgraben 8", 4),
-//          RandomDummy.manipulateText("Germany",2)));
-//    });
-//  } 
-  
-  private void runSearch() {
-    try {
-      this.dataSource.findSimilarities(this.simSearchSettings);
-    } catch (Exception err) {
-      call(l->l.simSearchError(err));
-      //e.printStackTrace();
-    }
-//    if(this.preprocessDatabase()) {
-//      if(!this.searchStopped && this.simSearchSettings.getCheckStations()) this.findSimilarStations();
-//    }
-//    this.postProcessDatabase();
-    if(this.searchStopped) {
-      call(l->l.searchCanceled());
-    } else {
-      call(l -> l.searchFinished());
-    }
+  public boolean existDataManipulations() {
+	  return (this.dataManipulationHandler==null?false:!this.dataManipulationHandler.isEmpty());
   }
 
   private void call(Consumer<SimSearchListener> action) {
@@ -493,40 +303,8 @@ public final class SimSearch {
     //Stream.of(getListeners(CanvasListener.class)).forEach(action);
   }
 
-//  private void findSimilarStations() {
-//    for(int iR = 1; iR <= RESULT_NUMBER; iR++) {
-//      if(this.searchStopped) return; 
-//      try {
-//        Thread.sleep(500);
-//      } catch (InterruptedException e) {
-//        // TODO Auto-generated catch block
-//        e.printStackTrace();
-//      }
-//      SimSet simSet = new SimSet(SimSet.Type.STATION);
-//      for(int iS=1; iS<=STATION_NUMBER; iS++) {
-//        if(this.searchStopped) return;
-//        try {
-//          Thread.sleep(100);
-//        } catch (InterruptedException e) {
-//          // TODO Auto-generated catch block
-//          e.printStackTrace();
-//        }
-//        simSet.addId(RandomDummy.getRandomText(8));
-//      }
-//      this.simSetList.add(simSet);
-//      call(l -> l.newSimSetFound());
-//    }
-//  }
-
-
-  private boolean preprocessDatabase() {
-    return true;
-  }
-  private void postProcessDatabase() {
-
-  }
   public void stopSearch() {
-
+	  this.searchStopped = true;
   }
 
   public void addEventListener(SimSearchListener listener) {

@@ -284,6 +284,10 @@ public boolean isSimSetIgnored() {
   return this.dataManipulationHandler.isSimSetIgnored(simSet);
 }
 
+public void setSimSetIgnored(boolean value) {
+	if(value!=this.dataManipulationHandler.isSimSetIgnored(simSet)) this.dataManipulationHandler.setSimSetIgnored(this.simSet, value);
+}
+
 public String getUndoType() {
   return this.dataManipulationHandler.getUndoType();
 }

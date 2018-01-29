@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -30,22 +31,29 @@ import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -58,6 +66,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -80,10 +89,12 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
   private SimSearchTable table;
 
-  private JTextField filterText;
+  private JTextField filterTextField;
+  private JLabel filterLabel;
+  private JCheckBox useRegularExpressionsFilterCheckBox;
   private JButton undoButton;
   private JButton redoButton;
-  private JButton ignoreButton;
+  private JToggleButton ignoreButton;
 
   private JButton okButton;
   private JButton cancelButton;
@@ -104,6 +115,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   private int currentSimSetIndex;
   private boolean userIsWaiting;
   private boolean searchIsOn;
+  private boolean saveIsOn;
 
   public SimSearchJFrame(Frame owner) {
     super();
@@ -136,11 +148,49 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.setUserIsWaiting(true);
     this.showWaitDialog("Searching for similarities ...");
     this.searchIsOn = true;
-    this.simSearch.startSearch(this.simSearchSettings);
+    
+    this.startAsyncSearch(this.simSearchSettings);
   }
 
+  private void startAsyncSearch(SimSearch.Settings settings) {
+	  Runnable runnable = new Runnable(){
 
+		  public void run(){
+			  boolean searchCompleted = false;
+			  try {
+				  searchCompleted = SimSearchJFrame.this.simSearch.search(settings);
+			  } catch (Exception err) {
+				  SimSearchJFrame.this.showError(err, "Similarity search failed."); 
+			  }      
+			  SimSearchJFrame.this.finishAsyncSearch(searchCompleted);
+		  }
+	  };
 
+	  Thread thread = new Thread(runnable);
+	  thread.start();
+  }
+  
+  private void finishAsyncSearch(boolean searchCompleted) {
+	  if(SwingUtilities.isEventDispatchThread()) {
+		  // 
+		  this.setUserIsWaiting(false);
+		  this.searchIsOn = false;
+	      this.updateSimSetCountLabel();
+	      this.navToLast.setEnabled((this.simSearch.getSimSetCount()>this.currentSimSetIndex+1));
+	      //if(this.simSearch.getSimSetCount()==0 && searchCompleted) JOptionPane.showConfirmDialog(this, "No similarities found.", "Similarity search result", JOptionPane.NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+	      if(this.simSearch.getSimSetCount()==0 && searchCompleted) JOptionPane.showMessageDialog(null, "No similarities found.", "Similarity search result", 1);
+	      //JOptionPane.
+	      
+	  } else {
+		  SwingUtilities.invokeLater(new Runnable() {
+			  public void run() {
+				  SimSearchJFrame.this.finishAsyncSearch(searchCompleted);
+			  }
+		  });
+	  }
+  }
+  
+  
   private void initComponents() {
     //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -169,41 +219,15 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.addTopPanel();
     this.addTable();
     this.addBottomPanel();
-    this.table.registerRowTextFilter(this.filterText, null);
+    this.table.registerRowTextFilter(this.filterTextField, null);
     this.table.registerInactiveRowFilterSwitch(this.hideInactiveRowsMenuItem);
-    //this.showInactiveRowsMenuItem.setSelected(!this.table.isInactiveRowFilterEnabled());
-    //table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-    //table.setTransferHandler(handler);
-
-    //table.setDropMode(DropMode.ON_OR_INSERT_ROWS);
-
-
-
-    // BorderLayout is the default layout for content pane
-
-
-    //table.setDragEnabled(true);
-    //table.setFillsViewportHeight(true);
-    //table.setAutoCreateRowSorter(true); //XXX
-
-    //Disable row Cut, Copy, Paste
-    //		    ActionMap map = table.getActionMap();
-    //		    Action dummy = new AbstractAction() {
-    //		      @Override public void actionPerformed(ActionEvent e) { /* Dummy action */ }
-    //		    };
-    //		    map.put(TransferHandler.getCutAction().getValue(Action.NAME),   dummy);
-    //		    map.put(TransferHandler.getCopyAction().getValue(Action.NAME),  dummy);
-    //		    map.put(TransferHandler.getPasteAction().getValue(Action.NAME), dummy);
-
-    //JPanel p = new JPanel(new BorderLayout());
-    //p.add(new JScrollPane(table));
-    //p.setBorder(BorderFactory.createTitledBorder("Similarity Search"));
-    //this.getContentPane().add(p);
+    this.table.registerSimSetIgnoreSwitch(this.ignoreButton);
+  
+    Arrays.asList(this.filterLabel, this.filterTextField, this.useRegularExpressionsFilterCheckBox, this.ignoreButton, 
+    		this.navToFirst,this.navBack, this.navForward, this.navToLast).forEach(c -> c.setEnabled(false));
+    
     this.setSize(1000, 500);
     this.setLocationRelativeTo(null);
-    //JScrollPane scrollPane = new JScrollPane(table);
-    //this.add(scrollPane);
-    //pack();
   }
 
   private void addTopPanel() {
@@ -214,11 +238,13 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     JPanel filterPanel = new JPanel();
     topPanel.add(filterPanel, BorderLayout.LINE_START);
 
-    JLabel filterLabel = new JLabel("Filter:");
-    this.filterText = new JTextField();
+    this.filterLabel = new JLabel("Filter:");
+    this.filterTextField = new JTextField();
     //this.filterText.setA
-    this.filterText.setMinimumSize(new Dimension(this.filterText.getHeight()*8, this.filterText.getHeight()));
-    Arrays.asList(filterLabel, this.filterText).forEach(c -> filterPanel.add(c));
+    //this.filterTextField.setMinimumSize(new Dimension(this.filterTextField.getHeight()*8, this.filterTextField.getHeight()));
+    this.useRegularExpressionsFilterCheckBox = new JCheckBox("Use regular expressions");
+    
+    Arrays.asList(filterLabel, this.filterTextField, this.useRegularExpressionsFilterCheckBox).forEach(c -> filterPanel.add(c));
 
     JPanel undoRedoPanel = new JPanel();
     topPanel.add(undoRedoPanel, BorderLayout.CENTER);
@@ -231,12 +257,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.redoButton = new JButton("redo");
     this.redoButton.setToolTipText("redo merge/unmerge operation"); //  bundle.getString("MainFrame.button10.toolTipText"));
     //this.redoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/redo.gif")));
-    this.ignoreButton = new JButton("ignore");
-    this.ignoreButton.setToolTipText("toggle ignore status"); //  bundle.getString("MainFrame.button10.toolTipText"));
+    Arrays.asList(this.undoButton, this.redoButton).forEach(c -> undoRedoPanel.add(c));
+    
+    this.ignoreButton = new JToggleButton("Ignore");
+    this.ignoreButton.setToolTipText("Press this button to exclude these similarities from future searches."); //  bundle.getString("MainFrame.button10.toolTipText"));
     //this.ignoreButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/ignore.gif")));
-    Arrays.asList(this.undoButton, this.redoButton, this.ignoreButton).forEach(c -> undoRedoPanel.add(c));
+    topPanel.add(ignoreButton, BorderLayout.LINE_END); //    this.ignoreButton.forEach(c -> undoRedoPanel.add(c));
 
-    this.ignoreButton.setVisible(false);
+    //this.ignoreButton.setVisible(false);
 
     ActionListener undoRedoActionListener = new ActionListener() {
 
@@ -250,8 +278,10 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     //topPanel.add(this.ignoreButton, BorderLayout.LINE_END);
     //Dimension dim = this.undoButton.getPreferredSize();
 
-    Arrays.asList(filterLabel, this.filterText, this.undoButton, this.redoButton).forEach(c -> c.setEnabled(false));
-    filterText.setPreferredSize(new Dimension(this.undoButton.getPreferredSize().height * 5,  this.undoButton.getPreferredSize().height));
+    Arrays.asList(this.undoButton, this.redoButton).forEach(c -> c.setEnabled(false));
+    
+    filterTextField.setPreferredSize(new Dimension(this.undoButton.getPreferredSize().height * 5,  this.undoButton.getPreferredSize().height));
+    this.ignoreButton.setPreferredSize(new Dimension(this.ignoreButton.getPreferredSize().width,  this.undoButton.getPreferredSize().height));
   }
 
   private void addBottomPanel() {
@@ -281,10 +311,11 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     };
 
     navButtonList.forEach(b -> {
-      b.setEnabled(false);
+      //b.setEnabled(false);
       b.addActionListener(actionListener);
       navPanel.add(b);
     });
+    navPanel.setEnabled(false);
     //		final double maxWidth = Collections.max(navButtonList.stream().map(b -> b.getPreferredSize().getWidth()).collect(Collectors.toList()));
     //		navButtonList.forEach(b -> b.getPreferredSize().setSize(maxWidth, b.getPreferredSize().getHeight()));
     //		
@@ -312,17 +343,16 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.okButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent arg0) {
-        if(SimSearchJFrame.this.processApplyDataRequest()) {
-          SimSearchJFrame.this.dispose();
-        }
+        SimSearchJFrame.this.processUserSaveRequest();
       }
     });
     this.applyButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent arg0) {
-        SimSearchJFrame.this.processApplyDataRequest();
+        SimSearchJFrame.this.processUserApplyRequest();
       }
     });
+    this.applyButton.setEnabled(false);
   }
   
   private void registerCancelAndOkButtons() {
@@ -347,10 +377,10 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 	}
 
   private void processNavigationRequest(JButton source) {
-    if(source==this.navToFirst) this.simSearch.loadData(0);
-    else if(source==this.navBack) this.simSearch.loadData(this.currentSimSetIndex-1);
-    else if(source==this.navForward) this.simSearch.loadData(this.currentSimSetIndex+1);
-    else if(source==this.navToLast) this.simSearch.loadData(this.simSearch.getSimSetCount()-1);
+    if(source==this.navToFirst) this.startAsyncDataLoad(0);
+    else if(source==this.navBack) this.startAsyncDataLoad(this.currentSimSetIndex-1);
+    else if(source==this.navForward) this.startAsyncDataLoad(this.currentSimSetIndex+1);
+    else if(source==this.navToLast) this.startAsyncDataLoad(this.simSearch.getSimSetCount()-1);
     else { 
       // do nothing
     } 
@@ -368,13 +398,10 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.redoButton.setEnabled(this.table.isRedoAvailable());
     this.undoButton.setEnabled(this.table.isUndoAvailable());
     this.ignoreButton.setSelected(this.table.isSimSetIgnored());
+    this.applyButton.setEnabled(this.simSearch.existDataManipulations());
   }
 
   private void addTable() {
-    //this.table.setEnabled(false);
-    //JScrollPane scrollPane = new JScrollPane(this.table);
-    //p.setBorder(BorderFactory.createTitledBorder("Similarity Search"));
-    //scrollPane.setBorder(BorderFactory.createTitledBorder("Results"));
     this.table = new SimSearchTable();
 
     this.table.setBorder(BorderFactory.createTitledBorder("Results"));
@@ -391,15 +418,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     JMenu menu = new JMenu("View");
     this.hideInactiveRowsMenuItem =  new JCheckBoxMenuItem("Hide inactive rows");
     this.hideInactiveRowsMenuItem.setSelected(false);
-//    this.hideInactiveRowsMenuItem.addActionListener(new ActionListener() {
-//
-//      @Override
-//      public void actionPerformed(ActionEvent arg0) {
-//        // TODO Auto-generated method stub
-//        SimSearchJFrame.this.table.setInactiveRowFilterEnabled(!((JCheckBoxMenuItem) arg0.getSource()).isSelected());
-//      }
-//
-//    });
+
     menu.add(this.hideInactiveRowsMenuItem);
     
     JMenuItem menuItem = new JMenuItem("Show search settings ..");
@@ -454,53 +473,58 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       this.simSetCountLabel.setText(SimSearchJFrame.this.currentSimSetIndex+1 + " / " + SimSearchJFrame.this.simSearch.getSimSetCount());
     }
   }
+  
+  private void startAsyncDataLoad(int simSetIndex) {
+	  Runnable runnable = new Runnable(){
 
-  @Override
-  public void searchFinished() {
-    // TODO Auto-generated method stub
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        // Here, we can safely update the GUI
-        // because we'll be called from the
-        // event dispatch thread
-        SimSearchJFrame.this.searchIsOn = false;
-        SimSearchJFrame.this.updateSimSetCountLabel();
-        //SimSearchJFrame.this.simSetCountLabel.setText(SimSearchJFrame.this.currentSimSetIndex+1 + " / " + SimSearchJFrame.this.simSearch.getSimSetCount());
-        SimSearchJFrame.this.navToLast.setEnabled((SimSearchJFrame.this.simSearch.getSimSetCount()>SimSearchJFrame.this.currentSimSetIndex+1));
-        SimSearchJFrame.this.setUserIsWaiting(false);
-      }
-    });
+		  public void run(){
+			  try {
+				  SimSearchTableModel tableModel= SimSearchJFrame.this.simSearch.loadData(simSetIndex);
+				  SimSearchJFrame.this.finishAsyncDataLoad(tableModel, simSetIndex);
+			  } catch (Exception err) {
+				  SimSearchJFrame.this.showError(err, "Loading data from database failed."); 
+				  SimSearchJFrame.this.finishAsyncDataLoad(null, simSetIndex);
+			  }      
+		  }
+	  };
+
+	  Thread thread = new Thread(runnable);
+	  thread.start();
   }
-
-  @Override
-  public void searchCanceled() {
-    // TODO Auto-generated method stub
-    SimSearchJFrame.this.setUserIsWaiting(false);
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        // Here, we can safely update the GUI
-        // because we'll be called from the
-        // event dispatch thread
-        SimSearchJFrame.this.searchIsOn = false;
-        SimSearchJFrame.this.updateSimSetCountLabel();
-        SimSearchJFrame.this.navToLast.setEnabled((SimSearchJFrame.this.simSearch.getSimSetCount()>SimSearchJFrame.this.currentSimSetIndex+1));
-        //SimSearchJFrame.this.simSetCountLabel.setText(SimSearchJFrame.this.currentSimSetIndex+1 + " / ?(" + SimSearchJFrame.this.simSearch.getSimSetCount() + ")");
-        //SimSearchJFrame.this.navForward.setEnabled(SimSearchJFrame.this.currentSimSetIndex<SimSearchJFrame.this.simSearch.getSimSetCount()-1);
-      }
-    });
+  
+  private void finishAsyncDataLoad(SimSearchTableModel tableModel, int simSetIndex) {
+	  if(SwingUtilities.isEventDispatchThread()) {
+		  if(tableModel!=null) {
+			  if(this.currentSimSetIndex>=0) this.saveTableSettings();
+			  else {
+				  Arrays.asList(this.filterLabel, this.filterTextField, this.useRegularExpressionsFilterCheckBox, this.ignoreButton).forEach(c -> c.setEnabled(true));
+			  }
+			    this.setUserIsWaiting(false);
+			    this.navToFirst.setEnabled(simSetIndex>0);
+			    this.navBack.setEnabled(simSetIndex>0);
+			    this.navForward.setEnabled(simSetIndex<this.simSearch.getSimSetCount()-1);
+			    this.navToLast.setEnabled(!this.searchIsOn && simSetIndex<this.simSearch.getSimSetCount()-1);
+			    this.currentSimSetIndex=simSetIndex;
+			    this.updateSimSetCountLabel();
+			    //this.filterText.setEnabled(true);
+			    this.table.loadData(tableModel);
+			    this.ignoreButton.setSelected(this.table.isSimSetIgnored());
+		  }
+	  } else {
+		  SwingUtilities.invokeLater(new Runnable() {
+			  public void run() {
+				  SimSearchJFrame.this.finishAsyncDataLoad(tableModel, simSetIndex);
+			  }
+		  });
+	  }
   }
 
   @Override
   public void newSimSetFound() {
-    // TODO Auto-generated method stub
-    if(simSearch.getSimSetCount()==1) simSearch.loadData(0);
+    if(simSearch.getSimSetCount()==1) this.startAsyncDataLoad(0);
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
-        // Here, we can safely update the GUI
-        // because we'll be called from the
-        // event dispatch thread
         SimSearchJFrame.this.updateSimSetCountLabel();
-        //SimSearchJFrame.this.simSetCountLabel.setText(SimSearchJFrame.this.currentSimSetIndex+1 + " / ?(" + SimSearchJFrame.this.simSearch.getSimSetCount() + ")");
         SimSearchJFrame.this.navForward.setEnabled(SimSearchJFrame.this.currentSimSetIndex<SimSearchJFrame.this.simSearch.getSimSetCount()-1);
       }
     });
@@ -512,68 +536,20 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
   }
 
-  @Override
-  public void dataSaved(boolean complete) {
-    // TODO Auto-generated method stub
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        // Here, we can safely update the GUI
-        // because we'll be called from the
-        // event dispatch thread
-        SimSearchJFrame.this.reloadView();
-      }
-    });
+  private String formatError(Exception err) {
+	  return (err.getMessage()==null || err.getMessage().isEmpty()?err.getClass().getSimpleName():err.getMessage());
   }
-
-  @Override
-  public void simSearchError(Exception err) {
-    // TODO Auto-generated method stub
-    String message = err.getMessage();
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        // Here, we can safely update the GUI
-        // because we'll be called from the
-        // event dispatch thread
-        err.printStackTrace();
-        JOptionPane.showMessageDialog(SimSearchJFrame.this, err.getCause().toString(), "Error", JOptionPane.ERROR_MESSAGE);
-      }
-    });
-  }
-
-  @Override
-  public void dataLoaded(SimSearchTableModel tableModel, int index) {
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        // Here, we can safely update the GUI
-        // because we'll be called from the
-        // event dispatch thread
-        SimSearchJFrame.this.processDataLoadedEvent(tableModel, index);
-//        if(SimSearchJFrame.this.currentSimSetIndex>=0) SimSearchJFrame.this.saveTableSettings();
-//        SimSearchJFrame.this.setUserIsWaiting(false);
-//        SimSearchJFrame.this.navToFirst.setEnabled(index>0);
-//        SimSearchJFrame.this.navBack.setEnabled(index>0);
-//        SimSearchJFrame.this.navForward.setEnabled(index<SimSearchJFrame.this.simSearch.getSimSetCount()-1);
-//        SimSearchJFrame.this.navToLast.setEnabled(!SimSearchJFrame.this.searchIsOn && index<SimSearchJFrame.this.simSearch.getSimSetCount()-1);
-//        SimSearchJFrame.this.currentSimSetIndex=index;
-//        SimSearchJFrame.this.updateSimSetCountLabel();
-//        SimSearchJFrame.this.filterText.setEnabled(true);
-//        SimSearchJFrame.this.table.loadData(tableModel);
-      }
-    });
-  }
-
-  private void processDataLoadedEvent(SimSearchTableModel tableModel, int index) {
-    if(this.currentSimSetIndex>=0) this.saveTableSettings();
-    this.setUserIsWaiting(false);
-    this.navToFirst.setEnabled(index>0);
-    this.navBack.setEnabled(index>0);
-    this.navForward.setEnabled(index<this.simSearch.getSimSetCount()-1);
-    this.navToLast.setEnabled(!this.searchIsOn && index<this.simSearch.getSimSetCount()-1);
-    this.currentSimSetIndex=index;
-    this.updateSimSetCountLabel();
-    this.filterText.setEnabled(true);
-    this.table.loadData(tableModel);
-    this.ignoreButton.setSelected(this.table.isSimSetIgnored());
+  private void showError(Exception err, String plainMessage) {
+	  if(SwingUtilities.isEventDispatchThread()) {
+		  err.printStackTrace();
+		  JOptionPane.showMessageDialog(this, plainMessage + " " + formatError(err), "Error", JOptionPane.ERROR_MESSAGE);
+	  } else {
+		  SwingUtilities.invokeLater(new Runnable() {
+		      public void run() {
+		        SimSearchJFrame.this.showError(err, plainMessage);
+		      }
+		    });
+	  }
   }
 
   public void processWindowOpenedEvent() {
@@ -582,34 +558,68 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       this.simSearchSettings = PlausibleDialog4Krise.showSettings(this);
       if(this.simSearchSettings==null) this.dispose();
       else this.startSearch(this.simSearchSettings);
-//      SimSearch.Settings settings = new SimSearch.Settings();
-//      final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(this, settings); 
-//      pd4.setVisible(true);
-//      if (pd4.okPressed) {
-//        this.startSearch(settings);
-//      } else {
-//        this.dispose();
-//      }
     }
-  }
-
-  public boolean processApplyDataRequest() {
-    return false;
   }
 
   private void processWindowCloseRequest() {
     this.dispose();
   }
   
+  private void finishAsyncSave(boolean applyOnly, boolean completed, SimSearch.SimSet simSet) {
+	  if(SwingUtilities.isEventDispatchThread()) {
+		  if(completed) {
+			  if(!applyOnly) {
+				  this.dispose();
+			  } else {
+				  int newSimSetIndex = this.simSearch.getSimSetIndex(simSet);
+				  if(newSimSetIndex>0) {
+					  this.startAsyncDataLoad(newSimSetIndex);
+				  } else if(this.simSearch.getSimSetCount()>0) {
+					  this.startAsyncDataLoad(0);
+				  } else {
+					  Arrays.asList(navToFirst, navBack, navForward, navToLast).forEach(b -> b.setEnabled(false));
+					  this.table.clear();
+				  }
+			  }
+		  }  
+	  } else {
+		  SwingUtilities.invokeLater(new Runnable() {
+			  public void run() {
+				  SimSearchJFrame.this.finishAsyncSave(applyOnly, completed, simSet);
+			  }
+		  });
+	  }
+  }
+  
   private void processUserSaveRequest() {
-	  if(this.simSearch==null || this.simSearch.save()) this.dispose();
+	  if(this.simSearch!=null) startAsyncSave(false);
+  }
+  
+  private void startAsyncSave(boolean applyOnly) {
+	  SimSearch.SimSet simSet = this.simSearch.getSimSet(this.currentSimSetIndex);
+	  Runnable runnable = new Runnable(){
+
+		  public void run(){
+			  try {
+				boolean result = SimSearchJFrame.this.simSearch.save();
+				SimSearchJFrame.this.finishAsyncSave(applyOnly, result, simSet);  
+			} catch (Exception err) {
+				SimSearchJFrame.this.showError(err, "Saving data to database failed.");
+				SimSearchJFrame.this.finishAsyncSave(applyOnly, false, simSet);  
+			}       
+		  }
+	  };
+
+	  Thread thread = new Thread(runnable);
+	  thread.start();
   }
   
   private void processUserApplyRequest() {
-	  if(this.simSearch!=null) this.simSearch.save();
+	  if(this.simSearch!=null) this.startAsyncSave(true);
   }
   
   private void processOpenSettingsRequest() {
     PlausibleDialog4Krise.showSettings(this, this.simSearchSettings);
   }
+ 
 }

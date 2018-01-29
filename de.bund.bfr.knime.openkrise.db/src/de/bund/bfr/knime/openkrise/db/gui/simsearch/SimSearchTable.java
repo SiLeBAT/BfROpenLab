@@ -100,6 +100,8 @@ public class SimSearchTable extends JScrollPane{
   private Color filterColor;
   private Set<Integer> selectedModelIndices;
   private AbstractButton inactiveRowFilterSwitch;
+  private AbstractButton simSetIgnoreSwitch;
+  private ActionListener simSetIgnoreSwitchActionListener;
 
 
   public SimSearchTable() {
@@ -393,6 +395,40 @@ public class SimSearchTable extends JScrollPane{
     this.table.setColumnModel(this.tableColumnModel);
     this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
     this.rowHeaderColumnTable.getTableHeader().setReorderingAllowed(false);
+    this.rowHeaderColumnTable.getTableHeader().addMouseListener(new MouseListener() {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			SimSearchTable.this.updateSelection();
+			SimSearchTable.this.updateView();
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+    	
+    });
     
  // Make sure that selections between the main table and the header stay
     // in sync (by sharing the same model)
@@ -424,6 +460,8 @@ public class SimSearchTable extends JScrollPane{
     this.addMouseListenerToTable();
     this.addKeyListenerToTables();
     this.addDragAndDropFeature();
+    
+    //this.rowHeaderColumnTable.setUpdateSelectionOnSort(false);
   }
 
   private SimSearchTableModel getModel() {
@@ -582,43 +620,25 @@ public class SimSearchTable extends JScrollPane{
       }
 
     });
-//    if(filterTextBox!=null) {
-//
-//      this.filterTextBox = filterTextBox;
-//      this.filterColor = this.filterTextBox.getBackground();
-//      this.filterTextBox.getDocument().addDocumentListener(new DocumentListener() {
-//
-//        @Override
-//        public void changedUpdate(DocumentEvent e) {
-//          SimSearchTable.this.processTextFilterChangedEvent();
-//        }
-//
-//        @Override
-//        public void insertUpdate(DocumentEvent e) {
-//          //SimSearchTable.this.textFilterChanged();
-//        }
-//
-//        @Override
-//        public void removeUpdate(DocumentEvent e) {
-//          //SimSearchTable.this.textFilterChanged();
-//        }
-//
-//      });
-//      
-//      if(useRegExFilterCheckBox!=null) {
-//        this.useRegexFilterCheckBox = useRegExFilterCheckBox;
-//
-//        this.useRegexFilterCheckBox.addChangeListener(new ChangeListener()  {
-//          @Override
-//          public void stateChanged(ChangeEvent arg0) {
-//            SimSearchTable.this.processTextFilterChangedEvent();
-//          }
-//        }
-//            );   
-//
-//      }
-//    }
   }
+  
+  public void registerSimSetIgnoreSwitch(AbstractButton simSetIgnoreSwitch) {
+	  if(simSetIgnoreSwitch==null) return;
+	  this.simSetIgnoreSwitch = simSetIgnoreSwitch;
+	  this.simSetIgnoreSwitchActionListener = new ActionListener() {
+
+		  @Override
+		  public void actionPerformed(ActionEvent arg0) {
+			  SimSearchTable.this.processSimSetIgnoreSwitchChangedEvent();
+		  };
+	  };
+	  this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
+  }
+
+  private void processSimSetIgnoreSwitchChangedEvent() {
+	  this.getModel().setSimSetIgnored(this.simSetIgnoreSwitch.isSelected());
+  }
+
   
   public void undo() {
     if(this.getModel()!=null) {
@@ -731,8 +751,16 @@ public class SimSearchTable extends JScrollPane{
 
     this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
         .getTableHeader());
+    this.simSetIgnoreSwitch.removeActionListener(this.simSetIgnoreSwitchActionListener);
+    this.simSetIgnoreSwitch.setSelected(tableModel.isSimSetIgnored());
+    this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
     
     //this.selectedModelIndices.clear();
+  }
+  
+  public void clear() {
+	  this.table.setModel(null);
+	  this.rowHeaderColumnTable.setModel(null);
   }
 
   private void mouseClickedOnTableHeader(MouseEvent e) {

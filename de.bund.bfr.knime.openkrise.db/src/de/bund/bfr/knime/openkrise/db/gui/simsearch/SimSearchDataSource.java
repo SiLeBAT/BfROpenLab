@@ -1,8 +1,10 @@
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,10 +13,23 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class SimSearchDataSource extends SimSearch.DataSource{
   private SimSearch.Settings settings;
+  //private static Map<DBInfo.TABLE, DBInfo.TABLE> tableToIgnoreTableMap;
+  //private Boolean isIgnoreSimFeatureAvailable = null;
+//  static {
+//	  SimSearchDataSource.tableToIgnoreTableMap = new HashMap<>();
+//	  SimSearchDataSource.tableToIgnoreTableMap.put(DBInfo.TABLE.STATION, DBInfo.TABLE.IGNORESTATIONSIM);
+//	  SimSearchDataSource.tableToIgnoreTableMap.put(DBInfo.TABLE.PRODUCT, DBInfo.TABLE.IGNOREPRODUCTSIM);
+//	  SimSearchDataSource.tableToIgnoreTableMap.put(DBInfo.TABLE.LOT, DBInfo.TABLE.IGNORELOTSIM);
+//	  SimSearchDataSource.tableToIgnoreTableMap.put(DBInfo.TABLE.DELIVERY, DBInfo.TABLE.IGNOREDELIVERYSIM);
+//  }
   
   protected SimSearchDataSource(SimSearch.DataSource.DataSourceListener listener) {
     super(listener);
@@ -32,6 +47,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   }
     
   private boolean addLDFunctionToDB(SimSearch.Settings settings) {
+	this.removeLDFunctionFromDB();
     return DBKernel.sendRequest(
         "CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
         (settings.getUseLevenshtein() ? "RETURNS INT\n" : "RETURNS DOUBLE\n") + 
@@ -121,16 +137,24 @@ public class SimSearchDataSource extends SimSearch.DataSource{
       
       int simCheckCount = simCheckList.size();
       
+      Connection con = DBKernel.getDBConnection();
+      if(con==null) throw(new Exception("No database connection available."));
+      
+      Map<Integer,Set<Integer>> ignoreMap = (settings.getIgnoreNonSimilarLists()?new HashMap<>():this.loadIgnoreList(simSetType));
+      
+      Statement statement = con.createStatement();
+      
       StringBuilder sqlSb = new StringBuilder("SELECT " + DBKernel.delimitL("ID"));
       //String sql = "SELECT " + DBKernel.delimitL("ID");
       for(SimCheck simCheck : simCheckList) sqlSb.append("," + DBKernel.delimitL(simCheck.columnName));
       //for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL(fieldnames[i]);
       sqlSb.append(" FROM " + DBKernel.delimitL(table.getName()));
       //sql += " FROM " + DBKernel.delimitL(tablename);
-      ResultSet rs = DBKernel.getResultSet(sqlSb.toString(), false);
+      ResultSet rs = statement.executeQuery(sqlSb.toString());
+      //ResultSet rs = DBKernel.getResultSet(sqlSb.toString(), false);
       //ResultSet rs = DBKernel.getResultSet(sql, false);
-      if (rs != null && rs.first()) {
-          do {
+      if (rs != null) { // && rs.first()) {
+          while(rs.next()) {
             if(this.getSearchStopped()) return;
             
             String[] resRowFirst = new String[simCheckCount + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
@@ -165,10 +189,12 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                   //for (int i=0;i<otherTableDesires.length;i++) sql += "," + DBKernel.delimitL(otherTableDesires[i]);
                   sqlSb.append(" FROM " + DBKernel.delimitL(otherTable) + " WHERE " + DBKernel.delimitL(otherTableField) + "=" + id);
                   //sql += " FROM " + DBKernel.delimitL(otherTable) + " WHERE " + DBKernel.delimitL(otherTableField) + "=" + id;
-                  ResultSet rs3 = DBKernel.getResultSet(sqlSb.toString(), false);
+                  
+                  ResultSet rs3 = statement.executeQuery(sqlSb.toString());
+                  //ResultSet rs3 = DBKernel.getResultSet(sqlSb.toString(), false);
                   //ResultSet rs3 = DBKernel.getResultSet(sql, false);
-                  if (rs3 != null && rs3.first()) {
-                      do {
+                  if (rs3 != null) {// && rs3.first()) {
+                      while(rs3.next()) {
                           result += rs3.getInt("ID");
                           if (resRowFirst[simCheckCount+1] == null || resRowFirst[simCheckCount+1].isEmpty()) resRowFirst[simCheckCount+1] = rs3.getInt("ID")+"";
                           //if (resRowFirst[fieldnames.length+1] == null || resRowFirst[fieldnames.length+1].isEmpty()) resRowFirst[fieldnames.length+1] = rs3.getInt("ID")+"";
@@ -181,7 +207,8 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                               else resRowFirst[simCheckCount+2+i] += "," + rs3.getString(otherTableDesires[i]);
                               //else resRowFirst[fieldnames.length+2+i] += "," + rs3.getString(otherTableDesires[i]);
                           }
-                      } while(rs3.next());
+                      } //while(rs3.next());
+                      rs3.close();
                   }
                   result += ")";
               }
@@ -225,21 +252,32 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                       }
                   }
               }
+              
+//              if(!settings.getIgnoreNonSimilarLists()) {
+//            	  sqlSb.append(" AND NOT (" +
+//            			  "(ID IN (SELECT " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_ID1.getName()) + " FROM " + DBKernel.delimitL(DBInfo.TABLE.IGNORESIM.getName())  + " WHERE " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_ID2.getName()) + "=" + id + " AND " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_TYPE.getName()) + "=" + simSetType.getValue() + ") OR " + 
+//            			  "(ID IN (SELECT " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_ID2.getName()) + " FROM " + DBKernel.delimitL(DBInfo.TABLE.IGNORESIM.getName())  + " WHERE " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_ID1.getName()) + "=" + id + " AND " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_TYPE.getName()) + "=" + simSetType.getValue() + ")" +
+//            			  ")");
+//              }
               //sql += " ORDER BY SCORE ASC";
               
-              ResultSet rs2 = DBKernel.getResultSet(sqlSb.toString(), false);
+              ResultSet rs2 = statement.executeQuery(sqlSb.toString());
+              //ResultSet rs2 = DBKernel.getResultSet(sqlSb.toString(), false);
               //ResultSet rs2 = DBKernel.getResultSet(sql, false);
-              if (rs2 != null && rs2.first()) {
+              if (rs2 != null) { // && rs2.first()) {
                   LinkedHashSet<String[]> resSetOther = new LinkedHashSet<>(); 
-                  do {
+                  while(rs2.next()) {
                       
                       String[] resRowOther = new String[simCheckCount + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
                       //String[] resRowOther = new String[fieldnames.length + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
 
                       // Match - fieldnames
+                      if(ignoreMap.containsKey(id) && ignoreMap.get(id).contains(rs2.getInt("ID"))) continue;
+                      
+                      idList.add(rs2.getInt("ID"));
                       result += rs2.getInt("ID");
                       resRowOther[0] = rs2.getInt("ID")+"";
-                      idList.add(rs2.getInt("ID"));
+                      
                                           
                       for (int i=0;i<simCheckCount;i++) {
                       //for (int i=0;i<fieldnames.length;i++) {
@@ -263,10 +301,11 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                           //for (int i=0;i<otherTableDesires.length;i++) sql += "," + DBKernel.delimitL(otherTableDesires[i]);
                           sqlSb.append(" FROM " + DBKernel.delimitL(otherTable) + " WHERE " + DBKernel.delimitL(otherTableField) + "=" + rs2.getInt("ID"));
                           //sql += " FROM " + DBKernel.delimitL(otherTable) + " WHERE " + DBKernel.delimitL(otherTableField) + "=" + rs2.getInt("ID");
-                          ResultSet rs3 = DBKernel.getResultSet(sqlSb.toString(), false);
+                          ResultSet rs3 = statement.executeQuery(sqlSb.toString());
+                          //ResultSet rs3 = DBKernel.getResultSet(sqlSb.toString(), false);
                           //ResultSet rs3 = DBKernel.getResultSet(sql, false);
-                          if (rs3 != null && rs3.first()) {
-                              do {
+                          if (rs3 != null) {// && rs3.first()) {
+                              while(rs3.next()) {
                                   result += rs3.getInt("ID");
                                   //idList.add(rs3.getInt("ID"));
                                   if (resRowOther[simCheckCount+1] == null || resRowOther[simCheckCount+1].isEmpty()) resRowOther[simCheckCount+1] = rs3.getInt("ID")+"";
@@ -280,7 +319,8 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                                       else resRowOther[simCheckCount+2+i] += "," + rs3.getString(otherTableDesires[i]);
                                       //else resRowOther[fieldnames.length+2+i] += "," + rs3.getString(otherTableDesires[i]);
                                   }
-                              } while(rs3.next());
+                              } //while(rs3.next());
+                              rs3.close();
                           }
                           result += ")";
                       }
@@ -288,18 +328,45 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                       resSetOther.add(resRowOther);
                       
                       result += "\n";
-                  } while(rs2.next());
+                  } //while(rs2.next());
+                  rs2.close();
                   //ldResult.put(resRowFirst, resSetOther);
-                  if(idList.size()<2) throw(new SQLException("Implementation error."));
+                  //if(idList.size()<2) throw(new SQLException("Implementation error."));
                   //if (ldResult.size() == 0) System.err.println(result);
-                  this.newSimilarityMatchFound(simSetType, idList);
+                  if(idList.size()>1) this.newSimilarityMatchFound(simSetType, idList);
               }
           } while(rs.next());
-      }       
+          rs.close();
+      }  
+      statement.close();
       //return ldResult;
     }
       
 
+  private Map<Integer,Set<Integer>> loadIgnoreList(SimSearch.SimSet.Type simSetType) throws Exception {
+	  Connection con = DBKernel.getDBConnection();
+      if(con==null) throw(new Exception("No database connection available."));
+      
+      Map<Integer,Set<Integer>> result = new HashMap<>();
+      Statement statement = con.createStatement();
+      
+      String sql = "SELECT " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_ID1.getName()) + ", " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_ID2.getName()) + " " +
+    		  "FROM " + DBKernel.delimitL(DBInfo.TABLE.IGNORESIM.getName()) + " " +
+    		  "WHERE " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_TYPE.getName()) + "=" + simSetType.getValue();
+      ResultSet resultSet = statement.executeQuery(sql);
+      
+      if(resultSet!=null) {
+    	  while(resultSet.next()) {
+    		  int id1 = resultSet.getInt(1);
+    		  int id2 = resultSet.getInt(2);
+    		  if(!result.containsKey(id1)) result.put(id1, new HashSet<>());
+    		  result.get(id1).add(id2);
+    		  if(!result.containsKey(id2)) result.put(id2, new HashSet<>());
+    		  result.get(id2).add(id1);
+    	  } // while(resultSet.next());
+      }
+      return result;
+  }
   @Override
   public SimSearchDataLoader getDataLoader() {
     // TODO Auto-generated method stub
@@ -308,36 +375,166 @@ public class SimSearchDataSource extends SimSearch.DataSource{
 
   @Override
   public boolean save(SimSearchDataManipulationHandler dataManipulations) throws Exception {
-    Connection con = DBKernel.getDBConnection();
-    if(con!=null) {
-      
-      Map<SimSearch.SimSet.Type, String> simSetTypeToTableNameMap = createSimSetTypeToTableNameMap();
-      Map<SimSearch.SimSet.Type, Map<Integer, Integer>> mergeMap = dataManipulations.getMergeMap();
-      for(SimSearch.SimSet.Type simSetType: mergeMap.keySet()) {
-        String tableName=simSetTypeToTableNameMap.get(simSetType);
-        for(Entry<Integer,Integer> e: mergeMap.get(simSetType).entrySet()) {
-          DBKernel.mergeIDs(con, tableName, e.getKey(), e.getValue());
-        }
-      }
-      for(SimSearch.SimSet.Type simSetType: mergeMap.keySet()) {
-        String tableName=simSetTypeToIgnoreTableNameMap.get(simSetType);
-        PreparedStatement preparedStatement = con.createStatement("INSERT INTO Users (\"n" + 
-            "    st.setString(1, user.getName());\r\n" + 
-            "    st.setString(2, user.getFirstName());\r\n" + 
-            "    st.setString(3, user.getLastName());\r\n" + 
-            "    st.setString(4, user.getCompanyName());\r\n" + 
-            "    st.setString(5, user.getEmail());\r\n" + 
-            "    st.setString(6, user.getPrivacy());\r\n" + 
-            "\r\n" + 
-            "    // execute the preparedstatement insert\r\n" + 
-            "    st.executeUpdate();\r\n" + 
-            "    st.close();
-      this.idSetsToIgnore.remove(new HashSet<>(simSet.getIdList()));
-      return true;
-    }
-    return false;
+	  
+	  Connection con = DBKernel.getDBConnection();
+	  boolean result = false;
+	  
+	  if(con!=null) {
+
+		  Map<SimSearch.SimSet.Type, String> simSetTypeToTableNameMap = createSimSetTypeToTableNameMap();
+//		  Map<SimSearch.SimSet.Type, String> simSetTypeToIgnoreTableNameMap = createSimSetTypeToIgnoreTableNameMap();
+
+		  boolean oldAutoCommit = con.getAutoCommit();
+		  con.setAutoCommit(false);
+		  
+		  
+		  try {
+			  Statement statement = con.createStatement(); //ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+			  for(SimSearch.SimSet.Type simSetType: SimSearch.SimSet.Type.class.getEnumConstants()) {
+				  
+			  
+				  Map<Integer, Integer> mergeMap = dataManipulations.getMergeMap(simSetType);
+
+				  if(!mergeMap.isEmpty()) {
+//					  // remove merge ids from ignore tables
+//					  String ignoreTableName = simSetTypeToTableNameMap.get(simSetType);
+//
+//					  String ids = String.join(", ", mergeMap.entrySet().stream().map(e -> e.getKey().toString()).collect(Collectors.toList()));
+//					  String sql = "DELETE FROM " + ignoreTableName + " " +
+//							  "WHERE " + DBInfo.COLUMN.IGNORESTATIONSIM_ID1 + " IN (" +  ids +  ") OR " + DBInfo.COLUMN.IGNORESTATIONSIM_ID2 + " IN (" +  ids +  ")";
+//
+//					  statement.executeQuery(sql);
+//					  statement.close();
+
+					  //merge Ids
+					  String tableName=simSetTypeToTableNameMap.get(simSetType);
+
+					  for(Entry<Integer,Integer> mergeEntry: mergeMap.entrySet()) DBKernel.mergeIDs(con, tableName, mergeEntry.getKey(), mergeEntry.getValue());
+				  }
+				 
+				  Map<Integer, List<Integer>> ignoreMap = dataManipulations.getIgnoreMap(simSetType);
+				  
+				  if(!ignoreMap.isEmpty()) {
+					  String sqlInsert = "INSERT INTO " + DBKernel.delimitL(DBInfo.TABLE.IGNORESIM.getName()) + " " + //   simSetTypeToIgnoreTableNameMap.get(simSetType) + " " +
+							  "(" + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_TYPE.getName()) + ", " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_ID1.getName()) + ", " + DBKernel.delimitL(DBInfo.COLUMN.IGNORESIM_ID2.getName()) + ") " + 
+							  "VALUES (?, ?, ?)";
+					  
+//					  String sqlQuery = "SELECT COUNT(*) FROM " + DBInfo.TABLE.IGNORESIM.getName() + " " + //   simSetTypeToIgnoreTableNameMap.get(simSetType) + " " +
+//							  "WHERE " + DBInfo.COLUMN.IGNORESIM_TYPE.getName() + "=? AND  ((" + DBInfo.COLUMN.IGNORESIM_ID1 + "=? AND " + DBInfo.COLUMN.IGNORESIM_ID2 + "=?) " +  
+//							  "OR (" + DBInfo.COLUMN.IGNORESIM_ID2 + "=? AND " + DBInfo.COLUMN.IGNORESIM_ID1 + "=?))";
+					  
+//					  PreparedStatement preparedQueryStatement = con.prepareStatement(sqlQuery);
+					  PreparedStatement preparedInsertStatement = con.prepareStatement(sqlInsert);
+					  for(Entry<Integer, List<Integer>> ignoreEntry: ignoreMap.entrySet()) {
+						  for(Integer id: ignoreEntry.getValue()) {
+//							  preparedQueryStatement.setInt(1, simSetType.getValue());
+//							  preparedQueryStatement.setInt(2, ignoreEntry.getKey());
+//							  preparedQueryStatement.setInt(3, id);
+//							  preparedQueryStatement.setInt(4, ignoreEntry.getKey());
+//							  preparedQueryStatement.setInt(5, id);
+//							  ResultSet resultSet = preparedQueryStatement.executeQuery();
+//							  if(resultSet!=null && resultSet.first() && resultSet.getInt(1)==0) {
+								  preparedInsertStatement.setInt(1, simSetType.getValue());
+								  preparedInsertStatement.setInt(2, ignoreEntry.getKey());
+								  preparedInsertStatement.setInt(3, id);
+								  preparedInsertStatement.execute();
+//							  }
+						  }
+					  }
+					  preparedInsertStatement.close();
+//					  preparedQueryStatement.close();
+				  }
+			  }
+
+			  con.commit();
+			  result = true;
+		  } catch(Exception err) {
+			  con.rollback();
+			  throw(err);
+		  } finally {
+			con.setAutoCommit(oldAutoCommit);
+		  }
+		  
+	  }
+	  return result;
   }
     
+//  @Override
+//  public boolean isIgnoreSimFeatureAvailable() {
+//	  if(this.isIgnoreSimFeatureAvailable!=null) return this.isIgnoreSimFeatureAvailable;
+//	  
+//	  Connection con = null;
+//	  this.isIgnoreSimFeatureAvailable = false;
+//	  try {
+//		  con = DBKernel.getDBConnection();
+//		  if(con==null) return false;
+//	      Statement statement = con.createStatement();
+//	      String sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SYSTEM_TABLES " +
+//	    		  "WHERE TABLE_NAME IN ('" + String.join("', '", Arrays.asList(
+//	    				  DBInfo.TABLE.IGNORESTATIONSIM.getName(), 
+//	    				  DBInfo.TABLE.IGNOREPRODUCTSIM.getName(), 
+//	    				  DBInfo.TABLE.IGNORELOTSIM.getName(), 
+//	    				  DBInfo.TABLE.IGNOREDELIVERYSIM.getName())) + "')";
+//	      ResultSet resultSet = statement.executeQuery(sql);
+//	      this.isIgnoreSimFeatureAvailable = resultSet!=null && resultSet.first() && resultSet.getInt(1)==4;
+//	      resultSet.close();
+//	      statement.close();
+//	  } catch(Exception err) {
+//		  err.printStackTrace();
+//	  }
+//	  return this.isIgnoreSimFeatureAvailable;
+////	  MyDBI myDBI = DBKernel.myDBi;
+////	  return myDBI!=null &&
+////			 myDBI.getAllTables().keySet().containsAll(Arrays.asList(DBInfo.TABLE.IGNORESTATIONSIM.getName(), DBInfo.TABLE.IGNOREPRODUCTSIM.getName(), DBInfo.TABLE.IGNORELOTSIM.getName(), DBInfo.TABLE.IGNOREDELIVERYSIM.getName()));
+//  }
+  
+//  @Override
+//  public boolean makeIgnoreSimFeatureAvailable() throws Exception {
+//	  if(this.isIgnoreSimFeatureAvailable()) return true;
+//	  Connection con = DBKernel.getDefaultAdminConn();
+//	  if(con==null) return false;
+//	  
+//	  boolean oldAutoCommit = con.getAutoCommit();
+//	  con.setAutoCommit(false);
+//	 
+//	  try {
+//		  Statement statement = con.createStatement();
+//		  String sql = "CREATE TABLE " + DBInfo.TABLE.IGNORESTATIONSIM.getName() + "(" +
+//				  "FOREIGN KEY (" + DBInfo.COLUMN.IGNORESTATIONSIM_ID1.getName() + ") REFERENCES " + DBInfo.TABLE.STATION.getName() + "(" + DBInfo.COLUMN.STATION_ID.getName() + "), \n" +  //t_id INTEGER GENERATED BY DEFAULT AS IDENTITY(START WITH 1, INCREMENT   BY   1) PRIMARY KEY,
+//				  "FOREIGN KEY (" + DBInfo.COLUMN.IGNORESTATIONSIM_ID2.getName() + ") REFERENCES " + DBInfo.TABLE.STATION.getName() + "(" + DBInfo.COLUMN.STATION_ID.getName() + ")\n);";
+//		  
+//		  if(!statement.execute(sql)) throw(new Exception("Ignore Similarities Feature could not made available."));
+//		  
+//		  sql = "CREATE TABLE " + DBInfo.TABLE.IGNOREPRODUCTSIM.getName() + "(" +
+//				  "FOREIGN KEY (" + DBInfo.COLUMN.IGNOREPRODUCTSIM_ID1.getName() + ") REFERENCES " + DBInfo.TABLE.PRODUCT.getName() + "(" + DBInfo.COLUMN.PRODUCT_ID.getName() + "), \n" +  //t_id INTEGER GENERATED BY DEFAULT AS IDENTITY(START WITH 1, INCREMENT   BY   1) PRIMARY KEY,
+//				  "FOREIGN KEY (" + DBInfo.COLUMN.IGNOREPRODUCTSIM_ID2.getName() + ") REFERENCES " + DBInfo.TABLE.PRODUCT.getName() + "(" + DBInfo.COLUMN.PRODUCT_ID.getName() + ")\n);";
+//		  
+//		  if(!statement.execute(sql)) throw(new Exception("Ignore Similarities Feature could not made available."));   
+//		  
+//		  sql = "CREATE TABLE " + DBInfo.TABLE.IGNORELOTSIM.getName() + "(" +
+//				  "FOREIGN KEY (" + DBInfo.COLUMN.IGNORELOTSIM_ID1.getName() + ") REFERENCES " + DBInfo.TABLE.LOT.getName() + "(" + DBInfo.COLUMN.LOT_ID.getName() + "), \n" +  //t_id INTEGER GENERATED BY DEFAULT AS IDENTITY(START WITH 1, INCREMENT   BY   1) PRIMARY KEY,
+//				  "FOREIGN KEY (" + DBInfo.COLUMN.IGNORELOTSIM_ID2.getName() + ") REFERENCES " + DBInfo.TABLE.LOT.getName() + "(" + DBInfo.COLUMN.LOT_ID.getName() + ")\n);";
+//		  
+//		  if(!statement.execute(sql)) throw(new Exception("Ignore Similarities Feature could not made available."));  
+//		  
+//		  sql = "CREATE TABLE " + DBInfo.TABLE.IGNOREDELIVERYSIM.getName() + "(" +
+//				  "FOREIGN KEY (" + DBInfo.COLUMN.IGNOREDELIVERYSIM_ID1.getName() + ") REFERENCES " + DBInfo.TABLE.DELIVERY.getName() + "(" + DBInfo.COLUMN.DELIVERY_ID.getName() + "), \n" +  //t_id INTEGER GENERATED BY DEFAULT AS IDENTITY(START WITH 1, INCREMENT   BY   1) PRIMARY KEY,
+//				  "FOREIGN KEY (" + DBInfo.COLUMN.IGNOREDELIVERYSIM_ID2.getName() + ") REFERENCES " + DBInfo.TABLE.DELIVERY.getName() + "(" + DBInfo.COLUMN.DELIVERY_ID.getName() + ")\n);";
+//		  
+//		  if(!statement.execute(sql)) throw(new Exception("Ignore Similarities Feature could not made available."));  
+//		  con.commit();
+//		  this.isIgnoreSimFeatureAvailable = true;
+//	  } catch(Exception err) {
+//		  con.rollback();
+//		  throw(err);
+//	  } finally {
+//		  con.setAutoCommit(oldAutoCommit);
+//	  }
+//	  
+//	  return this.isIgnoreSimFeatureAvailable;
+//  }
+  
   private Map<SimSearch.SimSet.Type, String> createSimSetTypeToTableNameMap() {
     Map<SimSearch.SimSet.Type, String> simSetTypeToTableNameMap = new HashMap<>();
     simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.STATION, DBInfo.TABLE.STATION.getName());
@@ -346,4 +543,13 @@ public class SimSearchDataSource extends SimSearch.DataSource{
     simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.DELIVERY, DBInfo.TABLE.DELIVERY.getName());
     return simSetTypeToTableNameMap;
   }
+  
+//  private Map<SimSearch.SimSet.Type, String> createSimSetTypeToIgnoreTableNameMap() {
+//	    Map<SimSearch.SimSet.Type, String> simSetTypeToTableNameMap = new HashMap<>();
+//	    simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.STATION, DBInfo.TABLE.IGNORESTATIONSIM.getName());
+//	    simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.PRODUCT, DBInfo.TABLE.IGNOREPRODUCTSIM.getName());
+//	    simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.LOT, DBInfo.TABLE.IGNORELOTSIM.getName());
+//	    simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.DELIVERY, DBInfo.TABLE.IGNOREDELIVERYSIM.getName());
+//	    return simSetTypeToTableNameMap;
+//	  }
 }
