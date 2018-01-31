@@ -39,7 +39,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   
   private void test() throws Exception {
     
-    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX)) {
+    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX, DBInfo.TABLE.LOTLINK)) {
       MyTable myTable = DBKernel.myDBi.getTable(table.getName());
       System.out.println("\nDBIInfo for table " + table.getName());
       System.out.println("=======================================");
@@ -61,7 +61,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
 
     //ResultSet tmp = dbMetaData.getCrossReference(null, null, DBInfo.TABLE.STATION.getName(),null,null,DBInfo.TABLE.AGENT.getName());
                                 
-    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX)) {
+    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX, DBInfo.TABLE.LOTLINK)) {
       ResultSet resultSet = dbMetaData.getImportedKeys(null, null, table.getName());
       if(resultSet!=null) {
         System.out.println("\nTableInfo for " + table.getName());
@@ -82,7 +82,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
       }
     }
     
-    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX)) {
+    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX, DBInfo.TABLE.LOTLINK)) {
       ResultSet resultSet = dbMetaData.getColumns(null, null, table.getName(), null);
       if(resultSet!=null) {
         System.out.println("\nTablecolumns of " + table.getName());
@@ -97,7 +97,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   
   @Override
   public void findSimilarities(SimSearch.Settings settings) throws Exception {
-    this.test();
+    //this.test();
     if(this.addLDFunctionToDB(settings)) {
       if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.STATION)) findSimilarStations(settings);
       if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.PRODUCT)) findSimilarProducts(settings);
@@ -179,9 +179,9 @@ public class SimSearchDataSource extends SimSearch.DataSource{
     
     
     if(settings.getUseArrivedDate()) simCheckList.addAll(Arrays.asList(
-        new SimCheck(DBInfo.COLUMN.DELIVERY_ARIVEDON_DAY, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
-        new SimCheck(DBInfo.COLUMN.DELIVERY_ARIVEDON_MONTH, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
-        new SimCheck(DBInfo.COLUMN.DELIVERY_ARIVEDON_YEAR, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate))));
+        new SimCheck(DBInfo.COLUMN.DELIVERY_ARRIVEDON_DAY, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
+        new SimCheck(DBInfo.COLUMN.DELIVERY_ARRIVEDON_MONTH, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
+        new SimCheck(DBInfo.COLUMN.DELIVERY_ARRIVEDON_YEAR, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate))));
     else simCheckList.addAll(Arrays.asList(
         new SimCheck(DBInfo.COLUMN.DELIVERY_DELIVEREDON_DAY, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),
         new SimCheck(DBInfo.COLUMN.DELIVERY_DELIVEREDON_MONTH, settings.getTreshold(SimSearch.Settings.Attribute.DeliveryDate)),

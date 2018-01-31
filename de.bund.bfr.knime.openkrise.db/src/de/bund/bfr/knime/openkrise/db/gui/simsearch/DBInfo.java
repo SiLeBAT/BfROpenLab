@@ -14,6 +14,7 @@ public class DBInfo {
 		MATRIX("Matrices", COLUMN.MATRIX_ID),
 		AGENT("Agenzien", COLUMN.AGENT_ID),
 		//STATION_AGENT("Station_Agenzien")
+		LOTLINK("ChargenVerbindungen", COLUMN.LOTLINK_ID),
 		
 		; 
 		
@@ -50,12 +51,14 @@ public class DBInfo {
 	  LOT_ID("ID", TABLE.LOT),
 	  LOT_PRODUCT("Artikel", TABLE.LOT),
 	  LOT_NUMBER("ChargenNr", TABLE.LOT),
+	  LOT_INGREDIENTS("Zutaten", TABLE.LOT),
+	  LOT_DELIVERIES("Lieferungen", TABLE.LOT),
 	  
 	  DELIVERY_ID("ID", TABLE.DELIVERY),
 	  DELIVERY_LOT("Charge", TABLE.DELIVERY),
-	  DELIVERY_ARIVEDON_DAY("ad_day", TABLE.DELIVERY),
-	  DELIVERY_ARIVEDON_MONTH("ad_month", TABLE.DELIVERY),
-	  DELIVERY_ARIVEDON_YEAR("ad_year", TABLE.DELIVERY),
+	  DELIVERY_ARRIVEDON_DAY("ad_day", TABLE.DELIVERY),
+	  DELIVERY_ARRIVEDON_MONTH("ad_month", TABLE.DELIVERY),
+	  DELIVERY_ARRIVEDON_YEAR("ad_year", TABLE.DELIVERY),
 	  DELIVERY_DELIVEREDON_DAY("dd_day", TABLE.DELIVERY),
       DELIVERY_DELIVEREDON_MONTH("ad_month", TABLE.DELIVERY),
       DELIVERY_DELIVEREDON_YEAR("dd_year", TABLE.DELIVERY),
@@ -70,6 +73,11 @@ public class DBInfo {
 	  
 	  AGENT_ID("id", TABLE.AGENT),
 	  AGENT_NAME("Agensname", TABLE.AGENT),
+	  
+	  LOTLINK_ID("id", TABLE.LOTLINK),
+	  LOTLINK_INGREDIENT("Zutat", TABLE.LOTLINK),
+	  LOTLINK_PRODUCT("Product", TABLE.LOTLINK),
+	  
 	  
 	  
 //	  IGNORESTATIONSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNORESTATIONSIM),
@@ -91,7 +99,15 @@ public class DBInfo {
 			this.name= name; 
 			this.table = table;
 		}
+		
 		public String getName() { return this.name; }
+		public String getFullName() {
+		  try {
+		  return this.table.name + "." +  this.name;
+		  } catch (Exception err) {
+		    return ""; 
+		  }
+		}
 	}
 
 }
