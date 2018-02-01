@@ -27,12 +27,22 @@ import java.awt.Point;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerListener;
+import java.awt.event.FocusListener;
+import java.awt.event.HierarchyBoundsListener;
+import java.awt.event.HierarchyListener;
+import java.awt.event.InputMethodListener;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelListener;
+import java.beans.PropertyChangeListener;
+import java.beans.VetoableChangeListener;
 import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +77,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.MenuDragMouseListener;
+import javax.swing.event.MenuKeyListener;
 import javax.swing.event.TableModelEvent;
+import javax.swing.plaf.MenuItemUI;
+import javax.swing.plaf.basic.BasicMenuItemUI;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
@@ -321,7 +335,7 @@ public class SimSearchTable extends JScrollPane{
     
     JMenu showColumnsMenu = new JMenu("Show columns");
     for(int column=1; column<this.getModel().getColumnCount(); ++column) {
-      JCheckBoxMenuItem item = new MyCheckBoxMenuItem(this.getModel().getColumnName(column));
+      JCheckBoxMenuItem item = new CheckBoxMenuItem(this.getModel().getColumnName(column));
       item.setSelected(!this.invisibleColumns.contains(column));
       showColumnsMenu.add(item);
     }
@@ -838,82 +852,120 @@ public class SimSearchTable extends JScrollPane{
     }
   }
   
-  private static class MyCheckBoxMenuItem extends JCheckBoxMenuItem {
+  private static class CheckBoxMenuItem extends JCheckBoxMenuItem {
     
-    private MyCheckBoxMenuItem(String text) {
+    private CheckBoxMenuItem(String text) {
       super(text);
-      this.addAncestorListener(listener);
-      this.addChangeListener(l);
-      this.addComponentListener(l);
-      this.addContainerListener(l);
-      this.addContainerListener(l);
-      this.addFocusListener(l);
-      this.addHierarchyBoundsListener(l);
-      this.addHierarchyListener(l);
-      this.addInputMethodListener(l);
-      this.addItemListener(l);
-      this.addKeyListener(l);
-      this.addMenuDragMouseListener(l);
-      this.addMenuKeyListener(l);
-      this.addMouseListener(l);
-      this.addMouseMotionListener(l);
-      this.addMouseWheelListener(l);
-      this.addPropertyChangeListener(listener);
-      this.addPropertyChangeListener(propertyName, listener);
-      this.addVetoableChangeListener(listener);
+
+      super.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          if(SwingUtilities.isLeftMouseButton(e)) {
+            CheckBoxMenuItem.this.setSelected(!CheckBoxMenuItem.this.isSelected());
+          }
+        }
+      });
     }
     
     public void addActionListener(ActionListener listener) {
       super.addActionListener(listener);
-      System.out.println("addActionListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addActionListener:"+listener.getClass().toString());
     }
     
     public void addAncestorListener(AncestorListener listener) {
       super.addAncestorListener(listener);
-      System.out.println("addAncestorListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addAncestorListener:"+listener.getClass().toString());
     }
     
     public void addChangeListener(ChangeListener listener) {
       super.addChangeListener(listener);
-      System.out.println("addChangeListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addChangeListener:"+listener.getClass().toString());
     }
     
     public void addComponentListener(ComponentListener listener) {
       super.addComponentListener(listener);
-      System.out.println("addComponentListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addComponentListener:"+listener.getClass().toString());
     }
     public void addContainerListener(ContainerListener listener) {
       super.addContainerListener(listener);
-      System.out.println("addContainerListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addContainerListener:"+listener.getClass().toString());
     }
     public void addFocusListener(FocusListener listener) {
       super.addFocusListener(listener);
-      System.out.println("addFocusListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addFocusListener:"+listener.getClass().toString());
     }
-    public void addHierarchyBoundsListener(ChangeListener listener) {
+    public void addHierarchyBoundsListener(HierarchyBoundsListener listener) {
       super.addHierarchyBoundsListener(listener);
-      System.out.println("addHierarchyBoundsListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addHierarchyBoundsListener:"+listener.getClass().toString());
     }
-    public void addHierarchyListener(ChangeListener listener) {
+    public void addHierarchyListener(HierarchyListener listener) {
       super.addHierarchyListener(listener);
-      System.out.println("addHierarchyListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addHierarchyListener:"+listener.getClass().toString());
     }
-    public void addInputMethodListener(ChangeListener listener) {
+    public void addInputMethodListener(InputMethodListener listener) {
       super.addInputMethodListener(listener);
-      System.out.println("addInputMethodListener("+ this.toString()+"):"+listener.getClass().toString());
+      System.out.println("addInputMethodListener:"+listener.getClass().toString());
     }
-    public void addChangeListener(ChangeListener listener) {
-      super.addChangeListener(listener);
-      System.out.println("addChangeListener("+ this.toString()+"):"+listener.getClass().toString());
+    public void addItemListener(ItemListener listener) {
+      super.addItemListener(listener);
+      System.out.println("addItemListener:"+listener.getClass().toString());
     }
-    public void addChangeListener(ChangeListener listener) {
-      super.addChangeListener(listener);
-      System.out.println("addChangeListener("+ this.toString()+"):"+listener.getClass().toString());
+    public void addKeyListener(KeyListener listener) {
+      super.addKeyListener(listener);
+      System.out.println("addKeyListener:"+listener.getClass().toString());
     }
-    public void addChangeListener(ChangeListener listener) {
-      super.addChangeListener(listener);
-      System.out.println("addChangeListener("+ this.toString()+"):"+listener.getClass().toString());
+    public void addMenuDragMouseListener(MenuDragMouseListener listener) {
+      super.addMenuDragMouseListener(listener);
+      System.out.println("addMenuDragMouseListener:"+listener.getClass().toString());
+    }
+    public void addMenuKeyListener(MenuKeyListener listener) {
+      super.addMenuKeyListener(listener);
+      System.out.println("addMenuKeyListener:"+listener.getClass().toString());
     }
     
+    public void addMouseListener(MouseListener listener) {
+      BasicMenuItemUI tmp;
+      Class<?> declaringClass;
+      try {
+        declaringClass = listener.getClass().getDeclaringClass();
+      }
+      if(declaringClass.equals(BasicMenuItemUI.class))
+      Class<?> tmp1 = listener.getClass().getDeclaringClass();
+      Class<?> tmp2 = listener.getClass().getEnclosingClass();
+      //BasicMenuItemUI.Handler a;
+      //super.addMouseListener(listener);
+      //System.out.println("addMouseListener:"+listener.getClass().toString());
+    }
+    
+    public void addMouseMotionListener(MouseMotionListener listener) {
+      super.addMouseMotionListener(listener);
+      System.out.println("addMouseMotionListener:"+listener.getClass().toString());
+    }
+    public void addMouseWheelListener(MouseWheelListener listener) {
+      super.addMouseWheelListener(listener);
+      System.out.println("addMouseWheelListener:"+listener.getClass().toString());
+    }
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+      super.addPropertyChangeListener(listener);
+      System.out.println("addPropertyChangeListener:"+listener.getClass().toString());
+    }
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+      super.addPropertyChangeListener(propertyName, listener);
+      System.out.println("addPropertyChangeListener(" + propertyName + "):"+listener.getClass().toString());
+    }
+//    public void addPropertyChangeListener(ChangeListener listener) {
+//      super.addChangeListener(listener);
+//      System.out.println("addPropertyChangeListener("+ this.toString()+"):"+listener.getClass().toString());
+//    }
+    public void addVetoableChangeListener(VetoableChangeListener listener) {
+      super.addVetoableChangeListener(listener);
+      System.out.println("addVetoableChangeListener:"+listener.getClass().toString());
+    }
+    
+    public void setUI(MenuItemUI ui) {
+      super.setUI(ui);
+      //ui.
+      System.out.println("setUI:"+ui.getClass().toString());
+    }
   }
 }
