@@ -108,6 +108,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   private JLabel simSetCountLabel;
 
   private JCheckBoxMenuItem hideInactiveRowsMenuItem; 
+  private JMenuItem showColumnsMenuItem;
 
   private SimSearch simSearch;
   private SimSearch.Settings simSearchSettings;
@@ -418,8 +419,10 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     JMenu menu = new JMenu("View");
     this.hideInactiveRowsMenuItem =  new JCheckBoxMenuItem("Hide inactive rows");
     this.hideInactiveRowsMenuItem.setSelected(false);
-
-    menu.add(this.hideInactiveRowsMenuItem);
+    this.showColumnsMenuItem = new JMenuItem("Show Columns");
+    this.showColumnsMenuItem.setEnabled(false);
+    //menu.add(this.hideInactiveRowsMenuItem);
+    Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem).forEach(m -> menu.add(m));
     
     JMenuItem menuItem = new JMenuItem("Show search settings ..");
     menuItem.addActionListener(new ActionListener() {

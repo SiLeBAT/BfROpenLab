@@ -2,35 +2,27 @@ package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
 public class DBInfo {
 	public enum TABLE {
-		STATION("Station", COLUMN.STATION_ID),
-		PRODUCT("Produktkatalog", COLUMN.PRODUCT_ID),
-		LOT("Chargen", COLUMN.LOT_ID),
-		DELIVERY("Lieferungen", COLUMN.DELIVERY_ID),
+		STATION("Station"),
+		PRODUCT("Produktkatalog"),
+		LOT("Chargen"),
+		DELIVERY("Lieferungen"),
 //		IGNORESTATIONSIM("IgnorierteStationenAehnlichkeiten"),
 //		IGNOREPRODUCTSIM("IgnorierteProduktkatalogAehnlichkeiten"),
 //		IGNORELOTSIM("IgnorierteChargenAehnlichkeiten"),
 //		IGNOREDELIVERYSIM("IgnorierteLieferungenAehnlichkeiten"),
 		IGNORESIM("IgnorierteAehnlichkeiten"),
-		MATRIX("Matrices", COLUMN.MATRIX_ID),
-		AGENT("Agenzien", COLUMN.AGENT_ID),
+		MATRIX("Matrices"),
+		AGENT("Agenzien"),
 		//STATION_AGENT("Station_Agenzien")
-		LOTLINK("ChargenVerbindungen", COLUMN.LOTLINK_ID),
+		LOTLINK("ChargenVerbindungen"),
 		
 		; 
 		
 		private final String name;
-		private final COLUMN primaryKey;
 	
-		TABLE(String name, COLUMN primaryKey) { 
-			this.name = name; 
-			this.primaryKey = primaryKey;
-		}
-		TABLE(String name) { 
-          this.name = name; 
-          this.primaryKey = null;
-       }
+		TABLE(String name) { this.name = name; 	}
+		
 	    public String getName() { return this.name; }
-	    public COLUMN getPrimaryKey() { return this.primaryKey; }
 	}
 	
 
@@ -76,7 +68,7 @@ public class DBInfo {
 	  
 	  LOTLINK_ID("id", TABLE.LOTLINK),
 	  LOTLINK_INGREDIENT("Zutat", TABLE.LOTLINK),
-	  LOTLINK_PRODUCT("Product", TABLE.LOTLINK),
+	  LOTLINK_PRODUCT("Produkt", TABLE.LOTLINK),
 	  
 	  
 	  
@@ -101,13 +93,7 @@ public class DBInfo {
 		}
 		
 		public String getName() { return this.name; }
-		public String getFullName() {
-		  try {
-		  return this.table.name + "." +  this.name;
-		  } catch (Exception err) {
-		    return ""; 
-		  }
-		}
+		public String getFullName() { return this.table.name + "." +  this.name; } 
 	}
 
 }

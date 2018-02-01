@@ -80,7 +80,8 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
     String getFormatedText(ResultSet resultSet) throws Exception {
       return this.formatFunction.apply(this.labelColumns.stream().map(columnName -> {
         try {
-          return (String) resultSet.getObject(columnName);
+          
+          return resultSet.getString(columnName);
         } catch (SQLException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
@@ -129,11 +130,12 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
         if(!result.containsKey(resultSet.getInt(1))) result.put(resultSet.getInt(1), new ArrayList<>());
         result.get(resultSet.getInt(1)).add(this.getFormatedText(resultSet));
       }
-      return result.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> (Object) entry.getValue()));
+      //return result.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> (Object) entry.getValue()));
+      return result.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> String.join("; ", entry.getValue())));
     }
 
     @Override
-    Class<?> getResultType() { return List.class; }
+    Class<?> getResultType() { return String.class; }
   }
     
   private static class ForeignItem extends ForeignField {
@@ -160,9 +162,9 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
     @Override
     Map<Integer, Object> getResult(Collection<Integer> ids,
         SimSearchDataManipulationHandler dataManipulations, Statement statement) throws Exception {
-      String sql = "Select " + DBKernel.delimitL(this.tableName+".ID") + ", " + String.join(", ", this.labelColumns.stream().map(label -> DBKernel.delimitL(label)).collect(Collectors.toList())) + 
-          " FROM " + DBKernel.delimitL(tableName) + " INNER JOIN " + parentTable.createSql(dataManipulations, "ON " +  DBKernel.delimitL(tableName + "." + columnName) + "=" + DBKernel.delimitL(parentTable.getName() + ".ID")) + "\n" +
-          " WHERE " + DBKernel.delimitL(this.tableName+".ID") + " IN (" + SimSearchDataLoader.idsToString(ids) + ")";
+      String sql = "Select " + DBKernel.delimitL(this.tableName)+"."+ DBKernel.delimitL("ID") + ", " + String.join(", ", this.labelColumns.stream().map(label -> DBKernel.delimitL(label)).collect(Collectors.toList())) + 
+          " FROM " + DBKernel.delimitL(tableName) + " INNER JOIN " + parentTable.createSql(dataManipulations, "ON " +  DBKernel.delimitL(tableName) + "." +  DBKernel.delimitL(columnName) + "=" + DBKernel.delimitL(parentTable.getName()) + "." +  DBKernel.delimitL("ID")) + "\n" +
+          " WHERE " + DBKernel.delimitL(this.tableName)+"."+ DBKernel.delimitL("ID") + " IN (" + SimSearchDataLoader.idsToString(ids) + ")";
       
       ResultSet resultSet = statement.executeQuery(sql);
       if(resultSet==null) throw(new ResultSetIsNullException());
@@ -206,7 +208,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       if(parent==null) {
         return DBKernel.delimitL(this.getName()) + " " + joinPredicate;
       } else {
-        return DBKernel.delimitL(this.getName()) + " " + joinPredicate + "\nLEFT JOIN " + parent.createSql(dataManipulations, "ON" + DBKernel.delimitL(this.getName()) + "." + DBKernel.delimitL(tableColumn) + "=" + DBKernel.delimitL(parent.getName()) +"."+DBKernel.delimitL("ID"));
+        return DBKernel.delimitL(this.getName()) + " " + joinPredicate + "\nLEFT JOIN " + parent.createSql(dataManipulations, "ON " + DBKernel.delimitL(this.getName()) + "." + DBKernel.delimitL(tableColumn) + "=" + DBKernel.delimitL(parent.getName()) +"."+DBKernel.delimitL("ID"));
       }
     }
   }
@@ -247,6 +249,12 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       }
     }
     
+  }
+  
+  
+  private static String convertToDate(String day, String month, String year) {
+    if((day==null || day.isEmpty()) && (month==null || month.isEmpty()) && (year==null || year.isEmpty())) return "?";
+    else return (day==null || day.isEmpty()?"?":day)+"."+(month==null || month.isEmpty()?"?":month)+"."+(year==null || year.isEmpty()?"?":year);
   }
   
   static {
@@ -294,14 +302,9 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
             DBInfo.COLUMN.DELIVERY_RECIPIENT.getName(), new ParentTable(DBInfo.TABLE.STATION.getName())),
         new Function<List<String>, String>() {
           public String apply(List<String> arg) {
-            boolean deliveredDateIsMissing = (arg.get(0)==null || arg.get(0).isEmpty()) &&  (arg.get(1)==null || arg.get(1).isEmpty()) && (arg.get(2)==null || arg.get(2).isEmpty());
-            boolean arrivedDateIsMissing = (arg.get(3)==null || arg.get(3).isEmpty()) &&  (arg.get(4)==null || arg.get(4).isEmpty()) && (arg.get(5)==null || arg.get(5).isEmpty());
-            String result = (deliveredDateIsMissing?"?":
-              (arg.get(0)==null || arg.get(0).isEmpty()?"?":arg.get(0))+"."+(arg.get(1)==null || arg.get(1).isEmpty()?"?":arg.get(1))+"."+(arg.get(2)==null || arg.get(2).isEmpty()?"?":arg.get(2)));
-            result = result + " -> " + (arrivedDateIsMissing?"?":
-              (arg.get(3)==null || arg.get(3).isEmpty()?"?":arg.get(3))+"."+(arg.get(4)==null || arg.get(4).isEmpty()?"?":arg.get(4))+"."+(arg.get(5)==null || arg.get(5).isEmpty()?"?":arg.get(5)));
-            result = result + (arg.get(6)==null || arg.get(6).isEmpty()?"?":arg.get(6));    
-            return result;
+            return SimSearchDataLoader.convertToDate(arg.get(0), arg.get(1), arg.get(2)) + " -> "+ 
+                SimSearchDataLoader.convertToDate(arg.get(3), arg.get(4), arg.get(5)) + " " +
+                (arg.get(6)==null || arg.get(6).isEmpty()?"?":arg.get(6));
           }
         },
         new String[] {
