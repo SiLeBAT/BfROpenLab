@@ -22,6 +22,7 @@ package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.ItemSelectable;
 import java.awt.Point;
 import java.awt.ScrollPane;
@@ -50,6 +51,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -59,15 +61,20 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.DropMode;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.MenuSelectionManager;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.AncestorListener;
@@ -80,7 +87,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MenuDragMouseListener;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.TableModelEvent;
+import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.MenuItemUI;
+import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.plaf.basic.BasicMenuItemUI;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
@@ -106,11 +115,29 @@ public class SimSearchTable extends JScrollPane{
   //    }
   
   public static class ViewSettings {
-    private List<Integer> frozenColumns;
-    private List<Integer> columnOrdering;
-    private List<Integer> rowSorting;
-    // add sortkey
+    
+    public static final int DEFAULT_ROW_HEIGHT = 20;
+    
+    private boolean showRemovedObjects;
+    private Map<SimSearch.SimSet.Type, List<String>> columnOrdering;
+    private Map<SimSearch.SimSet.Type, List<String>> frozenColumns;
+    private Map<SimSearch.SimSet.Type, Set<String>> invisibleColumns;
+    private Map<SimSearch.SimSet, Map<String, Integer>> columnWidths;
+    private Map<SimSearch.SimSet.Type, Map<Integer, Integer>> rowHeights;
+    private Map<SimSearch.SimSet, List<Integer>> sorting;
+    private Map<SimSearch.SimSet, List<Entry<String, SortOrder>>> sortingKeys;
+    
+    public ViewSettings() {
+      this.columnOrdering = new HashMap<>();
+      this.frozenColumns = new HashMap<>();
+      this.invisibleColumns = new HashMap<>();
+      this.columnWidths = new HashMap<>();
+      this.rowHeights = new HashMap<>();
+      this.sorting = new HashMap<>();
+      this.sortingKeys = new HashMap<>();
+    }
   }
+  
   private TableColumnModel tableColumnModel;
   private TableColumnModel rowHeaderColumnModel;
   private List<Integer> frozenColumns = new ArrayList<>(Arrays.asList(2));
@@ -125,12 +152,16 @@ public class SimSearchTable extends JScrollPane{
   private AbstractButton inactiveRowFilterSwitch;
   private AbstractButton simSetIgnoreSwitch;
   private ActionListener simSetIgnoreSwitchActionListener;
+  //private ViewSettings viewSettings;
+  
+  
   
   private JPopupMenu popupMenu;
 
 
-  public SimSearchTable() {
+  public SimSearchTable(ViewSettings viewSettings) {
     super(); //new SimSearchJTable());
+    this.viewSettings = viewSettings;
     this.init();
   }
 
@@ -164,6 +195,7 @@ public class SimSearchTable extends JScrollPane{
       
       @Override 
       public void addColumn(TableColumn tc) {
+        //StackTraceElement[] cause = Thread.currentThread().getStackTrace();
         // Ignore row header column, frozen columns and invisible columns
         if(tc.getModelIndex()==0 || frozenColumns.contains(tc.getModelIndex()) || invisibleColumns.contains(tc.getModelIndex())) {  
           return;
@@ -334,27 +366,69 @@ public class SimSearchTable extends JScrollPane{
     }
     
     JMenu showColumnsMenu = new JMenu("Show columns");
-    for(int column=1; column<this.getModel().getColumnCount(); ++column) {
-      JCheckBoxMenuItem item = new CheckBoxMenuItem(this.getModel().getColumnName(column));
-      item.setSelected(!this.invisibleColumns.contains(column));
-      showColumnsMenu.add(item);
-    }
+    this.addShowColumnsSubMenuItems(showColumnsMenu);
     this.popupMenu.add(showColumnsMenu);
     this.popupMenu.show(comp, x, y);
+  }
+  
+  public void addShowColumnsSubMenuItems(JMenu menu) {
+    //JPanel panel = new JPanel(); 
+    for(int column=1; column<this.getModel().getColumnCount(); ++column) {
+      
+      JCheckBoxMenuItem item = new ColumnVisibilityCheckBoxMenuItem(this.getModel().getColumnName(column),column);
+      item.setSelected(!this.invisibleColumns.contains(column));
+      //item.addActionListener(new SwitchColumnVisibilityActionListener(column));
+      //panel.add(item);
+      menu.add(item);
+    }
+    //menu.add(panel);
+  }
+  
+  private void setColumnVisible(int modelColumnIndex, boolean visible) {
+    if(visible) {
+      if(!this.invisibleColumns.contains(modelColumnIndex)) return;
+      this.invisibleColumns.remove((Integer) modelColumnIndex);
+      TableColumn tableColumn = new TableColumn(modelColumnIndex);
+      this.table.addColumn(tableColumn);
+    } else {
+      if(this.invisibleColumns.contains(modelColumnIndex)) return;
+      this.invisibleColumns.add(modelColumnIndex);
+      if(this.frozenColumns.contains((Integer) modelColumnIndex)) {
+        // this is a frozen column
+        this.frozenColumns.remove((Integer) modelColumnIndex);
+        int viewColumnIndex = this.rowHeaderColumnTable.convertColumnIndexToView(modelColumnIndex);
+        if(viewColumnIndex>=0) {
+          TableColumn tableColumn = this.rowHeaderColumnTable.getColumnModel().getColumn(viewColumnIndex); 
+          this.rowHeaderColumnTable.getColumnModel().removeColumn(tableColumn);
+          this.updateTablePosition();
+        }
+      } else {
+        // not a frozen column
+        int viewColumnIndex = this.table.convertColumnIndexToView(modelColumnIndex);
+        if(viewColumnIndex>=0) {
+          TableColumn tableColumn = this.table.getColumnModel().getColumn(viewColumnIndex); 
+          this.table.getColumnModel().removeColumn(tableColumn);
+        }
+      }
+    }
   }
   
   private void initTables() {
     this.initColumnModels();
 
-    this.table = new SimSearchJTable();
+    this.table = new SimSearchJTable(false);
+    //this.table.setAutoCreateColumnsFromModel(false);
     
     this.getViewport().setView(this.table);
-    this.rowHeaderColumnTable = new SimSearchJTable();
+    this.rowHeaderColumnTable = new SimSearchJTable(true);
+    //this.rowHeaderColumnTable.setAutoCreateColumnsFromModel(false);
 
     this.table.setColumnModel(this.tableColumnModel);
     this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
     this.rowHeaderColumnTable.getTableHeader().setReorderingAllowed(false);
     
+    //this.table.setRowHeight(DEFAULT_ROW_HEIGHT);
+    //this.rowHeaderColumnTable.setRowHeight(DEFAULT_ROW_HEIGHT);
     
  // Make sure that selections between the main table and the header stay
     // in sync (by sharing the same model)
@@ -798,40 +872,145 @@ public class SimSearchTable extends JScrollPane{
   public void loadData(SimSearchTableModel tableModel) {
     this.loadData(tableModel, this.viewSettings);
   }
+  
+  private List<Integer> loadColumnSettingsTemp(SimSearchTableModel tableModel) {
+    
+    //SimSearchTableModel tableModel = this.getModel();
+    SimSearch.SimSet simSet = tableModel.getSimSet();
+    
+    List<Integer> columnSorting = new ArrayList<>();
+    
+    this.frozenColumns = new ArrayList<>();
+    this.invisibleColumns = new HashSet<>();
+
+    List<String> availableColumns = tableModel.getColumnNames().stream().collect(Collectors.toList());
+    availableColumns.remove(0); // Status
+    List<String> frozenColumns = availableColumns.stream().collect(Collectors.toList());
+    if(this.viewSettings.frozenColumns.containsKey(simSet.getType())) frozenColumns.retainAll(this.viewSettings.frozenColumns.get(simSet.getType()));   
+    
+    Set<String> invisibleColumns = (this.viewSettings.invisibleColumns.containsKey(simSet.getType())?this.viewSettings.invisibleColumns.get(simSet.getType()):new HashSet<>());
+    invisibleColumns.retainAll(availableColumns);
+    
+    Set<String> visibleNotFrozenColumns = availableColumns.stream().collect(Collectors.toSet());
+    visibleNotFrozenColumns.removeAll(invisibleColumns);
+    visibleNotFrozenColumns.removeAll(frozenColumns);
+    
+    
+    for(String columnName: frozenColumns) this.frozenColumns.add(availableColumns.indexOf(columnName)+1);
+    for(String columnName: invisibleColumns) this.invisibleColumns.add(availableColumns.indexOf(columnName)+1);
+    for(String columnName: visibleNotFrozenColumns) columnSorting.add(availableColumns.indexOf(columnName)+1);
+    
+    for(int column=1; column<tableModel.getColumnCount(); ++column) 
+      if(!this.invisibleColumns.contains(column) && !this.frozenColumns.contains(column)) columnSorting.add(column); 
+    
+    return columnSorting;
+  }
+  
+  private void applyColumnAnRowSettingsToView() {
+    // applyColumnWidth
+    
+    SimSearchTableModel tableModel = this.getModel();
+    SimSearch.SimSet simSet = tableModel.getSimSet();
+    
+    Map<String, Integer> columnWidths = this.viewSettings.columnWidths.get(simSet);
+    Arrays.asList(this.rowHeaderColumnTable, this.table).forEach(table -> {
+      for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
+        if(columnWidths!=null && columnWidths.containsKey(table.getColumnName(column)))
+          table.getColumnModel().getColumn(column).setWidth(columnWidths.get(table.getColumnName(column)));
+        else
+          table.getColumnModel().getColumn(column).sizeWidthToFit();
+      }
+    });
+    
+    // applyRowHeight (on unfiltered rows)
+    Map<Integer, Integer> rowHeights = this.viewSettings.rowHeights.get(simSet.getType());
+    if(rowHeights!=null) {
+      for(int row=0; row<this.table.getRowCount(); ++row) {
+        int id = tableModel.getID(this.table.convertRowIndexToModel(row));
+        if(rowHeights.containsKey(id))
+          this.table.setRowHeight(row, rowHeights.get(id));
+        else
+          this.table.setRowHeight(row, ViewSettings.DEFAULT_ROW_HEIGHT);
+      }
+    }
+  }
+  
+  private void applyRowSortingToView() {
+    SimSearchTableModel tableModel = this.getModel();
+    SimSearch.SimSet simSet = tableModel.getSimSet();
+    
+    // applyRowSorting
+    if(this.viewSettings.sorting.containsKey(simSet)) {
+      Map<String, Integer> visibleColumns = new HashMap<>(); 
+      Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> {
+        for(int column=0; column<table.getColumnCount(); ++column) { visibleColumns.put(table.getColumnName(column), table.convertColumnIndexToModel(column)); }
+      });
+      List<SortKey> sortKeys = new ArrayList<>();
+      for(Entry<String, SortOrder> entry: this.viewSettings.sortingKeys.get(simSet)) {
+        if(visibleColumns.containsKey(entry.getKey())) sortKeys.add(new SortKey(visibleColumns.get(entry.getKey()), entry.getValue()));
+      }
+      this.getRowSorter().applySorting(this.viewSettings.sorting.get(simSet), sortKeys);
+    }
+  }
+  
+  public void applySettingsFromView() {
+    
+  }
+  
+//  private void addColumns() {
+//    List<Integer> columnSorting = this.loadColumnSettings();
+//    
+//    this.table.removeColumns();
+//    for(Integer column: columnSorting) this.table.getColumnModel().addColumn(new TableColumn(column));
+//    this.rowHeaderColumnTable.removeColumns();
+//    this.rowHeaderColumnTable.addColumn(new TableColumn(0));
+//    for(Integer column: frozenColumns) this.rowHeaderColumnTable.getColumnModel().addColumn(new TableColumn(column));
+//  }
+  
   public void loadData(SimSearchTableModel tableModel, ViewSettings viewSettings) {
+    List<Integer> columnSorting = this.loadColumnSettingsTemp(tableModel);
+    
     this.table.setModel(tableModel);
     this.rowHeaderColumnTable.setModel(tableModel);
-    //this.table.createDefaultColumnsFromModel();
-    //this.rowHeaderColumnTable.createDefaultColumnsFromModel();
-
-    //this.table.getColumn(table.getColumnName(0)).sizeWidthToFit();
-    //this.table.getTableHeader().addMouseListener(new );
+    
+//    //this.addColumns();
+//    //Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> table.initCellRenderers(tableModel));
+//    
+//    //this.applyColumnAnRowSettingsToView();
+//    //this.table.createDefaultColumnsFromModel();
+//    //this.rowHeaderColumnTable.createDefaultColumnsFromModel();
+//
+//    //this.table.getColumn(table.getColumnName(0)).sizeWidthToFit();
+//    //this.table.getTableHeader().addMouseListener(new );
     SimSearchRowSorter rowSorter = new SimSearchRowSorter(tableModel);
     rowSorter.setInactiveRowFilterEnabled(this.isInactiveRowFilterEnabled());
     table.setRowSorter(rowSorter);
     this.rowHeaderColumnTable.setRowSorter(rowSorter);
-    if(this.filterTextBox.getText()!=null && this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
-
+//    
+//    if(this.filterTextBox.getText()!=null && this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
+//    
+//    //this.applyRowSortingToView();
+//
     // Put it in a viewport that we can control a bit
     JViewport jv = new JViewport();
     jv.setView(this.rowHeaderColumnTable);
     jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
     this.setRowHeader(jv);
-
+//
     this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
         .getTableHeader());
-    this.simSetIgnoreSwitch.removeActionListener(this.simSetIgnoreSwitchActionListener);
-    this.simSetIgnoreSwitch.setSelected(tableModel.isSimSetIgnored());
-    this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
-    
-    
-//    this.rowHeaderColumnModel.getColumn(1).setResizable(true);
-//    int tmp_min = this.rowHeaderColumnModel.getColumn(1).getMinWidth();
-//    int tmp_max = this.rowHeaderColumnModel.getColumn(1).getMaxWidth();
-//    Dimension dim_max = this.rowHeaderColumnTable.getMaximumSize();
-//    Dimension dim_min = this.rowHeaderColumnTable.getMinimumSize();
-//    this.rowHeaderColumnTable.getTableHeader().setResizingAllowed(true);
-    //this.selectedModelIndices.clear();
+//    this.simSetIgnoreSwitch.removeActionListener(this.simSetIgnoreSwitchActionListener);
+//    this.simSetIgnoreSwitch.setSelected(tableModel.isSimSetIgnored());
+//    this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
+//    
+//    
+////    this.rowHeaderColumnModel.getColumn(1).setResizable(true);
+////    int tmp_min = this.rowHeaderColumnModel.getColumn(1).getMinWidth();
+////    int tmp_max = this.rowHeaderColumnModel.getColumn(1).getMaxWidth();
+////    Dimension dim_max = this.rowHeaderColumnTable.getMaximumSize();
+////    Dimension dim_min = this.rowHeaderColumnTable.getMinimumSize();
+////    this.rowHeaderColumnTable.getTableHeader().setResizingAllowed(true);
+//    //this.selectedModelIndices.clear();
   }
   
   public void clear() {
@@ -852,120 +1031,86 @@ public class SimSearchTable extends JScrollPane{
     }
   }
   
-  private static class CheckBoxMenuItem extends JCheckBoxMenuItem {
+  private class ColumnVisibilityCheckBoxMenuItem extends JCheckBoxMenuItem {
+//    private StayOpenCheckBoxMenuItemUI stayOpenMenuItemUI;
+//    private MenuItemUI wrappedMenuItemUI;
     
-    private CheckBoxMenuItem(String text) {
+//    private static class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
+//      private MenuItemUI wrappedMenuItemUI;
+//
+//      @Override
+//      protected void doClick(MenuSelectionManager msm) {
+//         menuItem.doClick(0);
+////         this.paint(g, c);
+////         this.paintBackground(g, menuItem, bgColor);
+//      }
+//      
+//      @Override
+//      public void update(Graphics g, JComponent c) {
+//        if(wrappedMenuItemUI!=null) wrappedMenuItemUI.update(g, c);
+//      }
+//      
+//      @Override
+//      public void paint(Graphics g, JComponent c) {
+//        if(wrappedMenuItemUI!=null) wrappedMenuItemUI.paint(g, c);
+//      }
+//      
+////      @Override
+////      public void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor) {
+////        if(menuItemUI!=null) menuItemUI.p
+////      }
+//
+//      public static ComponentUI createUI(JComponent c) {
+//         return null; //new StayOpenCheckBoxMenuItemUI();
+//      } 
+//   }
+    
+    private ColumnVisibilityCheckBoxMenuItem(String text, int column) {
       super(text);
 
       super.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
           if(SwingUtilities.isLeftMouseButton(e)) {
-            CheckBoxMenuItem.this.setSelected(!CheckBoxMenuItem.this.isSelected());
+            ColumnVisibilityCheckBoxMenuItem.this.setSelected(!ColumnVisibilityCheckBoxMenuItem.this.isSelected());
+            SimSearchTable.this.setColumnVisible(column, ColumnVisibilityCheckBoxMenuItem.this.isSelected());
           }
         }
       });
+//      this.stayOpenMenuItemUI = new StayOpenCheckBoxMenuItemUI();
+//      this.stayOpenMenuItemUI.wrappedMenuItemUI = wrappedMenuItemUI;
+//      super.setUI(this.stayOpenMenuItemUI);
     }
     
-    public void addActionListener(ActionListener listener) {
-      super.addActionListener(listener);
-      System.out.println("addActionListener:"+listener.getClass().toString());
-    }
-    
-    public void addAncestorListener(AncestorListener listener) {
-      super.addAncestorListener(listener);
-      System.out.println("addAncestorListener:"+listener.getClass().toString());
-    }
-    
-    public void addChangeListener(ChangeListener listener) {
-      super.addChangeListener(listener);
-      System.out.println("addChangeListener:"+listener.getClass().toString());
-    }
-    
-    public void addComponentListener(ComponentListener listener) {
-      super.addComponentListener(listener);
-      System.out.println("addComponentListener:"+listener.getClass().toString());
-    }
-    public void addContainerListener(ContainerListener listener) {
-      super.addContainerListener(listener);
-      System.out.println("addContainerListener:"+listener.getClass().toString());
-    }
-    public void addFocusListener(FocusListener listener) {
-      super.addFocusListener(listener);
-      System.out.println("addFocusListener:"+listener.getClass().toString());
-    }
-    public void addHierarchyBoundsListener(HierarchyBoundsListener listener) {
-      super.addHierarchyBoundsListener(listener);
-      System.out.println("addHierarchyBoundsListener:"+listener.getClass().toString());
-    }
-    public void addHierarchyListener(HierarchyListener listener) {
-      super.addHierarchyListener(listener);
-      System.out.println("addHierarchyListener:"+listener.getClass().toString());
-    }
-    public void addInputMethodListener(InputMethodListener listener) {
-      super.addInputMethodListener(listener);
-      System.out.println("addInputMethodListener:"+listener.getClass().toString());
-    }
-    public void addItemListener(ItemListener listener) {
-      super.addItemListener(listener);
-      System.out.println("addItemListener:"+listener.getClass().toString());
-    }
-    public void addKeyListener(KeyListener listener) {
-      super.addKeyListener(listener);
-      System.out.println("addKeyListener:"+listener.getClass().toString());
-    }
-    public void addMenuDragMouseListener(MenuDragMouseListener listener) {
-      super.addMenuDragMouseListener(listener);
-      System.out.println("addMenuDragMouseListener:"+listener.getClass().toString());
-    }
-    public void addMenuKeyListener(MenuKeyListener listener) {
-      super.addMenuKeyListener(listener);
-      System.out.println("addMenuKeyListener:"+listener.getClass().toString());
-    }
+
     
     public void addMouseListener(MouseListener listener) {
-      BasicMenuItemUI tmp;
-      Class<?> declaringClass;
+      Class<?> declaringClass = null;
       try {
         declaringClass = listener.getClass().getDeclaringClass();
+      } catch(Exception err) {}
+      
+      if(declaringClass==null || !MenuItemUI.class.isAssignableFrom(declaringClass)) {
+      //if(declaringClass==null && !declaringClass.equals(BasicMenuItemUI.class)) {
+        super.addMouseListener(listener);
       }
-      if(declaringClass.equals(BasicMenuItemUI.class))
-      Class<?> tmp1 = listener.getClass().getDeclaringClass();
-      Class<?> tmp2 = listener.getClass().getEnclosingClass();
-      //BasicMenuItemUI.Handler a;
-      //super.addMouseListener(listener);
-      //System.out.println("addMouseListener:"+listener.getClass().toString());
     }
     
-    public void addMouseMotionListener(MouseMotionListener listener) {
-      super.addMouseMotionListener(listener);
-      System.out.println("addMouseMotionListener:"+listener.getClass().toString());
-    }
-    public void addMouseWheelListener(MouseWheelListener listener) {
-      super.addMouseWheelListener(listener);
-      System.out.println("addMouseWheelListener:"+listener.getClass().toString());
-    }
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-      super.addPropertyChangeListener(listener);
-      System.out.println("addPropertyChangeListener:"+listener.getClass().toString());
-    }
-    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-      super.addPropertyChangeListener(propertyName, listener);
-      System.out.println("addPropertyChangeListener(" + propertyName + "):"+listener.getClass().toString());
-    }
-//    public void addPropertyChangeListener(ChangeListener listener) {
-//      super.addChangeListener(listener);
-//      System.out.println("addPropertyChangeListener("+ this.toString()+"):"+listener.getClass().toString());
+//    public void setUI(MenuItemUI ui) {
+//      this.wrappedMenuItemUI = ui;
+//      if(this.stayOpenMenuItemUI!=null) this.stayOpenMenuItemUI.wrappedMenuItemUI = ui;
+//      //this.stayOpenMenuItemUI.menuItemUI = ui;
 //    }
-    public void addVetoableChangeListener(VetoableChangeListener listener) {
-      super.addVetoableChangeListener(listener);
-      System.out.println("addVetoableChangeListener:"+listener.getClass().toString());
-    }
+  }
+  
+  private class SwitchColumnVisibilityActionListener implements ActionListener{
+    private final int column;
+    SwitchColumnVisibilityActionListener(int column) { this.column = column; }
     
-    public void setUI(MenuItemUI ui) {
-      super.setUI(ui);
-      //ui.
-      System.out.println("setUI:"+ui.getClass().toString());
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      SimSearchTable.this.setColumnVisible(column, ((JCheckBoxMenuItem) e.getSource()).isSelected());
     }
   }
+  
 }

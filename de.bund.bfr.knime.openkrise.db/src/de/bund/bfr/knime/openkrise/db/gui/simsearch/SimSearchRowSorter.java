@@ -542,4 +542,8 @@ public List<? extends SortKey> getSortKeys() {
     return this.sortKeys;
 }
 
+public void applySorting(List<Integer> ids, List<SortKey> sortKeys) {
+  
+}
+
 }

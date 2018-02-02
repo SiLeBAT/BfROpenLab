@@ -39,6 +39,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -310,55 +311,43 @@ public class SimSearchJTable extends JTable {
 	//private SimSearchTableModel table;
     //private Set<Integer> selectedIds;
     
-	public SimSearchJTable() {
-		//this.setAutoCreateRowSorter(false);
-		//final JTableHeader header = this.getTableHeader();
-        //header.setDefaultRenderer(new HeaderRenderer(table));
-		//gradesTable.getColumn("Passed").setCellRenderer(createPassedColumnRenderer());
-		super();
-		
-//		this.addKeyListener(new KeyListener() {
-//
-//      @Override
-//      public void keyPressed(KeyEvent arg0) {
-//        // TODO Auto-generated method stub
-//        
-//      }
-//
-//      @Override
-//      public void keyReleased(KeyEvent arg0) {
-//        // TODO Auto-generated method stub
-//        
-//      }
-//
-//      @Override
-//      public void keyTyped(KeyEvent arg0) {
-//        // TODO Auto-generated method stub
-//        if(arg0.getKeyCode() == KeyEvent.VK_DELETE) {
-//          SimSearchJTable table = (SimSearchJTable) arg0.getSource();
-//          if(table.getSelectedRowCount()>0) {
-//            
-//            try {
-//              if(((SimSearch.SimSearchTableModel) table.getModel()).remove(convertViewRowsToModelRows(table.getSelectedRows()))) {
-//                ((SimSearchTable) table.getParent()).updateRowHeader();
-//              }
-//            } catch (IllegalOperationException e) {
-//              // TODO Auto-generated catch block
-//              JOptionPane.showMessageDialog(SimSearchJTable.this.getTopLevelAncestor(), e.getMessage());
-//              //e.printStackTrace();
-//            }
-//          }
-//        }
-//      }
-//		  
-//		});
-		
+    //private final boolean isRowHeaderTable;
+	
+	public SimSearchJTable(boolean isRowHeaderTable) {
+	  super();
+	  //this.isRowHeaderTable = isRowHeaderTable;
 	}
 	
+//	@Override
+//    public Component prepareRenderer(
+//        TableCellRenderer renderer, int row, int col) {
+//        if (col == 0 && this.isRowHeaderTable) {
+//            return this.getTableHeader().getDefaultRenderer()
+//                .getTableCellRendererComponent(this, this.getValueAt(
+//                    row, col), false, false, row, col);
+//        } else {
+//            return super.prepareRenderer(renderer, row, col);
+//        }
+//    }
 //	private int[] convertViewRowsToModelRows(int[] rows) {
 //	  for(int i=0; i<rows.length; ++i) rows[i] = this.getRowSorter().convertRowIndexToModel(rows[i]);
 //	  return rows;
 //	}
+	
+	public void initCellRenderers(SimSearchTableModel tableModel) {
+	  for(int column=0; column < this.getColumnCount(); ++column) {
+        int modelColumnIndex = this.convertColumnIndexToModel(column); //    getColumnModel().getColumn(column).getModelIndex(); //    this.getColumn(column).getModelIndex();
+        if(modelColumnIndex==0) {
+          this.getColumnModel().getColumn(column).setCellRenderer(new RowHeaderColumnRenderer(tableModel.getRowCount()));
+        } else if(tableModel.getColumnClass(modelColumnIndex)==Alignment.AlignedSequence.class) {
+          this.getColumnModel().getColumn(column).setCellRenderer(new AlignmentColumnRenderer(tableModel.getRowCount()));
+        } else if(tableModel.getColumnClass(modelColumnIndex).equals(List.class)) {
+          this.getColumnModel().getColumn(column).setCellRenderer(new ListColumnRenderer(tableModel.getRowCount(),"; "));
+        } else {
+          this.getColumnModel().getColumn(column).setCellRenderer(new DefaultColumnRenderer());
+        }
+      }
+	}
 	
 	@Override
 	public void setModel(TableModel model) {
@@ -429,4 +418,11 @@ public class SimSearchJTable extends JTable {
 //            return super.prepareRenderer(renderer, row, col);
 //        }
 //    }
+	
+	public void removeColumns() {
+	  TableColumnModel columnModel = this.getColumnModel();
+	  while (columnModel.getColumnCount() > 0) { columnModel.removeColumn(columnModel.getColumn(0)); }
+	}
+	
+	//public boolean isRowHeaderTable() { return this.isRowHeaderTable; }
 }

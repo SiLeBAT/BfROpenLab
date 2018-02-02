@@ -108,7 +108,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   private JLabel simSetCountLabel;
 
   private JCheckBoxMenuItem hideInactiveRowsMenuItem; 
-  private JMenuItem showColumnsMenuItem;
+  private JMenu showColumnsMenuItem;
 
   private SimSearch simSearch;
   private SimSearch.Settings simSearchSettings;
@@ -403,10 +403,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   }
 
   private void addTable() {
-    this.table = new SimSearchTable();
+    this.table = new SimSearchTable(loadViewSettings());
 
     this.table.setBorder(BorderFactory.createTitledBorder("Results"));
     this.getContentPane().add(this.table, BorderLayout.CENTER);
+  }
+  
+  private SimSearchTable.ViewSettings loadViewSettings() {
+    return new SimSearchTable.ViewSettings();
   }
 
   private void addMenu() {
@@ -419,7 +423,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     JMenu menu = new JMenu("View");
     this.hideInactiveRowsMenuItem =  new JCheckBoxMenuItem("Hide inactive rows");
     this.hideInactiveRowsMenuItem.setSelected(false);
-    this.showColumnsMenuItem = new JMenuItem("Show Columns");
+    this.showColumnsMenuItem = new JMenu("Show Columns");
     this.showColumnsMenuItem.setEnabled(false);
     //menu.add(this.hideInactiveRowsMenuItem);
     Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem).forEach(m -> menu.add(m));
@@ -497,6 +501,8 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   
   private void finishAsyncDataLoad(SimSearchTableModel tableModel, int simSetIndex) {
 	  if(SwingUtilities.isEventDispatchThread()) {
+	      this.showColumnsMenuItem.removeAll();
+	      this.showColumnsMenuItem.setEnabled(false);
 		  if(tableModel!=null) {
 			  if(this.currentSimSetIndex>=0) this.saveTableSettings();
 			  else {
@@ -512,6 +518,8 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 			    //this.filterText.setEnabled(true);
 			    this.table.loadData(tableModel);
 			    this.ignoreButton.setSelected(this.table.isSimSetIgnored());
+			    this.table.addShowColumnsSubMenuItems(this.showColumnsMenuItem);
+			    this.showColumnsMenuItem.setEnabled(true);
 		  }
 	  } else {
 		  SwingUtilities.invokeLater(new Runnable() {

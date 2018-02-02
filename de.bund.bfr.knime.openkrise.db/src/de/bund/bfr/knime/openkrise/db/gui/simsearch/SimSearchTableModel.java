@@ -372,5 +372,13 @@ public String getColumnName(int column) { return this.columnNames[column]; }
 
 @Override
 public boolean isCellEditable(int row, int column) { return false; }
+
+public List<String> getColumnNames() {
+  return Arrays.asList(this.columnNames);
 }
+
+public SimSearch.SimSet getSimSet() { return this.simSet; }
+}
+
+
 
