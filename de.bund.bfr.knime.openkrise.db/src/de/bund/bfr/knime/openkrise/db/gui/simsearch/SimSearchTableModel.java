@@ -368,7 +368,9 @@ public int getRowCount() { return this.rowCount; }
 public Class<?> getColumnClass(int columnIndex) { return this.columnClasses[columnIndex]; }
 
 @Override 
-public String getColumnName(int column) { return this.columnNames[column]; }
+public String getColumnName(int column) { 
+	return this.columnNames[column];
+}
 
 @Override
 public boolean isCellEditable(int row, int column) { return false; }

@@ -542,8 +542,24 @@ public List<? extends SortKey> getSortKeys() {
     return this.sortKeys;
 }
 
-public void applySorting(List<Integer> ids, List<SortKey> sortKeys) {
-  
+public void applySorting(List<Integer> idOrder, List<SortKey> sortKeys) {
+  Map<Integer, Integer> idToIndexMap = new HashMap<>();
+  for(int row=0; row<this.model.getRowCount(); ++row) idToIndexMap.put(this.model.getID(row), row);
+  idOrder.retainAll(idToIndexMap.keySet());
+  List<Integer> indexOrder = new ArrayList<>();
+  for(int id: idOrder) indexOrder.add(idToIndexMap.get(id));
+  List<Integer> unfilteredViewToModel = new ArrayList<>(this.unfilteredViewToModel);
+  unfilteredViewToModel.removeAll(indexOrder);
+  indexOrder.addAll(unfilteredViewToModel);
+  this.unfilteredViewToModel = indexOrder;
+  this.sortKeys = sortKeys;
+  this.sort();
+}
+
+public List<Integer> getIdOrder() {
+	List<Integer> idOrder = new ArrayList<>();
+	for(int row=0; row<this.model.getRowCount(); ++row) idOrder.add(this.model.getID(row));
+	return idOrder;
 }
 
 }

@@ -119,22 +119,22 @@ public class SimSearchTable extends JScrollPane{
     public static final int DEFAULT_ROW_HEIGHT = 20;
     
     private boolean showRemovedObjects;
-    private Map<SimSearch.SimSet.Type, List<String>> columnOrdering;
+    private Map<SimSearch.SimSet.Type, List<String>> columnOrder;
     private Map<SimSearch.SimSet.Type, List<String>> frozenColumns;
     private Map<SimSearch.SimSet.Type, Set<String>> invisibleColumns;
-    private Map<SimSearch.SimSet, Map<String, Integer>> columnWidths;
+    private Map<SimSearch.SimSet, Map<Integer,Integer>> columnWidths;
     private Map<SimSearch.SimSet.Type, Map<Integer, Integer>> rowHeights;
-    private Map<SimSearch.SimSet, List<Integer>> sorting;
-    private Map<SimSearch.SimSet, List<Entry<String, SortOrder>>> sortingKeys;
+    private Map<SimSearch.SimSet, List<Integer>> rowOrder;
+    private Map<SimSearch.SimSet, List<SortKey>> sortKeys;
     
     public ViewSettings() {
-      this.columnOrdering = new HashMap<>();
+      this.columnOrder = new HashMap<>();
       this.frozenColumns = new HashMap<>();
       this.invisibleColumns = new HashMap<>();
       this.columnWidths = new HashMap<>();
       this.rowHeights = new HashMap<>();
-      this.sorting = new HashMap<>();
-      this.sortingKeys = new HashMap<>();
+      this.rowOrder = new HashMap<>();
+      this.sortKeys = new HashMap<>();
     }
   }
   
@@ -152,6 +152,8 @@ public class SimSearchTable extends JScrollPane{
   private AbstractButton inactiveRowFilterSwitch;
   private AbstractButton simSetIgnoreSwitch;
   private ActionListener simSetIgnoreSwitchActionListener;
+  private int[] rowHeights;
+ 
   //private ViewSettings viewSettings;
   
   
@@ -417,11 +419,11 @@ public class SimSearchTable extends JScrollPane{
     this.initColumnModels();
 
     this.table = new SimSearchJTable(false);
-    //this.table.setAutoCreateColumnsFromModel(false);
+    this.table.setAutoCreateColumnsFromModel(false);
     
     this.getViewport().setView(this.table);
     this.rowHeaderColumnTable = new SimSearchJTable(true);
-    //this.rowHeaderColumnTable.setAutoCreateColumnsFromModel(false);
+    this.rowHeaderColumnTable.setAutoCreateColumnsFromModel(false);
 
     this.table.setColumnModel(this.tableColumnModel);
     this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
@@ -608,7 +610,7 @@ public class SimSearchTable extends JScrollPane{
   }
 
   private SimSearchTableModel getModel() {
-    return ((this.table==null || this.table.getModel()==null) ? null :  (SimSearchTableModel) this.table.getModel());
+    return ((this.table==null || this.table.getModel()==null || !(this.table.getModel() instanceof SimSearchTableModel)) ? null :  (SimSearchTableModel) this.table.getModel());
   }
   
   private SimSearchRowSorter getRowSorter() {
@@ -873,9 +875,9 @@ public class SimSearchTable extends JScrollPane{
     this.loadData(tableModel, this.viewSettings);
   }
   
-  private List<Integer> loadColumnSettingsTemp(SimSearchTableModel tableModel) {
+  private List<Integer> loadColumnSettings() { //SimSearchTableModel tableModel) {
     
-    //SimSearchTableModel tableModel = this.getModel();
+    SimSearchTableModel tableModel = this.getModel();
     SimSearch.SimSet simSet = tableModel.getSimSet();
     
     List<Integer> columnSorting = new ArrayList<>();
@@ -883,26 +885,39 @@ public class SimSearchTable extends JScrollPane{
     this.frozenColumns = new ArrayList<>();
     this.invisibleColumns = new HashSet<>();
 
-    List<String> availableColumns = tableModel.getColumnNames().stream().collect(Collectors.toList());
+    List<String> availableColumns = new ArrayList<>(tableModel.getColumnNames());
     availableColumns.remove(0); // Status
-    List<String> frozenColumns = availableColumns.stream().collect(Collectors.toList());
-    if(this.viewSettings.frozenColumns.containsKey(simSet.getType())) frozenColumns.retainAll(this.viewSettings.frozenColumns.get(simSet.getType()));   
     
-    Set<String> invisibleColumns = (this.viewSettings.invisibleColumns.containsKey(simSet.getType())?this.viewSettings.invisibleColumns.get(simSet.getType()):new HashSet<>());
-    invisibleColumns.retainAll(availableColumns);
+    List<String> frozenColumns = new ArrayList<>(); //availableColumns.stream().collect(Collectors.toList());
+    if(this.viewSettings.frozenColumns.containsKey(simSet.getType())) {
+    	frozenColumns = new ArrayList<>(this.viewSettings.frozenColumns.get(simSet.getType()));  
+    	frozenColumns.retainAll(availableColumns);
+    }
     
-    Set<String> visibleNotFrozenColumns = availableColumns.stream().collect(Collectors.toSet());
+    Set<String> invisibleColumns = new HashSet<>();
+    if(this.viewSettings.invisibleColumns.containsKey(simSet.getType())) {
+    	invisibleColumns = new HashSet<>(this.viewSettings.invisibleColumns.get(simSet.getType()));
+    	invisibleColumns.retainAll(availableColumns);
+    }
+//    
+    Set<String> visibleNotFrozenColumns = new HashSet<>(availableColumns);
     visibleNotFrozenColumns.removeAll(invisibleColumns);
     visibleNotFrozenColumns.removeAll(frozenColumns);
+//    
+    List<String> columnOrder = new ArrayList<>();
+    if(this.viewSettings.columnOrder.containsKey(simSet.getType())) {
+    	columnOrder = new ArrayList<>(this.viewSettings.columnOrder.get(simSet.getType()));
+    	columnOrder.retainAll(visibleNotFrozenColumns);
+    }
     
     
     for(String columnName: frozenColumns) this.frozenColumns.add(availableColumns.indexOf(columnName)+1);
     for(String columnName: invisibleColumns) this.invisibleColumns.add(availableColumns.indexOf(columnName)+1);
-    for(String columnName: visibleNotFrozenColumns) columnSorting.add(availableColumns.indexOf(columnName)+1);
+    for(String columnName: columnOrder) columnSorting.add(availableColumns.indexOf(columnName)+1);
     
     for(int column=1; column<tableModel.getColumnCount(); ++column) 
       if(!this.invisibleColumns.contains(column) && !this.frozenColumns.contains(column)) columnSorting.add(column); 
-    
+//    
     return columnSorting;
   }
   
@@ -912,11 +927,12 @@ public class SimSearchTable extends JScrollPane{
     SimSearchTableModel tableModel = this.getModel();
     SimSearch.SimSet simSet = tableModel.getSimSet();
     
-    Map<String, Integer> columnWidths = this.viewSettings.columnWidths.get(simSet);
+    Map<Integer, Integer> columnWidths = this.viewSettings.columnWidths.get(simSet);
     Arrays.asList(this.rowHeaderColumnTable, this.table).forEach(table -> {
       for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
-        if(columnWidths!=null && columnWidths.containsKey(table.getColumnName(column)))
-          table.getColumnModel().getColumn(column).setWidth(columnWidths.get(table.getColumnName(column)));
+    	int modelIndex = table.convertColumnIndexToModel(column);
+        if(columnWidths!=null && columnWidths.containsKey(modelIndex))
+          table.getColumnModel().getColumn(column).setWidth(columnWidths.get(modelIndex));
         else
           table.getColumnModel().getColumn(column).sizeWidthToFit();
       }
@@ -940,43 +956,65 @@ public class SimSearchTable extends JScrollPane{
     SimSearch.SimSet simSet = tableModel.getSimSet();
     
     // applyRowSorting
-    if(this.viewSettings.sorting.containsKey(simSet)) {
-      Map<String, Integer> visibleColumns = new HashMap<>(); 
-      Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> {
-        for(int column=0; column<table.getColumnCount(); ++column) { visibleColumns.put(table.getColumnName(column), table.convertColumnIndexToModel(column)); }
-      });
-      List<SortKey> sortKeys = new ArrayList<>();
-      for(Entry<String, SortOrder> entry: this.viewSettings.sortingKeys.get(simSet)) {
-        if(visibleColumns.containsKey(entry.getKey())) sortKeys.add(new SortKey(visibleColumns.get(entry.getKey()), entry.getValue()));
-      }
-      this.getRowSorter().applySorting(this.viewSettings.sorting.get(simSet), sortKeys);
+    if(this.viewSettings.rowOrder.containsKey(simSet)) {
+//      Map<String, Integer> visibleColumns = new HashMap<>(); 
+//      Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> {
+//        for(int column=0; column<table.getColumnCount(); ++column) { visibleColumns.put(table.getColumnName(column), table.convertColumnIndexToModel(column)); }
+//      });
+//      List<SortKey> sortKeys = new ArrayList<>();
+//      for(Entry<String, SortOrder> entry: this.viewSettings.sortingKeys.get(simSet)) {
+//        if(visibleColumns.containsKey(entry.getKey())) sortKeys.add(new SortKey(visibleColumns.get(entry.getKey()), entry.getValue()));
+//      }
+      this.getRowSorter().applySorting(this.viewSettings.rowOrder.get(simSet), this.viewSettings.sortKeys.get(simSet));
     }
   }
   
   public void applySettingsFromView() {
+	SimSearchTableModel tableModel = this.getModel();
+	SimSearch.SimSet simSet = tableModel.getSimSet();
+    this.viewSettings.showRemovedObjects = !this.inactiveRowFilterSwitch.isSelected();
+    List<String> columnOrder = new ArrayList<>();
+    for(int column=0; column<this.table.getColumnCount(); ++column) columnOrder.add(this.table.getColumnName(column));
+    this.viewSettings.columnOrder.put(simSet.getType(), columnOrder);
+    List<String> frozenColumns = new ArrayList<>();
+    for(int column=1; column<this.rowHeaderColumnTable.getColumnCount(); ++column) frozenColumns.add(this.rowHeaderColumnTable.getColumnName(column));
+    this.viewSettings.frozenColumns.put(simSet.getType(), frozenColumns);
     
+    Set<String> invisibleColumns = new HashSet<>();
+    for(int column: this.invisibleColumns) invisibleColumns.add(tableModel.getColumnName(column));
+    this.viewSettings.invisibleColumns.put(simSet.getType(), invisibleColumns);
+    
+    this.viewSettings.rowOrder.put(simSet, this.getRowSorter().getIdOrder());
+    this.viewSettings.sortKeys.put(simSet, new ArrayList<>(this.getRowSorter().getSortKeys()));
+//    this.viewSettings.columnWidths.put(simSet, this.columnWidth);
+//    Map<Integer, Integer> rowHeights = this.viewSettings.rowHeights.get(simSet.getType());
+//    if(rowHeights==null) rowHeights = new HashMap<>();
+//    for(int row=0; row<tableModel.getRowCount(); ++row) rowHeights.put(tableModel.getID(row), this.rowHeights[row]);
+//    this.viewSettings.rowHeights.put(simSet.getType(), rowHeights);
+    //List<Integer> idOrder = this.getRowSorter().getIdOrder();
   }
   
-//  private void addColumns() {
-//    List<Integer> columnSorting = this.loadColumnSettings();
-//    
-//    this.table.removeColumns();
-//    for(Integer column: columnSorting) this.table.getColumnModel().addColumn(new TableColumn(column));
-//    this.rowHeaderColumnTable.removeColumns();
-//    this.rowHeaderColumnTable.addColumn(new TableColumn(0));
-//    for(Integer column: frozenColumns) this.rowHeaderColumnTable.getColumnModel().addColumn(new TableColumn(column));
-//  }
+  private void addColumns() {
+    List<Integer> columnSorting = this.loadColumnSettings();
+    
+    this.table.removeColumns();
+    for(Integer column: columnSorting) this.table.addColumn(new TableColumn(column));
+    this.rowHeaderColumnTable.removeColumns();
+    this.rowHeaderColumnTable.addColumn(new TableColumn(0));
+    for(Integer column: frozenColumns) this.rowHeaderColumnTable.addColumn(new TableColumn(column));
+  }
   
   public void loadData(SimSearchTableModel tableModel, ViewSettings viewSettings) {
-    List<Integer> columnSorting = this.loadColumnSettingsTemp(tableModel);
+    //List<Integer> columnSorting = this.loadColumnSettings(tableModel);
+    if(this.getModel()!=null) this.applySettingsFromView();
     
     this.table.setModel(tableModel);
     this.rowHeaderColumnTable.setModel(tableModel);
     
-//    //this.addColumns();
-//    //Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> table.initCellRenderers(tableModel));
+    this.addColumns();
+    Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> table.initCellRenderers(tableModel));
 //    
-//    //this.applyColumnAnRowSettingsToView();
+    this.applyColumnAnRowSettingsToView();
 //    //this.table.createDefaultColumnsFromModel();
 //    //this.rowHeaderColumnTable.createDefaultColumnsFromModel();
 //
@@ -987,9 +1025,9 @@ public class SimSearchTable extends JScrollPane{
     table.setRowSorter(rowSorter);
     this.rowHeaderColumnTable.setRowSorter(rowSorter);
 //    
-//    if(this.filterTextBox.getText()!=null && this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
+    if(this.filterTextBox.getText()!=null && this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
 //    
-//    //this.applyRowSortingToView();
+    this.applyRowSortingToView();
 //
     // Put it in a viewport that we can control a bit
     JViewport jv = new JViewport();
@@ -999,9 +1037,9 @@ public class SimSearchTable extends JScrollPane{
 //
     this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
         .getTableHeader());
-//    this.simSetIgnoreSwitch.removeActionListener(this.simSetIgnoreSwitchActionListener);
-//    this.simSetIgnoreSwitch.setSelected(tableModel.isSimSetIgnored());
-//    this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
+    this.simSetIgnoreSwitch.removeActionListener(this.simSetIgnoreSwitchActionListener);
+    this.simSetIgnoreSwitch.setSelected(tableModel.isSimSetIgnored());
+    this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
 //    
 //    
 ////    this.rowHeaderColumnModel.getColumn(1).setResizable(true);
@@ -1010,7 +1048,7 @@ public class SimSearchTable extends JScrollPane{
 ////    Dimension dim_max = this.rowHeaderColumnTable.getMaximumSize();
 ////    Dimension dim_min = this.rowHeaderColumnTable.getMinimumSize();
 ////    this.rowHeaderColumnTable.getTableHeader().setResizingAllowed(true);
-//    //this.selectedModelIndices.clear();
+    this.selectedModelIndices.clear();
   }
   
   public void clear() {
