@@ -48,12 +48,13 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
   //private Map<SimSearch.SimSet.Type, Map<Integer, String>> foreignDataCacheMap;
   
   
-  public String[] columnNames;
-  public Class<?>[] columnClasses;
-  public Object[][] data;
-  public int rowCount;
-  public int columnCount;
-  public SimSearch.SimSet.Type[] columnSimSetTypes;
+//  public String[] columnNames;
+//  public Class<?>[] columnClasses;
+//  public Object[][] data;
+ 
+  //public SimSearch.SimSet.Type[] columnSimSetTypes;
+  
+  private SimSearch.DataSource.DataSourceListener dataSourceListener;
   
   private static abstract class ForeignField {
     final List<String> labelColumns;
@@ -280,6 +281,15 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
 //	  foreignKeyMap = map;
   }
   
+//  public SimSearchDataLoader(SimSearch.DataSource.DataSourceListener dataSourceListener) {
+//    this.dataSourceListeners = new ArrayList<>();
+//    this.dataSourceListeners.add(dataSourceListener);
+//  }
+  
+//  private void informListeners(SimSearch.SimSet.Type simSetType, List<Integer> missingIds) {
+//    this.dataSourceListeners.forEach(l -> l.missingIdsDetected(simSetType, missingIds));
+//  }
+  
   private static Map<String, ForeignField> createForeignKeyMap() throws Exception {
     MyDBI myDBi = DBKernel.myDBi;
     if(myDBi==null) return null;
@@ -444,13 +454,16 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
     
     return result;
   }
+  
   private SimSearch.SimSet simSet;
   private SimSearchDataManipulationHandler dataManipulationHandler;
   private PreparedStatement preparedStatementLoadTableData;
   
-  public SimSearchDataLoader(SimSearch.SimSet simSet, SimSearchDataManipulationHandler dataManipulationHandler) {
+  public SimSearchDataLoader(SimSearch.SimSet simSet, SimSearchDataManipulationHandler dataManipulationHandler, SimSearch.DataSource.DataSourceListener dataSourceListener) {
     this.simSet = simSet;
     this.dataManipulationHandler = dataManipulationHandler;
+    this.dataSourceListener = dataSourceListener;
+    //this.dataSourceListeners.add(dataSourceListener);
     //this.foreignDataCacheMap = new HashMap<>();
     //for(SimSearch.SimSet.Type simSetType: SimSearch.SimSet.Type.class.getEnumConstants()) this.foreignDataCacheMap.put(simSetType, new HashMap<>());
   }
@@ -459,16 +472,16 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       if(SimSearchDataLoader.foreignKeyMap==null) SimSearchDataLoader.foreignKeyMap = SimSearchDataLoader.createForeignKeyMap();
 	  switch(simSet.getType()) {
 	  case STATION:
-    	loadTableData(DBInfo.TABLE.STATION, simSet.getIdList(), null);
+    	loadTableData(DBInfo.TABLE.STATION, null);
     	break;
 	  case PRODUCT:
-        loadTableData(DBInfo.TABLE.PRODUCT, simSet.getIdList(), null);
+        loadTableData(DBInfo.TABLE.PRODUCT, null);
         break;
 	  case LOT:
-        loadTableData(DBInfo.TABLE.LOT, simSet.getIdList(), null);
+        loadTableData(DBInfo.TABLE.LOT, null);
         break;
 	  case DELIVERY:
-        loadTableData(DBInfo.TABLE.DELIVERY, simSet.getIdList(), null);
+        loadTableData(DBInfo.TABLE.DELIVERY, null);
         break;
       default:
         throw(new SQLException("Unkown SimSet Type: " + simSet.getType()));
@@ -489,7 +502,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
     return String.join(", ", ids.stream().map(id -> id.toString()).collect(Collectors.toList()));
   }
   
-  private void loadTableData(DBInfo.TABLE table, List<Integer> idList, List<DBInfo.COLUMN> childColumns) throws Exception {
+  private void loadTableData(DBInfo.TABLE table, List<DBInfo.COLUMN> childColumns) throws Exception {
      {
       MyDBI myDBI = DBKernel.myDBi;
       if(myDBI==null) throw(new Exception("DB interface is not available."));
@@ -498,12 +511,12 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       if(con==null) throw(new Exception("DB Connection is not available."));
     	  
       Map<Integer, Object[]> idToDataMap = new HashMap<>();
-      List<Integer> ids = new ArrayList<>(idList); 
+      List<Integer> ids = new ArrayList<>(simSet.getIdList()); 
       MyTable myTable = myDBI.getTable(table.getName());
       if(myTable==null) throw(new Exception("Cannot retrieve sql statement for table query."));
       
       
-      String sql = myTable.getSelectSQL() + " where " + ID_COLUMN_NAME + " IN (" + idsToString(idList) +  ")";
+      String sql = myTable.getSelectSQL() + " where " + ID_COLUMN_NAME + " IN (" + idsToString(simSet.getIdList()) +  ")";
       if(sql==null) throw(new Exception("Cannot retrieve sql statement for table query."));
  
       Statement statement = con.createStatement();
@@ -520,7 +533,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       this.columnClasses = new Class<?>[this.columnCount+1];
       this.columnClasses[0] = Integer.class;
       
-      this.columnSimSetTypes = new SimSearch.SimSet.Type[this.columnCount+1];
+      //this.columnSimSetTypes = new SimSearch.SimSet.Type[this.columnCount+1];
       
       for(int i=0; i<this.columnCount; ++i) {
         this.columnNames[i+1] = resultSetMetaData.getColumnName(i+1);
@@ -550,8 +563,9 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
      
       this.data = new Object[idToDataMap.size()][]; 
       
-      Set<Integer> missingIds = Sets.difference(new HashSet<>(idList), idToDataMap.keySet());
-      ids.removeAll(missingIds);
+      List<Integer> missingIds = new ArrayList<>(Sets.difference(new HashSet<>(simSet.getIdList()), idToDataMap.keySet()));
+      //ids.removeAll(missingIds);
+      if(this.dataSourceListener!=null && !missingIds.isEmpty()) this.dataSourceListener.missingIdsDetected(simSet.getType(), missingIds);
       
       int row = -1;
       for(Integer id: ids) {

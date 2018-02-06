@@ -151,7 +151,7 @@ public final class SimSearch {
       this.type = type;
       if(idList==null || idList.isEmpty()) throw(new Exception("The parameter idList may not be null or empty."));
       this.referenceId = idList.get(1);
-      this.idList = idList; //Collections.unmodifiableList(idList);
+      this.idList = Collections.unmodifiableList(idList);
     }
     
     public Type getType() { return this.type; }
@@ -166,11 +166,17 @@ public final class SimSearch {
 //    	this.idList.remove(id);
 //    	if(id.equals(this.referenceId)) this.referenceId = null;
 //    }
+    public void setMissing(List<Integer> missingIds) {
+      List<Integer> newIds = new ArrayList<>(this.idList);
+      newIds.removeAll(missingIds);
+      this.idList = Collections.unmodifiableList(newIds);
+    }
   }
 
   protected static abstract class DataSource {
     public interface DataSourceListener {
       public void similaritiesFound(SimSet.Type simSetType, List<Integer> idList) throws Exception;
+      public void missingIdsDetected(SimSet.Type simSetType, List<Integer> idList);
     }
     
     protected static class ForeignField {
@@ -186,11 +192,18 @@ public final class SimSearch {
     	@Override
     	public String toString() { return this.label; }
     }
+    
     protected static abstract class DataLoader {
     	ForeignField createForeignField(Integer id, String label) { return new ForeignField(id, label); }
+    	public abstract void loadData() throws Exception;
+    	public String[] columnNames;
+    	public Class<?>[] columnClasses;
+    	public Object[][] data;
+    	public int rowCount;
+    	public int columnCount;
     }
     
-    private DataSourceListener listener;
+    DataSourceListener listener;
     private boolean searchStopped;
     
     protected DataSource(DataSourceListener listener) {
@@ -200,7 +213,7 @@ public final class SimSearch {
     
     public abstract void findSimilarities(Settings settings) throws Exception;
     //public void findSimilarStations();
-    public abstract SimSearchDataLoader getDataLoader();
+    public abstract SimSearchDataLoader createDataLoader(SimSet simSet, SimSearchDataManipulationHandler dataManipulationsHandler);
     
     public abstract boolean save(SimSearchDataManipulationHandler dataManipulations) throws Exception;
     
@@ -215,7 +228,7 @@ public final class SimSearch {
     public final boolean getSearchStopped() { return this.searchStopped; }
     
     final void newSimilarityMatchFound(SimSet.Type simSetType, List<Integer> idList) throws Exception {
-      if(listener!=null) listener.similaritiesFound(simSetType, idList);
+      if(listener!=null) this.listener.similaritiesFound(simSetType, idList);
     }
   }
   
@@ -238,11 +251,20 @@ public final class SimSearch {
           SimSearch.this.call(l -> l.newSimSetFound());
         
       }
+
+      @Override
+      public void missingIdsDetected(Type simSetType, List<Integer> missingIds) {
+        for(int i=0; i<SimSearch.this.simSetList.size(); ++i) {
+          SimSearch.SimSet simSet = SimSearch.this.simSetList.get(i);
+          if(simSet.getType().equals(simSetType)) simSet.setMissing(missingIds);
+        }
+        SimSearch.this.dataManipulationHandler.setMissing(simSetType, missingIds);
+      }
     });
     this.dataManipulationHandler = new SimSearchDataManipulationHandler();
   }
   
-  public void registerDataManipulationListener(SimSearchDataManipulationHandler.DataOperationListener listener) {
+  public void registerManipulationStateListener(SimSearchDataManipulationHandler.ManipulationStateListener listener) {
     this.dataManipulationHandler.registerDataOperationListener(listener);
   }
 
@@ -282,13 +304,38 @@ public final class SimSearch {
   
   public int getSimSetIndex(SimSet simSet) { return (this.simSetList==null?-1:this.simSetList.indexOf(simSet)); }
   
+  public int getNotIgnoredSimSetIndex(int totalIndex) {
+    int index = -1;
+    for(int i=totalIndex; i>=0; --i) if(!dataManipulationHandler.isSimSetIgnored(this.simSetList.get(i))) ++index;
+    
+    return index;
+  }
+  
+  public int getIndexOfNextNotIgnoredSimSet(int totalIndex) {
+    //int index = -1;
+    int n = this.simSetList.size();
+    for(int i=totalIndex+1; i<n; ++i) if(!dataManipulationHandler.isSimSetIgnored(this.simSetList.get(i))) return i;
+    for(int i=0; i<totalIndex; ++i) if(!dataManipulationHandler.isSimSetIgnored(this.simSetList.get(i))) return i;
+    if(totalIndex>=0 && dataManipulationHandler.isSimSetIgnored(this.simSetList.get(totalIndex))) return -1;
+    else return totalIndex;
+  }
+  
+  public int getIndexOfPreviousNotIgnoredSimSet(int totalIndex) {
+    //int index = -1;
+    int n = this.simSetList.size();
+    for(int i=totalIndex-1; i>=0; --i) if(!dataManipulationHandler.isSimSetIgnored(this.simSetList.get(i))) return i;
+    for(int i=n-1; i>totalIndex; --i) if(!dataManipulationHandler.isSimSetIgnored(this.simSetList.get(i))) return i;
+    if(totalIndex>=0 && dataManipulationHandler.isSimSetIgnored(this.simSetList.get(totalIndex))) return -1;
+    else return totalIndex;
+  }
+  
   public SimSet getSimSet(int index) { return (this.simSetList==null || this.simSetList.size()<=index?null:this.simSetList.get(index)); }
   
   public SimSearchTableModel loadData(int simSetIndex) throws Exception {
     SimSet simSet = this.simSetList.get(simSetIndex);
     if(simSet==null) throw(new Exception("Simset was not found"));
     
-    SimSearchDataLoader dataLoader = new SimSearchDataLoader(simSet, dataManipulationHandler);
+    SimSearch.DataSource.DataLoader dataLoader = this.dataSource.createDataLoader(simSet, dataManipulationHandler);
    
 	dataLoader.loadData();
 	return new SimSearchTableModel(simSet, dataManipulationHandler, dataLoader);
@@ -297,6 +344,11 @@ public final class SimSearch {
   public boolean existDataManipulations() {
 	  return (this.dataManipulationHandler==null?false:!this.dataManipulationHandler.isEmpty());
   }
+  
+  public boolean isUndoAvailable() { return this.dataManipulationHandler.isUndoAvailable(); }
+  public boolean isRedoAvailable() { return this.dataManipulationHandler.isRedoAvailable(); }
+  public void redo() { this.dataManipulationHandler.redo(); }
+  public void undo() { this.dataManipulationHandler.undo(); }
 
   private void call(Consumer<SimSearchListener> action) {
     this.simSearchListenerList.forEach(action);

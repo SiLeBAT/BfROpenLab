@@ -73,7 +73,7 @@ private final static int NOTMERGED = -2;
 private final SimSet simSet;
 //private final SimSearch simSearch;
 private final SimSearchDataManipulationHandler dataManipulationHandler;
-private final SimSearchDataLoader dataLoader;
+private final SimSearch.DataSource.DataLoader dataLoader;
 
 public static class IllegalOperationException extends Exception {
   
@@ -105,7 +105,7 @@ public static class IllegalOperationException extends Exception {
 //  //SimSearch.this.loadData(, idList);
 //}
 
-SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipulationHandler, SimSearchDataLoader dataLoader) {
+SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipulationHandler, SimSearch.DataSource.DataLoader dataLoader) {
 	  super();
 //	  this.simSearch = simSearch;
 	  this.simSet = simSet;
@@ -113,6 +113,7 @@ SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipula
 	  this.dataLoader = dataLoader;
 	  this.data = dataLoader.data;
 	  this.columnNames = dataLoader.columnNames;
+	  this.columnNames[0] = "";
 	  this.columnClasses = dataLoader.columnClasses;
 	  this.columnCount = columnNames.length;
 	  this.rowCount = data.length;
@@ -284,8 +285,21 @@ public boolean isSimSetIgnored() {
   return this.dataManipulationHandler.isSimSetIgnored(simSet);
 }
 
-public void setSimSetIgnored(boolean value) {
-	if(value!=this.dataManipulationHandler.isSimSetIgnored(simSet)) this.dataManipulationHandler.setSimSetIgnored(this.simSet, value);
+
+public boolean isSimSetIgnoreAvailable() {
+  return this.dataManipulationHandler.isSimSetIgnoreAvailable(simSet);
+}
+//
+//public void setSimSetIgnored(boolean value) {
+//	if(value!=this.dataManipulationHandler.isSimSetIgnored(simSet)) this.dataManipulationHandler.setSimSetIgnored(this.simSet, value);
+//}
+
+public void ignoreSimSet() {
+  this.dataManipulationHandler.ignoreSimSet(this.simSet);
+}
+
+public void ignoreAllPairsInSimSet() {
+  this.dataManipulationHandler.ignoreAllPairsInSimSet(this.simSet);
 }
 
 public String getUndoType() {

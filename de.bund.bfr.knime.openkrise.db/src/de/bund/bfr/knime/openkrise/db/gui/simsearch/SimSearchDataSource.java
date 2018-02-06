@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyTable;
+import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet;
 
 public class SimSearchDataSource extends SimSearch.DataSource{
   private SimSearch.Settings settings;
@@ -428,11 +429,6 @@ public class SimSearchDataSource extends SimSearch.DataSource{
       }
       return result;
   }
-  @Override
-  public SimSearchDataLoader getDataLoader() {
-    // TODO Auto-generated method stub
-    return null;
-  }
 
   @Override
   public boolean save(SimSearchDataManipulationHandler dataManipulations) throws Exception {
@@ -464,7 +460,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
 					  for(Entry<Integer,Integer> mergeEntry: mergeMap.entrySet()) DBKernel.mergeIDs(statement, tableName, mergeEntry.getKey(), mergeEntry.getValue());
 				  }
 				 
-				  Map<Integer, List<Integer>> ignoreMap = getNewIgnoreMapForDB(dataManipulations, simSetType);
+				  Map<Integer, Set<Integer>> ignoreMap = getNewIgnoreMapForDB(dataManipulations, simSetType);
 				  
 				  if(!ignoreMap.isEmpty()) {
 					  String sqlInsert = "INSERT INTO " + DBKernel.delimitL(DBInfo.TABLE.IGNORESIM.getName()) + " " + //   simSetTypeToIgnoreTableNameMap.get(simSetType) + " " +
@@ -472,7 +468,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
 							  "VALUES (?, ?, ?)";
 					  
 					  PreparedStatement preparedInsertStatement = con.prepareStatement(sqlInsert);
-					  for(Entry<Integer, List<Integer>> ignoreEntry: ignoreMap.entrySet()) {
+					  for(Entry<Integer, Set<Integer>> ignoreEntry: ignoreMap.entrySet()) {
 						  for(Integer id: ignoreEntry.getValue()) {
 								  preparedInsertStatement.setInt(1, simSetType.getValue());
 								  preparedInsertStatement.setInt(2, ignoreEntry.getKey());
@@ -497,8 +493,8 @@ public class SimSearchDataSource extends SimSearch.DataSource{
 	  return result;
   }
   
-  private Map<Integer, List<Integer>> getNewIgnoreMapForDB(SimSearchDataManipulationHandler dataManipulations, SimSearch.SimSet.Type simSetType) throws Exception {
-    Map<Integer, List<Integer>> ignoreMap = dataManipulations.getIgnoreMap(simSetType);
+  private Map<Integer, Set<Integer>> getNewIgnoreMapForDB(SimSearchDataManipulationHandler dataManipulations, SimSearch.SimSet.Type simSetType) throws Exception {
+    Map<Integer, Set<Integer>> ignoreMap = dataManipulations.getIgnoreMap(simSetType);
     Map<Integer, Set<Integer>> ignoreMapFromDB = this.loadIgnoreList(simSetType);
     
     for(Integer id: Sets.intersection(ignoreMap.keySet(), ignoreMapFromDB.keySet())) ignoreMap.get(id).removeAll(ignoreMapFromDB.get(id));
@@ -513,6 +509,13 @@ public class SimSearchDataSource extends SimSearch.DataSource{
     simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.LOT, DBInfo.TABLE.LOT.getName());
     simSetTypeToTableNameMap.put(SimSearch.SimSet.Type.DELIVERY, DBInfo.TABLE.DELIVERY.getName());
     return simSetTypeToTableNameMap;
+  }
+
+  @Override
+  public SimSearchDataLoader createDataLoader(SimSet simSet,
+      SimSearchDataManipulationHandler dataManipulationsHandler) {
+    // TODO Auto-generated method stub
+    return new SimSearchDataLoader(simSet, dataManipulationsHandler, listener);
   }
   
 }

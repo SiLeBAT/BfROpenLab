@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -48,6 +49,7 @@ public class SimSearchJTable extends JTable {
 	 * 
 	 */
 	private static final long serialVersionUID = 7055490193917189461L;
+//	private SimSearchTableModel tableModel;
 	//private static final String ALIGNMENT_COLOR_EDIT = "red";
 	//private static final String ALIGNMENT_COLOR_EDIT = "red";
 	//private static final String ALIGNMENT_COLOR_EDIT = "red";
@@ -236,26 +238,28 @@ public class SimSearchJTable extends JTable {
     protected static class RowHeaderColumnRenderer extends DefaultTableCellRenderer {
       
       private String[] data;
-      private static final String SYMBOL_SIM_REFERENCE = "R";
-      private static final String SYMBOL_ALIGNMENT_REFERENCE = "A";
-      private static final String SYMBOL_REFERENCE = "T";
+      private static final String SYMBOL_SIM_REFERENCE = "&#9733;";
+      //private static final String SYMBOL_ALIGNMENT_REFERENCE = "A";
+      //private static final String SYMBOL_REFERENCE = "T";
       private static final String SYMBOL_MERGEDTO_PRESENT_ROW = "&#8593;";
       private static final String SYMBOL_MERGEDTO_NON_PRESENT_ROW = "&#8625;"; //"&#8592;";
-      private static final String SYMBOL_REMOVE = "<font color=\"red\">x</font>"; //<font color=\"red\">&#10799;</font>";
+      //private static final String SYMBOL_REMOVE = "<font color=\"red\">x</font>"; //<font color=\"red\">&#10799;</font>";
       private static final String SYMBOL_GAP = "&nbsp;";
       
       public RowHeaderColumnRenderer(int rowCount) {
         super();
         data = new String[rowCount];
+//        this.setForeground(//c);
       }
       
       private String createRowHeaderText(JTable table, int modelRow) {
         SimSearchTableModel tableModel = (SimSearchTableModel) table.getModel();
         List<String> tagList = new ArrayList<>();
 
-        if(tableModel.isSimReferenceRow(modelRow)) {
-          tagList.add( (tableModel.isAlignmentReferenceRow(modelRow))?SYMBOL_REFERENCE:SYMBOL_SIM_REFERENCE );
-        } else if (tableModel.isAlignmentReferenceRow(modelRow)) tagList.add(SYMBOL_ALIGNMENT_REFERENCE);
+        if(tableModel.isSimReferenceRow(modelRow)) tagList.add(SYMBOL_SIM_REFERENCE);
+//        {
+//          tagList.add( (tableModel.isAlignmentReferenceRow(modelRow))?SYMBOL_REFERENCE:SYMBOL_SIM_REFERENCE );
+//        } else if (tableModel.isAlignmentReferenceRow(modelRow)) tagList.add(SYMBOL_ALIGNMENT_REFERENCE);
         
         if(tableModel.isMerged(modelRow)) {
           if(tableModel.getMergeTo(modelRow)>=0) {
@@ -264,6 +268,8 @@ public class SimSearchJTable extends JTable {
             tagList.add(SYMBOL_MERGEDTO_NON_PRESENT_ROW);
           }
         } 
+        
+        if(tableModel.getMergeCount(modelRow)>0) tagList.add("&#43;" + tableModel.getMergeCount(modelRow) );
         
 //        if(tableModel.getEffectiveRemove(modelRow)) {
 //          tagList.add(SYMBOL_REMOVE);
@@ -287,9 +293,14 @@ public class SimSearchJTable extends JTable {
         super.getTableCellRendererComponent(table, value, isSelected,
                                             hasFocus, row, column);
         
-        
-        setBackground(table.getTableHeader().getBackground());
-        setBorder(table.getTableHeader().getBorder());
+        if(isSelected) {
+          setBackground(UIManager.getColor("Table.selectionBackground"));
+          //setBorder(UIManager.getColor("TableHeader.cellBorder"));
+        } else {
+          setBackground(table.getTableHeader().getBackground());
+        }
+        //setBackground(table.getTableHeader().getBackground());
+        //setBorder(table.getTableHeader().getBorder());
         setFont(new Font("Courier New", Font.PLAIN, table.getTableHeader().getFont().getSize()));
         //setForeground(c);
         
@@ -349,39 +360,64 @@ public class SimSearchJTable extends JTable {
       }
 	}
 	
-	@Override
-	public void setModel(TableModel model) {
-	  super.setModel(model);
-	 // int tmp_n = this.getColumnCount();
-	  for(int column=0; column < this.getColumnCount(); ++column) {
-//	    if(model.getColumnClass( modelColumnIndex)==Alignment.AlignedSequence.class) {
-//          this.getColumn(column).setCellRenderer(new AlignmentColumnRenderer(model.getRowCount()));
-//        } else if(model.getColumnClass(modelColumnIndex).equals(List.class)) {
-//          this.getColumn(column).setCellRenderer(new ListColumnRenderer(model.getRowCount(),"; "));
-//        }
-	  //for(int column = 0; column < model.getColumnCount(); ++column) 
-	    //@SuppressWarnings("unused")
-	    //this.getColumnClass(column)
-        //TableColumn tableColumn =   this.getColumn(column);
-	    int modelColumnIndex = this.getColumnModel().getColumn(column).getModelIndex(); //    this.getColumn(column).getModelIndex();
-	    TableColumn tmp_1 = this.getColumnModel().getColumn(column);
-	    TableColumn tmp_2 = this.getColumn(tmp_1.getIdentifier());
-	    boolean tmp_a = tmp_1==tmp_2;
-	    if(modelColumnIndex==0) {
-	      this.getColumnModel().getColumn(column).setCellRenderer(new RowHeaderColumnRenderer(model.getRowCount()));
-	    } else if(model.getColumnClass(modelColumnIndex)==Alignment.AlignedSequence.class) {
-	      this.getColumnModel().getColumn(column).setCellRenderer(new AlignmentColumnRenderer(model.getRowCount()));
-	    } else if(model.getColumnClass(modelColumnIndex).equals(List.class)) {
-	      this.getColumnModel().getColumn(column).setCellRenderer(new ListColumnRenderer(model.getRowCount(),"; "));
-	    } else {
-	      this.getColumnModel().getColumn(column).setCellRenderer(new DefaultColumnRenderer());
-	    }
-	  }
-//	  for(int i=0; i<this.getColumnCount(); ++i) System.out.println(this.getColumnModel().getColumn(i).getIdentifier() + ":" + this.getColumnModel().getColumn(i).getCellRenderer());
-//	  if(2<this.getColumnCount()) {
-//	    this.getColumnModel().getColumn(2).setCellRenderer(new PassedColumnRenderer());
-//	    System.out.println(this.getColumnModel().getColumn(2).getIdentifier() + ":" + this.getColumnModel().getColumn(2).getCellRenderer());
-//	  }
+//	@Override
+//	public TableModel getModel() { return this.tableModel; }
+//	
+//	@Override
+//	public void setModel(TableModel model) {
+//	  if(model == null) {
+//	    this.tableModel = null;
+//	    while(this.getColumnCount()>0) this.removeColumn(this.getColumnModel().getColumn(0));
+//	  } else if(model instanceof SimSearchTableModel) {
+//	    this.tableModel = (SimSearchTableModel) model;
+//	    super.setModel(model);
+//	  } else super.setModel(model);
+//    	 // int tmp_n = this.getColumnCount();
+////    	  for(int column=0; column < this.getColumnCount(); ++column) {
+////    //	    if(model.getColumnClass( modelColumnIndex)==Alignment.AlignedSequence.class) {
+////    //          this.getColumn(column).setCellRenderer(new AlignmentColumnRenderer(model.getRowCount()));
+////    //        } else if(model.getColumnClass(modelColumnIndex).equals(List.class)) {
+////    //          this.getColumn(column).setCellRenderer(new ListColumnRenderer(model.getRowCount(),"; "));
+////    //        }
+////    	  //for(int column = 0; column < model.getColumnCount(); ++column) 
+////    	    //@SuppressWarnings("unused")
+////    	    //this.getColumnClass(column)
+////            //TableColumn tableColumn =   this.getColumn(column);
+////    	    int modelColumnIndex = this.getColumnModel().getColumn(column).getModelIndex(); //    this.getColumn(column).getModelIndex();
+////    	    TableColumn tmp_1 = this.getColumnModel().getColumn(column);
+////    	    TableColumn tmp_2 = this.getColumn(tmp_1.getIdentifier());
+////    	    boolean tmp_a = tmp_1==tmp_2;
+////    	    if(modelColumnIndex==0) {
+////    	      this.getColumnModel().getColumn(column).setCellRenderer(new RowHeaderColumnRenderer(model.getRowCount()));
+////    	    } else if(model.getColumnClass(modelColumnIndex)==Alignment.AlignedSequence.class) {
+////    	      this.getColumnModel().getColumn(column).setCellRenderer(new AlignmentColumnRenderer(model.getRowCount()));
+////    	    } else if(model.getColumnClass(modelColumnIndex).equals(List.class)) {
+////    	      this.getColumnModel().getColumn(column).setCellRenderer(new ListColumnRenderer(model.getRowCount(),"; "));
+////    	    } else {
+////    	      this.getColumnModel().getColumn(column).setCellRenderer(new DefaultColumnRenderer());
+////    	    }
+////    	  }
+////	  }
+////	  for(int i=0; i<this.getColumnCount(); ++i) System.out.println(this.getColumnModel().getColumn(i).getIdentifier() + ":" + this.getColumnModel().getColumn(i).getCellRenderer());
+////	  if(2<this.getColumnCount()) {
+////	    this.getColumnModel().getColumn(2).setCellRenderer(new PassedColumnRenderer());
+////	    System.out.println(this.getColumnModel().getColumn(2).getIdentifier() + ":" + this.getColumnModel().getColumn(2).getCellRenderer());
+////	  }
+//	}
+	
+	
+	public List<Integer> getSelectedIds() {
+	  if(!(super.getModel() instanceof SimSearchTableModel)) return null;
+	  SimSearchTableModel tableModel = (SimSearchTableModel) super.getModel();
+	  List<Integer> idList = new ArrayList<>();
+	  for(int row=0; row<this.getRowCount(); ++row) if(this.isRowSelected(row)) idList.add(tableModel.getID(this.convertRowIndexToModel(row)));
+	  return idList;
+	}
+
+	public void applyIdSelection(List<Integer> idList) {
+	  if(!(super.getModel() instanceof SimSearchTableModel)) return;
+	  SimSearchTableModel tableModel = (SimSearchTableModel) super.getModel();
+	  for(int row=0; row<this.getRowCount(); ++row) if(idList.contains(tableModel.getID(this.convertRowIndexToModel(row)))) this.addRowSelectionInterval(row, row);
 	}
 	
 	@Override
@@ -418,6 +454,12 @@ public class SimSearchJTable extends JTable {
 //            return super.prepareRenderer(renderer, row, col);
 //        }
 //    }
+	
+	@Override
+	public void setModel(TableModel model) {
+	  if(model==null) super.setModel(this.createDefaultDataModel());
+	  else super.setModel(model);
+	}
 	
 	public void removeColumns() {
 	  TableColumnModel columnModel = this.getColumnModel();

@@ -59,6 +59,7 @@ import java.util.stream.Collectors;
 import javax.swing.AbstractButton;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.DropMode;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -150,8 +151,9 @@ public class SimSearchTable extends JScrollPane{
   private Color filterColor;
   private Set<Integer> selectedModelIndices;
   private AbstractButton inactiveRowFilterSwitch;
-  private AbstractButton simSetIgnoreSwitch;
-  private ActionListener simSetIgnoreSwitchActionListener;
+  private JButton ignoreSimSetButton;
+  private JButton ignoreAllPairsInSimSetButton;
+  //private ActionListener simSetIgnoreSwitchActionListener;
   private int[] rowHeights;
  
   //private ViewSettings viewSettings;
@@ -767,60 +769,66 @@ public class SimSearchTable extends JScrollPane{
     });
   }
   
-  public void registerSimSetIgnoreSwitch(AbstractButton simSetIgnoreSwitch) {
-	  if(simSetIgnoreSwitch==null) return;
-	  this.simSetIgnoreSwitch = simSetIgnoreSwitch;
-	  this.simSetIgnoreSwitchActionListener = new ActionListener() {
+  public void registerSimSetIgnoreButtons(JButton ignoreSimSetButton, JButton ignoreAllPairsInSimSetButton) {
+	  if(ignoreSimSetButton==null) return;
+	  if(ignoreAllPairsInSimSetButton==null) return;
+	  this.ignoreSimSetButton = ignoreSimSetButton;
+	  this.ignoreAllPairsInSimSetButton = ignoreAllPairsInSimSetButton;
+	  ActionListener actionListener = new ActionListener() {
 
 		  @Override
 		  public void actionPerformed(ActionEvent arg0) {
-			  SimSearchTable.this.processSimSetIgnoreSwitchChangedEvent();
+			  SimSearchTable.this.processIgnoreButtonEvent((JButton) arg0.getSource());
 		  };
 	  };
-	  this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
+	  this.ignoreSimSetButton.addActionListener(actionListener);
+	  this.ignoreAllPairsInSimSetButton.addActionListener(actionListener);
   }
 
-  private void processSimSetIgnoreSwitchChangedEvent() {
-	  this.getModel().setSimSetIgnored(this.simSetIgnoreSwitch.isSelected());
+  private void processIgnoreButtonEvent(JButton ignoreButton) {
+    if(ignoreButton == this.ignoreSimSetButton) this.getModel().ignoreSimSet();
+    else if(ignoreButton == this.ignoreAllPairsInSimSetButton) this.getModel().ignoreAllPairsInSimSet();
   }
 
   
-  public void undo() {
-    if(this.getModel()!=null) {
-      this.getModel().undo();
-      if(this.getRowSorter()!=null) this.getRowSorter().sort();
-      this.updateSelection();
-      this.updateView();
-    }
-  }
+//  public void undo() {
+//    if(this.getModel()!=null) this.getModel().undo();
+////      if(this.getRowSorter()!=null) this.getRowSorter().sort();
+////      this.updateSelection();
+////      this.updateView();
+////    }
+//  }
   
-  public void redo() {
-    if(this.getModel()!=null) {
-      this.getModel().redo();
-      if(this.getRowSorter()!=null) this.getRowSorter().sort();
-      this.updateSelection();
-      this.updateView();
-    }
-  }
+//  public void redo() {
+//    if(this.getModel()!=null) this.getModel().redo();
+////      if(this.getRowSorter()!=null) this.getRowSorter().sort();
+////      this.updateSelection();
+////      this.updateView();
+////    }
+//  }
   
-  public boolean isUndoAvailable() {
-    return ((SimSearchTableModel) this.table.getModel()).isUndoAvailable();
-  }
+//  public boolean isUndoAvailable() {
+//    return this.getModel().isUndoAvailable();
+//  }
+//  
+//  public boolean isRedoAvailable() {
+//    return ((SimSearchTableModel) this.table.getModel()).isRedoAvailable();
+//  }
   
-  public boolean isRedoAvailable() {
-    return ((SimSearchTableModel) this.table.getModel()).isRedoAvailable();
-  }
+//  public String getUndoType() {
+//    return ((SimSearchTableModel) this.table.getModel()).getUndoType();
+//  }
   
-  public String getUndoType() {
-    return ((SimSearchTableModel) this.table.getModel()).getUndoType();
-  }
-  
-  public String getRedoType() {
-    return ((SimSearchTableModel) this.table.getModel()).getRedoType();
-  }
+//  public String getRedoType() {
+//    return ((SimSearchTableModel) this.table.getModel()).getRedoType();
+//  }
   
   public boolean isSimSetIgnored() {
     return (this.getModel()==null?false:this.getModel().isSimSetIgnored());
+  }
+  
+  public boolean isSimSetIgnoreAvailable() {
+    return (this.getModel()==null?false:this.getModel().isSimSetIgnoreAvailable());
   }
   
   public boolean isMergeValid(int[] rowsToMerge, int rowToMergeTo) {
@@ -833,10 +841,10 @@ public class SimSearchTable extends JScrollPane{
   public void mergeRows(int[] rowsToMerge, int rowToMergeTo) {
     rowsToMerge = convertViewRowsToModelRows(rowsToMerge);
     rowToMergeTo = convertViewRowsToModelRows(new int[] {rowToMergeTo})[0];
-    ((SimSearchTableModel) this.table.getModel()).mergeRows(rowsToMerge, rowToMergeTo);
-    ((SimSearchRowSorter) this.table.getRowSorter()).sort();
-    this.updateSelection();
-    this.updateView();
+    this.getModel().mergeRows(rowsToMerge, rowToMergeTo);
+    //((SimSearchRowSorter) this.table.getRowSorter()).sort();
+    //this.updateSelection();
+    //this.updateView();
   }
 
   public boolean isRowMoveValid(int[] rowsToMove, int rowToMoveBefore) {
@@ -844,13 +852,13 @@ public class SimSearchTable extends JScrollPane{
     //System.out.println("RowToMoveBefore: " + rowToMoveBefore);
     rowsToMove = convertViewRowsToModelRows(rowsToMove);
     rowToMoveBefore = convertDropRowToModelRow(rowToMoveBefore);
-    return ((SimSearchRowSorter) this.table.getRowSorter()).isRowMoveValid(rowsToMove, rowToMoveBefore);
+    return this.getRowSorter().isRowMoveValid(rowsToMove, rowToMoveBefore);
   }
   
   public void moveRows(int[] rowsToMove, int rowToMoveBefore) {
     rowsToMove = convertViewRowsToModelRows(rowsToMove);
     rowToMoveBefore = convertDropRowToModelRow(rowToMoveBefore);
-    ((SimSearchRowSorter) this.table.getRowSorter()).moveRows(rowsToMove, rowToMoveBefore);
+    this.getRowSorter().moveRows(rowsToMove, rowToMoveBefore);
     this.updateSelection();
     this.updateView();
   }
@@ -871,9 +879,9 @@ public class SimSearchTable extends JScrollPane{
     this.rowHeaderColumnTable.updateUI();
   }
 
-  public void loadData(SimSearchTableModel tableModel) {
-    this.loadData(tableModel, this.viewSettings);
-  }
+//  public void loadData(SimSearchTableModel tableModel) {
+//    this.loadData(tableModel, this.viewSettings);
+//  }
   
   private List<Integer> loadColumnSettings() { //SimSearchTableModel tableModel) {
     
@@ -1004,56 +1012,64 @@ public class SimSearchTable extends JScrollPane{
     for(Integer column: frozenColumns) this.rowHeaderColumnTable.addColumn(new TableColumn(column));
   }
   
-  public void loadData(SimSearchTableModel tableModel, ViewSettings viewSettings) {
+  public void loadData(SimSearchTableModel tableModel) {
     //List<Integer> columnSorting = this.loadColumnSettings(tableModel);
-    if(this.getModel()!=null) this.applySettingsFromView();
+    List<Integer> selectedIds = new ArrayList<>();
+    if(this.getModel()!=null) {
+      this.applySettingsFromView();
+      if(tableModel!=null && tableModel.getSimSet()==this.getModel().getSimSet()) selectedIds = this.table.getSelectedIds();
+    }
     
-    this.table.setModel(tableModel);
-    this.rowHeaderColumnTable.setModel(tableModel);
+    if (tableModel!=null) {
+      this.table.setModel(tableModel);
+      this.rowHeaderColumnTable.setModel(tableModel);
     
-    this.addColumns();
-    Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> table.initCellRenderers(tableModel));
-//    
-    this.applyColumnAnRowSettingsToView();
-//    //this.table.createDefaultColumnsFromModel();
-//    //this.rowHeaderColumnTable.createDefaultColumnsFromModel();
-//
-//    //this.table.getColumn(table.getColumnName(0)).sizeWidthToFit();
-//    //this.table.getTableHeader().addMouseListener(new );
-    SimSearchRowSorter rowSorter = new SimSearchRowSorter(tableModel);
-    rowSorter.setInactiveRowFilterEnabled(this.isInactiveRowFilterEnabled());
-    table.setRowSorter(rowSorter);
-    this.rowHeaderColumnTable.setRowSorter(rowSorter);
-//    
-    if(this.filterTextBox.getText()!=null && this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
-//    
-    this.applyRowSortingToView();
-//
-    // Put it in a viewport that we can control a bit
-    JViewport jv = new JViewport();
-    jv.setView(this.rowHeaderColumnTable);
-    jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
-    this.setRowHeader(jv);
-//
-    this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
-        .getTableHeader());
-    this.simSetIgnoreSwitch.removeActionListener(this.simSetIgnoreSwitchActionListener);
-    this.simSetIgnoreSwitch.setSelected(tableModel.isSimSetIgnored());
-    this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
-//    
-//    
-////    this.rowHeaderColumnModel.getColumn(1).setResizable(true);
-////    int tmp_min = this.rowHeaderColumnModel.getColumn(1).getMinWidth();
-////    int tmp_max = this.rowHeaderColumnModel.getColumn(1).getMaxWidth();
-////    Dimension dim_max = this.rowHeaderColumnTable.getMaximumSize();
-////    Dimension dim_min = this.rowHeaderColumnTable.getMinimumSize();
-////    this.rowHeaderColumnTable.getTableHeader().setResizingAllowed(true);
-    this.selectedModelIndices.clear();
+    
+      this.addColumns();
+      Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> table.initCellRenderers(tableModel));
+  //    
+      this.applyColumnAnRowSettingsToView();
+  //    //this.table.createDefaultColumnsFromModel();
+  //    //this.rowHeaderColumnTable.createDefaultColumnsFromModel();
+  //
+  //    //this.table.getColumn(table.getColumnName(0)).sizeWidthToFit();
+  //    //this.table.getTableHeader().addMouseListener(new );
+      SimSearchRowSorter rowSorter = new SimSearchRowSorter(tableModel);
+      rowSorter.setInactiveRowFilterEnabled(this.isInactiveRowFilterEnabled());
+      table.setRowSorter(rowSorter);
+      this.rowHeaderColumnTable.setRowSorter(rowSorter);
+  //    
+      if(this.filterTextBox.getText()!=null && this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
+  //    
+      this.applyRowSortingToView();
+  //
+      // Put it in a viewport that we can control a bit
+      JViewport jv = new JViewport();
+      jv.setView(this.rowHeaderColumnTable);
+      jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
+      this.setRowHeader(jv);
+  //
+      this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
+          .getTableHeader());
+  //    this.simSetIgnoreSwitch.removeActionListener(this.simSetIgnoreSwitchActionListener);
+  //    this.simSetIgnoreSwitch.setSelected(tableModel.isSimSetIgnored());
+  //    this.simSetIgnoreSwitch.addActionListener(this.simSetIgnoreSwitchActionListener);
+  //    
+  //    
+  ////    this.rowHeaderColumnModel.getColumn(1).setResizable(true);
+  ////    int tmp_min = this.rowHeaderColumnModel.getColumn(1).getMinWidth();
+  ////    int tmp_max = this.rowHeaderColumnModel.getColumn(1).getMaxWidth();
+  ////    Dimension dim_max = this.rowHeaderColumnTable.getMaximumSize();
+  ////    Dimension dim_min = this.rowHeaderColumnTable.getMinimumSize();
+  ////    this.rowHeaderColumnTable.getTableHeader().setResizingAllowed(true);
+      this.table.applyIdSelection(selectedIds);
+      //this.selectedModelIndices.clear();
+    } 
   }
   
   public void clear() {
-	  this.table.setModel(null);
-	  this.rowHeaderColumnTable.setModel(null);
+    this.table.setModel(null);
+    this.rowHeaderColumnTable.setModel(this.table.getModel());
   }
 
   private void mouseClickedOnTableHeader(MouseEvent e) {
