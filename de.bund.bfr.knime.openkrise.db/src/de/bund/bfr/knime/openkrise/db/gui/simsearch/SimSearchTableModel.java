@@ -53,6 +53,26 @@ private final int columnCount;
 
 private final static int IDCOLUMN = 1;
 private final static int NOTMERGED = -2;
+
+private static Map<SimSearch.SimSet.Type, Set<String>> alignColumnsMap;
+
+static {
+  alignColumnsMap = new HashMap<>();
+  for(SimSearch.SimSet.Type simSetType: SimSearch.SimSet.Type.class.getEnumConstants()) alignColumnsMap.put(simSetType, new HashSet<>());
+  alignColumnsMap.get(SimSearch.SimSet.Type.STATION).addAll(Arrays.asList(
+      DBInfo.COLUMN.STATION_NAME.getName(), DBInfo.COLUMN.STATION_ADDRESS.getName(), 
+      DBInfo.COLUMN.STATION_STREET.getName(), DBInfo.COLUMN.STATION_ZIP.getName(),
+      DBInfo.COLUMN.STATION_CITY.getName(), DBInfo.COLUMN.STATION_HOUSENUMBER.getName()));
+  alignColumnsMap.get(SimSearch.SimSet.Type.PRODUCT).addAll(Arrays.asList(
+      DBInfo.COLUMN.PRODUCT_DESCRIPTION.getName()));
+  alignColumnsMap.get(SimSearch.SimSet.Type.LOT).addAll(Arrays.asList(
+      DBInfo.COLUMN.LOT_NUMBER.getName()));
+  alignColumnsMap.get(SimSearch.SimSet.Type.DELIVERY).addAll(Arrays.asList(
+      DBInfo.COLUMN.DELIVERY_ARRIVEDON_DAY.getName(), DBInfo.COLUMN.DELIVERY_ARRIVEDON_MONTH.getName(), 
+      DBInfo.COLUMN.DELIVERY_ARRIVEDON_YEAR.getName(),
+      DBInfo.COLUMN.DELIVERY_DELIVEREDON_DAY.getName(), DBInfo.COLUMN.DELIVERY_DELIVEREDON_MONTH.getName(), 
+      DBInfo.COLUMN.DELIVERY_DELIVEREDON_YEAR.getName()));
+}
 //private int alignmentReferenceRow;
 //private int referenceRow;
 
@@ -166,6 +186,8 @@ private void initArrays() {
   for(int i=0; i<this.rowCount; ++i) {
     // ids.contains(this.data[i][IDCOLUMN]);
     this.mergeCount[i] = this.dataManipulationHandler.getMergeCount(this.simSet.getType(),(Integer) this.data[i][IDCOLUMN]);
+    if(simSet.getReferenceId().equals(this.getID(i))) this.data[i][0] = Integer.MAX_VALUE;
+    else this.data[i][0] = this.mergeCount[i] - (this.isMerged(i)?1:0);
   }
       
   
@@ -186,7 +208,36 @@ private Map<Integer, Integer> getIdToRowIndexMap() {
 }
 
 private void createAlignments() {
-//    if(!simSearch.alignmentReferenceMap.containsKey(this.simSet)) {
+  List<Integer> alignColumns = new ArrayList<>(); 
+  for(int column=1; column<this.columnCount; ++column) if(alignColumnsMap.get(this.simSet.getType()).contains(this.columnNames[column])) alignColumns.add(column);
+  
+  List<Integer> idList = new ArrayList<>();
+  for(int row=0; row<this.rowCount; ++row) idList.add(this.getID(row));
+  
+  int referenceIndex = idList.indexOf(this.simSet.getReferenceId());
+  
+  for(int column:alignColumns) {
+    
+    if(referenceIndex<0) {
+      
+      for(int row=0; row<this.rowCount; ++row) this.data[row][column] = new Alignment.AlignedSequence((String) this.data[row][column]);
+      
+    } else {
+      
+      String[] sequences = new String[this.rowCount];
+      for(int row=0; row<this.rowCount; ++row) {
+        sequences[row] = (data[row][column]==null?null:data[row][column].toString());
+      }
+      Alignment.AlignedSequence[] alignedSeqs= Alignment.alignSequences(sequences, referenceIndex);
+      for(int row=0; row<this.rowCount; ++row) {
+        data[row][column] = alignedSeqs[row];
+      }
+    }
+    this.columnClasses[column] = Alignment.AlignedSequence.class;
+  }
+  
+  //columns.stream().map(name -> Arrays.)
+      //    if(!simSearch.alignmentReferenceMap.containsKey(this.simSet)) {
 //        if(this.simSet.getReferenceId()!=null) simSearch.alignmentReferenceMap.put(this.simSet, this.simSet.getReferenceId());
 //    }
 //    String referenceId = simSearch.alignmentReferenceMap.get(this.simSet);

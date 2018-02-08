@@ -469,6 +469,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
   }
   
   public void loadData() throws Exception {
+      //Thread.currentThread().sleep(5000);
       if(SimSearchDataLoader.foreignKeyMap==null) SimSearchDataLoader.foreignKeyMap = SimSearchDataLoader.createForeignKeyMap();
 	  switch(simSet.getType()) {
 	  case STATION:
@@ -511,12 +512,16 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       if(con==null) throw(new Exception("DB Connection is not available."));
     	  
       Map<Integer, Object[]> idToDataMap = new HashMap<>();
-      List<Integer> ids = new ArrayList<>(simSet.getIdList()); 
+      
+      List<Integer> idsToLoad = new ArrayList<>(simSet.getIdList());
+      idsToLoad.removeAll(this.dataManipulationHandler.getIgnoreList(simSet));
+      
+      
       MyTable myTable = myDBI.getTable(table.getName());
       if(myTable==null) throw(new Exception("Cannot retrieve sql statement for table query."));
       
       
-      String sql = myTable.getSelectSQL() + " where " + ID_COLUMN_NAME + " IN (" + idsToString(simSet.getIdList()) +  ")";
+      String sql = myTable.getSelectSQL() + " where " + ID_COLUMN_NAME + " IN (" + idsToString(idsToLoad) +  ")";
       if(sql==null) throw(new Exception("Cannot retrieve sql statement for table query."));
  
       Statement statement = con.createStatement();
@@ -545,7 +550,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       while (resultSet.next()) {
         Object[] data = new Object[this.columnCount+1];
         for(int column=0; column < this.columnCount; ++column) data[column+1] = this.columnClasses[column+1].cast(resultSet.getObject(column+1));
-        idToDataMap.put((Integer) resultSet.getObject(ID_COLUMN_NAME), data);
+        idToDataMap.put(resultSet.getInt(ID_COLUMN_NAME), data);
       }
       resultSet.close();
       
@@ -563,12 +568,13 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
      
       this.data = new Object[idToDataMap.size()][]; 
       
-      List<Integer> missingIds = new ArrayList<>(Sets.difference(new HashSet<>(simSet.getIdList()), idToDataMap.keySet()));
+      List<Integer> missingIds = new ArrayList<>(Sets.difference(new HashSet<>(idsToLoad), idToDataMap.keySet()));
       //ids.removeAll(missingIds);
       if(this.dataSourceListener!=null && !missingIds.isEmpty()) this.dataSourceListener.missingIdsDetected(simSet.getType(), missingIds);
+      idsToLoad.removeAll(missingIds);
       
       int row = -1;
-      for(Integer id: ids) {
+      for(Integer id: idsToLoad) {
         ++row;
         this.data[row] = idToDataMap.get(id);
       }

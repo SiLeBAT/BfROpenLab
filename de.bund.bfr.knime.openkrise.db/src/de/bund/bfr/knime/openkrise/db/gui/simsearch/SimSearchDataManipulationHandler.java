@@ -96,6 +96,13 @@ public class SimSearchDataManipulationHandler {
     }
     
     private boolean isEmpty() { return this.mergeIntoAssignment.isEmpty(); }
+    
+    public boolean equals(MergeMap mergeMap) {
+      if(this.mergeIntoAssignment.size()!=mergeMap.mergeIntoAssignment.size()) return false;
+      if(!this.mergeIntoAssignment.keySet().containsAll(mergeMap.mergeIntoAssignment.keySet())) return false;
+      for(Entry<Integer, Integer> entry:this.mergeIntoAssignment.entrySet()) if(mergeMap.mergeIntoAssignment.get(entry.getKey())!=entry.getValue()) return false;
+      return true;
+    }
   }
   
   public static class IgnoreMap {
@@ -151,6 +158,11 @@ public class SimSearchDataManipulationHandler {
     }
     
     private boolean isEmpty() { return this.idSetsToIgnore.isEmpty(); }
+    
+    public boolean equals(IgnoreMap ignoreMap) {
+      if(this.idSetsToIgnore.size()!=ignoreMap.idSetsToIgnore.size()) return false;
+      return this.idSetsToIgnore.containsAll(ignoreMap.idSetsToIgnore);
+    }
   }
   
   private static class ManipulationState {
@@ -185,16 +197,26 @@ public class SimSearchDataManipulationHandler {
       }
       return true;
     }
+    
+    public boolean equals(ManipulationState manipulationState) {
+      for(SimSearch.SimSet.Type simSetType: SimSearch.SimSet.Type.class.getEnumConstants()) {
+        if(!this.mergeMaps.get(simSetType).equals(manipulationState.mergeMaps.get(simSetType))) return false;
+        if(!this.ignoreMaps.get(simSetType).equals(manipulationState.ignoreMaps.get(simSetType))) return false;
+      }
+      return true;
+    }
   }
   
   private Stack<ManipulationState> undoStack;
   private Stack<ManipulationState> redoStack;
   private List<ManipulationStateListener> manipulationStateListeners;
+  private Map<SimSearch.SimSet, Boolean> cachedIgnoreStatus; 
     
   protected SimSearchDataManipulationHandler() {
     this.undoStack = new Stack<>();
     this.redoStack = new Stack<>();
     this.manipulationStateListeners = new ArrayList<>();
+    this.cachedIgnoreStatus = new HashMap<>();
   }
   
   public void merge(SimSearch.SimSet.Type simSetType, List<Integer> idsToMerge, Integer idToMergeInto) throws MergeMap.MergeException {
@@ -203,7 +225,7 @@ public class SimSearchDataManipulationHandler {
     
     this.undoStack.push(manipulationState);
     this.redoStack.clear();
-    this.informListeners(true);
+    this.fireManipulationStateChangedEvent(true);
   }
   
   public void unmerge(SimSearch.SimSet.Type simSetType, List<Integer> idsToUnmerge) throws MergeMap.MergeException {
@@ -212,7 +234,7 @@ public class SimSearchDataManipulationHandler {
     
     this.undoStack.push(manipulationState);
     this.redoStack.clear();
-    this.informListeners(true);
+    this.fireManipulationStateChangedEvent(true);
   }
   
   public Integer getMergedInto(SimSearch.SimSet.Type simSetType, Integer id) {
@@ -226,18 +248,21 @@ public class SimSearchDataManipulationHandler {
   public void undo() {
     if(!this.undoStack.isEmpty()) {
       this.redoStack.push(this.undoStack.pop());
-      this.informListeners(true);
+      this.fireManipulationStateChangedEvent(true);
     }
   }
 
   public void redo() {
     if(!this.redoStack.isEmpty()) {
       this.undoStack.push(this.redoStack.pop());
-      this.informListeners(true);
+      this.fireManipulationStateChangedEvent(true);
     }
   }
   
-  public void informListeners(boolean reloadRequired) { for(ManipulationStateListener listener: this.manipulationStateListeners) listener.manipulationStateChanged(reloadRequired); }
+  public void fireManipulationStateChangedEvent(boolean reloadRequired) { 
+    this.cachedIgnoreStatus = new HashMap<>();
+    for(ManipulationStateListener listener: this.manipulationStateListeners) listener.manipulationStateChanged(reloadRequired); 
+  }
 
   public boolean isUndoAvailable() {
     return !this.undoStack.isEmpty();
@@ -371,7 +396,7 @@ public class SimSearchDataManipulationHandler {
 	  this.redoStack.clear();
 	  if(!this.undoStack.isEmpty()) {
 		  this.undoStack.clear();
-		  this.informListeners(false);
+		  this.fireManipulationStateChangedEvent(false);
 	  }
   }
   
@@ -388,13 +413,26 @@ public class SimSearchDataManipulationHandler {
 //  }
   
   public boolean isSimSetIgnored(SimSearch.SimSet simSet) {
-    if(this.undoStack.isEmpty()) return simSet.getIdList().size()==1 || !simSet.getIdList().contains(simSet.getReferenceId());
-    MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSet.getType());
-    if(mergeMap.isMerged(simSet.getReferenceId()) || 
-        (mergeMap.mergesFromAssignment.containsKey(simSet.getReferenceId()) && 
-            Sets.intersection(mergeMap.mergesFromAssignment.get(simSet.getReferenceId()), new HashSet<>(simSet.getIdList())).isEmpty())) return false;
-    Set<Integer> ids = getIgnorableIdsFromSimSet(simSet);
-    return ids.isEmpty();
+    if(this.cachedIgnoreStatus.containsKey(simSet)) return this.cachedIgnoreStatus.get(simSet);
+    boolean result;
+    if(this.undoStack.isEmpty()) {
+      result = simSet.getIdList().size()==1 || !simSet.getIdList().contains(simSet.getReferenceId());
+      //      this.cachedIgnoreStatus.put(simSet, result);
+      //      return result;
+    } else {
+      MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSet.getType());
+      if(mergeMap.isMerged(simSet.getReferenceId()) || 
+          (mergeMap.mergesFromAssignment.containsKey(simSet.getReferenceId()) && 
+              Sets.intersection(mergeMap.mergesFromAssignment.get(simSet.getReferenceId()), new HashSet<>(simSet.getIdList())).isEmpty())) {
+        result = false;
+        //return false;
+      } else {
+        Set<Integer> ids = getIgnorableIdsFromSimSet(simSet);
+        result = ids.isEmpty();
+      }
+    }
+    this.cachedIgnoreStatus.put(simSet,  result);
+    return result;
   }
   
   public boolean isSimSetIgnoreAvailable(SimSearch.SimSet simSet) {
@@ -412,7 +450,7 @@ public class SimSearchDataManipulationHandler {
       
       this.undoStack.push(manipulationState);
       this.redoStack.clear();
-      this.informListeners(true);
+      this.fireManipulationStateChangedEvent(true);
     }
   }
   
@@ -425,7 +463,7 @@ public class SimSearchDataManipulationHandler {
       
       this.undoStack.push(manipulationState);
       this.redoStack.clear();
-      this.informListeners(true);
+      this.fireManipulationStateChangedEvent(true);
     }
   }
  
@@ -451,7 +489,7 @@ public class SimSearchDataManipulationHandler {
   public void setMissing(SimSearch.SimSet.Type simSetType, List<Integer> missingIds) {
     //this.missingIds.get(simSetType).addAll(ids);
     this.updateUndoRedoStacks(simSetType, missingIds);
-    this.informListeners(false);
+    this.fireManipulationStateChangedEvent(false);
   }
   
   private void updateUndoRedoStacks(SimSearch.SimSet.Type simSetType, List<Integer> missingIds) {
@@ -472,5 +510,12 @@ public class SimSearchDataManipulationHandler {
     if(!this.undoStack.isEmpty() && 
         !this.redoStack.isEmpty() && this.undoStack.peek().equals(this.redoStack.peek())) this.redoStack.pop();
       
+  }
+  
+  public Set<Integer> getIgnoreList(SimSearch.SimSet simSet) {
+    if(this.undoStack.isEmpty()) return new HashSet<>();
+    
+    return this.getIgnorableIdsFromSimSet(simSet);
+    //return this.undoStack.peek().ignoreMaps.get(simSetType).getIgnoreList(referenceId);
   }
 }

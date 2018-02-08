@@ -58,6 +58,10 @@ public class SimSearchJTable extends JTable {
 //	private enum Color {
 //	  Black, Red, 
 //	}
+	
+	SimSearchJTable() {
+	  this.getTableHeader().setAlignmentX(CENTER_ALIGNMENT);
+	}
 	//private static final 
 	private enum EditType {
 	  None(EnumSet.of(Alignment.EditOperation.None)), 
@@ -84,9 +88,9 @@ public class SimSearchJTable extends JTable {
       }
       StringBuilder sb = new StringBuilder("<html>");
       //final String SYMBOL_GAP = "&#8911;"; //"&#128;"; //"&#8248;"; //"&#752;"; //"&#x022CF;"; // "&cuwed"; 
-      final String SYMBOL_GAP = "&#8743;";
+      final String SYMBOL_GAP = "&#752;"; //&#8743;";
       //final String SYMBOL_SPACE_DELETE = "&#9618;"; //"&#x02592;"; // "&block;"; 
-      final String SYMBOL_SPACE_DELETE = "&#8215;";
+      final String SYMBOL_SPACE_DELETE = "&#8718;";//"&#8215;";
       final String SYMBOL_SPACE = "&nbsp;";
       int textPos = -1;
       EditType editType = EditType.None;
@@ -192,7 +196,7 @@ public class SimSearchJTable extends JTable {
         
         //System.out.println("AL:" + data[row]);
         setText(data[modelRow]);
-        setHorizontalAlignment(SwingConstants.CENTER);
+        //setHorizontalAlignment(SwingConstants.CENTER);
 
         return this;
       }
@@ -420,28 +424,28 @@ public class SimSearchJTable extends JTable {
 	  for(int row=0; row<this.getRowCount(); ++row) if(idList.contains(tableModel.getID(this.convertRowIndexToModel(row)))) this.addRowSelectionInterval(row, row);
 	}
 	
-	@Override
-    public void createDefaultColumnsFromModel() {
-        if(this.getModel()!=null) {
-            super.createDefaultColumnsFromModel();
-//            for(int i=0; i<this.getColumnCount(); ++i) {
-//            	if(this.getModel().getColumnClass(this.getColumnModel().getColumn(i).getModelIndex())==Alignment.AlignedSequence.class) {
-//            		int modelIndex = this.getColumnModel().getColumn(i).getModelIndex();
-//            		for(int row=0; row<this.getRowCount(); ++row) {
-//            			if(this.getModel().getValueAt(row, modelIndex)!=null && ((Alignment.AlignedSequence) this.getModel().getValueAt(row, modelIndex)).getEditOperations()!=null) {
-//            				try {
-//								String text = createHtmlCode((Alignment.AlignedSequence) this.getModel().getValueAt(row, modelIndex));
-//								break;
-//							} catch (Exception e) {
-//								// TODO Auto-generated catch block
-//								e.printStackTrace();
-//							}
-//            			}
-//            		}
-//            	}
-//            }
-        }
-    }
+//	@Override
+//    public void createDefaultColumnsFromModel() {
+//        if(this.getModel()!=null) {
+//            super.createDefaultColumnsFromModel();
+////            for(int i=0; i<this.getColumnCount(); ++i) {
+////            	if(this.getModel().getColumnClass(this.getColumnModel().getColumn(i).getModelIndex())==Alignment.AlignedSequence.class) {
+////            		int modelIndex = this.getColumnModel().getColumn(i).getModelIndex();
+////            		for(int row=0; row<this.getRowCount(); ++row) {
+////            			if(this.getModel().getValueAt(row, modelIndex)!=null && ((Alignment.AlignedSequence) this.getModel().getValueAt(row, modelIndex)).getEditOperations()!=null) {
+////            				try {
+////								String text = createHtmlCode((Alignment.AlignedSequence) this.getModel().getValueAt(row, modelIndex));
+////								break;
+////							} catch (Exception e) {
+////								// TODO Auto-generated catch block
+////								e.printStackTrace();
+////							}
+////            			}
+////            		}
+////            	}
+////            }
+//        }
+//    }
 	
 //	@Override
 //    public Component prepareRenderer(
@@ -463,7 +467,7 @@ public class SimSearchJTable extends JTable {
 	
 	public void removeColumns() {
 	  TableColumnModel columnModel = this.getColumnModel();
-	  while (columnModel.getColumnCount() > 0) { columnModel.removeColumn(columnModel.getColumn(0)); }
+	  while (this.getColumnCount() > 0) this.removeColumn(columnModel.getColumn(0)); 
 	}
 	
 	//public boolean isRowHeaderTable() { return this.isRowHeaderTable; }

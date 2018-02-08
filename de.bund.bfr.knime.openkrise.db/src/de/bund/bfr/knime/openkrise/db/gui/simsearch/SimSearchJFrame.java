@@ -450,8 +450,12 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.showColumnsMenuItem = new JMenu("Show Columns");
     this.showColumnsMenuItem.setEnabled(false);
     //menu.add(this.hideInactiveRowsMenuItem);
-    Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem).forEach(m -> menu.add(m));
+    for(JMenuItem menuItem : Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem)) menu.add(menuItem);
     
+    // Men� wird der Men�leiste hinzugef�gt
+    bar.add(menu);
+    
+    menu = new JMenu("Settings");
     JMenuItem menuItem = new JMenuItem("Show search settings ..");
     menuItem.addActionListener(new ActionListener() {
 
@@ -462,9 +466,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       }
 
     });
-    
-    // Men� wird der Men�leiste hinzugef�gt
+    menu.add(menuItem);
     bar.add(menu);
+    
+    menu = new JMenu("Help");
+    menuItem = new JMenuItem("Help..");
+    menu.add(menuItem);
+    bar.add(menu);
+   
     // Men�leiste wird f�r den Dialog gesetzt
     this.setJMenuBar(bar);
   }
@@ -499,9 +508,9 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
   private void updateSimSetCountLabel() {
     if(this.searchIsOn) {
-      this.simSetCountLabel.setText(this.simSearch.getNotIgnoredSimSetIndex(currentSimSetIndex)+1 + " / ?(" + this.simSearch.getNotIgnoredSimSetIndex(this.simSearch.getSimSetCount()-1)+1 + ")");
+      this.simSetCountLabel.setText(this.simSearch.getNotIgnoredSimSetIndex(currentSimSetIndex)+1 + " / ?(" + (this.simSearch.getNotIgnoredSimSetIndex(this.simSearch.getSimSetCount()-1)+1) + ")");
     } else {
-      this.simSetCountLabel.setText(this.simSearch.getNotIgnoredSimSetIndex(currentSimSetIndex)+1 + " / " + this.simSearch.getNotIgnoredSimSetIndex(this.simSearch.getSimSetCount()-1)+1);
+      this.simSetCountLabel.setText(this.simSearch.getNotIgnoredSimSetIndex(currentSimSetIndex)+1 + " / " + (this.simSearch.getNotIgnoredSimSetIndex(this.simSearch.getSimSetCount()-1)+1));
     }
   }
   
