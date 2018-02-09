@@ -163,6 +163,13 @@ public class SimSearchDataManipulationHandler {
       if(this.idSetsToIgnore.size()!=ignoreMap.idSetsToIgnore.size()) return false;
       return this.idSetsToIgnore.containsAll(ignoreMap.idSetsToIgnore);
     }
+    
+    private Set<Integer> getIgnoredIds(Integer referenceId) {
+      Set<Integer> idsToIgnore = new HashSet<>();
+      for(Set<Integer> idSet: this.idSetsToIgnore) if(idSet.contains(referenceId)) idsToIgnore.addAll(idSet);
+      idsToIgnore.remove(referenceId);
+      return idsToIgnore;
+    }
   }
   
   private static class ManipulationState {
@@ -423,7 +430,7 @@ public class SimSearchDataManipulationHandler {
       MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSet.getType());
       if(mergeMap.isMerged(simSet.getReferenceId()) || 
           (mergeMap.mergesFromAssignment.containsKey(simSet.getReferenceId()) && 
-              Sets.intersection(mergeMap.mergesFromAssignment.get(simSet.getReferenceId()), new HashSet<>(simSet.getIdList())).isEmpty())) {
+              !(Sets.intersection(mergeMap.mergesFromAssignment.get(simSet.getReferenceId()), new HashSet<>(simSet.getIdList())).isEmpty()))) {
         result = false;
         //return false;
       } else {
@@ -472,7 +479,7 @@ public class SimSearchDataManipulationHandler {
     ids.remove(simSet.getReferenceId());
     if(!undoStack.isEmpty()) {
       MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSet.getType());
-      ids.remove(mergeMap.mergeIntoAssignment.keySet());
+      ids.removeAll(mergeMap.mergeIntoAssignment.keySet());
       if(mergeMap.isMerged(simSet.getReferenceId())) ids.remove(mergeMap.getMergeAssignment(simSet.getReferenceId()));
       
       //ignoreMap
@@ -515,7 +522,7 @@ public class SimSearchDataManipulationHandler {
   public Set<Integer> getIgnoreList(SimSearch.SimSet simSet) {
     if(this.undoStack.isEmpty()) return new HashSet<>();
     
-    return this.getIgnorableIdsFromSimSet(simSet);
+    return this.undoStack.peek().ignoreMaps.get(simSet.getType()).getIgnoredIds(simSet.getReferenceId());
     //return this.undoStack.peek().ignoreMaps.get(simSetType).getIgnoreList(referenceId);
   }
 }

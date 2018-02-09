@@ -36,6 +36,8 @@ import javax.swing.DefaultRowSorter;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.table.TableRowSorter;
 
@@ -58,6 +60,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
     private String rowFilterText;
     private Pattern rowFilterPattern;
     private boolean filterInactiveRows;
+    private List<RowSorterListener> rowSorterListeners;
     
     static {
         Map<Class<?>, MyComparator<?>> compMap = new HashMap<>();
@@ -155,6 +158,7 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
 
     public SimSearchRowSorter(SimSearchTableModel model) {
         this.model = model;
+        this.rowSorterListeners = new ArrayList<>();
         //this.modelToView = new ArrayList<>(model.getRowCount());
         //this.viewToModel = new ArrayList<>(model.getRowCount());
 //        for(int i = 0; i< model.getRowCount(); ++i ) {
@@ -317,6 +321,16 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
         //for(int i=0; i<model.getRowCount(); ++i) modelToView.set(viewToModel.get(i), i);
         //List<? extends RowSorter.SortKey> keys = getSortKeys();
       this.filterRows();  
+      this.rowSorterListeners.forEach(l -> l.sorterChanged(new RowSorterEvent(this)));
+    }
+    
+    
+    public void addRowSorterListener(RowSorterListener listener) {
+      this.rowSorterListeners.add(listener);
+    }
+    
+    public void removeRowSorterListener(RowSorterListener listener) {
+      this.rowSorterListeners.remove(listener);
     }
     
     private void filterRows() {

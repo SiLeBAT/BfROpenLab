@@ -538,12 +538,18 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       this.columnClasses = new Class<?>[this.columnCount+1];
       this.columnClasses[0] = Integer.class;
       
+      this.columnComments = new String[this.columnCount+1];
+      this.columnComments[0] = "Status";
+      String[] columnComments = myTable.getFieldComments();
+      System.arraycopy(columnComments, 0, this.columnComments, 1, Math.min(columnComments.length,this.columnComments.length-1));
       //this.columnSimSetTypes = new SimSearch.SimSet.Type[this.columnCount+1];
+      
       
       for(int i=0; i<this.columnCount; ++i) {
         this.columnNames[i+1] = resultSetMetaData.getColumnName(i+1);
         if(!SimSearchDataLoader.typeMap.containsKey(resultSetMetaData.getColumnType(i+1))) throw(new SQLException("Unkown DB Type: " + resultSetMetaData.getColumnType(i+1)));
         this.columnClasses[i+1] = SimSearchDataLoader.typeMap.get(resultSetMetaData.getColumnType(i+1));
+        //this.columnComments[i+1] = myTable.getFieldComments()[i];
       }
       
       

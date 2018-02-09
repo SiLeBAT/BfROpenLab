@@ -37,6 +37,7 @@ public final class SimSearchTableModel extends DefaultTableModel{
  */
 private static final long serialVersionUID = -4838767897732945130L;
 
+private final String[] columnComments;
 private final String[] columnNames;
 private final Class<?>[] columnClasses;
 
@@ -47,6 +48,7 @@ private int[] mergeTo;
 private int[][] mergesFrom;
 private int[] mergeCount;
 //private boolean[] isMerged;
+private int referenceRow;
 
 private final int rowCount;
 private final int columnCount;
@@ -135,8 +137,10 @@ SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipula
 	  this.columnNames = dataLoader.columnNames;
 	  this.columnNames[0] = "";
 	  this.columnClasses = dataLoader.columnClasses;
+	  this.columnComments = dataLoader.columnComments;
 	  this.columnCount = columnNames.length;
 	  this.rowCount = data.length;
+	  this.referenceRow = -1;
 	  
 	  this.initArrays();
 	  this.createAlignments();
@@ -155,14 +159,16 @@ private void initArrays() {
   this.mergeTo = new int[this.rowCount];
   this.mergesFrom = new int[this.rowCount][];
   this.mergeCount = new int[this.rowCount];
-  Set<Integer> ids = new HashSet<>(simSet.getIdList()); 
+  //Set<Integer> ids = new HashSet<>(simSet.getIdList()); 
   Arrays.fill(this.mergeTo, NOTMERGED); //noMerge
   Arrays.fill(this.mergeCount, 0);
   
   Map<Integer, List<Integer>> mergesFrom = new HashMap<>();
   Map<Integer, Integer> idToIndexMap = getIdToRowIndexMap();
   
-  for(Integer id : ids) {
+  if(idToIndexMap.containsKey(this.simSet.getReferenceId())) this.referenceRow = idToIndexMap.get(this.simSet.getReferenceId());
+  
+  for(Integer id : idToIndexMap.keySet()) {
     Integer idInto = dataManipulationHandler.getMergedInto(simSet.getType(), id);     //if(simSearch.mergeMap.get(simSet.type).mergedIntoResult.containsKey(id)) {
     if(idInto!=null) {
       int idIndex = idToIndexMap.get(id);
@@ -206,6 +212,8 @@ private Map<Integer, Integer> getIdToRowIndexMap() {
   for(int row=0; row < this.rowCount; ++row) idToIndexMap.put((Integer) data[row][IDCOLUMN], row);
   return idToIndexMap;
 }
+
+public int getReferenceRow() { return this.referenceRow; }
 
 private void createAlignments() {
   List<Integer> alignColumns = new ArrayList<>(); 
@@ -435,6 +443,10 @@ public Class<?> getColumnClass(int columnIndex) { return this.columnClasses[colu
 @Override 
 public String getColumnName(int column) { 
 	return this.columnNames[column];
+}
+
+public String getColumnComment(int column) { 
+  return this.columnComments[column];
 }
 
 @Override

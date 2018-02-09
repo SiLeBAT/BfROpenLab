@@ -199,6 +199,7 @@ public final class SimSearch {
     	public String[] columnNames;
     	public Class<?>[] columnClasses;
     	public Object[][] data;
+    	public String[] columnComments;
     	public int rowCount;
     	public int columnCount;
     }
@@ -310,6 +311,8 @@ public final class SimSearch {
     
     return index;
   }
+  
+  public boolean isSimSetIgnored(int index) { return dataManipulationHandler.isSimSetIgnored(this.simSetList.get(index)); }
   
   public int getIndexOfNextNotIgnoredSimSet(int totalIndex) {
     //int index = -1;

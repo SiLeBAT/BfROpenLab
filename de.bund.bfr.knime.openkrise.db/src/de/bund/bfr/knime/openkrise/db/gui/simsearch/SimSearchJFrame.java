@@ -396,7 +396,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       // do nothing
       return;
     } 
-    this.startAsyncDataLoad(index);
+    if(index>=0) this.startAsyncDataLoad(index);
   }
 
   private void processUndoRedoRequest(JButton source) {
@@ -415,7 +415,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       //this.ignoreButton.setSelected(this.table.isSimSetIgnored());
       this.applyButton.setEnabled(this.simSearch.existDataManipulations());
       
-      if(reloadRequired) this.startAsyncDataLoad(this.currentSimSetIndex);
+      //int simSetIndex = this.currentSimSetIndex;
+      
+      if(reloadRequired) {
+        int simSetIndex = this.currentSimSetIndex;
+        if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
+        if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
+        else this.clearTable();
+      }
   
     } else {
       SwingUtilities.invokeLater(new Runnable() {
@@ -424,6 +431,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
         }
       });
     }
+  }
+  
+  private void clearTable() {
+    this.table.clear();
+    Arrays.asList(this.navBack, this.navForward, this.navToFirst, this.navToLast).forEach(b -> b.setEnabled(false));
+    this.currentSimSetIndex = -1;
+    this.showColumnsMenuItem.setEnabled(false);
+    this.updateSimSetCountLabel();
   }
 
   private void addTable() {
@@ -564,9 +579,12 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 			    this.showColumnsMenuItem.setEnabled(true);
 			    
 		  } else {
+//		    this.ignoreAllPairsInSimSetButton.setEnabled(false);
+//		    this.ignoreSimSetButton.setEnabled(false);
 		    
-		    this.table.clear();
-		    
+//		    this.currentSimSetIndex = -1;
+//		    this.table.clear();
+		    this.clearTable();
 		  }
 	  } else {
 		  SwingUtilities.invokeLater(new Runnable() {
