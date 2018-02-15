@@ -74,6 +74,7 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 import de.bund.bfr.knime.openkrise.db.gui.MainFrame;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
 //import com.sun.glass.ui.Cursor;
@@ -110,6 +111,8 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
   private JCheckBoxMenuItem hideInactiveRowsMenuItem; 
   private JMenu showColumnsMenuItem;
+  private JMenu rowHeightMenu;
+  private JMenu fontSizeMenu;
 
   private SimSearch simSearch;
   private SimSearch.Settings simSearchSettings;
@@ -438,6 +441,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     Arrays.asList(this.navBack, this.navForward, this.navToFirst, this.navToLast).forEach(b -> b.setEnabled(false));
     this.currentSimSetIndex = -1;
     this.showColumnsMenuItem.setEnabled(false);
+    this.rowHeightMenu.setEnabled(false);
     this.updateSimSetCountLabel();
   }
 
@@ -464,12 +468,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.hideInactiveRowsMenuItem.setSelected(false);
     this.showColumnsMenuItem = new JMenu("Show Columns");
     this.showColumnsMenuItem.setEnabled(false);
-    JMenu rowHeightMenu = new JMenu("Row height");
-    JMenuItem rowHeightIncrease = new JMenuItem("Increase");
-    //rowHeightIncrease
+    this.rowHeightMenu = new JMenu("Row height");
+    this.rowHeightMenu.setEnabled(false);
+    this.fontSizeMenu = new JMenu("Font size");
+    this.fontSizeMenu.setEnabled(false);
+    
     //JMenuItem rowHeightDecrease = new JMenuItem("Decrease");
     //menu.add(this.hideInactiveRowsMenuItem);
-    for(JMenuItem menuItem : Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem)) menu.add(menuItem);
+    for(JMenuItem menuItem : Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem, this.rowHeightMenu, this.fontSizeMenu)) menu.add(menuItem);
     
     // Men� wird der Men�leiste hinzugef�gt
     bar.add(menu);
@@ -490,6 +496,15 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     
     menu = new JMenu("Help");
     menuItem = new JMenuItem("Help..");
+    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0));
+    menuItem.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        SimSearchJFrame.this.processUserHelpRequest();
+      }
+      
+    });
     menu.add(menuItem);
     bar.add(menu);
    
@@ -581,7 +596,8 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 			    //this.ignoreButton.setSelected(this.table.isSimSetIgnored());
 			    this.table.addShowColumnsSubMenuItems(this.showColumnsMenuItem);
 			    this.showColumnsMenuItem.setEnabled(true);
-			    
+			    this.table.updateRowHeightMenu(this.rowHeightMenu, true);
+			    this.table.updateFontSizeMenu(this.fontSizeMenu);
 		  } else {
 //		    this.ignoreAllPairsInSimSetButton.setEnabled(false);
 //		    this.ignoreSimSetButton.setEnabled(false);
@@ -700,6 +716,62 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   
   private void processOpenSettingsRequest() {
     PlausibleDialog4Krise.showSettings(this, this.simSearchSettings);
+  }
+  
+  private void processUserHelpRequest() {
+    String help = "<html>\n";
+    //help += "<h1>Similarity Search Help</h1>\n";
+    help += "This view shows you the findings of your similarity search.\n";
+    help += "The table lists similar stations, products, lots or deliveries. One line of the result list shows the " + 
+       SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + " symbol which refers to the row which was found to be similar to all the other rows. ";
+    help += "<br>\n";
+    help += "Some of the columns may contain colored text or special symbols like " + 
+        SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP) + ", " +
+        SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText(SimSearchJTable.AlignmentColumnRenderer.SYMBOL_SPACE_DELETE) + ", " + 
+        SimSearchJTable.AlignmentColumnRenderer.getColoredNeutralGap() + ". " +  
+    " The coloring reflects the difference of the text to the text in the reference row. The coloring is described in the following example:<br>";
+    Alignment.AlignedSequence[] alignedSeq = Alignment.alignSequences(new String[] {"Am Burggraben 128",  "Am Burg grabem 18"},0);
+    try {
+      help += "<table><tr><td>Text in referenc row:</td><td><font face=\"Monospaced\">" + 
+      SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[0], false) + "</font></td></tr>" + 
+      "<tr><td>Text in other row:</td><td><font face=\"Monospaced\">" + SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[1], false) + "</font></td></tr></table>" ;
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      help += "<i>Example is missing.</i>";
+    } 
+    
+    help += "This example shows an alignment of the 2 texts.";
+    //help += "The color are some"
+    help += "It uses 3 colors. The color red indicates a difference from the text to the text in the reference row. Black indicates no difference. And green.";
+    
+    //help += "The " + SimSearchJTable.AlignmentColumnRenderer.getColoredNeutralGap() + " symbol shows a gap. This means that another text contains an insert at this position.";
+    //help += "The " + SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP) + " shows an insert
+    
+    //SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP)
+    
+    
+    help += "<h2>Merging rows</h2>\n";
+    help += "To merge rows you need only to first select the row(s) you want to merge into another row. Then you drag the selected rows onto the row you want the selected rows to be merged into.";
+    
+    help += "<h2>Ignore rows</h2>\n";
+    help += "If you can also mark similar rows as different to exclude them from future similarity searches. The button &lsquo;<strong>Ignore SimSet</strong>&rsquo; marks all rows (that are not already merged) as different to the reference row.  The button &lsquo;<strong>Ignore all pairs</strong>&rsquo; marks all pairs of rows (that are not already merged) as different to each other.";
+    help += "The result of this action might be that the view switches to the next finding. ";
+    
+    help += "</html>\n";
+//    help += "Decide which entity you want to check for similarity.\n";
+//    help += "You have the choice between 'Station', 'Product', 'Lot' and 'Delivery'.\n\n";
+//    help += "Secondly:\n";
+//    help += "You may decide for each parameter the similarity in [%]:\n";
+//    help += "Example:\n";
+//    help += "A value of 100 means that two items are treated as 'similar' only if they are to 100% identical.\n";
+//    help += "A value of 80 means that two items are treated as 'similar' if they are at least 80% identical.\n";
+//    help += "A value of 0 means that two items are always treated as 'similar'.\n";
+//    help += "\nThe parameters are entity dependant, i.e. each entity has its individual parameters.\n";
+//    help += "Be aware: all parameter similarity definitions are 'AND'-connected.\n";
+//    help += "\nThe algorithm behind the scenes is the Dice's similarity coefficient,\nsee: https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient";
+    
+    InfoBox ib = new InfoBox(this, help, true, new Dimension(800, 400), null, true, true);
+    ib.setVisible(true);
   }
  
 }

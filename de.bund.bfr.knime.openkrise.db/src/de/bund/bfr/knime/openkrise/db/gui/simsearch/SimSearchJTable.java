@@ -198,8 +198,18 @@ public class SimSearchJTable extends JTable {
     public static class AlignmentColumnRenderer extends DefaultColumnRenderer implements ToolTipRenderer { 
     
     	private static Font font;
-      
+    	public static final String SYMBOL_GAP = "&#752;";
+    	public static final String SYMBOL_SPACE_DELETE = "&#8718;";//"&#8215;";
+    	      
       private String[] data;
+      
+      public static String getColoredMismatchText(String text) {
+        return "<font color=\"red\">" + text + "</font>";
+      }
+      
+      public static String getColoredNeutralGap() {
+        return "<font color=\"green\">" + SYMBOL_GAP + "</font>";
+      }
       
       AlignmentColumnRenderer(int rowCount) {
         super();
@@ -218,10 +228,10 @@ public class SimSearchJTable extends JTable {
         super.getTableCellRendererComponent(table, value, isSelected,
                                             hasFocus, row, column);
 
-        if(font==null) {
-          AlignmentColumnRenderer.font = new Font(Font.MONOSPACED, Font.PLAIN, table.getFont().getSize());
-        }
-        setFont(font);
+        //if(font==null) {
+        //  AlignmentColumnRenderer.font = new Font(Font.MONOSPACED, Font.PLAIN, table.getFont().getSize());
+        //}
+        //setFont(font);
        
         int modelRow = table.getRowSorter().convertRowIndexToModel(row);
         
@@ -241,11 +251,11 @@ public class SimSearchJTable extends JTable {
         return this;
       }
       
-      private static String createHtmlCode(Alignment.AlignedSequence alignedSequence, boolean addHtmlTag) throws Exception {
+      public static String createHtmlCode(Alignment.AlignedSequence alignedSequence, boolean addHtmlTag) throws Exception {
         if(alignedSequence==null || alignedSequence.getEditOperations()==null || alignedSequence.getEditOperations().isEmpty()) {
           return "";
         }
-        StringBuilder sb = new StringBuilder((addHtmlTag?"<html><nobr>":"")); //+"<nobr>");
+        StringBuilder sb = new StringBuilder((addHtmlTag?"<html><nobr><font face=\"Monospaced\">":"")); //+"<nobr>");
         //final String SYMBOL_GAP = "&#8911;"; //"&#128;"; //"&#8248;"; //"&#752;"; //"&#x022CF;"; // "&cuwed"; 
         final String SYMBOL_GAP = "&#752;"; //&#8743;";
         //final String SYMBOL_SPACE_DELETE = "&#9618;"; //"&#x02592;"; // "&block;"; 
@@ -273,7 +283,7 @@ public class SimSearchJTable extends JTable {
           }
         }
         //sb.append("</nobr>");
-        if(addHtmlTag) sb.append("<nobr></html>");
+        if(addHtmlTag) sb.append("</font><nobr></html>");
         return sb.toString();
       }  
       
@@ -429,7 +439,7 @@ public class SimSearchJTable extends JTable {
         }
         //setBackground(table.getTableHeader().getBackground());
         //setBorder(table.getTableHeader().getBorder());
-        setFont(new Font("Courier New", Font.PLAIN, table.getTableHeader().getFont().getSize()));
+        //setFont(new Font("Courier New", Font.PLAIN, table.getTableHeader().getFont().getSize()));
         //setForeground(c);
         
 //        table.getTableHeader().getDefaultRenderer()

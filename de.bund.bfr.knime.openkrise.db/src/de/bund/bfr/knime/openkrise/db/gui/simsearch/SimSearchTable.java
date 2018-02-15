@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.ItemSelectable;
 import java.awt.Point;
@@ -76,6 +77,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.MenuSelectionManager;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.ScrollPaneConstants;
@@ -127,7 +129,11 @@ public class SimSearchTable extends JScrollPane{
   
   public static class ViewSettings {
     
-    public static final int DEFAULT_ROW_HEIGHT = 40;
+    public static final int ROW_HEIGHT_DEFAULT = 40;
+    public static final int ROW_HEIGHT_MIN = 20;
+    public static final int ROW_HEIGHT_MAX = 100;
+    public static final int FONT_SIZE_MIN=6;
+    public static final int FONT_SIZE_MAX=12;
     
     private boolean showRemovedObjects;
     private Map<SimSearch.SimSet.Type, List<String>> columnOrder;
@@ -1006,7 +1012,7 @@ public class SimSearchTable extends JScrollPane{
     Random rnd = new Random();
     for(int row=0; row<tableModel.getRowCount(); ++row) {
       Integer w = rowHeights.get(tableModel.getID(row));
-      this.rowHeights[row] = (w!=null?w:ViewSettings.DEFAULT_ROW_HEIGHT); //(int) Math.round((rnd.nextInt(5)+1)*0.5*ViewSettings.DEFAULT_ROW_HEIGHT));
+      this.rowHeights[row] = (w!=null?w:ViewSettings.ROW_HEIGHT_DEFAULT); //(int) Math.round((rnd.nextInt(5)+1)*0.5*ViewSettings.DEFAULT_ROW_HEIGHT));
     }
   }
   
@@ -1159,6 +1165,63 @@ public class SimSearchTable extends JScrollPane{
       this.setBorder(BorderFactory.createTitledBorder(text));
     } else {
       ((TitledBorder) this.getBorder()).setTitle(text);
+    }
+  }
+  
+  public void updateRowHeightMenu(JMenu menu, boolean addShortCuts) {
+    if(this.getModel()==null) {
+      menu.setEnabled(false);
+    } else {
+      menu.removeAll();
+      menu.setEnabled(true);
+      JMenuItem rowHeightIncrease = new JMenuItem("Increase");
+      rowHeightIncrease.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+          SimSearchTable.this.processUserChangeRowHeightRequest(+1);
+        }
+      });
+      //rowHeightIncrease.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+      if(addShortCuts) rowHeightIncrease.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, KeyEvent.CTRL_MASK));
+      rowHeightIncrease.getAccessibleContext().setAccessibleDescription(
+          "This doesn't really do anything");
+      menu.add(rowHeightIncrease);
+      JMenuItem rowHeightDecrease = new JMenuItem("Decrease");
+      rowHeightDecrease.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+          SimSearchTable.this.processUserChangeRowHeightRequest(-1);
+        }
+      });
+      menu.add(rowHeightDecrease);
+    }
+  }
+  
+  public void updateFontSizeMenu(JMenu menu) {
+    if(this.getModel()==null) {
+      menu.setEnabled(false);
+    } else {
+      menu.removeAll();
+      menu.setEnabled(true);
+      JMenuItem fontSizeIncrease = new JMenuItem("Increase");
+      fontSizeIncrease.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+          SimSearchTable.this.processUserChangeFontSizeRequest(+1);
+        }
+      });
+      
+      fontSizeIncrease.getAccessibleContext().setAccessibleDescription(
+          "Increase table font size.");
+      menu.add(fontSizeIncrease);
+      JMenuItem fontSizeDecrease = new JMenuItem("Decrease");
+      fontSizeDecrease.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+          SimSearchTable.this.processUserChangeFontSizeRequest(-1);
+        }
+      });
+      menu.add(fontSizeDecrease);
     }
   }
   
@@ -1320,6 +1383,25 @@ public class SimSearchTable extends JScrollPane{
   
   private void repaintDropLocation(int column) {
 	  
+  }
+  
+  private void processUserChangeRowHeightRequest(int rowHeightDelta) {
+    if(rowHeightDelta>0) this.table.setRowHeight(Math.min(this.table.getRowHeight() + rowHeightDelta, ViewSettings.ROW_HEIGHT_MAX));
+    else if (rowHeightDelta<0) this.table.setRowHeight(Math.max(this.table.getRowHeight() + rowHeightDelta, ViewSettings.ROW_HEIGHT_MIN));
+    if(this.table.getRowHeight()!=this.rowHeaderColumnTable.getRowHeight()) this.rowHeaderColumnTable.setRowHeight(this.table.getRowHeight());
+  }
+  
+  private void processUserChangeFontSizeRequest(int fontSizeDelta) {
+    Font font = this.table.getFont();
+    
+    if(fontSizeDelta>0) font = new Font(font.getFontName(), font.getStyle(),Math.min(font.getSize()+fontSizeDelta, ViewSettings.FONT_SIZE_MAX));
+    if(fontSizeDelta<0) font = new Font(font.getFontName(), font.getStyle(),Math.max(font.getSize()+fontSizeDelta, ViewSettings.FONT_SIZE_MIN));
+    
+    if(font!=this.table.getFont()) {
+      this.table.setFont(font);
+      this.rowHeaderColumnTable.setFont(font);
+    }
+    
   }
 
 }
