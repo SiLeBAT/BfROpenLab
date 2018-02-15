@@ -41,6 +41,8 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
 	
 	private SimSearchTable simSearchTable;
     private final DataFlavor dataFlavor;
+//    private int dropLocationRow;
+//    private boolean isMergeDrop;
 
     protected SimSearchTableRowTransferHandler(SimSearchTable simSearchTable) {
       super();
@@ -70,7 +72,9 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
     }
     @Override public boolean canImport(TransferHandler.TransferSupport info) {
       SimSearchJTable table = (SimSearchJTable) info.getComponent();
-      
+//      this.isMergeDrop = false;
+//      this.dropLocationRow = -1;
+      //info.setShowDropLocation(false);
       boolean isDropable = info.isDrop() && info.isDataFlavorSupported(dataFlavor);
       if(isDropable) {
         JTable.DropLocation dropLocation = (JTable.DropLocation) info.getDropLocation();
@@ -84,6 +88,8 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
               //isDropable = this.simSearchTable.areRowsMovableTo((int[]) info.getTransferable().getTransferData(dataFlavor), dropLocation.getRow());
               isDropable = this.simSearchTable.isRowMoveValid(rowsDragged, dropLocation.getRow());
             } else {
+//            	this.dropLocationRow = dropLocation.getRow();
+//            	this.isMergeDrop = true;
               isDropable = this.simSearchTable.isMergeValid(rowsDragged, dropLocation.getRow());
             }
 //          } 
@@ -183,6 +189,7 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
     }
     @Override protected void exportDone(JComponent c, Transferable data, int action) {
       c.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      ((SimSearchJTable) c).getPartnerTable().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       //System.out.println("Export done");
       //cleanup(c, action == TransferHandler.MOVE);
     }
@@ -214,4 +221,6 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
 //      addCount = 0;
 //      addIndex = -1;
 //    }
+//    public int getDropLocationRow() { return this.dropLocationRow; }
+//    public boolean isMergeDropLocation() { return this.isMergeDrop; }
 }

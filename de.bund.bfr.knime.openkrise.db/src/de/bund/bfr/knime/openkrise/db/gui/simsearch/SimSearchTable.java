@@ -43,6 +43,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 import java.security.spec.ECGenParameterSpec;
@@ -96,8 +97,10 @@ import javax.swing.event.RowSorterListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.MenuItemUI;
+import javax.swing.plaf.TableUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.plaf.basic.BasicMenuItemUI;
+import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
@@ -295,10 +298,31 @@ public class SimSearchTable extends JScrollPane{
   
   private void addDragAndDropFeature() {
     SimSearchTableRowTransferHandler transferHandler = new SimSearchTableRowTransferHandler(this);
+    MouseAdapter mouseAdapter = new MouseAdapter() {
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			SimSearchTable.this.repaintDropLocation(e);
+			SimSearchTable.this.updateUI();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			SimSearchTable.this.repaintDropLocation(e);
+			SimSearchTable.this.updateUI();
+			
+		}
+    	
+    };
+    Repainter dropLocationRepainter = new Repainter();
+    //comp.addPropertyChangeListener("dropLocation", newRepainter());
     Arrays.asList(this.table,this.rowHeaderColumnTable).forEach( t -> {
       t.setTransferHandler(transferHandler);
       t.setDropMode(DropMode.ON_OR_INSERT_ROWS);
       t.setDragEnabled(true);
+      t.addPropertyChangeListener("dropLocation", dropLocationRepainter);
+      //t.addMouseMotionListener(mouseAdapter);
+      //t.addMouseListener(mouseAdapter);
     });
   }
   
@@ -438,6 +462,9 @@ public class SimSearchTable extends JScrollPane{
     this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
     this.rowHeaderColumnTable.getTableHeader().setReorderingAllowed(false);
     
+    this.table.setPartnerTable(this.rowHeaderColumnTable);
+    this.rowHeaderColumnTable.setPartnerTable(this.table);
+    
     //this.table.setRowHeight(DEFAULT_ROW_HEIGHT);
     //this.rowHeaderColumnTable.setRowHeight(DEFAULT_ROW_HEIGHT);
     
@@ -482,27 +509,6 @@ public class SimSearchTable extends JScrollPane{
           }
         }
       }
-
-//      @Override
-//      public void mouseEntered(MouseEvent arg0) {
-//        // TODO Auto-generated method stub
-//        System.out.println("mouseEntered");
-//      }
-
-//      @Override
-//      public void mouseExited(MouseEvent arg0) {
-//        // TODO Auto-generated method stub
-//        //System.out.println("mouseExited");
-//      }
-
-//      @Override
-//      public void mousePressed(MouseEvent arg0) {
-////        // TODO Auto-generated method stub
-////        if(!SwingUtilities.isRightMouseButton(e)) {
-////          JTableHeader header = (JTableHeader) arg0.getComponent();
-////         this.columnWidthAtMouseDragStart = header.getColumnModel().getColumn(header.columnAtPoint(arg0.getPoint())).getPreferredWidth(); 
-////        }
-//      }
 
       @Override
       public void mouseReleased(MouseEvent e) {
@@ -1280,4 +1286,40 @@ public class SimSearchTable extends JScrollPane{
     }
   }
   
+  class Repainter implements PropertyChangeListener {
+	  public void propertyChange(PropertyChangeEvent pce) {
+		  //pce.
+		  repaintDropLocation(pce.getOldValue());
+		  repaintDropLocation(pce.getNewValue());
+	  }
+  }
+  
+  private void repaintDropLocation(Object object) {
+	  this.table.updateUI();
+	  this.rowHeaderColumnTable.updateUI();
+//	  JTable.DropLocation dropLocation = this.table.getDropLocation();
+//	  if(dropLocation==null) dropLocation = this.rowHeaderColumnTable.getDropLocation();
+//	  if(dropLocation!=null) {
+//		  
+//		  
+//		  
+//		  if(dropLocation.isInsertRow()) System.out.println("Insert Row");
+//		  else if(!dropLocation.isInsertColumn()) {
+//			  this.table.updateUI();
+//			  this.rowHeaderColumnTable.updateUI();
+////			  BasicTableUI tableUI = (BasicTableUI) this.table.getUI();
+////			  tableUI.
+////			  int k=6;
+//		  }
+//	  }
+  }
+  
+  private void repaintDropLocation(MouseEvent e) {
+	  //if(this.table.getRow)
+  }
+  
+  private void repaintDropLocation(int column) {
+	  
+  }
+
 }

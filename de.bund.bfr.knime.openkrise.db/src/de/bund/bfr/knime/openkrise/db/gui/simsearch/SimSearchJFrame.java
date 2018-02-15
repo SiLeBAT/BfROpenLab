@@ -464,6 +464,10 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.hideInactiveRowsMenuItem.setSelected(false);
     this.showColumnsMenuItem = new JMenu("Show Columns");
     this.showColumnsMenuItem.setEnabled(false);
+    JMenu rowHeightMenu = new JMenu("Row height");
+    JMenuItem rowHeightIncrease = new JMenuItem("Increase");
+    //rowHeightIncrease
+    //JMenuItem rowHeightDecrease = new JMenuItem("Decrease");
     //menu.add(this.hideInactiveRowsMenuItem);
     for(JMenuItem menuItem : Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem)) menu.add(menuItem);
     

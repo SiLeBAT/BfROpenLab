@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -61,6 +62,8 @@ public class SimSearchJTable extends JTable {
 //	private enum Color {
 //	  Black, Red, 
 //	}
+		
+	private SimSearchJTable partnerTable;
 	
 	private interface ToolTipRenderer {
 	  String createToolTipText(SimSearchTableModel tableModel, int rowIndex, int columnIndex);
@@ -97,6 +100,11 @@ public class SimSearchJTable extends JTable {
 	SimSearchJTable() {
 	  this.getTableHeader().setAlignmentX(CENTER_ALIGNMENT);
 	}
+	
+	protected void setPartnerTable(SimSearchJTable partnerTable) {
+		this.partnerTable = partnerTable;
+	}
+	
 	//private static final 
 	private enum EditType {
 	  None(EnumSet.of(Alignment.EditOperation.None)), 
@@ -121,8 +129,10 @@ public class SimSearchJTable extends JTable {
      * A custom cell renderer for rendering the "Passed" column.
      */
     public static class DefaultColumnRenderer extends DefaultTableCellRenderer { 
-      private Color defaultBackgroundColor = null;
-      private static final Color inactiveBackgroundColor= Color.LIGHT_GRAY;
+      //private Color defaultBackgroundColor = null;
+      private static final Color COLOR_INACTIVEROW_BACKGROUND = Color.LIGHT_GRAY;
+      private static Color COLOR_DROPLOCATION_BACKGROUND = null;
+      
       @Override
       public Component getTableCellRendererComponent(JTable table,
                                                      Object value,
@@ -134,9 +144,35 @@ public class SimSearchJTable extends JTable {
         super.getTableCellRendererComponent(table, value, isSelected,
                                             hasFocus, row, column);
 
-        Color color = getBackground();
-        if(defaultBackgroundColor==null) defaultBackgroundColor = color;
-        if(color.equals(defaultBackgroundColor) || color.equals(inactiveBackgroundColor)) {
+        JTable.DropLocation dropLocation = table.getDropLocation();
+        TransferHandler transferHandler = table.getTransferHandler();
+        //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        int dropLocationRow = ((SimSearchJTable) table).getDropLocationRow();
+//        if(transferHandler!=null && (transferHandler instanceof SimSearchTableRowTransferHandler)) {
+//        	SimSearchTableRowTransferHandler simSearchTransferHandler = (SimSearchTableRowTransferHandler) transferHandler;
+//        	if(simSearchTransferHandler.isMergeDropLocation()) dropLocationRow = simSearchTransferHandler.getDropLocationRow();
+//        }
+        //if(table.getTransferHandler()!=null && (table.getTransferHandler() instanceof SimSearchTransferHandler)) mergeRow = ((SimSearchTransferHandler) table.getTransferHandler()).
+        //int mergeRow = table.getTransferHandler().
+        //if(dropLocation!=null && 
+        //		!dropLocation.isInsertRow() && !dropLocation.isInsertColumn() &&
+        //		dropLocation.getRow()==row) {
+        if(dropLocationRow==row) {
+        	if(COLOR_DROPLOCATION_BACKGROUND==null && dropLocation!=null && dropLocation.getColumn()==column) COLOR_DROPLOCATION_BACKGROUND = getBackground();
+        	if(COLOR_DROPLOCATION_BACKGROUND!=null) setBackground(COLOR_DROPLOCATION_BACKGROUND);
+        	//setBackground(UIManager.getColor("Table.highlight"));
+        } 
+        //else if(isSelected) {
+        //	setBackground(UIManager.getColor("Table.selectionBackground"));
+        //} else if(hasFocus) {
+        //	setBackground(UIManager.getColor("Table.focusCellBackground"));
+        else {
+        	if(getBackground().equals(COLOR_DROPLOCATION_BACKGROUND)) setBackground(UIManager.getColor("Table.background"));
+        	if(getBackground().equals(UIManager.getColor("Table.background")))   {
+        
+        //Color color = getBackground();
+        //if(defaultBackgroundColor==null) defaultBackgroundColor = color;
+        //if(color.equals(defaultBackgroundColor) || color.equals(inactiveBackgroundColor)) {
         
           //int modelRow = table.getRowSorter().convertRowIndexToModel(row);
           int modelRow = table.convertRowIndexToModel(row);
@@ -145,10 +181,12 @@ public class SimSearchJTable extends JTable {
 //          frame.getRootPane().
           //System.out.println("getTableCellRendererComponent:BackgroundColor:" + color.toString());
           if(((SimSearchTableModel) table.getModel()).isMerged(modelRow)) { // || ((SimSearchTableModel) table.getModel()).getRemove(modelRow)) {
-            setBackground(inactiveBackgroundColor);
-          } else {
-            setBackground(defaultBackgroundColor);
+            setBackground(COLOR_INACTIVEROW_BACKGROUND);
           }
+          //else {
+          //  setBackground(UIManager.getColor("Table.background"));
+          //}
+        }
         }
         return this;
       }
@@ -618,4 +656,18 @@ public class SimSearchJTable extends JTable {
       StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
       super.setTableHeader(tableHeader);
     }
+    
+//    public JTable.DropLocation getTableDropLocation() {
+//    	
+//    }
+//    public int getDropLocationRow() {
+//    	if(this.getTransferHandler()!=null && (this.getTransferHandler() instanceof SimSearchTableRowTransferHandler)) return ((SimSearchTableRowTransferHandler) this.getTransferHandler()).getDropRow;
+//    }
+    public int getDropLocationRow() {
+    	if(this.getDropLocation()!=null) return this.getDropLocation().getRow();
+    	if(this.partnerTable.getDropLocation()!=null) return this.partnerTable.getDropLocation().getRow();
+    	return -1;
+    }
+    
+    public SimSearchJTable getPartnerTable() { return this.partnerTable; }
 }
