@@ -152,6 +152,40 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
           }
           
       });
+        compMap.put(List.class, new MyComparator<List<String>>() {
+
+          @Override
+          public int compareObjects(Object o1, Object o2) {
+            if(o1==null) {
+              if(o2==null) return 0;
+              else return -1;
+            } else if(o2==null) return 1;
+            
+            List<String> list1 = (List<String>) o1;
+            List<String> list2 = (List<String>) o2;
+            int n = Math.min(list1.size(), list2.size());
+            for(int i=0; i<n; ++i) {
+              int result = list1.get(i).compareTo(list2.get(i));
+              if(result!=0) return result;
+            }
+            if(list1.size()>n) return 1;
+            else if(list2.size()>n) return -1;
+            return 0;
+          }
+
+          @Override
+          public boolean isMatch(List<String> o, String searchString) {
+            if(searchString==null || searchString.isEmpty()) {
+              return true;
+            } else if(o==null) {
+              return false;
+            } else {
+              for(String element: o) if(element.indexOf(searchString)>=0) return true;
+              return false;
+            }
+          }
+          
+      });
         
         comparatorMap = Collections.unmodifiableMap(compMap);
     }

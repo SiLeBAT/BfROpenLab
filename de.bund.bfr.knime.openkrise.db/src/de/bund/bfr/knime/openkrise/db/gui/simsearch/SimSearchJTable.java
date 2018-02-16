@@ -23,21 +23,27 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -47,6 +53,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import org.apache.commons.text.StringEscapeUtils;
+import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
 
 public class SimSearchJTable extends JTable {
 	/**
@@ -64,6 +71,22 @@ public class SimSearchJTable extends JTable {
 //	}
 		
 	private SimSearchJTable partnerTable;
+	//private SimSearchTable.ViewSettings viewSettings;
+	
+	public class HeaderRenderer implements TableCellRenderer {
+	    private final JTableHeader header;
+
+	    public HeaderRenderer(JTableHeader header) {
+	        this.header = header;
+	    }
+
+	    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+	        JLabel label = (JLabel) header.getDefaultRenderer().getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+	        label.setHorizontalAlignment(SwingConstants.CENTER);
+	        label.setText(GuiMessages.getString(table.getColumnName(column)));
+	        return label;
+	    }
+	}
 	
 	private interface ToolTipRenderer {
 	  String createToolTipText(SimSearchTableModel tableModel, int rowIndex, int columnIndex);
@@ -80,9 +103,11 @@ public class SimSearchJTable extends JTable {
         java.awt.Point p = e.getPoint();
         
         int viewIndex = columnModel.getColumnIndexAtX(p.x);
-        int modelIndex = columnModel.getColumn(viewIndex).getModelIndex();
-        if(this.table!=null && this.table.getModel()!=null && (this.table.getModel() instanceof SimSearchTableModel)) {
-          return ((SimSearchTableModel) this.table.getModel()).getColumnComment(modelIndex);
+        if(viewIndex>=0) {
+          int modelIndex = columnModel.getColumn(viewIndex).getModelIndex();
+          if(this.table!=null && this.table.getModel()!=null && (this.table.getModel() instanceof SimSearchTableModel)) {
+            return GuiMessages.getString(((SimSearchTableModel) this.table.getModel()).getColumnComment(modelIndex));
+          }
         }
         return null;
 //        Container tmp = this.getParent(); 
@@ -90,6 +115,8 @@ public class SimSearchJTable extends JTable {
 //        Object tmp2 = e.getSource();
 //        return ""; //    columnToolTips[realIndex];
       }
+	  
+	  
 	}
 	
 	@Override
@@ -97,8 +124,10 @@ public class SimSearchJTable extends JTable {
       return new SimSearchJTableHeader(this.getColumnModel());
     }
 	 
-	SimSearchJTable() {
-	  this.getTableHeader().setAlignmentX(CENTER_ALIGNMENT);
+	SimSearchJTable() { //SimSearchTable.ViewSettings viewSettings) {
+	  super();
+	  //this.viewSettings = viewSettings;
+	  //this.getTableHeader().setAlignmentX(CENTER_ALIGNMENT);
 	}
 	
 	protected void setPartnerTable(SimSearchJTable partnerTable) {
@@ -132,6 +161,10 @@ public class SimSearchJTable extends JTable {
       //private Color defaultBackgroundColor = null;
       private static final Color COLOR_INACTIVEROW_BACKGROUND = Color.LIGHT_GRAY;
       private static Color COLOR_DROPLOCATION_BACKGROUND = null;
+      static final int EXTRA_X_MARGIN = 4;
+      static final int EXTRA_Y_MARGIN = 2;
+      static final int INNER_MARGIN_X = 10;
+      static final int INNER_MARGIN_Y = 10;
       
       @Override
       public Component getTableCellRendererComponent(JTable table,
@@ -141,9 +174,14 @@ public class SimSearchJTable extends JTable {
                                                      int row,
                                                      int column) {
 
-        super.getTableCellRendererComponent(table, value, isSelected,
+        Component c = super.getTableCellRendererComponent(table, value, isSelected,
                                             hasFocus, row, column);
-
+        Border border = ((JLabel) c).getBorder();
+        if(border!=null) 
+          if(!(border instanceof CompoundBorder)) {
+            border = new CompoundBorder(border, new EmptyBorder(INNER_MARGIN_X,INNER_MARGIN_Y,INNER_MARGIN_X,INNER_MARGIN_Y));
+            ((JLabel) c).setBorder(border);
+          }
         JTable.DropLocation dropLocation = table.getDropLocation();
         TransferHandler transferHandler = table.getTransferHandler();
         //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -167,30 +205,53 @@ public class SimSearchJTable extends JTable {
         //} else if(hasFocus) {
         //	setBackground(UIManager.getColor("Table.focusCellBackground"));
         else {
-        	if(getBackground().equals(COLOR_DROPLOCATION_BACKGROUND)) setBackground(UIManager.getColor("Table.background"));
-        	if(getBackground().equals(UIManager.getColor("Table.background")))   {
+          if(hasFocus && UIManager.getColor("Table.focusCellBackground")!=table.getBackground()) setBackground(UIManager.getColor("Table.focusCellBackground"));
+          else if(isSelected && UIManager.getColor("Table.selectionBackground")!=table.getBackground()) setBackground(UIManager.getColor("Table.selectionBackground"));
+        	//if(getBackground().equals(COLOR_DROPLOCATION_BACKGROUND)) setBackground(UIManager.getColor("Table.background"));
+          
+          else {	//if(getBackground().equals(UIManager.getColor("Table.background")))   {
         
-        //Color color = getBackground();
-        //if(defaultBackgroundColor==null) defaultBackgroundColor = color;
-        //if(color.equals(defaultBackgroundColor) || color.equals(inactiveBackgroundColor)) {
-        
-          //int modelRow = table.getRowSorter().convertRowIndexToModel(row);
-          int modelRow = table.convertRowIndexToModel(row);
-//          Color color = getBackground();
-//          JFrame frame;
-//          frame.getRootPane().
-          //System.out.println("getTableCellRendererComponent:BackgroundColor:" + color.toString());
-          if(((SimSearchTableModel) table.getModel()).isMerged(modelRow)) { // || ((SimSearchTableModel) table.getModel()).getRemove(modelRow)) {
-            setBackground(COLOR_INACTIVEROW_BACKGROUND);
+            //Color color = getBackground();
+            //if(defaultBackgroundColor==null) defaultBackgroundColor = color;
+            //if(color.equals(defaultBackgroundColor) || color.equals(inactiveBackgroundColor)) {
+
+            //int modelRow = table.getRowSorter().convertRowIndexToModel(row);
+            int modelRow = table.convertRowIndexToModel(row);
+            //          Color color = getBackground();
+            //          JFrame frame;
+            //          frame.getRootPane().
+            //System.out.println("getTableCellRendererComponent:BackgroundColor:" + color.toString());
+            if(((SimSearchTableModel) table.getModel()).isMerged(modelRow)) { // || ((SimSearchTableModel) table.getModel()).getRemove(modelRow)) {
+              setBackground(COLOR_INACTIVEROW_BACKGROUND);
+            } else {
+              setBackground(null);
+            }
+            //else {
+            //  setBackground(UIManager.getColor("Table.background"));
+            //}
           }
-          //else {
-          //  setBackground(UIManager.getColor("Table.background"));
-          //}
-        }
         }
         return this;
       }
+      
+      public int getFittingWidth(int column, JTable table) {
+        FontMetrics fm = table.getFontMetrics( table.getFont() );
+        int width = fm.stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
+        
+        for(int row=0; row<table.getRowCount(); ++row) {
+            Object o = table.getValueAt(row, column);
+            if(o!=null) width = Math.max(width, fm.stringWidth(o.toString()));
+        }
+        
+        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + EXTRA_X_MARGIN + 2*INNER_MARGIN_X;        
+      }
+      
+      public int getFittingHeight(int row, int column, JTable table) {
+        FontMetrics fm = table.getFontMetrics( table.getFont() );
+        return fm.getHeight() + ((int) (2*table.getIntercellSpacing().getHeight())) + SimSearchTable.ViewSettings.variableYMargin + EXTRA_Y_MARGIN + 2*INNER_MARGIN_Y;      
+      }
     }
+    
     
     /**
      * A custom cell renderer for rendering the "Passed" column.
@@ -255,7 +316,7 @@ public class SimSearchJTable extends JTable {
         if(alignedSequence==null || alignedSequence.getEditOperations()==null || alignedSequence.getEditOperations().isEmpty()) {
           return "";
         }
-        StringBuilder sb = new StringBuilder((addHtmlTag?"<html><nobr><font face=\"Monospaced\">":"")); //+"<nobr>");
+        StringBuilder sb = new StringBuilder((addHtmlTag?"<html><nobr>":"")+"<font face=\"Monospaced\">"); //+"<nobr>");
         //final String SYMBOL_GAP = "&#8911;"; //"&#128;"; //"&#8248;"; //"&#752;"; //"&#x022CF;"; // "&cuwed"; 
         final String SYMBOL_GAP = "&#752;"; //&#8743;";
         //final String SYMBOL_SPACE_DELETE = "&#9618;"; //"&#x02592;"; // "&block;"; 
@@ -283,7 +344,8 @@ public class SimSearchJTable extends JTable {
           }
         }
         //sb.append("</nobr>");
-        if(addHtmlTag) sb.append("</font><nobr></html>");
+        sb.append("</font>");
+        if(addHtmlTag) sb.append("<nobr></html>");
         return sb.toString();
       }  
       
@@ -308,7 +370,7 @@ public class SimSearchJTable extends JTable {
               }
             
             try {
-              return "<html><font face=\"Monospaced\"><table>\n" + 
+              return "<html><table>\n" + 
                   "  <tr>\n" + 
                   "    <td>" + RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + "</td>\n" + 
                   "    <td>" + createHtmlCode(alignedRefSeq, false)  + "</td>\n" + 
@@ -317,7 +379,7 @@ public class SimSearchJTable extends JTable {
                   "    <td></td>\n" + 
                   "    <td>" + createHtmlCode(alignedSeq, false)  + "</td>\n" + 
                   "  </tr>\n" + 
-                  "</table></font></html>";
+                  "</table></html>";
             } catch (Exception e) {
               // TODO Auto-generated catch block
               e.printStackTrace();
@@ -327,6 +389,26 @@ public class SimSearchJTable extends JTable {
         }
         return null;
       }
+      
+      @Override
+      public int getFittingWidth(int column, JTable table) {
+        int width = table.getFontMetrics(table.getFont()).stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
+        
+        FontMetrics fm = table.getFontMetrics( new Font("Monospaced",Font.PLAIN,table.getFont().getSize()) );
+        
+        final double MONOSPACE_CHAR_WIDTH =  ((double) fm.stringWidth(String.join("", Collections.nCopies(100, "W"))))/100;
+        
+        for(int row=0; row<table.getRowCount(); ++row) {
+            Object o = table.getValueAt(row, column);
+            if(o!=null && (o instanceof Alignment.AlignedSequence)) {
+              Alignment.AlignedSequence alignedSeq = (Alignment.AlignedSequence) o;
+              if(alignedSeq.getEditOperations()!=null)   width = Math.max(width, (int) (alignedSeq.getEditOperations().size()*MONOSPACE_CHAR_WIDTH));
+              else if(alignedSeq.getSequence()!=null)  width = Math.max(width, (int) (alignedSeq.getSequence().length()*MONOSPACE_CHAR_WIDTH));
+            }
+        }
+        
+        return width + ((int) (2*table.getIntercellSpacing().getHeight())) + EXTRA_X_MARGIN + 2*INNER_MARGIN_X;        
+      }
     }
     
     /**
@@ -335,12 +417,12 @@ public class SimSearchJTable extends JTable {
     protected static class ListColumnRenderer extends DefaultColumnRenderer {
       
       private String[] data;
-      private final String JOIN; 
+      //private final String JOIN; 
       
-      public ListColumnRenderer(int rowCount, String join) {
+      public ListColumnRenderer(int rowCount) {
         super();
         data = new String[rowCount];
-        this.JOIN = join;
+        //this.JOIN = join;
       }
       
       public Component getTableCellRendererComponent(JTable table,
@@ -354,12 +436,41 @@ public class SimSearchJTable extends JTable {
                                             hasFocus, row, column);
 
         int modelRow = table.getRowSorter().convertRowIndexToModel(row);
-        if(data[modelRow]==null) data[modelRow] = (value==null? "": String.join(this.JOIN, ((List<String>) value)));
+        if(data[modelRow]==null) data[modelRow] = (value==null? "": createHtml((List<String>) value)); //   String.join(this.JOIN, ((List<String>) value)));
         //System.out.println(data[row]);
         setText(data[modelRow]);
-        setHorizontalAlignment(SwingConstants.CENTER);
+        //setHorizontalAlignment(SwingConstants.);
 
         return this;
+      }
+      
+      private String createHtml(List<String> list) {
+        StringBuilder sb = new StringBuilder("<html>");
+        for(String element: list) sb.append(StringEscapeUtils.escapeHtml4(element) + "<br>");
+        sb.append("</html>");
+        return sb.toString();
+      }
+      
+      public int getFittingWidth(int column, JTable table) {
+        FontMetrics fm = table.getFontMetrics( table.getFont() );
+        int width = fm.stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
+        
+        for(int row=0; row<table.getRowCount(); ++row) {
+            Object o = table.getValueAt(row, column);
+            if(o!=null) for(String element: (List<String>) o) width = Math.max(width, fm.stringWidth(element));
+        }
+        
+        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + EXTRA_X_MARGIN + 2*INNER_MARGIN_X;        
+      }
+      
+      @Override
+      public int getFittingHeight(int row, int column, JTable table) {
+        FontMetrics fm = table.getFontMetrics( table.getFont() );
+        int width = fm.getHeight(); 
+        
+        Object o = table.getValueAt(row, column);
+        if(o!=null) width *= Math.max(((List<String>) o).size(),1); // width = Math.max(width, fm.stringWidth(element));
+        return width + EXTRA_Y_MARGIN + 2*INNER_MARGIN_Y+ SimSearchTable.ViewSettings.variableYMargin + ((int) (2*table.getIntercellSpacing().getHeight()));      
       }
     }
     
@@ -509,32 +620,26 @@ public class SimSearchJTable extends JTable {
 //	  for(int i=0; i<rows.length; ++i) rows[i] = this.getRowSorter().convertRowIndexToModel(rows[i]);
 //	  return rows;
 //	}
+	public void initColumnRenderer(TableColumn tableColumn) {
+	  if(this.getModel()==null || !(this.getModel() instanceof SimSearchTableModel)) return;
+	  SimSearchTableModel tableModel = (SimSearchTableModel) this.getModel();
+	  if(tableColumn.getModelIndex()==0) {
+	    tableColumn.setCellRenderer(new RowHeaderColumnRenderer(tableModel.getRowCount()));
+	  } else if(tableModel.getColumnClass(tableColumn.getModelIndex())==Alignment.AlignedSequence.class) {
+	    tableColumn.setCellRenderer(new AlignmentColumnRenderer(tableModel.getRowCount()));
+	  } else if(tableModel.getColumnClass(tableColumn.getModelIndex()).equals(List.class)) {
+	    tableColumn.setCellRenderer(new ListColumnRenderer(tableModel.getRowCount()));
+	  } else {
+	    tableColumn.setCellRenderer(new DefaultColumnRenderer());
+	  }
+	  tableColumn.setHeaderRenderer(new HeaderRenderer(this.getTableHeader()));
+	}
 	
-	public void initCellRenderers(SimSearchTableModel tableModel) {
+	public void initColumnRenderers() {
 	  for(int column=0; column < this.getColumnCount(); ++column) {
-        int modelColumnIndex = this.convertColumnIndexToModel(column); //    getColumnModel().getColumn(column).getModelIndex(); //    this.getColumn(column).getModelIndex();
         TableColumn tableColumn = this.getColumnModel().getColumn(column);
-        if(modelColumnIndex==0) {
-//          RowHeaderColumnRenderer tmp = new RowHeaderColumnRenderer(tableModel.getRowCount());
-//          tmp.setToolTipText("kkdjfdkfjkd");
-          tableColumn.setCellRenderer(new RowHeaderColumnRenderer(tableModel.getRowCount()));
-        } else if(tableModel.getColumnClass(modelColumnIndex)==Alignment.AlignedSequence.class) {
-          tableColumn.setCellRenderer(new AlignmentColumnRenderer(tableModel.getRowCount()));
-        } else if(tableModel.getColumnClass(modelColumnIndex).equals(List.class)) {
-          tableColumn.setCellRenderer(new ListColumnRenderer(tableModel.getRowCount(),"; "));
-        } else {
-          tableColumn.setCellRenderer(new DefaultColumnRenderer());
-        }
-//        tableColumn.setHeaderRenderer(this.getTableHeader().getDefaultRenderer());
-//        TableCellRenderer headerRenderer = tableColumn.getHeaderRenderer();
-//        System.out.println("HeaderRenderer: " + headerRenderer.hashCode());
-//        if(headerRenderer==null) headerRenderer = this.getTableHeader().getDefaultRenderer();
-//        if(headerRenderer instanceof DefaultTableCellRenderer) ((DefaultTableCellRenderer) headerRenderer).setToolTipText("kjdksdjksjd");
-        
-        //int k = 5;
-        //((DefaultColumnRenderer) tableColumn.getCellRenderer()).setToolTipText(tableModel.getColumnComment(modelColumnIndex));
+        this.initColumnRenderer(tableColumn);
       }
-	  //this.getTableHeader().setToolTipText("sldksldksldks");
 	}
 	
 //	@Override
@@ -680,4 +785,45 @@ public class SimSearchJTable extends JTable {
     }
     
     public SimSearchJTable getPartnerTable() { return this.partnerTable; }
+    
+    public void adjustColumnWidth(int column) {
+      
+      TableColumn tableColumn = this.getColumnModel().getColumn(column);
+      
+      if(tableColumn.getCellRenderer() instanceof DefaultColumnRenderer) tableColumn.setPreferredWidth(((DefaultColumnRenderer) tableColumn.getCellRenderer()).getFittingWidth(column, this));
+      
+//      
+//      
+//      headerRenderer = tableColumn.getHeaderRenderer();
+//      Component c = (headerRenderer==null?null:headerRenderer.getTableCellRendererComponent(null, tableColumn.getHeaderValue(), false, false, 0, 0));
+//      
+//      int preferredWidth = Math.max((c==null?0:c.getPreferredSize().width), tableColumn.getMinWidth());
+//      int maxWidth = tableColumn.getMaxWidth();
+//      
+//      TableCellRenderer cellRenderer = null;
+//
+//      for (int row = 0; row < this.getRowCount(); row++)
+//      {
+//          if(cellRenderer==null) cellRenderer = this.getCellRenderer(row, column);
+//          if(cellRenderer instanceof RowHeaderColumnRenderer) break;
+//          
+//          c = this.prepareRenderer(cellRenderer, row, column);
+//          int width = c.getPreferredSize().width + this.getIntercellSpacing().width;
+//          preferredWidth = Math.max(preferredWidth, width);
+//
+//          //  We've exceeded the maximum width, no need to check other rows
+//
+//          if (preferredWidth >= maxWidth)
+//          {
+//              preferredWidth = maxWidth;
+//              break;
+//          }
+//      }
+//
+//      tableColumn.setPreferredWidth( preferredWidth );
+    }
+    
+    public void adjustTableColumns() {
+      for (int column = 0; column < this.getColumnCount(); column++) this.adjustColumnWidth(column);
+    }
 }

@@ -470,6 +470,33 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.showColumnsMenuItem.setEnabled(false);
     this.rowHeightMenu = new JMenu("Row height");
     this.rowHeightMenu.setEnabled(false);
+    JMenuItem rowHeightIncrease = new JMenuItem("Increase");
+    rowHeightIncrease.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        SimSearchJFrame.this.processUserChangeRowHeightRequest(+1);
+      }
+    });
+    //rowHeightIncrease.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+    rowHeightIncrease.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, KeyEvent.CTRL_MASK));
+    rowHeightIncrease.getAccessibleContext().setAccessibleDescription(
+        "Increases the row height of the table.");
+    
+    //menu.add(rowHeightIncrease);
+    JMenuItem rowHeightDecrease = new JMenuItem("Decrease");
+    rowHeightDecrease.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        SimSearchJFrame.this.processUserChangeRowHeightRequest(-1);
+      }
+    });
+    rowHeightDecrease.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, KeyEvent.CTRL_MASK));
+    rowHeightDecrease.getAccessibleContext().setAccessibleDescription(
+        "Decreases the row height of the table.");
+    //menu.add(rowHeightDecrease);
+    
+    Arrays.asList(rowHeightIncrease, rowHeightDecrease).forEach(m -> rowHeightMenu.add(m));
+    
     this.fontSizeMenu = new JMenu("Font size");
     this.fontSizeMenu.setEnabled(false);
     
@@ -496,7 +523,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     
     menu = new JMenu("Help");
     menuItem = new JMenuItem("Help..");
-    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0));
+    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
     menuItem.addActionListener(new ActionListener() {
 
       @Override
@@ -514,6 +541,10 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
   private void reloadView() {
 
+  }
+  
+  private void processUserChangeRowHeightRequest(int deltaHeight) {
+    if(SimSearchJFrame.this.table!=null)  SimSearchJFrame.this.table.processUserChangeRowHeightRequest(deltaHeight);
   }
 
   private void setUserIsWaiting(boolean isWaiting) {
@@ -720,35 +751,40 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   
   private void processUserHelpRequest() {
     String help = "<html>\n";
-    //help += "<h1>Similarity Search Help</h1>\n";
-    help += "This view shows you the findings of your similarity search.\n";
+    
+    help += "This view shows the findings of the similarity search.\n";
     help += "The table lists similar stations, products, lots or deliveries. One line of the result list shows the " + 
        SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + " symbol which refers to the row which was found to be similar to all the other rows. ";
     help += "<br>\n";
     help += "Some of the columns may contain colored text or special symbols like " + 
         SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP) + ", " +
         SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText(SimSearchJTable.AlignmentColumnRenderer.SYMBOL_SPACE_DELETE) + ", " + 
-        SimSearchJTable.AlignmentColumnRenderer.getColoredNeutralGap() + ". " +  
-    " The coloring reflects the difference of the text to the text in the reference row. The coloring is described in the following example:<br>";
-    Alignment.AlignedSequence[] alignedSeq = Alignment.alignSequences(new String[] {"Am Burggraben 128",  "Am Burg grabem 18"},0);
+        SimSearchJTable.AlignmentColumnRenderer.getColoredNeutralGap() + ".";
+    help += " The coloring reflects the difference of the text to the text in the reference row.";
+    
+    help += "<br><h2>Color coding</h2>\n";
+    help += "The visualizations of the text comparisons use 3 colors.";
+    help += " The color red indicates a difference from a text to the text in the reference row. Black indicates no difference. And green indicates a gap in a text which is aligned to a character in some other text.";
+    help += "The symbols " + SimSearchJTable.AlignmentColumnRenderer.getColoredNeutralGap() + " and " + 
+    SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP) + " represent a gap in a text.";
+    
+    help += "The symbol " + SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText(SimSearchJTable.AlignmentColumnRenderer.SYMBOL_SPACE_DELETE) +
+        " represents a space character in a text which is aligned to a different character or a gap in the reference text."; 
+    
+    help += " The coloring is described in the following example:<br>";
+    Alignment.AlignedSequence[] alignedSeq = Alignment.alignSequences(new String[] {"Am Burggraben 128",  "Am Burg grabem 18", "Amm Bruggraben 128"},0);
     try {
-      help += "<table><tr><td>Text in referenc row:</td><td><font face=\"Monospaced\">" + 
-      SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[0], false) + "</font></td></tr>" + 
-      "<tr><td>Text in other row:</td><td><font face=\"Monospaced\">" + SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[1], false) + "</font></td></tr></table>" ;
+      help += "<br><table cellpadding=0>" +
+      "<tr><td>Text 1 in reference row (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + "):&nbsp;</td><td>" + 
+      SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[0], false) + "</td></tr>" + 
+      "<tr><td>Text 2 in row x:</td><td>" + SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[1], false) + "</td></tr>" + 
+      "<tr><td>Text 3 in row y:</td><td>" + SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[2], false) + "</td></tr>" + 
+      "</table><br>" ;
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       help += "<i>Example is missing.</i>";
     } 
     
-    help += "This example shows an alignment of the 2 texts.";
-    //help += "The color are some"
-    help += "It uses 3 colors. The color red indicates a difference from the text to the text in the reference row. Black indicates no difference. And green.";
-    
-    //help += "The " + SimSearchJTable.AlignmentColumnRenderer.getColoredNeutralGap() + " symbol shows a gap. This means that another text contains an insert at this position.";
-    //help += "The " + SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP) + " shows an insert
-    
-    //SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP)
-    
+    help += "This example shows an alignment of the 3 texts. Text 3 has a double &lsquo;mm&rsquo; which is different to the reference text. Text 2 has a space character between the double &lsquo;gg&rsquo; which is not matched by the reference sequence.";
     
     help += "<h2>Merging rows</h2>\n";
     help += "To merge rows you need only to first select the row(s) you want to merge into another row. Then you drag the selected rows onto the row you want the selected rows to be merged into.";
@@ -758,17 +794,6 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     help += "The result of this action might be that the view switches to the next finding. ";
     
     help += "</html>\n";
-//    help += "Decide which entity you want to check for similarity.\n";
-//    help += "You have the choice between 'Station', 'Product', 'Lot' and 'Delivery'.\n\n";
-//    help += "Secondly:\n";
-//    help += "You may decide for each parameter the similarity in [%]:\n";
-//    help += "Example:\n";
-//    help += "A value of 100 means that two items are treated as 'similar' only if they are to 100% identical.\n";
-//    help += "A value of 80 means that two items are treated as 'similar' if they are at least 80% identical.\n";
-//    help += "A value of 0 means that two items are always treated as 'similar'.\n";
-//    help += "\nThe parameters are entity dependant, i.e. each entity has its individual parameters.\n";
-//    help += "Be aware: all parameter similarity definitions are 'AND'-connected.\n";
-//    help += "\nThe algorithm behind the scenes is the Dice's similarity coefficient,\nsee: https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient";
     
     InfoBox ib = new InfoBox(this, help, true, new Dimension(800, 400), null, true, true);
     ib.setVisible(true);

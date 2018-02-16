@@ -132,11 +132,11 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
         result.get(resultSet.getInt(1)).add(this.getFormatedText(resultSet));
       }
       //return result.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> (Object) entry.getValue()));
-      return result.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> String.join("; ", entry.getValue())));
+      return result.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> (Object) entry.getValue())); //String.join("\n", entry.getValue())));
     }
 
     @Override
-    Class<?> getResultType() { return String.class; }
+    Class<?> getResultType() { return List.class; }
   }
     
   private static class ForeignItem extends ForeignField {
@@ -323,6 +323,36 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
             DBInfo.COLUMN.STATION_NAME.getName()
             }));
     
+    map.put(DBInfo.COLUMN.PRODUCT_LOTS.getFullName(), new ForeignList(
+        new ChildTable(DBInfo.TABLE.LOT.getName(), DBInfo.COLUMN.LOT_PRODUCT.getName()),
+        new Function<List<String>, String>() {
+          public String apply(List<String> arg) {
+            return "[" + (arg.get(0)==null || arg.get(0).isEmpty()?"?":arg.get(0)) + "] " +
+                SimSearchDataLoader.convertToDate(arg.get(1), arg.get(2), arg.get(3)) + "; "+ 
+                SimSearchDataLoader.convertToDate(arg.get(4), arg.get(5), arg.get(6));
+          }
+        },
+        new String[] {
+            DBInfo.COLUMN.LOT_NUMBER.getName(),
+            DBInfo.COLUMN.LOT_MHDDAY.getName(),DBInfo.COLUMN.LOT_MHDMONTH.getName(),DBInfo.COLUMN.LOT_MHDYEAR.getName(),
+            DBInfo.COLUMN.LOT_PRODUCTIONDAY.getName(),DBInfo.COLUMN.LOT_PRODUCTIONMONTH.getName(),DBInfo.COLUMN.LOT_PRODUCTIONYEAR.getName()
+            }));
+    map.put(DBInfo.COLUMN.DELIVERY_LOT.getFullName(), 
+        new ForeignItem(DBInfo.TABLE.DELIVERY.getName(), DBInfo.COLUMN.DELIVERY_LOT.getName(), 
+            new ParentTable(DBInfo.TABLE.LOT.getName(), DBInfo.COLUMN.LOT_PRODUCT.getName(), new ParentTable(DBInfo.TABLE.PRODUCT.getName())), 
+            new Function<List<String>, String>() {
+          public String apply(List<String> arg) {
+            return (arg.get(0)==null || arg.get(0).isEmpty()?"?":arg.get(0)) + ": " + 
+                "[" + (arg.get(1)==null || arg.get(1).isEmpty()?"?":arg.get(1)) + "] " +
+                SimSearchDataLoader.convertToDate(arg.get(2), arg.get(3), arg.get(4)) + "; "+ 
+                SimSearchDataLoader.convertToDate(arg.get(5), arg.get(6), arg.get(7));
+          }
+        },
+        new String[] {
+            DBInfo.COLUMN.PRODUCT_DESCRIPTION.getName(), DBInfo.COLUMN.LOT_NUMBER.getName(),
+            DBInfo.COLUMN.LOT_MHDDAY.getName(), DBInfo.COLUMN.LOT_MHDMONTH.getName(), DBInfo.COLUMN.LOT_MHDYEAR.getName(),
+            DBInfo.COLUMN.LOT_PRODUCTIONDAY.getName(),DBInfo.COLUMN.LOT_PRODUCTIONMONTH.getName(),DBInfo.COLUMN.LOT_PRODUCTIONYEAR.getName()
+            }));
     Map<String, String> fkColumnToForeignTableMap = createFKColumnToForeignTableMap();
     Map<String, String[]> tableToLabelColumnMap = createTableToLabelColumnMap();
     Map<String, Map<String, String>> tableToChildTableMap = createTableToChildTableMap();
@@ -541,7 +571,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       this.columnComments = new String[this.columnCount+1];
       this.columnComments[0] = "Status";
       String[] columnComments = myTable.getFieldComments();
-      System.arraycopy(columnComments, 0, this.columnComments, 1, Math.min(columnComments.length,this.columnComments.length-1));
+      System.arraycopy(columnComments, 0, this.columnComments, 2, Math.min(columnComments.length,this.columnComments.length-2));
       //this.columnSimSetTypes = new SimSearch.SimSet.Type[this.columnCount+1];
       
       
