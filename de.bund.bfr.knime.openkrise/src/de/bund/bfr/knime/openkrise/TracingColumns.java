@@ -52,6 +52,8 @@ public interface TracingColumns {
 	public static final String OBSERVED = "Observed";
 	public static final String BACKWARD = "Backward";
 	public static final String FORWARD = "Forward";
+	
+	public static final String IS_SELECTED = "Is selected";
 
 	public static final String CLUSTER_ID = "ClusterID";
 	public static final String ADDRESS = GeocodingSettings.DEFAULT_ADDRESS_COLUMN;
@@ -95,7 +97,7 @@ public interface TracingColumns {
 	public static final ImmutableList<String> IN_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
 			KILL_CONTAMINATION, OBSERVED);
 	public static final ImmutableList<String> STATION_OUT_COLUMNS = ImmutableList.of(SCORE, MAX_LOT_SCORE,
-			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
+			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD, IS_SELECTED);
 	public static final ImmutableList<String> DELIVERY_OUT_COLUMNS = ImmutableList.of(SCORE, LOT_SCORE,
 			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
 	public static final ImmutableMap<String, DataType> IN_OUT_COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
@@ -103,7 +105,7 @@ public interface TracingColumns {
 			.put(KILL_CONTAMINATION, BooleanCell.TYPE).put(SCORE, DoubleCell.TYPE).put(MAX_LOT_SCORE, DoubleCell.TYPE)
 			.put(LOT_SCORE, DoubleCell.TYPE).put(NORMALIZED_SCORE, DoubleCell.TYPE).put(POSITIVE_SCORE, DoubleCell.TYPE)
 			.put(NEGATIVE_SCORE, DoubleCell.TYPE).put(OBSERVED, BooleanCell.TYPE).put(BACKWARD, BooleanCell.TYPE)
-			.put(FORWARD, BooleanCell.TYPE).build();
+			.put(FORWARD, BooleanCell.TYPE).put(IS_SELECTED, BooleanCell.TYPE).build();
 	public static final ImmutableMap<String, Class<?>> IN_OUT_COLUMN_CLASSES = new ImmutableMap.Builder<String, Class<?>>()
 			.put(WEIGHT, Double.class).put(CROSS_CONTAMINATION, Boolean.class).put(KILL_CONTAMINATION, Boolean.class)
 			.put(SCORE, Double.class).put(MAX_LOT_SCORE, Double.class).put(LOT_SCORE, Double.class)

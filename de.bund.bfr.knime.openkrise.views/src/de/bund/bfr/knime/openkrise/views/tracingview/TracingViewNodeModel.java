@@ -189,6 +189,13 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 				int column = spec.findColumnIndex(property);
 
 				if (column != -1) {
+				  
+				  if(property.equals(TracingColumns.IS_SELECTED))
+				    
+				    cells[column] =  IO.createCell((Boolean) set.isNodeSelected(node.getId()));
+				  
+				  else {
+				    
 					if (type == String.class) {
 						cells[column] = IO.createCell((String) node.getProperties().get(property));
 					} else if (type == Integer.class) {
@@ -198,6 +205,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 					} else if (type == Boolean.class) {
 						cells[column] = IO.createCell((Boolean) node.getProperties().get(property));
 					}
+				  }
 				}
 			});
 

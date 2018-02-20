@@ -41,7 +41,6 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.openkrise.views.Activator;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingViewSettings extends NodeSettings {
 	
@@ -348,6 +347,12 @@ public class TracingViewSettings extends NodeSettings {
 		graphSettings.saveSettings(settings);
 		gisSettings.saveSettings(settings);
 		this.gobjExplosionSettingsList.saveSettings(settings);
+	}
+	
+	protected boolean isNodeSelected(String id) {
+	  if(this.selectedNodes.contains(id)) return true;
+	  for(Map<String, Point2D> childMap : this.collapsedNodes.values()) if(childMap.containsKey(id)) return true;
+	  return false;
 	}
 
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
