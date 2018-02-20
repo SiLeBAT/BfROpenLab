@@ -19,23 +19,31 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.util;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-
+import javax.swing.JComponent;
 import com.google.common.base.Strings;
-
+import de.bund.bfr.jung.BetterEdgeRenderer;
+import de.bund.bfr.jung.BetterVisualizationViewer;
 import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
@@ -45,6 +53,21 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Context;
+import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
+import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.graph.util.Pair;
+import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.decorators.DirectionalEdgeArrowTransformer;
+import edu.uci.ics.jung.visualization.decorators.EdgeShape;
+import edu.uci.ics.jung.visualization.decorators.EdgeShape.IndexedRendering;
+import edu.uci.ics.jung.visualization.transform.LensTransformer;
+import edu.uci.ics.jung.visualization.transform.MutableTransformer;
+import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.ArrowFactory;
 
 public class CanvasLegend<V extends Node> {
 
@@ -86,9 +109,9 @@ public class CanvasLegend<V extends Node> {
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
 					edgeLegend.put(name + " [" + toRangeString(condition.getValueRange(edges)) + "]",
-							new LegendColor(Color.BLACK, color, NamedShape.CIRCLE));
+							new LegendColor(Color.BLACK, color, null));
 				} else {
-					edgeLegend.put(name, new LegendColor(color, NamedShape.CIRCLE));
+					edgeLegend.put(name, new LegendColor(color, null));
 				}
 			}
 		}
@@ -158,13 +181,13 @@ public class CanvasLegend<V extends Node> {
 		g.setFont(legendFont);
 
 		for (Map.Entry<String, LegendColor> entry : nodeLegend.entrySet()) {
-			entry.getValue().paint(g, xNodeColor, yNode, legendHeight);
+			entry.getValue().paintNode(g, xNodeColor, yNode, legendHeight);
 			g.drawString(entry.getKey(), xNodeName, yNode + fontAscent);
 			yNode += legendHeight + LEGEND_DY;
 		}
 
 		for (Map.Entry<String, LegendColor> entry : edgeLegend.entrySet()) {
-			entry.getValue().paint(g, xEdgeColor, yEdge, legendHeight);
+			entry.getValue().paintEdge(g, xEdgeColor, yEdge, legendHeight);
 			g.drawString(entry.getKey(), xEdgeName, yEdge + fontAscent);
 			yEdge += legendHeight + LEGEND_DY;
 		}
@@ -172,7 +195,7 @@ public class CanvasLegend<V extends Node> {
 		g.setColor(currentColor);
 		g.setFont(currentFont);
 	}
-
+	
 	private static String toRangeString(Point2D p) {
 		NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
 
@@ -204,7 +227,7 @@ public class CanvasLegend<V extends Node> {
 			color = null;
 		}
 
-		public void paint(Graphics2D g, int x, int y, int size) {
+		public void paintNode(Graphics2D g, int x, int y, int size) {
 			Paint currentPaint = g.getPaint();
 			AffineTransform currentTransform = g.getTransform();
 			Shape s = shape.getShape(size);
@@ -218,5 +241,35 @@ public class CanvasLegend<V extends Node> {
 			g.setTransform(currentTransform);
 			g.setPaint(currentPaint);
 		}
+		
+		private void paintEdge(Graphics2D g, int x, int y, int size) {
+		  Paint currentPaint = g.getPaint();
+		  Stroke currentStroke = g.getStroke();
+          AffineTransform currentTransform = g.getTransform();
+          Color currentColor = g.getColor();
+          
+          int arrowTipX = 0 + size/6; 
+	      //ArrowFactory.getNotchedArrow(width, length, notch_depth)
+	      Shape arrow = ArrowFactory.getNotchedArrow(size/5, size/4, size/9);
+	      
+	      Line2D line2D = new Line2D.Float(-size/2.0f - arrowTipX, 0.0f, 0.0f + size/2.0f - arrowTipX, 0.0f);
+	      
+	      g.setPaint(color != null ? color
+              : new GradientPaint(-size, 0.0f, fromColor, 0.0f, 0.0f, toColor));
+	      g.translate(x + size/2 + arrowTipX, y + size / 2);
+	      
+	      g.setColor(color==null?Color.BLACK:color);
+	      
+	      g.setStroke(new BasicStroke(size/8.0f));
+	      g.draw(line2D);
+	      g.setColor(Color.BLACK);
+	      g.draw(arrow);
+	      
+	      g.setColor(currentColor);
+	      g.setTransform(currentTransform);
+	      g.setPaint(currentPaint);
+	      g.setStroke(currentStroke);
+      
+	    }
 	}
 }
