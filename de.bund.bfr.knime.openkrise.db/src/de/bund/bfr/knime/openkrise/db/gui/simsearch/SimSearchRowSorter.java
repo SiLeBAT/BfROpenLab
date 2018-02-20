@@ -380,13 +380,21 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
           boolean bolFilter = true;  // in the sense of filter out
           if(!this.filterInactiveRows || !this.model.isInactive(modelRow)) {
             for(int column=0; column<this.model.getColumnCount(); ++column) {
-              if(this.model.getValueAt(modelRow, column)!=null && 
-                  (this.rowFilterText!=null?
-                      this.model.getValueAt(modelRow, column).toString().contains(this.rowFilterText):
-                      this.rowFilterPattern.matcher(this.model.getValueAt(modelRow, column).toString()).matches())) {
-                // match
-                bolFilter = false;
-                break;
+              Object o = this.model.getValueAt(modelRow, column);
+              try {
+                if(o!=null) {
+                  String s = o.toString(); 
+                  if((s!=null) &&
+                      (this.rowFilterText!=null?
+                          s.contains(this.rowFilterText):
+                            this.rowFilterPattern.matcher(s).matches())) {
+                    // match
+                    bolFilter = false;
+                    break;
+                  }
+                }
+              } catch(Exception e) {
+                e.printStackTrace();
               }
             }
           }

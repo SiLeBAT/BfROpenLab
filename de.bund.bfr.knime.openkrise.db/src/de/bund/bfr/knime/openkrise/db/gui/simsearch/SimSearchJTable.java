@@ -38,6 +38,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
@@ -417,12 +418,14 @@ public class SimSearchJTable extends JTable {
     protected static class ListColumnRenderer extends DefaultColumnRenderer {
       
       private String[] data;
+      private JTextArea textArea;
       //private final String JOIN; 
       
       public ListColumnRenderer(int rowCount) {
         super();
         data = new String[rowCount];
         //this.JOIN = join;
+        this.textArea = new JTextArea();
       }
       
       public Component getTableCellRendererComponent(JTable table,
@@ -437,11 +440,20 @@ public class SimSearchJTable extends JTable {
 
         int modelRow = table.getRowSorter().convertRowIndexToModel(row);
         if(data[modelRow]==null) data[modelRow] = (value==null? "": createHtml((List<String>) value)); //   String.join(this.JOIN, ((List<String>) value)));
-        //System.out.println(data[row]);
+        
         setText(data[modelRow]);
-        //setHorizontalAlignment(SwingConstants.);
-
         return this;
+        
+//        if(value==null) textArea.setText("");
+//        else textArea.setText(String.join("\n", (List<String>) value));
+//
+//        textArea.setBorder(this.getBorder());
+//        textArea.setBackground(this.getBackground());
+//        textArea.setForeground(this.getForeground());
+//        textArea.setFont(this.getFont());
+//        textArea.setVisible(true);
+//        
+//        return textArea;
       }
       
       private String createHtml(List<String> list) {
