@@ -49,6 +49,7 @@ import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
@@ -190,7 +191,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 
 				if (column != -1) {
 				  
-				  if(property.equals(TracingColumns.IS_SELECTED))
+				  if((node instanceof Node) && property.equals(TracingColumns.IS_SELECTED))
 				    
 				    cells[column] =  IO.createCell((Boolean) set.isNodeSelected(node.getId()));
 				  
@@ -244,6 +245,17 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 				throw new InvalidSettingsException("Type of column \"" + columnName + "\" must be \"" + type + "\"");
 			}
 		}
+		
+		for (String columnName : TracingColumns.STATION_OUTPORTONLY_COLUMNS) {
+          DataType type = TracingColumns.IN_OUT_COLUMN_TYPES.get(columnName);
+          DataType oldType = columns.get(columnName);
+
+          if (oldType == null) {
+              newNodeSpec.add(new DataColumnSpecCreator(columnName, type).createSpec());
+          } else if (!oldType.equals(type)) {
+              throw new InvalidSettingsException("Type of column \"" + columnName + "\" must be \"" + type + "\"");
+          }
+      }
 
 		return new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
 	}

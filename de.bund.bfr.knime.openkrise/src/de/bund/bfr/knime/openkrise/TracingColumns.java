@@ -97,7 +97,10 @@ public interface TracingColumns {
 	public static final ImmutableList<String> IN_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
 			KILL_CONTAMINATION, OBSERVED);
 	public static final ImmutableList<String> STATION_OUT_COLUMNS = ImmutableList.of(SCORE, MAX_LOT_SCORE,
-			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD, IS_SELECTED);
+			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
+	
+	public static final ImmutableList<String> STATION_OUTPORTONLY_COLUMNS = ImmutableList.of(IS_SELECTED);
+	
 	public static final ImmutableList<String> DELIVERY_OUT_COLUMNS = ImmutableList.of(SCORE, LOT_SCORE,
 			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
 	public static final ImmutableMap<String, DataType> IN_OUT_COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
