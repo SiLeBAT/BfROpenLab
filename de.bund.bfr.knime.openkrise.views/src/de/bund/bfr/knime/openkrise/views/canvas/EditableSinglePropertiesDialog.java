@@ -23,6 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -30,13 +32,15 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-
 import com.google.common.collect.Iterables;
 
 import de.bund.bfr.knime.UI;
@@ -55,7 +59,7 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 
 	private Element element;
 
-	private JTextField caseField;
+	private CasePanel caseField;
 	private JCheckBox contaminationBox;
 	private JCheckBox killBox;
 	private JCheckBox observedBox;
@@ -73,12 +77,11 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 		boolean killContamination = Boolean.TRUE.equals(values.get(TracingColumns.KILL_CONTAMINATION));
 		boolean observed = Boolean.TRUE.equals(values.get(TracingColumns.OBSERVED));
 
-		caseField = new JTextField(8);
-		caseField.setText(String.valueOf(weight));
+		caseField  = new CasePanel(weight); 
 		contaminationBox = new JCheckBox("", crossContamination);
 		killBox = new JCheckBox("", killContamination);
 		observedBox = new JCheckBox("", observed);
-
+				
 		JPanel inputPanel = UI.createOptionsPanel("Input",
 				Arrays.asList(new JLabel(TracingColumns.WEIGHT + ":"),
 						new JLabel(TracingColumns.CROSS_CONTAMINATION + ":"),
@@ -174,5 +177,57 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 		field.setEditable(false);
 
 		return field;
+	}
+	
+	// A gui component to edit the weight
+	protected static class CasePanel extends JPanel {
+	  /**
+     * 
+     */
+    private static final long serialVersionUID = 7026012902581411846L;
+    
+    private JRadioButton caseZero;
+	  private JRadioButton caseOne;
+	  private JRadioButton caseOther;
+	  private JTextField textField;
+
+	  protected CasePanel(double weight) {
+	    super();
+	    this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+	    this.caseZero = new JRadioButton("0");
+	    this.caseOne = new JRadioButton("1");
+	    this.caseOther = new JRadioButton("Other");
+	    this.textField = new JTextField();
+	    this.textField.setText(((Double) weight).toString());
+	    ActionListener actionListener = new ActionListener() {
+
+	      @Override
+	      public void actionPerformed(ActionEvent arg0) {
+	        JRadioButton radioButton = (JRadioButton) arg0.getSource();
+	        if(radioButton.isSelected()) {
+	          if(radioButton==caseZero || radioButton==caseOne) textField.setText((radioButton==caseZero?"0.0":"1.0"));
+	          textField.setEnabled(radioButton==caseOther);
+	        }
+	      }
+
+	    };
+	    ButtonGroup buttonGroup = new ButtonGroup();
+	    Arrays.asList(this.caseZero, this.caseOne, this.caseOther).forEach(rb -> {
+	      buttonGroup.add(rb);
+	      this.add(rb);
+	      rb.addActionListener(actionListener);
+	    });
+
+
+	    if(weight==0.0) this.caseZero.setSelected(true);
+	    else if(weight==1.0) this.caseOne.setSelected(true);
+	    else this.caseOther.setSelected(true);
+
+	    this.add(textField);
+	    this.textField.setEnabled(this.caseOther.isSelected());
+	  }
+
+	  public String getText() { return this.textField.getText(); }
+	  
 	}
 }

@@ -35,6 +35,7 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -123,6 +124,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 
 		for (String column : type == Type.NODE ? TracingColumns.STATION_OUT_COLUMNS
 				: TracingColumns.DELIVERY_OUT_COLUMNS) {
+		  
 			table.getColumn(column).setHeaderRenderer(boldHeaderRenderer);
 		}
 
@@ -317,24 +319,27 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 	}
 
 	private void weightSetAllButtonClicked() {
-		String result = Dialogs.showInputDialog(this, "Set All Values to?", TracingColumns.WEIGHT, "1.0");
-		Double value = null;
+	  // creates the panel which is holding the data to edit and the gui components to do so
+	  EditableSinglePropertiesDialog.CasePanel panel = new EditableSinglePropertiesDialog.CasePanel(1.0);
+	  
+	  int result = Dialogs.showInputDialog(this, panel, "Set All Values to?", TracingColumns.WEIGHT);
+	  Double value = null;
 
-		if (result != null) {
-			try {
-				value = Double.parseDouble(result.toString());
-			} catch (NumberFormatException ex) {
-				Dialogs.showErrorMessage(this, result.toString() + " is not a valid number");
-			}
-		}
+	  if (result == JOptionPane.OK_OPTION) {
+	    try {
+	      value = Double.parseDouble(panel.getText());
+	    } catch (NumberFormatException ex) {
+	      Dialogs.showErrorMessage(this, panel.getText() + " is not a valid number");
+	    }
+	  }
 
-		if (value != null) {
-			if (inputTable.isEditing()) {
-				inputTable.getCellEditor().stopCellEditing();
-			}
+	  if (value != null) {
+	    if (inputTable.isEditing()) {
+	      inputTable.getCellEditor().stopCellEditing();
+	    }
 
-			setAllValuesTo(TracingColumns.WEIGHT, value);
-		}
+	    setAllValuesTo(TracingColumns.WEIGHT, value);
+	  }
 	}
 
 	private void booleanSetAllButtonClicked(String column) {

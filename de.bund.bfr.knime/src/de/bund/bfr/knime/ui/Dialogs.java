@@ -21,17 +21,19 @@ package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.Window;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -149,6 +151,30 @@ public class Dialogs {
 
 		return result;
 	}
+	
+	// Shows an input dialog with a custom DataField
+	// The component itself holds the data or dataFields which are needed to show or edit the data
+	// This function only provides an dialog environment which returns whether to user has choosen ok or cancel
+	public static int showInputDialog(Component parent, JComponent component, String message, String title) {
+      Locale oldLocale = disableButtonsAndChangeLocale(parent);
+           
+      JPanel panel = new JPanel();
+      
+      panel.setLayout(new GridLayout(2, 1)); 
+      JLabel label = new JLabel(message);
+      label.setFont(parent.getFont());
+      panel.add(label);
+      
+      component.setFont(parent.getFont());
+      panel.add(component);
+      
+      int result = JOptionPane.showConfirmDialog(parent,
+          panel, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+      
+      enableButtonsAndResetLocale(parent, oldLocale);
+
+      return result;
+  }
 
 	public static String showInputDialog(Component parent, String message, String title,
 			Collection<String> selectionValues) {
