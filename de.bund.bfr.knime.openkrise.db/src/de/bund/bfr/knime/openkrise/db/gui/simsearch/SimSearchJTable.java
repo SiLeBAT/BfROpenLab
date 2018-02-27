@@ -22,8 +22,10 @@ package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -40,6 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -61,6 +64,8 @@ public class SimSearchJTable extends JTable {
 	 * 
 	 */
 	private static final long serialVersionUID = 7055490193917189461L;
+	
+	protected static final Cursor ROW_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
 //	private SimSearchTableModel tableModel;
 	//private static final String ALIGNMENT_COLOR_EDIT = "red";
 	//private static final String ALIGNMENT_COLOR_EDIT = "red";
@@ -417,15 +422,18 @@ public class SimSearchJTable extends JTable {
      */
     protected static class ListColumnRenderer extends DefaultColumnRenderer {
       
-      private String[] data;
-      private JTextArea textArea;
+      //private String[] data;
+      private JLabel label;
+      private List<String> data;
+      //private JTextArea textArea;
       //private final String JOIN; 
       
       public ListColumnRenderer(int rowCount) {
         super();
-        data = new String[rowCount];
+        this.label = new JLabel();
+        //data = new String[rowCount];
         //this.JOIN = join;
-        this.textArea = new JTextArea();
+        //this.textArea = new JTextArea();
       }
       
       public Component getTableCellRendererComponent(JTable table,
@@ -438,10 +446,13 @@ public class SimSearchJTable extends JTable {
         super.getTableCellRendererComponent(table, value, isSelected,
                                             hasFocus, row, column);
 
-        int modelRow = table.getRowSorter().convertRowIndexToModel(row);
-        if(data[modelRow]==null) data[modelRow] = (value==null? "": createHtml((List<String>) value)); //   String.join(this.JOIN, ((List<String>) value)));
+        //int modelRow = table.getRowSorter().convertRowIndexToModel(row);
+        //if(data[modelRow]==null) data[modelRow] = (value==null? "": createHtml((List<String>) value)); //   String.join(this.JOIN, ((List<String>) value)));
         
-        setText(data[modelRow]);
+        //setText(data[modelRow]);
+        setText("");
+        
+        this.data = (List<String>) value;
         return this;
         
 //        if(value==null) textArea.setText("");
@@ -484,6 +495,67 @@ public class SimSearchJTable extends JTable {
         if(o!=null) width *= Math.max(((List<String>) o).size(),1); // width = Math.max(width, fm.stringWidth(element));
         return width + EXTRA_Y_MARGIN + 2*INNER_MARGIN_Y+ SimSearchTable.ViewSettings.variableYMargin + ((int) (2*table.getIntercellSpacing().getHeight()));      
       }
+      
+      public void paint(Graphics g) {
+			super.paint(g);
+			
+			
+			Font currentFont = g.getFont();
+			// get metrics from the graphics
+			FontMetrics metrics = g.getFontMetrics(this.getFont());
+			// get the height of a line of text in this
+			// font and render context
+			int hgt = metrics.getHeight();
+			int linepad = 2;
+			int xpad = 10;
+			int ypad = 22;
+			int descent = metrics.getDescent();
+			// get the advance of my text in this font
+			// and render context
+			int suffixWidth = metrics.stringWidth("...");
+			// calculate the size of a box to hold the
+			// text with some padding.
+			int y = ypad + metrics.getAscent();
+			int maxWidth = this.getWidth()-2*xpad;
+			
+			g.setFont(this.getFont());
+			
+			int dx = 1000;
+			int dy = 1000;
+			g.copyArea(0, this.getHeight()- (int) Math.round(hgt/2.5), this.getWidth(), (int) Math.round(hgt/2.5), dx, dy);
+			
+			for(int i=0; i<data.size(); ++i) {
+				label.setText(data.get(i));
+				
+				SwingUtilities.paintComponent(g, label, this,  
+		                  xpad,
+		                  y + (hgt+linepad)*(i),
+		                  maxWidth,
+		                  hgt);
+				//SwingUtilities2.clipString(this.label, metrics, data.get(i), maxWidth);
+//				int w = metrics.stringWidth(data.get(i));
+//				String s = data.get(i);
+//				if(w>maxWidth) s = s.substring(0,s.length()-(w-maxWidth)/suffixWidth*3-1) + "...";
+//				g.drawString(s, xpad, y + (hgt+linepad)*(i));	
+				if((y + (hgt+linepad)*(i)+metrics.getDescent())>this.getHeight()-ypad) break;
+			}
+			if((y + (hgt+linepad)*(data.size()-1)+metrics.getDescent())>this.getHeight()-ypad) {
+//				g.clearRect(0, this.getHeight()- (int) Math.round(hgt/2.5), this.getWidth(), (int) Math.round(hgt/2.5));
+//				g.copyArea(int x, int y, int width, int height, int dx, int dy)
+				g.copyArea(0+dx, this.getHeight()- (int) Math.round(hgt/2.5) + dy, this.getWidth(), (int) Math.round(hgt/2.5), -dx, -dy);
+			//g.setColor(this.getBackground());
+			//g.fillRect(0, this.getHeight(), this.getWidth(), 5);
+				label.setText("...");
+				SwingUtilities.paintComponent(g, label, this,  
+		                  xpad,
+		                  this.getHeight()-hgt+descent, //-ypad-metrics.getDescent(),
+		                  maxWidth,
+		                  hgt);
+				//g.drawString("...", xpad, this.getHeight()-ypad-metrics.getDescent());
+			}
+			
+			g.setFont(currentFont);
+		}
     }
     
     /**
@@ -837,5 +909,16 @@ public class SimSearchJTable extends JTable {
     
     public void adjustTableColumns() {
       for (int column = 0; column < this.getColumnCount(); column++) this.adjustColumnWidth(column);
+    }
+    
+    @Override
+    public void clearSelection() {
+    	if(this.canSelectionBeChanged()) super.clearSelection();
+    }
+    
+    private boolean canSelectionBeChanged() { return this.getCursor()!=ROW_RESIZE_CURSOR; }
+    
+    public void changeSelection(int row, int column, boolean controlDown, boolean shiftDown) {
+    	if(this.canSelectionBeChanged()) super.changeSelection(row, column, controlDown, shiftDown);
     }
 }

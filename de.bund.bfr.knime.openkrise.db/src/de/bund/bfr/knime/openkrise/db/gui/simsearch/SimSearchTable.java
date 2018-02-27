@@ -21,12 +21,14 @@ package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.ItemSelectable;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -172,7 +174,7 @@ public class SimSearchTable extends JScrollPane{
   private JButton ignoreSimSetButton;
   private JButton ignoreAllPairsInSimSetButton;
   //private ActionListener simSetIgnoreSwitchActionListener;
-  private int[] rowHeights;
+  //private int[] rowHeights;
  
   //private ViewSettings viewSettings;
   
@@ -332,6 +334,12 @@ public class SimSearchTable extends JScrollPane{
       //t.addMouseMotionListener(mouseAdapter);
       //t.addMouseListener(mouseAdapter);
     });
+  }
+  
+  
+  private void addRowResizeFeature() {
+	  RowResizeAdapter adapter = new RowResizeAdapter();
+	  this.rowHeaderColumnTable.addMouseMotionListener(adapter);
   }
   
   private void freezeUnfreezeColumn(int columnModelIndex) {
@@ -636,6 +644,7 @@ public class SimSearchTable extends JScrollPane{
     this.addMouseListenerToTable();
     this.addKeyListenerToTables();
     this.addDragAndDropFeature();
+    this.addRowResizeFeature();
     
     //this.rowHeaderColumnTable.setUpdateSelectionOnSort(false);
   }
@@ -1032,14 +1041,14 @@ public class SimSearchTable extends JScrollPane{
 //    for(int row=0; row<this.table.getRowCount(); ++row) setRowHeight(row, this.rowHeights[this.table.convertRowIndexToModel(row)]);
 //  }
   
-//  private void setRowHeight(int row, int height) {
-//    EventQueue.invokeLater(new Runnable() {
-//      @Override public void run() {
-//        table.setRowHeight(row, height);
-//        rowHeaderColumnTable.setRowHeight(row, height);
-//      }
-//    });
-//  }
+  private void setRowHeight(int row, int height) {
+    EventQueue.invokeLater(new Runnable() {
+      @Override public void run() {
+        table.setRowHeight(row, height);
+        rowHeaderColumnTable.setRowHeight(row, height);
+      }
+    });
+  }
   
   private void applyRowSortingToView() {
     SimSearchTableModel tableModel = this.getModel();
@@ -1407,6 +1416,81 @@ public class SimSearchTable extends JScrollPane{
       this.rowHeaderColumnTable.setFont(font);
     }
     
+  }
+  
+  private class RowResizeAdapter extends MouseAdapter {
+	  
+	  private Cursor otherCursor = SimSearchJTable.ROW_RESIZE_CURSOR;
+	  private int yBeforeDrag;
+	  private int hBeforeDrag;
+	  private int rowDragged;
+	  private final int MIN_ROW_HEIGHT = 5;
+	  
+	  public void mouseMoved(MouseEvent e) {
+		  JTable table = (JTable) e.getSource();
+		  int row = -1;
+		  int column = table.columnAtPoint(e.getPoint());
+		  if(column==0) row = getResizingRow(e.getPoint(), table);
+		  if((row>=0) != (table.getCursor()==SimSearchJTable.ROW_RESIZE_CURSOR)) swapCursor(table);
+		  if((row>=0) == table.getDragEnabled()) table.setDragEnabled(row<0);
+		  if(row>=0) {
+			  rowDragged = row;
+			  yBeforeDrag = e.getPoint().y;
+			  hBeforeDrag = table.getRowHeight(row);
+		  }
+	  }
+	  
+	  private void swapCursor(JTable table) {
+		  Cursor tmp = table.getCursor();
+		  table.setCursor(otherCursor);
+		  otherCursor = tmp;
+	  }
+	  	  
+	  private int getResizingRow(Point p, JTable table) {
+		  int row = table.rowAtPoint(p);
+		  if (row == -1) {
+			  return -1;
+		  }
+		  Rectangle r = rowHeaderColumnTable.getCellRect(row, 0, true);//    getHeaderRect(column);
+		  r.grow(0, -2);
+		  if (r.contains(p)) {
+			  return -1;
+		  }
+		  int midPoint = r.y + r.height/2;
+		  int rowIndex = (p.y < midPoint) ? row - 1 : row;
+
+		  return rowIndex;
+	  }
+	  
+//	  @Override
+//	  public void mousePressed(MouseEvent e) {
+//		  System.out.println("mousePressed");
+//		  JTable table = (JTable) e.getSource();
+//		  int row = -1;
+//		  int column = table.columnAtPoint(e.getPoint());
+//		  if(column==0) row = getResizingRow(e.getPoint(), table);
+//		  if((row>=0) && (table.getCursor()==SimSearchJTable.ROW_RESIZE_CURSOR)) {
+//			  yBeforeDrag = e.getPoint().y;
+//			  hBeforeDrag = table.getRowHeight(row);
+//			  rowDragged = row;
+//		  }
+//	  }
+	  
+	  @Override
+	  public void mouseDragged(MouseEvent e) {
+		  //System.out.println("mouseDragged");
+		  JTable table = (JTable) e.getSource();
+		  if(table.getCursor()==SimSearchJTable.ROW_RESIZE_CURSOR) {
+			  int delta = e.getPoint().y - yBeforeDrag;
+			  setRowHeight(rowDragged, Math.max(hBeforeDrag + delta, MIN_ROW_HEIGHT));
+		  }
+	  }
+	  @Override
+	  public void mouseReleased(MouseEvent e) {
+		  System.out.println("mouseReleased");
+		  
+	  }
+	  
   }
 
 }
