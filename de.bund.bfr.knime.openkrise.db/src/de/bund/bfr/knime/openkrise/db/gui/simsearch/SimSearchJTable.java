@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -26,15 +27,28 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Shape;
+import java.awt.dnd.DropTarget;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -58,6 +72,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import org.apache.commons.text.StringEscapeUtils;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
+import sun.swing.SwingUtilities2;
 
 public class SimSearchJTable extends JTable {
 	/**
@@ -65,19 +80,12 @@ public class SimSearchJTable extends JTable {
 	 */
 	private static final long serialVersionUID = 7055490193917189461L;
 	
-	protected static final Cursor ROW_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
-//	private SimSearchTableModel tableModel;
-	//private static final String ALIGNMENT_COLOR_EDIT = "red";
-	//private static final String ALIGNMENT_COLOR_EDIT = "red";
-	//private static final String ALIGNMENT_COLOR_EDIT = "red";
-//	private static final String HTML_PREFIX = "<html>";
-//	private static final String HTML_SUFFIX = "</html>";
-//	private enum Color {
-//	  Black, Red, 
-//	}
 		
 	private SimSearchJTable partnerTable;
-	//private SimSearchTable.ViewSettings viewSettings;
+	private RowResizeAdapter rowResizeAdapter;
+	private List<MouseListener> mouseListeners;
+	private SimSearchTable.ViewSettings viewSettings;
+	private int[] rowHeights;
 	
 	public class HeaderRenderer implements TableCellRenderer {
 	    private final JTableHeader header;
@@ -130,9 +138,9 @@ public class SimSearchJTable extends JTable {
       return new SimSearchJTableHeader(this.getColumnModel());
     }
 	 
-	SimSearchJTable() { //SimSearchTable.ViewSettings viewSettings) {
+	SimSearchJTable(SimSearchTable.ViewSettings viewSettings) { //SimSearchTable.ViewSettings viewSettings) {
 	  super();
-	  //this.viewSettings = viewSettings;
+	  this.viewSettings = viewSettings;
 	  //this.getTableHeader().setAlignmentX(CENTER_ALIGNMENT);
 	}
 	
@@ -163,14 +171,19 @@ public class SimSearchJTable extends JTable {
     /**
      * A custom cell renderer for rendering the "Passed" column.
      */
-    public static class DefaultColumnRenderer extends DefaultTableCellRenderer { 
+    public static class DefaultColumnRenderer extends DefaultTableCellRenderer  implements ToolTipRenderer  { 
       //private Color defaultBackgroundColor = null;
       private static final Color COLOR_INACTIVEROW_BACKGROUND = Color.LIGHT_GRAY;
       private static Color COLOR_DROPLOCATION_BACKGROUND = null;
-      static final int EXTRA_X_MARGIN = 4;
-      static final int EXTRA_Y_MARGIN = 2;
-      static final int INNER_MARGIN_X = 10;
-      static final int INNER_MARGIN_Y = 10;
+      //static final int EXTRA_X_MARGIN = 4;
+      //static final int EXTRA_Y_MARGIN = 2;//2
+      //static final int INNER_MARGIN_X = 10;
+      //static final int INNER_MARGIN_Y = 0;//10
+      
+      private DefaultColumnRenderer() {
+    	  //this.setVerticalTextPosition(SwingConstants.TOP);
+    	  this.setVerticalAlignment(SwingConstants.TOP);
+      }
       
       @Override
       public Component getTableCellRendererComponent(JTable table,
@@ -182,16 +195,21 @@ public class SimSearchJTable extends JTable {
 
         Component c = super.getTableCellRendererComponent(table, value, isSelected,
                                             hasFocus, row, column);
+        SimSearchTable.ViewSettings viewSettings = ((SimSearchJTable) table).viewSettings;
+        
         Border border = ((JLabel) c).getBorder();
         if(border!=null) 
           if(!(border instanceof CompoundBorder)) {
-            border = new CompoundBorder(border, new EmptyBorder(INNER_MARGIN_X,INNER_MARGIN_Y,INNER_MARGIN_X,INNER_MARGIN_Y));
+            border = new CompoundBorder(border, new EmptyBorder(viewSettings.cellMarginY,viewSettings.cellMarginX,viewSettings.cellMarginY, viewSettings.cellMarginX));
             ((JLabel) c).setBorder(border);
           }
+        //setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         JTable.DropLocation dropLocation = table.getDropLocation();
         TransferHandler transferHandler = table.getTransferHandler();
         //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         int dropLocationRow = ((SimSearchJTable) table).getDropLocationRow();
+        
+        //this.setVerticalTextPosition(SwingConstants.TOP);
 //        if(transferHandler!=null && (transferHandler instanceof SimSearchTableRowTransferHandler)) {
 //        	SimSearchTableRowTransferHandler simSearchTransferHandler = (SimSearchTableRowTransferHandler) transferHandler;
 //        	if(simSearchTransferHandler.isMergeDropLocation()) dropLocationRow = simSearchTransferHandler.getDropLocationRow();
@@ -249,13 +267,41 @@ public class SimSearchJTable extends JTable {
             if(o!=null) width = Math.max(width, fm.stringWidth(o.toString()));
         }
         
-        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + EXTRA_X_MARGIN + 2*INNER_MARGIN_X;        
+        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
       }
       
       public int getFittingHeight(int row, int column, JTable table) {
         FontMetrics fm = table.getFontMetrics( table.getFont() );
-        return fm.getHeight() + ((int) (2*table.getIntercellSpacing().getHeight())) + SimSearchTable.ViewSettings.variableYMargin + EXTRA_Y_MARGIN + 2*INNER_MARGIN_Y;      
+        return fm.getHeight() + ((int) (2*table.getIntercellSpacing().getHeight())) + 2*((SimSearchJTable) table).viewSettings.cellMarginY;      
       }
+      
+      
+
+	@Override
+	public String createToolTipText(SimSearchTableModel tableModel, int rowIndex, int columnIndex) {
+		// TODO Auto-generated method stub
+		Object value = tableModel.getValueAt(rowIndex, columnIndex);
+		if(value==null) return null;
+		
+		String toolTip = tableModel.getColumnFormatComment(columnIndex);
+		if(toolTip==null || toolTip.isEmpty()) return value.toString();
+		
+		
+		try {
+			return "<html><table cellpadding=\"0\">\n" + 
+					"  <tr>\n" + 
+					"    <td>" + StringEscapeUtils.escapeHtml4(toolTip) + "</td>\n" + 
+					"  </tr>\n" + 
+					"  <tr>\n" + 
+					"    <td>" + StringEscapeUtils.escapeHtml4(value.toString())  + "</td>\n" + 
+					"  </tr>\n" + 
+					"</table></html>";
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
     }
     
     
@@ -313,6 +359,7 @@ public class SimSearchJTable extends JTable {
         
         //System.out.println("AL:" + data[row]);
         setText(data[modelRow]);
+        
         //setHorizontalAlignment(SwingConstants.CENTER);
 
         return this;
@@ -376,7 +423,7 @@ public class SimSearchJTable extends JTable {
               }
             
             try {
-              return "<html><table>\n" + 
+              return "<html><table cellpadding=\"0\">\n" + 
                   "  <tr>\n" + 
                   "    <td>" + RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + "</td>\n" + 
                   "    <td>" + createHtmlCode(alignedRefSeq, false)  + "</td>\n" + 
@@ -413,7 +460,7 @@ public class SimSearchJTable extends JTable {
             }
         }
         
-        return width + ((int) (2*table.getIntercellSpacing().getHeight())) + EXTRA_X_MARGIN + 2*INNER_MARGIN_X;        
+        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
       }
     }
     
@@ -431,6 +478,7 @@ public class SimSearchJTable extends JTable {
       public ListColumnRenderer(int rowCount) {
         super();
         this.label = new JLabel();
+        this.label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         //data = new String[rowCount];
         //this.JOIN = join;
         //this.textArea = new JTextArea();
@@ -450,6 +498,7 @@ public class SimSearchJTable extends JTable {
         //if(data[modelRow]==null) data[modelRow] = (value==null? "": createHtml((List<String>) value)); //   String.join(this.JOIN, ((List<String>) value)));
         
         //setText(data[modelRow]);
+        this.label.setFont(this.getFont());
         setText("");
         
         this.data = (List<String>) value;
@@ -483,7 +532,7 @@ public class SimSearchJTable extends JTable {
             if(o!=null) for(String element: (List<String>) o) width = Math.max(width, fm.stringWidth(element));
         }
         
-        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + EXTRA_X_MARGIN + 2*INNER_MARGIN_X;        
+        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
       }
       
       @Override
@@ -493,12 +542,12 @@ public class SimSearchJTable extends JTable {
         
         Object o = table.getValueAt(row, column);
         if(o!=null) width *= Math.max(((List<String>) o).size(),1); // width = Math.max(width, fm.stringWidth(element));
-        return width + EXTRA_Y_MARGIN + 2*INNER_MARGIN_Y+ SimSearchTable.ViewSettings.variableYMargin + ((int) (2*table.getIntercellSpacing().getHeight()));      
+        return width + ((int) (2*table.getIntercellSpacing().getHeight())) + 2*((SimSearchJTable) table).viewSettings.cellMarginY;      
       }
       
       public void paint(Graphics g) {
 			super.paint(g);
-			
+			if(data==null) return;
 			
 			Font currentFont = g.getFont();
 			// get metrics from the graphics
@@ -506,56 +555,147 @@ public class SimSearchJTable extends JTable {
 			// get the height of a line of text in this
 			// font and render context
 			int hgt = metrics.getHeight();
-			int linepad = 2;
-			int xpad = 10;
-			int ypad = 22;
+			
 			int descent = metrics.getDescent();
+			int ascent = hgt-descent; //metrics.getAscent();
+			Insets inset = this.getBorder().getBorderInsets(this);
+			//int leftPad = this.getBorder().getBorderInsets(this).left;//10;
+			//int rightPad = this.getBorder().getBorderInsets(this).right;
+			//int topPad = this.getBorder().getBorderInsets(this).top;//22;
+			//int bottomPad = this.getBorder().getBorderInsets(this).bottom;
+			
+			int linepad = 0; //descent; //metrics.getLeading();
 			// get the advance of my text in this font
 			// and render context
-			int suffixWidth = metrics.stringWidth("...");
+			//int suffixWidth = metrics.stringWidth("...");
 			// calculate the size of a box to hold the
 			// text with some padding.
-			int y = ypad + metrics.getAscent();
-			int maxWidth = this.getWidth()-2*xpad;
+			int y = inset.top; //   ypad; // + ascent;
+			int maxWidth = this.getWidth()-inset.left-inset.right; //   2*xpad;
+			int maxHeight = this.getHeight()-inset.top -inset.bottom;
 			
 			g.setFont(this.getFont());
 			
-			int dx = 1000;
-			int dy = 1000;
-			g.copyArea(0, this.getHeight()- (int) Math.round(hgt/2.5), this.getWidth(), (int) Math.round(hgt/2.5), dx, dy);
+			int dx = 10000; //1000;
+			int dy = 10000; //this.getHeight()+2*hgt; //-2*hgt; //1000;
+			
+			
+		    
+			Rectangle rect = new Rectangle(0,this.getHeight()-inset.bottom-descent,inset.bottom+descent,this.getWidth());
+			//g.copyArea(0, this.getHeight()- (int) Math.round(hgt/2.5), this.getWidth(), (int) Math.round(hgt/2.5), dx, dy);
+			g.copyArea(rect.x, rect.y, rect.width, rect.height, dx, dy);
+			
+			Robot robot = null;
+			try {
+				robot = new Robot();
+			} catch (AWTException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		    BufferedImage bufferedImage = robot.createScreenCapture(rect);
+		    int yLine;
+		   
+		    Shape oldClip = g.getClip();
+		    //Rectangle itemClip = new Rectangle(inset.left, inset.top, this.getWidth()-inset.left-inset.right, this.getHeight()-inset.top-inset.bottom);
+		    int heightContinueMark = 2*descent; //descent;
+		    boolean showContinueMark = false;
+		    //Rectangle continueClip = new Rectangle(itemClip.x, itemClip.y+itemClip.height-heightContinueMark, itemClip.width, heightContinueMark);
+		    
+		    g.setClip(new Rectangle(inset.left, inset.top, maxWidth, maxHeight));
 			
 			for(int i=0; i<data.size(); ++i) {
-				label.setText(data.get(i));
+				//label.setText(data.get(i));
+				//int w = SwingUtilities2.stringWidth(this.label, metrics,data.get(i));
+				String s = SwingUtilities2.clipStringIfNecessary(this.label, metrics, data.get(i), maxWidth);
+				//System.out.println("maxWidth: " + maxWidth + ", StringWidth: " + w + ", " + data.get(i) + " -> " + s);
+				//Shape oldShape = g.getClip();
+//				if((y + (hgt+linepad)*(i)+metrics.getDescent())>this.getHeight()-inset.bottom) {
+				yLine = y + (hgt+linepad)*(i);
+					//Shape oldShape = g.getClip();
+					//g.setClip(new Rectangle(inset.left+20,y + (hgt+linepad)*(i),maxWidth-20, getHeight()-inset.bottom-descent - (y + (hgt+linepad)*(i)) ));
+					//g.setClip(new Rectangle(inset.left,y + (hgt+linepad)*(i),maxWidth, hgt ));
+				if((yLine + hgt)>(inset.top + maxHeight)) {
+					//itemClip = new Rectangle(itemClip.x, itemClip.y, itemClip.width, itemClip.height-heightContinueMark);
+					g.setClip(new Rectangle(inset.left, inset.top, maxWidth, maxHeight-heightContinueMark));
+					showContinueMark = true;
+					System.out.println("showContinueMark = true");
+				}
 				
-				SwingUtilities.paintComponent(g, label, this,  
-		                  xpad,
-		                  y + (hgt+linepad)*(i),
-		                  maxWidth,
-		                  hgt);
+				g.drawString(s, inset.left, yLine+ascent);
+				if(showContinueMark) break;
+					//SwingUtilities2.drawString(this.label,g,s, inset.left, y + (hgt+linepad)*(i)+ascent);
+//				SwingUtilities.paintComponent(g, label, this,  
+//		                  inset.left,
+//		                  y + (hgt+linepad)*(i),
+//		                  maxWidth,
+//		                  hgt);
+				    //g.setClip(oldShape);
+//				} else {
+//					g.drawString(data.get(i), inset.left, y + (hgt+linepad)*(i) - ascent);
+//					SwingUtilities.paintComponent(g, label, this,  
+//			                  inset.left,
+//			                  y + (hgt+linepad)*(i),
+//			                  maxWidth,
+//			                  hgt);
+//				}
 				//SwingUtilities2.clipString(this.label, metrics, data.get(i), maxWidth);
 //				int w = metrics.stringWidth(data.get(i));
 //				String s = data.get(i);
 //				if(w>maxWidth) s = s.substring(0,s.length()-(w-maxWidth)/suffixWidth*3-1) + "...";
 //				g.drawString(s, xpad, y + (hgt+linepad)*(i));	
-				if((y + (hgt+linepad)*(i)+metrics.getDescent())>this.getHeight()-ypad) break;
+				
 			}
-			if((y + (hgt+linepad)*(data.size()-1)+metrics.getDescent())>this.getHeight()-ypad) {
+			if(showContinueMark) {
 //				g.clearRect(0, this.getHeight()- (int) Math.round(hgt/2.5), this.getWidth(), (int) Math.round(hgt/2.5));
 //				g.copyArea(int x, int y, int width, int height, int dx, int dy)
-				g.copyArea(0+dx, this.getHeight()- (int) Math.round(hgt/2.5) + dy, this.getWidth(), (int) Math.round(hgt/2.5), -dx, -dy);
+				//g.copyArea(0+dx, this.getHeight()- (int) Math.round(hgt/2.5) + dy, this.getWidth(), (int) Math.round(hgt/2.5), -dx, -dy);
+				//g.copyArea(rect.x+dx, rect.y+dy, rect.width, rect.height, -dx, -dy);
+				//g.drawImage(bufferedImage, rect.x, rect.y, this);
 			//g.setColor(this.getBackground());
 			//g.fillRect(0, this.getHeight(), this.getWidth(), 5);
-				label.setText("...");
-				SwingUtilities.paintComponent(g, label, this,  
-		                  xpad,
-		                  this.getHeight()-hgt+descent, //-ypad-metrics.getDescent(),
-		                  maxWidth,
-		                  hgt);
+				//label.setText("...");
+				g.setClip(new Rectangle(inset.left,inset.top, maxWidth, maxHeight));
+				g.drawString("...", inset.left, this.getHeight()-inset.bottom);
+//				SwingUtilities.paintComponent(g, label, this,  
+//		                  inset.left,
+//		                  this.getHeight()-hgt+descent, //-ypad-metrics.getDescent(),
+//		                  maxWidth,
+//		                  hgt);
 				//g.drawString("...", xpad, this.getHeight()-ypad-metrics.getDescent());
 			}
 			
 			g.setFont(currentFont);
+			g.setClip(oldClip);
 		}
+      
+      @Override
+  	public String createToolTipText(SimSearchTableModel tableModel, int rowIndex, int columnIndex) {
+  		// TODO Auto-generated method stub
+  		Object value = tableModel.getValueAt(rowIndex, columnIndex);
+  		if(value==null) return null;
+  		
+  		String toolTip = tableModel.getColumnFormatComment(columnIndex);
+  		//if(toolTip==null || toolTip.isEmpty()) return value.toString();
+  		
+  		
+  		try {
+  			StringBuilder sb = new StringBuilder();
+  			sb.append("<html><table cellpadding=\"0\">\n");
+  			if(toolTip!=null) sb.append("  <tr>\n" + 
+  					"    <td>Format: <i>" + StringEscapeUtils.escapeHtml4(toolTip) + "</i></td>\n" + 
+  					"  </tr>\n");
+  			for(String element: (List<String>) value) sb.append("  <tr>\n" + 
+  					"    <td>" + StringEscapeUtils.escapeHtml4(element.toString())  + "</td>\n" + 
+  					"  </tr>\n");
+  			sb.append("</table></html>");
+  			return sb.toString();
+  		} catch (Exception e) {
+  			// TODO Auto-generated catch block
+  			e.printStackTrace();
+  			return null;
+  		}
+  	}
     }
     
     /**
@@ -684,10 +824,10 @@ public class SimSearchJTable extends JTable {
     
     //private final boolean isRowHeaderTable;
 	
-	public SimSearchJTable(boolean isRowHeaderTable) {
-	  super();
-	  //this.isRowHeaderTable = isRowHeaderTable;
-	}
+//	public SimSearchJTable(boolean isRowHeaderTable) {
+//	  super();
+//	  //this.isRowHeaderTable = isRowHeaderTable;
+//	}
 	
 //	@Override
 //    public Component prepareRenderer(
@@ -784,6 +924,20 @@ public class SimSearchJTable extends JTable {
 	  if(!(super.getModel() instanceof SimSearchTableModel)) return;
 	  SimSearchTableModel tableModel = (SimSearchTableModel) super.getModel();
 	  for(int row=0; row<this.getRowCount(); ++row) if(idList.contains(tableModel.getID(this.convertRowIndexToModel(row)))) this.addRowSelectionInterval(row, row);
+	}
+	
+	protected int getPreferredRowHeight(int row, boolean useSimpleRowHeightAsDefault) {
+		int height = 0;
+		for(int column=0; column<this.getColumnCount(); ++column) {
+			TableColumn tableColumn = this.getColumnModel().getColumn(column);
+			if(tableColumn==null) continue;
+			TableCellRenderer renderer = tableColumn.getCellRenderer();
+			if(renderer==null) continue;
+			Component c = renderer.getTableCellRendererComponent(this, this.getValueAt(row,column), false,
+                    false, row, column);
+			if(c!=null) height = Math.max(height, c.getPreferredSize().height);
+		}
+		return height;
 	}
 	
 //	@Override
@@ -911,14 +1065,138 @@ public class SimSearchJTable extends JTable {
       for (int column = 0; column < this.getColumnCount(); column++) this.adjustColumnWidth(column);
     }
     
-    @Override
-    public void clearSelection() {
-    	if(this.canSelectionBeChanged()) super.clearSelection();
+//    @Override
+//    public void clearSelection() {
+//    	if(this.canSelectionBeChanged()) super.clearSelection();
+//    }
+    
+    //private boolean canSelectionBeChanged() { return this.getCursor()!=ROW_RESIZE_CURSOR; }
+    
+//    public void changeSelection(int row, int column, boolean controlDown, boolean shiftDown) {
+//    	if(this.canSelectionBeChanged()) super.changeSelection(row, column, controlDown, shiftDown);
+//    }
+    
+    public void addMouseListener(MouseListener listener) {
+    	if(this.mouseListeners==null) this.mouseListeners = new ArrayList<>();
+    	this.mouseListeners.add(listener);
+    	super.addMouseListener(listener);
     }
     
-    private boolean canSelectionBeChanged() { return this.getCursor()!=ROW_RESIZE_CURSOR; }
+    public void removeMouseListener(MouseListener listener) {
+    	if(this.mouseListeners==null) this.mouseListeners = new ArrayList<>();
+    	this.mouseListeners.remove(listener);
+    	super.removeMouseListener(listener);
+    }
     
-    public void changeSelection(int row, int column, boolean controlDown, boolean shiftDown) {
-    	if(this.canSelectionBeChanged()) super.changeSelection(row, column, controlDown, shiftDown);
+    public boolean isRowResizingAllowed() { return this.rowResizeAdapter != null; }
+    
+    public void setRowResizingAllowed(boolean value) {
+  	  if(value!=this.isRowResizingAllowed()) {
+  		  if(value) {
+  			  this.rowResizeAdapter = new RowResizeAdapter();
+  			  for(MouseListener listener : this.mouseListeners) super.removeMouseListener(listener);
+  			  this.mouseListeners.add(0,this.rowResizeAdapter);
+  			  for(MouseListener listener : this.mouseListeners) super.addMouseListener(listener);
+  			  this.addMouseMotionListener(this.rowResizeAdapter);
+  		  } else {
+  			  this.removeMouseListener(this.rowResizeAdapter);
+  			  this.removeMouseMotionListener(this.rowResizeAdapter);
+  			  this.rowResizeAdapter = null;
+  		  }
+  	  }
+    }
+    
+    private class RowResizeAdapter extends MouseAdapter {
+    	
+    	private final Cursor ROW_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
+
+    	private Cursor otherCursor = ROW_RESIZE_CURSOR;
+    	private int yBeforeDrag;
+    	private int hBeforeDrag;
+    	private int rowDragged;
+    	private final int MIN_ROW_HEIGHT = 5;
+
+    	public void mouseMoved(MouseEvent e) {
+    		JTable table = (JTable) e.getSource();
+    		int row = -1;
+    		int column = table.columnAtPoint(e.getPoint());
+    		if(column==0) row = getResizingRow(e.getPoint(), table);
+    		if((row>=0) != (table.getCursor()==ROW_RESIZE_CURSOR)) swapCursor(table);
+//    		if((row>=0) == table.getDragEnabled()) table.setDragEnabled(row<0);
+//    		if(row>=0) {
+//    			rowDragged = row;
+//    			yBeforeDrag = e.getPoint().y;
+//    			hBeforeDrag = table.getRowHeight(row);
+//    		}
+    	}
+    	
+    	public void mousePressed(MouseEvent e) {
+    		JTable table = (JTable) e.getSource();
+    		int row = -1;
+    		int column = table.columnAtPoint(e.getPoint());
+    		if(column==0) row = getResizingRow(e.getPoint(), table);
+    		//if((row>=0) != (table.getCursor()==ROW_RESIZE_CURSOR)) swapCursor(table);
+    		//if((row>=0) == table.getDragEnabled()) table.setDragEnabled(row<0);
+    		if(row>=0) {
+    			e.consume();
+    			rowDragged = row;
+    			yBeforeDrag = e.getPoint().y;
+    			hBeforeDrag = table.getRowHeight(row);
+    		}
+    	}
+
+    	private void swapCursor(JTable table) {
+    		Cursor tmp = table.getCursor();
+    		table.setCursor(otherCursor);
+    		otherCursor = tmp;
+    	}
+
+    	private int getResizingRow(Point p, JTable table) {
+    		int row = table.rowAtPoint(p);
+    		if (row == -1) {
+    			return -1;
+    		}
+    		Rectangle r = SimSearchJTable.this.getCellRect(row, 0, true);//    getHeaderRect(column);
+    		r.grow(0, -2);
+    		if (r.contains(p)) {
+    			return -1;
+    		}
+    		int midPoint = r.y + r.height/2;
+    		int rowIndex = (p.y < midPoint) ? row - 1 : row;
+
+    		return rowIndex;
+    	}
+
+    	//  	  @Override
+    	//  	  public void mousePressed(MouseEvent e) {
+    	//  		  System.out.println("mousePressed");
+    	//  		  JTable table = (JTable) e.getSource();
+    	//  		  int row = -1;
+    	//  		  int column = table.columnAtPoint(e.getPoint());
+    	//  		  if(column==0) row = getResizingRow(e.getPoint(), table);
+    	//  		  if((row>=0) && (table.getCursor()==SimSearchJTable.ROW_RESIZE_CURSOR)) {
+    	//  			  yBeforeDrag = e.getPoint().y;
+    	//  			  hBeforeDrag = table.getRowHeight(row);
+    	//  			  rowDragged = row;
+    	//  		  }
+    	//  	  }
+
+    	@Override
+    	public void mouseDragged(MouseEvent e) {
+    		//System.out.println("mouseDragged");
+    		SimSearchJTable table = (SimSearchJTable) e.getSource();
+    		if(table.getCursor()==ROW_RESIZE_CURSOR) {
+    			e.consume();
+    			int delta = e.getPoint().y - yBeforeDrag;
+    			setRowHeight(rowDragged, Math.max(hBeforeDrag + delta, MIN_ROW_HEIGHT));
+    			table.partnerTable.setRowHeight(rowDragged, Math.max(hBeforeDrag + delta, MIN_ROW_HEIGHT));
+    		}
+    	}
+    	@Override
+    	public void mouseReleased(MouseEvent e) {
+    		System.out.println("mouseReleased");
+
+    	}
+
     }
 }

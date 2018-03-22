@@ -38,6 +38,7 @@ public final class SimSearchTableModel extends DefaultTableModel{
 private static final long serialVersionUID = -4838767897732945130L;
 
 private final String[] columnComments;
+private final String[] columnFormatComments;
 private final String[] columnNames;
 private final Class<?>[] columnClasses;
 
@@ -138,6 +139,7 @@ SimSearchTableModel(SimSet simSet, SimSearchDataManipulationHandler dataManipula
 	  this.columnNames[0] = "";
 	  this.columnClasses = dataLoader.columnClasses;
 	  this.columnComments = dataLoader.columnComments;
+	  this.columnFormatComments = dataLoader.columnFormatComments;
 	  this.columnCount = columnNames.length;
 	  this.rowCount = data.length;
 	  this.referenceRow = -1;
@@ -447,6 +449,10 @@ public String getColumnName(int column) {
 
 public String getColumnComment(int column) { 
   return this.columnComments[column];
+}
+
+public String getColumnFormatComment(int column) { 
+	return this.columnFormatComments[column];
 }
 
 @Override

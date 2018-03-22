@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
 import java.awt.Cursor;
+import java.awt.EventQueue;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -51,6 +52,7 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
     }
     
     @Override protected Transferable createTransferable(JComponent c) {
+      //System.out.println("Create transferable");
       if(c instanceof SimSearchJTable) {
         SimSearchJTable table = (SimSearchJTable) c;
         int[] indices = table.getSelectedRows();
@@ -71,6 +73,7 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
 //      //return new DataHandler(transferedObjects, localObjectFlavor.getMimeType());
     }
     @Override public boolean canImport(TransferHandler.TransferSupport info) {
+      //System.out.println("  canImport");
       SimSearchJTable table = (SimSearchJTable) info.getComponent();
 //      this.isMergeDrop = false;
 //      this.dropLocationRow = -1;
@@ -187,12 +190,29 @@ public class SimSearchTableRowTransferHandler  extends TransferHandler {
 //      }
 //      return false;
     }
+    
+    //protected boolean isTransferActive() { return false; }
+    
     @Override protected void exportDone(JComponent c, Transferable data, int action) {
-      c.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      ((SimSearchJTable) c).getPartnerTable().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      //System.out.println("Export done");
+    	//The cursor is reseted not directly in here because if the drag and drop is aborted in some cases 
+    	//(e.g. the mouse is released over a row that does not accept the drop) the direct mouse cursor reset 
+    	//is either ignored or set cursor is set again by the processing of an event still waiting in the event queue
+    	EventQueue.invokeLater(new Runnable() {
+    		@Override public void run() {
+    			c.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    			((SimSearchJTable) c).getPartnerTable().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    		}
+    	});
+    	//      c.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    	//      ((SimSearchJTable) c).getPartnerTable().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    	//      ((SimSearchJTable) c).setDragEnabled(false);
+    	//      ((SimSearchJTable) c).setDragEnabled(true);
+    	//c.updateUI();
+    	//System.out.println("Export done");
       //cleanup(c, action == TransferHandler.MOVE);
     }
+    
+    
 
 //    //If the remove argument is true, the drop has been
 //    //successful and it's time to remove the selected items

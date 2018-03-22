@@ -70,7 +70,8 @@ public final class SimSearch {
     private boolean useLevenshtein;
     private boolean useFormat2017;
     private boolean readOnly;
-    private boolean ignoreNonSimilarLists;
+    private boolean ignoreKnownDissimilarities;
+    //private boolean ignoreNonSimilarLists;
     
     
 
@@ -81,7 +82,8 @@ public final class SimSearch {
       this.useLevenshtein = false;
       this.useFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
       this.readOnly = false;
-      this.ignoreNonSimilarLists = false;
+      //this.ignoreNonSimilarLists = false;
+      this.ignoreKnownDissimilarities = false;
     }
     
     public Settings(Settings settingsToCopyFrom) {
@@ -90,7 +92,8 @@ public final class SimSearch {
       
       this.useLevenshtein = settingsToCopyFrom.useLevenshtein;
       this.useFormat2017 = settingsToCopyFrom.useFormat2017;
-      this.ignoreNonSimilarLists = settingsToCopyFrom.ignoreNonSimilarLists;
+      //this.ignoreNonSimilarLists = settingsToCopyFrom.ignoreNonSimilarLists;
+      this.ignoreKnownDissimilarities = settingsToCopyFrom.ignoreKnownDissimilarities;
       this.readOnly = false;
     }
 
@@ -113,8 +116,11 @@ public final class SimSearch {
     public boolean getUseLevenshtein() { return this.useLevenshtein; }
     public void setUseLevenshtein(boolean value) { if(!this.readOnly) this.useLevenshtein=value; }
     
-    public boolean getIgnoreNonSimilarLists() { return this.ignoreNonSimilarLists; }
-    public void setIgnoreNonSimilarLists(boolean value) { this.ignoreNonSimilarLists = value; }
+//    public boolean getIgnoreNonSimilarLists() { return this.ignoreNonSimilarLists; }
+//    public void setIgnoreNonSimilarLists(boolean value) { this.ignoreNonSimilarLists = value; }
+    
+    public boolean getIgnoreKnownDissimilarities() { return this.ignoreKnownDissimilarities; }
+    public void setIgnoreKnownDissimilarities(boolean value) { this.ignoreKnownDissimilarities = value; }
   }
 
   public interface SimSearchListener {
@@ -200,6 +206,7 @@ public final class SimSearch {
     	public Class<?>[] columnClasses;
     	public Object[][] data;
     	public String[] columnComments;
+    	public String[] columnFormatComments;
     	public int rowCount;
     	public int columnCount;
     }

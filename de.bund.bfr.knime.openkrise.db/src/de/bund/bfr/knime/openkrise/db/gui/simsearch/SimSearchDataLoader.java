@@ -56,28 +56,31 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
   
   private SimSearch.DataSource.DataSourceListener dataSourceListener;
   
-  private static abstract class ForeignField {
+  protected static abstract class ForeignField {
     final List<String> labelColumns;
     final Function<List<String>, String> formatFunction;
+    final String formatComment;
         
     private ForeignField(String formatString, String[] labelColumns) throws Exception {
       this(new Function<List<String>, String>() {
         public String apply(List<String> arg) {
           return String.format(formatString, arg.toArray());
         }
-      }, labelColumns);
+      }, null, labelColumns);
     }
     
-    private ForeignField(Function<List<String>, String> formatFunction, String[] labelColumns) throws Exception {
+    private ForeignField(Function<List<String>, String> formatFunction, String formatComment, String[] labelColumns) throws Exception {
       if(labelColumns==null || labelColumns.length==0) throw(new Exception("labelColumns is null or empty."));
       this.labelColumns = new ArrayList<>(Arrays.asList(labelColumns));
       this.formatFunction = formatFunction;
+      this.formatComment = formatComment;
     }
     
     abstract Map<Integer, Object> getResult(Collection<Integer> ids, SimSearchDataManipulationHandler dataManipulations, Statement statement) throws Exception ;      
     
     abstract Class<?> getResultType();  
 
+    String getFormatComment() { return this.formatComment; }
     String getFormatedText(ResultSet resultSet) throws Exception {
       return this.formatFunction.apply(this.labelColumns.stream().map(columnName -> {
         try {
@@ -105,8 +108,8 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       this.childTable = childTable;
     }
     
-    ForeignList(ChildTable childTable, Function<List<String>, String> formatFunction, String[] labelColumns) throws Exception {
-      super(formatFunction, labelColumns);
+    ForeignList(ChildTable childTable, Function<List<String>, String> formatFunction, String formatComment, String[] labelColumns) throws Exception {
+      super(formatFunction, formatComment, labelColumns);
       this.childTable = childTable;
     }
 
@@ -153,8 +156,8 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       this.columnName = columnName;
     }
     
-    ForeignItem(String tableName, String columnName, ParentTable parentTable, Function<List<String>, String> formatFunction, String[] labelColumns) throws Exception {
-      super(formatFunction, labelColumns);
+    ForeignItem(String tableName, String columnName, ParentTable parentTable, Function<List<String>, String> formatFunction, String formatComment, String[] labelColumns) throws Exception {
+      super(formatFunction, formatComment, labelColumns);
       this.parentTable = parentTable;
       this.tableName = tableName;
       this.columnName = columnName;
@@ -306,6 +309,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
             return arg.get(0) + " [" + (arg.get(1)==null || arg.get(1).isEmpty()?"?":arg.get(1)) +"]";
           }
         },
+        "<Product name> [<lot number>]",
         new String[] {DBInfo.COLUMN.PRODUCT_DESCRIPTION.getName(), DBInfo.COLUMN.LOT_NUMBER.getName()}));
     map.put(DBInfo.COLUMN.LOT_DELIVERIES.getFullName(), new ForeignList(
         new ChildTable(DBInfo.TABLE.DELIVERY.getName(), DBInfo.COLUMN.DELIVERY_LOT.getName(), 
@@ -317,6 +321,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
                 (arg.get(6)==null || arg.get(6).isEmpty()?"?":arg.get(6));
           }
         },
+        "<delivery date> -> <arrived date> <arrived at station>",
         new String[] {
             DBInfo.COLUMN.DELIVERY_DELIVEREDON_DAY.getName(),DBInfo.COLUMN.DELIVERY_DELIVEREDON_MONTH.getName(),DBInfo.COLUMN.DELIVERY_DELIVEREDON_YEAR.getName(),
             DBInfo.COLUMN.DELIVERY_ARRIVEDON_DAY.getName(),DBInfo.COLUMN.DELIVERY_ARRIVEDON_MONTH.getName(),DBInfo.COLUMN.DELIVERY_ARRIVEDON_YEAR.getName(),
@@ -332,6 +337,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
                 SimSearchDataLoader.convertToDate(arg.get(4), arg.get(5), arg.get(6));
           }
         },
+        "[<lot number>] <MHD date>; <production date>",
         new String[] {
             DBInfo.COLUMN.LOT_NUMBER.getName(),
             DBInfo.COLUMN.LOT_MHDDAY.getName(),DBInfo.COLUMN.LOT_MHDMONTH.getName(),DBInfo.COLUMN.LOT_MHDYEAR.getName(),
@@ -348,6 +354,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
                 SimSearchDataLoader.convertToDate(arg.get(5), arg.get(6), arg.get(7));
           }
         },
+        "<product name>: [<lot_number>] <MHD date>; <production date>",
         new String[] {
             DBInfo.COLUMN.PRODUCT_DESCRIPTION.getName(), DBInfo.COLUMN.LOT_NUMBER.getName(),
             DBInfo.COLUMN.LOT_MHDDAY.getName(), DBInfo.COLUMN.LOT_MHDMONTH.getName(), DBInfo.COLUMN.LOT_MHDYEAR.getName(),
@@ -574,6 +581,8 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       System.arraycopy(columnComments, 0, this.columnComments, 2, Math.min(columnComments.length,this.columnComments.length-2));
       //this.columnSimSetTypes = new SimSearch.SimSet.Type[this.columnCount+1];
       
+      this.columnFormatComments = new String[this.columnCount+1];
+      //this.columnFormatComments[0] = Integer.class;
       
       for(int i=0; i<this.columnCount; ++i) {
         this.columnNames[i+1] = resultSetMetaData.getColumnName(i+1);
@@ -599,6 +608,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
           Map<Integer, Object> foreignObjects = foreignField.getResult(idToDataMap.keySet(), this.dataManipulationHandler, statement);
           for(Integer id: idToDataMap.keySet()) idToDataMap.get(id)[column] = foreignObjects.get(id);
           this.columnClasses[column] = foreignField.getResultType();
+          this.columnFormatComments[column] = foreignField.getFormatComment();
         }
       }
      

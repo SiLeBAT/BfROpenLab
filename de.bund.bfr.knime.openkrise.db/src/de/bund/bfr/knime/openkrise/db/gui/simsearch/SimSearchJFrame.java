@@ -504,6 +504,17 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     //menu.add(this.hideInactiveRowsMenuItem);
     for(JMenuItem menuItem : Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem, this.rowHeightMenu, this.fontSizeMenu)) menu.add(menuItem);
     
+    
+    JMenuItem showViewSettings = new JMenuItem("Preferences..");
+    showViewSettings.addActionListener(new ActionListener() {
+    	@Override
+        public void actionPerformed(ActionEvent arg0) {
+          SimSearchJFrame.this.processShowPreferencesUserRequest();
+        }
+    });
+    menu.add(showViewSettings);
+    
+    
     // Men� wird der Men�leiste hinzugef�gt
     bar.add(menu);
     
@@ -716,6 +727,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 			  }
 		  });
 	  }
+  }
+  
+  private void processShowPreferencesUserRequest() {
+	  final ViewSettingsDialog dialog = new ViewSettingsDialog(this, this.table.getViewSettings());
+	  dialog.setVisible(true);
+//	  if (dialog.okPressed) {
+//		  
+//	  }
   }
   
   private void processUserSaveRequest() {

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "5.2.2.0.199" Java: "1.8.0_05" encoding: "UTF-8"
+JFDML JFormDesigner: "6.0.2.0.116" Java: "1.8.0_65" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -12,7 +12,7 @@ new FormModel {
 				"border": sfield com.jgoodies.forms.factories.Borders DIALOG_BORDER
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 					"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default"
-					"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default"
+					"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, pargap"
 					"$columnGroupIds": "0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2"
 				} ) {
 					name: "contentPanel"
@@ -330,6 +330,20 @@ new FormModel {
 						"gridX": 17
 						"gridY": 13
 					} )
+					add( new FormComponent( "javax.swing.JSeparator" ) {
+						name: "separator42"
+						"foreground": #Color0
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridY": 15
+						"gridWidth": 25
+					} )
+					add( new FormComponent( "javax.swing.JCheckBox" ) {
+						name: "ignoreKnownDissimilaritiesCheckBox"
+						"text": "Ignore known dissimilarities"
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridY": 17
+						"gridWidth": 13
+					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"
 				} )
@@ -374,7 +388,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 725, 270 )
+			"size": new java.awt.Dimension( 725, 325 )
 		} )
 	}
 }

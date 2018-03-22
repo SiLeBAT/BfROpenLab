@@ -202,7 +202,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
       Connection con = DBKernel.getDBConnection();
       if(con==null) throw(new Exception("No database connection available."));
       
-      Map<Integer,Set<Integer>> ignoreMap = (settings.getIgnoreNonSimilarLists()?new HashMap<>():this.loadIgnoreList(simSetType));
+      Map<Integer,Set<Integer>> ignoreMap = (settings.getIgnoreKnownDissimilarities()?new HashMap<>():this.loadIgnoreList(simSetType));
       
       Statement statement = con.createStatement();
       
