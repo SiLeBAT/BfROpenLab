@@ -29,7 +29,7 @@ import de.bund.bfr.knime.gis.BackwardUtils;
 public class GeocodingSettings extends NodeSettings {
 
 	public static enum Provider {
-		MAPQUEST("MapQuest"), GISGRAPHY("Gisgraphy"), BKG("Bundesamt für Kartographie und Geodäsie"), PHOTON("Photon");
+		MAPQUEST("MapQuest"), GISGRAPHY("Gisgraphy"), BKG("Bundesamt für Kartographie und Geodäsie"), PHOTON("Photon"), BING("Bing");
 
 		private String name;
 

@@ -25,6 +25,7 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -71,6 +72,12 @@ import de.bund.bfr.knime.gis.Activator;
 import de.bund.bfr.knime.gis.GisUtils;
 import net.minidev.json.JSONArray;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+//import javax.xml.parsers;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
 /**
  * This is the model implementation of Geocoding.
  * 
@@ -104,13 +111,15 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	private static final String PATTERN_CODE_COUNTRY = "<COUNTRY>";
 	
 	private static final String URL_PATTERN_MAPQUEST = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS;
+	private static final String URL_PATTERN_MAPQUEST_WITH_COUNTRY = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY;
 	private static final String URL_PATTERN_MAPQUEST5BOX = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&street=" + PATTERN_CODE_STREET + "&city=" + PATTERN_CODE_CITY + "&postalCode=" + PATTERN_CODE_ZIP + "&country=" + PATTERN_CODE_COUNTRY;
 	private static final String URL_PATTERN_BKG = "https://sg.geodatenzentrum.de/gdz_geokodierung__" + PATTERN_CODE_KEY + "/geosearch?query=" + PATTERN_CODE_ADDRESS;
 	private static final String URL_PATTERN_GISGRAPHY = PATTERN_CODE_SERVER + "?address=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY + "&format=json";
 	//private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&osm_tag=highway:residential&limit=2";
-	private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&limit=2";
+	private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS; // + "&limit=2";
+	private static final String URL_PATTERN_BING = "http://dev.virtualearth.net/REST/v1/Locations?query=" + PATTERN_CODE_ADDRESS + "&key=" + PATTERN_CODE_KEY;
 	
-	private static final String OSM_KEY_HIGHWAY = "highway";
+	//private static final String OSM_KEY_HIGHWAY = "highway";
 	
 	private GeocodingSettings set;
 
@@ -153,19 +162,23 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 			String countryCode = null;
 
 			if (addressIndex != -1) {
-				address = IO.getCleanString(row.getCell(addressIndex));
-			}
+			  // either use addresstext
+			  address = IO.getCleanString(row.getCell(addressIndex));
+			  
+			} else {
 
-			if (streetIndex != -1) {
-				street = IO.getCleanString(row.getCell(streetIndex));
-			}
+			  // or use detailed address information
+			  if (streetIndex != -1) {
+			    street = IO.getCleanString(row.getCell(streetIndex));
+			  }
 
-			if (cityIndex != -1) {
-				city = IO.getCleanString(row.getCell(cityIndex));
-			}
+			  if (cityIndex != -1) {
+			    city = IO.getCleanString(row.getCell(cityIndex));
+			  }
 
-			if (zipIndex != -1) {
-				zip = IO.getCleanString(row.getCell(zipIndex));
+			  if (zipIndex != -1) {
+			    zip = IO.getCleanString(row.getCell(zipIndex));
+			  }
 			}
 
 			if (countryCodeIndex != -1) {
@@ -187,6 +200,9 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 			case PHOTON:
 				result = performPhotonGeocoding(address);
 				break;
+			case BING:
+			    result = performBingGeocoding(address);
+			    break;
 			default:
 				throw new RuntimeException("Unknown service provider");
 			}
@@ -285,13 +301,17 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 					"MapQuest key in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		String url, urlWithoutKey;
-		if (street != null || city != null || zip != null || country != null) {
+		String url, urlWithoutKey = null;
+		if (street != null || city != null || zip != null) {// || country != null) {
+		//if (street != null || city != null || zip != null || country != null) {
 			url = createMapQuest5BoxUrl(street, city, zip, country, mapQuestKey);
 			urlWithoutKey = createMapQuest5BoxUrl(street, city, zip, country, NO_KEY);
 		}
 		else {
-			url = createMapQuestUrl(address, mapQuestKey);
+		    //if(!Strings.isNullOrEmpty(country)) url = createMapQuestUrl(address, country, mapQuestKey);
+		    //else 
+		      url = createMapQuestUrl(address, mapQuestKey);
+			
 			urlWithoutKey = createMapQuestUrl(address, NO_KEY);
 		}
 
@@ -423,10 +443,11 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 			for (Object jsonResult : jsonResults) {
 				DocumentContext r = JsonPath.parse(jsonResult);
-				String osm_key = read(r, "$.properties.osm_key");
+				//String osm_key = read(r, "$.properties.osm_key");
 				//results.add(new GeocodingResult(url, read(r, "$.properties.name"),   // the osm_tag highway seems to cause that the name is set as the street
 				//results.add(new GeocodingResult(url, read(r, "$.properties.street"),   // without osm_tag=highway street is set as street
-				results.add(new GeocodingResult(url, (OSM_KEY_HIGHWAY.equals(osm_key)? read(r, "$.properties.name"): read(r, "$.properties.street")),   // if key==highway the street is in the name attribute otherwise street
+				results.add(new GeocodingResult(url, read(r, "$.properties.street"),   // if key==highway the street is in the name attribute otherwise street
+				        read(r, "$.properties.housenumber"),
 						read(r, "$.properties.city"), null, read(r, "$.properties.state"),
 						read(r, "$.properties.country"), read(r, "$.properties.postcode"), readDouble(r, "$.geometry.coordinates[1]"),
 						readDouble(r, "$.geometry.coordinates[0]")));
@@ -448,6 +469,49 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 			}
 		}
 	}
+	
+	private GeocodingResult performBingGeocoding(String address)
+        throws IOException, InvalidSettingsException, CanceledExecutionException {
+    if (address == null) return new GeocodingResult();
+    
+    String bingMapsKey = Activator.getDefault().getPreferenceStore()
+            .getString(GeocodingPreferencePage.BING_KEY);
+
+    if (Strings.isNullOrEmpty(bingMapsKey)) {
+        throw new InvalidSettingsException(
+                "Bing Maps Key in preferences is missing. Please enter it under KNIME->Geocoding.");
+    }
+
+    String url = createBingUrl(address, bingMapsKey);
+    String urlWithoutKey = createBingUrl(address, NO_KEY);
+    
+
+    try (BufferedReader buffer = new BufferedReader(
+            new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
+      
+        String json = buffer.lines().collect(Collectors.joining("\n"));
+
+        if (Strings.isNullOrEmpty(json)) {
+            return new GeocodingResult(urlWithoutKey);
+        }
+
+        JSONArray jsonResults = JsonPath.parse(json).read("$.resourceSets[*]"); //.resources[*]");
+        List<GeocodingResult> results = new ArrayList<>();
+
+        for (Object jsonResult : jsonResults) {
+          JSONArray jsonSubResults = JsonPath.parse(jsonResult).read("$.resources[*]"); //.resources[*]");
+          for (Object jsonSubResult : jsonSubResults) {
+            DocumentContext r = JsonPath.parse(jsonSubResult);
+
+            results.add(new GeocodingResult(urlWithoutKey, read(r, "$.address.addressLine"), read(r, "$.address.locality"),
+                    read(r, "$.address.adminDistrict2"), read(r, "$.address.adminDistrict"), read(r, "$.address.countryRegion"),
+                    read(r, "$.address.postalCode"), readDouble(r, "$.point.coordinates[0]"), readDouble(r, "$.point.coordinates[0]")));
+          }
+        }
+
+        return getIndex(address, results, new GeocodingResult(urlWithoutKey));
+    }
+}
 	
 	private GeocodingResult getIndex(String address, List<GeocodingResult> choices, GeocodingResult defaultValue)
 			throws CanceledExecutionException {
@@ -479,6 +543,20 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
 			    PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));
 	}
+	
+//	private static String createMapQuestUrl(String address, String country, String key) throws UnsupportedEncodingException {
+//      return URL_PATTERN_MAPQUEST_WITH_COUNTRY.replace(
+//              PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
+//              PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name())).replace(
+//              PATTERN_CODE_COUNTRY, URLEncoder.encode(country, StandardCharsets.UTF_8.name()));
+//    }
+	
+	private static String createBingUrl(String address, String key) throws UnsupportedEncodingException {
+      return URL_PATTERN_BING.replace(
+              PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
+              PATTERN_CODE_ADDRESS, URLEncoder.encode(address, StandardCharsets.UTF_8.name()));
+    }
+	
 	private static String createMapQuest5BoxUrl(String street, String city, String zip, String country, String key) throws UnsupportedEncodingException {
 		return URL_PATTERN_MAPQUEST5BOX.replace(
 				PATTERN_CODE_KEY,URLEncoder.encode(key, StandardCharsets.UTF_8.name())).replace(
@@ -533,6 +611,7 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 		private String url;
 		private String street;
+		private String houseNumber;
 		private String city;
 		private String district;
 		private String state;
@@ -551,16 +630,31 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 		public GeocodingResult(String url, String street, String city, String district, String state, String country,
 				String postalCode, Double latitude, Double longitude) {
-			this.url = url;
-			this.street = street;
-			this.city = city;
-			this.district = district;
-			this.state = state;
-			this.country = country;
-			this.postalCode = postalCode;
-			this.latitude = latitude;
-			this.longitude = longitude;
+		  this(url, street, null, city, district, state, country, postalCode, latitude, longitude);
+//			this.url = url;
+//			this.street = street;
+//			this.city = city;
+//			this.district = district;
+//			this.state = state;
+//			this.country = country;
+//			this.postalCode = postalCode;
+//			this.latitude = latitude;
+//			this.longitude = longitude;
 		}
+		
+		public GeocodingResult(String url, String street, String houseNumber, String city, String district, String state, String country,
+            String postalCode, Double latitude, Double longitude) {
+          this.url = url;
+          this.street = street;
+          this.houseNumber = houseNumber;
+          this.city = city;
+          this.district = district;
+          this.state = state;
+          this.country = country;
+          this.postalCode = postalCode;
+          this.latitude = latitude;
+          this.longitude = longitude;
+      }
 
 		public String getUrl() {
 			return url;
@@ -569,6 +663,10 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 		public String getStreet() {
 			return street;
 		}
+		
+		public String getHouseNumber() {
+          return houseNumber;
+      }
 
 		public String getCity() {
 			return city;
@@ -600,7 +698,7 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
 		@Override
 		public String toString() {
-			return GisUtils.getAddress(street, null, city, district, state, country, postalCode, false);
+			return GisUtils.getAddress(street, houseNumber, city, district, state, country, postalCode, false);
 		}
 	}
 

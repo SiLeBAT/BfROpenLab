@@ -31,6 +31,7 @@ public class GeocodingPreferencePage extends FieldEditorPreferencePage implement
 
 	public static final String MAPQUEST_KEY = "GeocodingMapQuestKey";
 	public static final String BKG_UUID = "GeocodingBkgUuid";
+	public static final String BING_KEY = "GeocodingBingKey";
 
 	public GeocodingPreferencePage() {
 		super(FieldEditorPreferencePage.GRID);
@@ -46,6 +47,7 @@ public class GeocodingPreferencePage extends FieldEditorPreferencePage implement
 		addField(new TrimmingStringFieldEditor(MAPQUEST_KEY, "MapQuest API Key", getFieldEditorParent()));
 		addField(new TrimmingStringFieldEditor(BKG_UUID, "\"Bundesamt für Kartographie und Geodäsie\" UUID",
 				getFieldEditorParent()));
+		addField(new TrimmingStringFieldEditor(BING_KEY, "Bing Maps Key", getFieldEditorParent()));
 	}
 
 	private static class TrimmingStringFieldEditor extends StringFieldEditor {
