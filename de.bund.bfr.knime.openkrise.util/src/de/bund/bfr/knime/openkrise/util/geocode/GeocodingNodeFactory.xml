@@ -13,7 +13,8 @@
 			services from MapQuest and "Bundesamt für Kartographie und Geodäsie" require a key/UUID, which
 			have to be entered in the KNIME preferences under KNIME->Geocoding. The MapQuest key can be
 			obtained from
-			<a href="https://developer.mapquest.com/">https://developer.mapquest.com/.</a>
+			<a href="https://developer.mapquest.com/">https://developer.mapquest.com/</a>. The Bing Map key can be obtained from 
+			<a href="https://msdn.microsoft.com/en-us/library/ff428642.aspx"> https://msdn.microsoft.com/en-us/library/ff428642.aspx</a>.
 			Please contact the "Bundesamt für Kartographie und Geodäsie" to get the UUID for its service
 			"gdz_geokodierung".
 		</intro>
