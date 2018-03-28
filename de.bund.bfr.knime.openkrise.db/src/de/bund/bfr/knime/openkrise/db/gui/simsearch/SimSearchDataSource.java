@@ -1,10 +1,8 @@
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,86 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 import com.google.common.collect.Sets;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
-import de.bund.bfr.knime.openkrise.db.MyDBI;
-import de.bund.bfr.knime.openkrise.db.MyTable;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet;
 
 public class SimSearchDataSource extends SimSearch.DataSource{
-  private SimSearch.Settings settings;
-  //private static Map<DBInfo.TABLE, DBInfo.TABLE> tableToIgnoreTableMap;
-  //private Boolean isIgnoreSimFeatureAvailable = null;
-//  static {
-//	  SimSearchDataSource.tableToIgnoreTableMap = new HashMap<>();
-//	  SimSearchDataSource.tableToIgnoreTableMap.put(DBInfo.TABLE.STATION, DBInfo.TABLE.IGNORESTATIONSIM);
-//	  SimSearchDataSource.tableToIgnoreTableMap.put(DBInfo.TABLE.PRODUCT, DBInfo.TABLE.IGNOREPRODUCTSIM);
-//	  SimSearchDataSource.tableToIgnoreTableMap.put(DBInfo.TABLE.LOT, DBInfo.TABLE.IGNORELOTSIM);
-//	  SimSearchDataSource.tableToIgnoreTableMap.put(DBInfo.TABLE.DELIVERY, DBInfo.TABLE.IGNOREDELIVERYSIM);
-//  }
-  
+   
   protected SimSearchDataSource(SimSearch.DataSource.DataSourceListener listener) {
     super(listener);
   }
   
-  private void test() throws Exception {
-    
-    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX, DBInfo.TABLE.LOTLINK)) {
-      MyTable myTable = DBKernel.myDBi.getTable(table.getName());
-      System.out.println("\nDBIInfo for table " + table.getName());
-      System.out.println("=======================================");
-      for(MyTable foreignTable: myTable.getForeignFields()) {
-        if(foreignTable!=null) {
-//          String foreignFieldName = myTable.getForeignFieldName(foreignTable);
-//          String[] tmp = myTable.getDeepForeignFields();
-          System.out.println(String.format("%s -> %s", myTable.getForeignFieldName(foreignTable), foreignTable.getTablename()));
-        }
-      }
-      
-      System.out.println("\nDeep foreign fields: " + Arrays.toString(myTable.getDeepForeignFields()));
-    }
-    
-    Connection con = DBKernel.getDBConnection();
-    if(con==null) return;
-    DatabaseMetaData  dbMetaData = con.getMetaData();
-    if(dbMetaData==null) return;
-
-    //ResultSet tmp = dbMetaData.getCrossReference(null, null, DBInfo.TABLE.STATION.getName(),null,null,DBInfo.TABLE.AGENT.getName());
-                                
-    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX, DBInfo.TABLE.LOTLINK)) {
-      ResultSet resultSet = dbMetaData.getImportedKeys(null, null, table.getName());
-      if(resultSet!=null) {
-        System.out.println("\nTableInfo for " + table.getName());
-        System.out.println("===============================");
-        System.out.println("Imported Keys:");
-        while(resultSet.next()) {
-          System.out.println(String.format("%s.%s -> %s.%s",  resultSet.getString("FKTABLE_NAME"), resultSet.getString("FKCOLUMN_NAME"), resultSet.getString("PKTABLE_NAME"), resultSet.getString("PKCOLUMN_NAME")));
-        }
-      }
-      
-      resultSet = dbMetaData.getExportedKeys(null, null, table.getName());
-      if(resultSet!=null) {
-        System.out.println("Exported Keys:");
-        while(resultSet.next()) {
-          //String[] tmp = new String[] { resultSet.getString("FKTABLE_NAME"), resultSet.getString("FKCOLUMN_NAME"), resultSet.getString("PKTABLE_NAME"), resultSet.getString("PKCOLUMN_NAME") };
-          System.out.println(String.format("%s.%s -> %s.%s",  resultSet.getString("PKTABLE_NAME"), resultSet.getString("PKCOLUMN_NAME"), resultSet.getString("FKTABLE_NAME"), resultSet.getString("FKCOLUMN_NAME")));
-        }
-      }
-    }
-    
-    for(DBInfo.TABLE table : Arrays.asList(DBInfo.TABLE.STATION, DBInfo.TABLE.PRODUCT, DBInfo.TABLE.LOT, DBInfo.TABLE.DELIVERY, DBInfo.TABLE.AGENT, DBInfo.TABLE.MATRIX, DBInfo.TABLE.LOTLINK)) {
-      ResultSet resultSet = dbMetaData.getColumns(null, null, table.getName(), null);
-      if(resultSet!=null) {
-        System.out.println("\nTablecolumns of " + table.getName());
-        System.out.println("===============================");
-        while (resultSet.next()) {
-          System.out.println(String.format("%s.%s \t T:%s \t N:%s", table.getName(), resultSet.getString("COLUMN_NAME"), resultSet.getString("TYPE_NAME"), resultSet.getString("IS_NULLABLE")));
-        }  
-      }
-    }
-    
-  }
   
   @Override
   public void findSimilarities(SimSearch.Settings settings) throws Exception {
@@ -217,6 +145,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
       //ResultSet rs = DBKernel.getResultSet(sql, false);
       if (rs != null) { // && rs.first()) {
           while(rs.next()) {
+        	 // Thread.sleep(100);
             if(this.getSearchStopped()) return;
             
             String[] resRowFirst = new String[simCheckCount + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
@@ -227,7 +156,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
               List<Integer> idList = new ArrayList<>(); //Arrays.asList(id);
               idList.add(id);
               resRowFirst[0] = id+"";
-              String result = ""+id;
+              //String result = ""+id;
               Object[] fieldVals = new Object[simCheckCount];
               //Object[] fieldVals = new Object[fieldnames.length];
               boolean go4Row = false;
@@ -236,7 +165,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                   fieldVals[i] = rs.getObject(simCheckList.get(i).columnName);
                   //fieldVals[i] = rs.getObject(fieldnames[i]);
                   if (fieldVals[i] != null) fieldVals[i] = fieldVals[i].toString().replace("'", "''");
-                  result += "\t" + fieldVals[i];
+                  //result += "\t" + fieldVals[i];
                   resRowFirst[i+1] = fieldVals[i]+"";
                   if (fieldVals[i] != null && !fieldVals[i].toString().trim().isEmpty()) go4Row = true;
               }
@@ -244,7 +173,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
               
               // Firstly - otherTableDesires
               if (otherTable != null) {
-                  result += " (" + otherTable + ": ";
+                  //result += " (" + otherTable + ": ";
                   sqlSb = new StringBuilder("SELECT " + DBKernel.delimitL("ID"));
                   //sql = "SELECT " + DBKernel.delimitL("ID");
                   for (int i=0;i<otherTableDesires.length;i++) sqlSb.append("," + DBKernel.delimitL(otherTableDesires[i]));
@@ -257,13 +186,13 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                   //ResultSet rs3 = DBKernel.getResultSet(sql, false);
                   if (rs3 != null) {// && rs3.first()) {
                       while(rs3.next()) {
-                          result += rs3.getInt("ID");
+                          //result += rs3.getInt("ID");
                           if (resRowFirst[simCheckCount+1] == null || resRowFirst[simCheckCount+1].isEmpty()) resRowFirst[simCheckCount+1] = rs3.getInt("ID")+"";
                           //if (resRowFirst[fieldnames.length+1] == null || resRowFirst[fieldnames.length+1].isEmpty()) resRowFirst[fieldnames.length+1] = rs3.getInt("ID")+"";
                           else resRowFirst[simCheckCount+1] += "," + rs3.getInt("ID")+"";
                           //else resRowFirst[fieldnames.length+1] += "," + rs3.getInt("ID")+"";
                           for (int i=0;i<otherTableDesires.length;i++) {
-                              result += "\t" + rs3.getString(otherTableDesires[i]);
+                              //result += "\t" + rs3.getString(otherTableDesires[i]);
                               if (resRowFirst[simCheckCount+2+i] == null || resRowFirst[simCheckCount+2+i].isEmpty()) resRowFirst[simCheckCount+2+i] = rs3.getString(otherTableDesires[i]);
                               //if (resRowFirst[fieldnames.length+2+i] == null || resRowFirst[fieldnames.length+2+i].isEmpty()) resRowFirst[fieldnames.length+2+i] = rs3.getString(otherTableDesires[i]);
                               else resRowFirst[simCheckCount+2+i] += "," + rs3.getString(otherTableDesires[i]);
@@ -272,10 +201,10 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                       } //while(rs3.next());
                       rs3.close();
                   }
-                  result += ")";
+                  //result += ")";
               }
               
-              result += "\n";
+              //result += "\n";
               
               sqlSb = new StringBuilder("SELECT " + DBKernel.delimitL("ID"));
               //sql = "SELECT " + DBKernel.delimitL("ID");
@@ -337,26 +266,26 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                       if(ignoreMap.containsKey(id) && ignoreMap.get(id).contains(rs2.getInt("ID"))) continue;
                       
                       idList.add(rs2.getInt("ID"));
-                      result += rs2.getInt("ID");
+                      //result += rs2.getInt("ID");
                       resRowOther[0] = rs2.getInt("ID")+"";
                       
                                           
                       for (int i=0;i<simCheckCount;i++) {
                       //for (int i=0;i<fieldnames.length;i++) {
-                        result += "\t" + rs2.getString(simCheckList.get(i).columnName);
+                        //result += "\t" + rs2.getString(simCheckList.get(i).columnName);
                           //result += "\t" + rs2.getString(fieldnames[i]);
                         resRowOther[i+1] = rs2.getString(simCheckList.get(i).columnName);
                           //resRowOther[i+1] = rs2.getString(fieldnames[i]);
                       }
-                      for (int i=0;i<simCheckCount;i++) {
-                      //for (int i=0;i<fieldnames.length;i++) {
-                        if (settings.getUseLevenshtein() || simCheckList.get(i).maxScore > 0) result += "\t" + rs2.getDouble("SCORE" + i);
-                          //if (useLevenshtein || maxScores[i] > 0) result += "\t" + rs2.getDouble("SCORE" + i);
-                      }
+//                      for (int i=0;i<simCheckCount;i++) {
+//                      //for (int i=0;i<fieldnames.length;i++) {
+//                        if (settings.getUseLevenshtein() || simCheckList.get(i).maxScore > 0) result += "\t" + rs2.getDouble("SCORE" + i);
+//                          //if (useLevenshtein || maxScores[i] > 0) result += "\t" + rs2.getDouble("SCORE" + i);
+//                      }
                       
                       // Match - otherTableDesires
                       if (otherTable != null) {
-                          result += " (" + otherTable + ": ";
+                          //result += " (" + otherTable + ": ";
                           sqlSb = new StringBuilder("SELECT " + DBKernel.delimitL("ID"));
                           //sql = "SELECT " + DBKernel.delimitL("ID");
                           for (int i=0;i<otherTableDesires.length;i++) sqlSb.append("," + DBKernel.delimitL(otherTableDesires[i]));
@@ -368,14 +297,14 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                           //ResultSet rs3 = DBKernel.getResultSet(sql, false);
                           if (rs3 != null) {// && rs3.first()) {
                               while(rs3.next()) {
-                                  result += rs3.getInt("ID");
+                                  //result += rs3.getInt("ID");
                                   //idList.add(rs3.getInt("ID"));
                                   if (resRowOther[simCheckCount+1] == null || resRowOther[simCheckCount+1].isEmpty()) resRowOther[simCheckCount+1] = rs3.getInt("ID")+"";
                                   //if (resRowOther[fieldnames.length+1] == null || resRowOther[fieldnames.length+1].isEmpty()) resRowOther[fieldnames.length+1] = rs3.getInt("ID")+"";
                                   else resRowOther[simCheckCount+1] += "," + rs3.getInt("ID")+"";
                                   //else resRowOther[fieldnames.length+1] += "," + rs3.getInt("ID")+"";
                                   for (int i=0;i<otherTableDesires.length;i++) {
-                                      result += "\t" + rs3.getString(otherTableDesires[i]);
+                                      //result += "\t" + rs3.getString(otherTableDesires[i]);
                                       if (resRowOther[simCheckCount+2+i] == null || resRowOther[simCheckCount+2+i].isEmpty()) resRowOther[simCheckCount+2+i] = rs3.getString(otherTableDesires[i]);
                                       //if (resRowOther[fieldnames.length+2+i] == null || resRowOther[fieldnames.length+2+i].isEmpty()) resRowOther[fieldnames.length+2+i] = rs3.getString(otherTableDesires[i]);
                                       else resRowOther[simCheckCount+2+i] += "," + rs3.getString(otherTableDesires[i]);
@@ -384,12 +313,12 @@ public class SimSearchDataSource extends SimSearch.DataSource{
                               } //while(rs3.next());
                               rs3.close();
                           }
-                          result += ")";
+                          //result += ")";
                       }
                       
                       resSetOther.add(resRowOther);
                       
-                      result += "\n";
+                      //result += "\n";
                   } //while(rs2.next());
                   rs2.close();
                   //ldResult.put(resRowFirst, resSetOther);
@@ -514,8 +443,8 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   @Override
   public SimSearchDataLoader createDataLoader(SimSet simSet,
       SimSearchDataManipulationHandler dataManipulationsHandler) {
-    // TODO Auto-generated method stub
-    return new SimSearchDataLoader(simSet, dataManipulationsHandler, listener);
+    
+	  return new SimSearchDataLoader(simSet, dataManipulationsHandler, listener);
   }
   
 }

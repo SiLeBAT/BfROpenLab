@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ItemEvent;
@@ -22,11 +23,12 @@ import javax.swing.ListCellRenderer;
 
 public class ViewSettingsDialog extends JDialog {
 	
-	//private SimSearchTable.ViewSettings table;
+	private SimSearchTable.ViewSettings viewSettings;
 	
 	protected ViewSettingsDialog(Frame owner, SimSearchTable.ViewSettings viewSettings) {
 		super(owner);
 		//this.table = table;
+		this.viewSettings = viewSettings;
 		initComponents();
 	}
 	
@@ -36,7 +38,7 @@ public class ViewSettingsDialog extends JDialog {
 		fontPanel.setBorder(BorderFactory.createTitledBorder("Font"));
 		fontPanel.setLayout(new FlowLayout());
 		fontPanel.add(new JLabel("Name:"));
-		fontPanel.add(new FontChooser());
+		fontPanel.add(new FontChooser(viewSettings));
 		//fontPanel.add(new FontSizeChooser());
 		mainPanel.add(fontPanel);
 		this.getContentPane().add(mainPanel, BorderLayout.CENTER);
@@ -44,8 +46,13 @@ public class ViewSettingsDialog extends JDialog {
 	
 	public static class FontChooser extends JComboBox<Font> {
 		 
-	    public FontChooser(final Component... components) {
+	    public FontChooser(SimSearchTable.ViewSettings viewSettings, final Component... components) {
 	 
+	    	Font currentFont = viewSettings.getFont();
+	    	Font monospacedFont = new Font("Monospaced", Font.PLAIN, currentFont.getSize());
+	    	FontMetrics fm = getFontMetrics(monospacedFont);
+	    	int fontHeight = fm.getHeight();
+	    	
 	        final Font[] fonts = GraphicsEnvironment
 	                .getLocalGraphicsEnvironment()
 	                .getAllFonts();
@@ -59,7 +66,9 @@ public class ViewSettingsDialog extends JDialog {
 	 
 	        for (Font font : fonts) {
 	            if (font.canDisplayUpTo(font.getName()) == -1) {
-	                addItem(font);
+	            	Font tmp = new Font(font.getName(), Font.PLAIN, viewSettings.getFont().getSize());
+	            	fm = getFontMetrics(tmp);
+	            	if(fontHeight==fm.getHeight()) addItem(tmp); //font);
 	            }
 	        }
 	 

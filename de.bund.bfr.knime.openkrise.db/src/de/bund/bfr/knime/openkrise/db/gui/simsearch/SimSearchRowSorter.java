@@ -41,6 +41,8 @@ import javax.swing.event.RowSorterListener;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.table.TableRowSorter;
 
+import com.google.common.base.Strings;
+
 public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
     
     private interface MyComparator<T> {
@@ -48,6 +50,9 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
         public boolean isMatch(T o, String searchString);
     }
     
+//    protected interface RowSequenceChangedListener {
+//    	void RowSequenceChanged(List<Integer> oldViewToModel);
+//    }
     
     private SimSearchTableModel model;
     private int[] modelToView;
@@ -61,6 +66,8 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
     private Pattern rowFilterPattern;
     private boolean filterInactiveRows;
     private List<RowSorterListener> rowSorterListeners;
+    private List<Integer> visibleColumns;
+//    private List<RowSequenceChangedListener> rowSequenceChangedListeners;
     
     static {
         Map<Class<?>, MyComparator<?>> compMap = new HashMap<>();
@@ -189,6 +196,16 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
         
         comparatorMap = Collections.unmodifiableMap(compMap);
     }
+    
+    public void setVisibleColumns(List<Integer> list) {
+    	this.visibleColumns = list;
+    	if(!Strings.isNullOrEmpty(this.rowFilterText) || this.rowFilterPattern!=null) filterRows();
+    }
+    
+//    void addRowSequenceChangedListener(RowSequenceChangedListener listener) {
+//    	if(rowSequenceChangedListeners==null) rowSequenceChangedListeners = new ArrayList<>();
+//    	rowSequenceChangedListeners.add(listener);
+//    }
 
     public SimSearchRowSorter(SimSearchTableModel model) {
         this.model = model;
@@ -354,12 +371,13 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
         //Collections.sort(this.viewToModel, new MyRowComparator(key));
         //for(int i=0; i<model.getRowCount(); ++i) modelToView.set(viewToModel.get(i), i);
         //List<? extends RowSorter.SortKey> keys = getSortKeys();
+      //int[] oldViewToModel = this.viewToModel.toArray();
       this.filterRows();  
-      this.rowSorterListeners.forEach(l -> l.sorterChanged(new RowSorterEvent(this)));
     }
     
-    
+    @Override
     public void addRowSorterListener(RowSorterListener listener) {
+    	//System.out.println("addRowSorterListener");
       this.rowSorterListeners.add(listener);
     }
     
@@ -368,18 +386,23 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
     }
     
     private void filterRows() {
+      List<Integer> oldViewToModel = this.viewToModel;
+      
       this.viewToModel = this.unfilteredViewToModel.stream().collect(Collectors.toList());
       
       List<Integer> filterRows = new ArrayList<>();
       
       if(this.rowFilterText!=null || this.rowFilterPattern!=null) {
         
+    	List<String> visibleColumnNames = this.visibleColumns.stream().map(i -> this.model.getColumnName(i)).collect(Collectors.toList());
+    	     
         Set<Integer> keepRows = new HashSet<>();
         
         for(Integer modelRow : this.viewToModel) {
           boolean bolFilter = true;  // in the sense of filter out
           if(!this.filterInactiveRows || !this.model.isInactive(modelRow)) {
-            for(int column=0; column<this.model.getColumnCount(); ++column) {
+            //for(int column=0; column<this.model.getColumnCount(); ++column) {
+        	for(int column : this.visibleColumns) {
               Object o = this.model.getValueAt(modelRow, column);
               try {
                 if(o!=null) {
@@ -421,6 +444,18 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
       
       //Arrays.fill(a, val);
       for(int i=0; i<this.getViewRowCount(); ++i) modelToView[viewToModel.get(i)] = i;
+      
+      
+      //}
+//      if(rowSequenceChangedListeners!=null) rowSequenceChangedListeners.forEach(l -> l.RowSequenceChanged(oldViewToModel));
+      if(oldViewToModel==null)
+    	  this.rowSorterListeners.forEach(l -> l.sorterChanged(new RowSorterEvent(this, RowSorterEvent.Type.SORT_ORDER_CHANGED, null)));
+      else {
+    	  int[] tmp = new int[oldViewToModel.size()];
+          for (int i=0; i < tmp.length; i++) tmp[i] = oldViewToModel.get(i).intValue();
+          //System.out.println("\n\nSuppliedOldViewToModel: " + Arrays.toString(tmp));
+    	  this.rowSorterListeners.forEach(l -> l.sorterChanged(new RowSorterEvent(this, RowSorterEvent.Type.SORT_ORDER_CHANGED, tmp)));
+      }
     }
     
     public boolean isRowMoveValid(int[] rowsToMove, int rowToMoveBefore) {

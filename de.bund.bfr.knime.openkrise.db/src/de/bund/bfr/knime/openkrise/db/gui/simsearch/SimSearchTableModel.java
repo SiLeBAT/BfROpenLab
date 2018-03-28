@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import javax.swing.table.DefaultTableModel;
 import com.google.common.collect.Sets;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet;
@@ -299,6 +302,7 @@ public boolean isAlignmentReferenceRow(int row) {
 }
 
 public boolean isMergeValid(int[] rowsToMerge, int rowToMergeInto) {
+  if(IntStream.of(rowsToMerge).anyMatch(i -> i==rowToMergeInto)) return false;
   if(this.dataManipulationHandler.isMerged(this.simSet.getType(), (Integer) this.data[rowToMergeInto][IDCOLUMN])) {
     return false;
   } else {
@@ -322,6 +326,20 @@ public void mergeRows(int[] rowsToMerge, int rowToMergeInto) {
       e.printStackTrace();
     }
   }
+}
+
+public void unmergeRows(int[] rowsToUnmerge) {
+	List<Integer> idsToUnmerge = IntStream.of(rowsToUnmerge).map(i -> this.getID(i)).boxed().collect(Collectors.toList());
+    try {
+      this.dataManipulationHandler.unmerge(this.simSet.getType(), idsToUnmerge);       
+      //for(int i=0; i<rowsToMerge.length; ++i) this.mergeTo[i] = rowToMergeInto;
+      //this.mergeCount[rowToMerge]
+      //this.initArrays();
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+	  
 }
 
 public void undo() {

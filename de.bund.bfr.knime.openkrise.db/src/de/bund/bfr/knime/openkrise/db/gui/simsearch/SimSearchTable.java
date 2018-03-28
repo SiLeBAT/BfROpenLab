@@ -30,6 +30,12 @@ import java.awt.ItemSelectable;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.ScrollPane;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentListener;
@@ -49,9 +55,11 @@ import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
+import java.io.IOException;
 import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +70,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListSelectionModel;
@@ -86,6 +96,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.ChangeEvent;
@@ -123,26 +134,14 @@ import sun.swing.SwingUtilities2;
 
 public class SimSearchTable extends JScrollPane{
 
-  //    private static class MyJTable extends JTable {
-  //
-  //      
-  //        @Override
-  //        public void createDefaultColumnsFromModel() {
-  //            if(this.getModel()!=null) {
-  //                super.createDefaultColumnsFromModel();
-  //            }
-  //        }
-  //    }
-  
   public static class ViewSettings {
     
-    //public static final int ROW_HEIGHT_DEFAULT = 40;
     public static final int ROW_HEIGHT_MIN = 20;
     public static final int ROW_HEIGHT_MAX = 100;
     public static final int FONT_SIZE_MIN=6;
     public static final int FONT_SIZE_MAX=12;
-    private static final int CELL_MARGIN_Y_DEFAULT = 0;
-    private static final int CELL_MARGIN_X_DEFAULT = 0;
+    private static final int CELL_MARGIN_Y_DEFAULT = 2;
+    private static final int CELL_MARGIN_X_DEFAULT = 5;
   
     
     private boolean showRemovedObjects;
@@ -154,7 +153,7 @@ public class SimSearchTable extends JScrollPane{
     private Map<SimSearch.SimSet, List<Integer>> rowOrder;
     private Map<SimSearch.SimSet, List<SortKey>> sortKeys;
     private boolean useSimpleRowHeightAsDefault;
-    //public static int variableYMargin;
+    private Font font;
     protected int cellMarginY;
     protected int cellMarginX;
     
@@ -169,7 +168,7 @@ public class SimSearchTable extends JScrollPane{
       this.useSimpleRowHeightAsDefault = true;
       this.cellMarginX = CELL_MARGIN_X_DEFAULT;
       this.cellMarginY = CELL_MARGIN_Y_DEFAULT;
-      //this. = 0;
+      this.font = UIManager.getFont("Table.font");
     }
     
     private Map<SimSearch.SimSet.Type, Set<String>> createDefaultInvisibleColumnsMap() {
@@ -180,6 +179,8 @@ public class SimSearchTable extends JScrollPane{
     	result.put(SimSearch.SimSet.Type.DELIVERY, new HashSet<>(Arrays.asList("ID", "Explanation_EndChain", "Serial", "EndChain", "Unitmenge", "Contact_Questions_Remarks", "Further_Traceback", "ImportSources", "UnitEinheit")));
     	return result;
     }
+    
+    protected Font getFont() { return this.font; }
   }
   
   private TableColumnModel tableColumnModel;
@@ -192,23 +193,21 @@ public class SimSearchTable extends JScrollPane{
   private JTextField filterTextBox;
   private JCheckBox useRegexFilterCheckBox;
   private Color filterColor;
-  private Set<Integer> selectedModelIndices;
+  //private Set<Integer> selectedModelIndices;
   private AbstractButton inactiveRowFilterSwitch;
   private JButton ignoreSimSetButton;
   private JButton ignoreAllPairsInSimSetButton;
   private int[] rowHeights;
   //private ActionListener simSetIgnoreSwitchActionListener;
-  //private int[] rowHeights;
  
-  //private ViewSettings viewSettings;
-  
   
   
   private JPopupMenu popupMenu;
+  private CopyAdapter copyAdapter;
 
 
   public SimSearchTable(ViewSettings viewSettings) {
-    super(); //new SimSearchJTable());
+    super(); 
     this.viewSettings = viewSettings;
     this.init();
   }
@@ -216,9 +215,8 @@ public class SimSearchTable extends JScrollPane{
   private void init() {
     this.viewSettings = new ViewSettings();
     this.initTables();
-    this.selectedModelIndices = new HashSet<>();
+    //this.selectedModelIndices = new HashSet<>();
     
-//    this.table.getTableHeader().addMouseListener(mouseListener);
     // Put it in a viewport that we can control a bit
     JViewport jv = new JViewport();
     jv.setView(this.rowHeaderColumnTable);
@@ -230,8 +228,7 @@ public class SimSearchTable extends JScrollPane{
 
     this.setRowHeader(jv);
     
-    //this.rowHeaderColumnTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
+    
     this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
         .getTableHeader());
   }
@@ -297,59 +294,26 @@ public class SimSearchTable extends JScrollPane{
     this.table.getTableHeader().addMouseListener(mouseListener);
   }
   
-  private void addKeyListenerToTables() {
-    KeyListener keyListener = new KeyListener() {
-
-      @Override
-      public void keyPressed(KeyEvent arg0) {
-
-//        if(arg0.getKeyCode() == KeyEvent.VK_DELETE) {
-//          SimSearchJTable table = (SimSearchJTable) arg0.getSource();
-//          if(table.getSelectedRowCount()>0) {
-//
-//            try {
-//              if(((SimSearch.SimSearchTableModel) table.getModel()).remove(convertViewRowsToModelRows(table.getSelectedRows()))) {
-//                updateRowHeader();
-//              }
-//            } catch (SimSearch.SimSearchTableModel.IllegalOperationException e) {
-//              JOptionPane.showMessageDialog(SimSearchTable.this.getTopLevelAncestor(), e.getMessage());
-//            }
-//          }
-//        }
-      }
-
-      @Override
-      public void keyReleased(KeyEvent arg0) {}
-
-      @Override
-      public void keyTyped(KeyEvent arg0) {}
-
-    };
-
-    this.table.addKeyListener(keyListener);
-    this.rowHeaderColumnTable.addKeyListener(keyListener);
-  }
-  
   private void addDragAndDropFeature() {
     SimSearchTableRowTransferHandler transferHandler = new SimSearchTableRowTransferHandler(this);
-    MouseAdapter mouseAdapter = new MouseAdapter() {
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			SimSearchTable.this.repaintDropLocation(e);
-			SimSearchTable.this.updateUI();
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			SimSearchTable.this.repaintDropLocation(e);
-			SimSearchTable.this.updateUI();
-			
-		}
-    	
-    };
+//    MouseAdapter mouseAdapter = new MouseAdapter() {
+//
+//		@Override
+//		public void mouseDragged(MouseEvent e) {
+//			SimSearchTable.this.repaintDropLocation(e);
+//			SimSearchTable.this.updateUI();
+//		}
+//
+//		@Override
+//		public void mouseReleased(MouseEvent e) {
+//			SimSearchTable.this.repaintDropLocation(e);
+//			SimSearchTable.this.updateUI();
+//			
+//		}
+//    	
+//    };
     Repainter dropLocationRepainter = new Repainter();
-    //comp.addPropertyChangeListener("dropLocation", newRepainter());
+    
     Arrays.asList(this.table,this.rowHeaderColumnTable).forEach( t -> {
       t.setTransferHandler(transferHandler);
       t.setDropMode(DropMode.ON_OR_INSERT_ROWS);
@@ -363,8 +327,6 @@ public class SimSearchTable extends JScrollPane{
   
   private void addRowResizeFeature() {
 	  this.rowHeaderColumnTable.setRowResizingAllowed(true);
-//	  RowResizeAdapter adapter = new RowResizeAdapter();
-//	  this.rowHeaderColumnTable.addMouseMotionListener(adapter);
   }
   
   private void freezeUnfreezeColumn(int columnModelIndex) {
@@ -384,8 +346,12 @@ public class SimSearchTable extends JScrollPane{
       int columnViewIndex = this.table.convertColumnIndexToView(columnModelIndex);
       TableColumn tableColumn = this.table.getColumnModel().getColumn(columnViewIndex); 
       this.table.removeColumn(tableColumn);
+      //this.tableColumnModel.removeColumn(tableColumn);
       this.frozenColumns.add(columnModelIndex);
-      this.rowHeaderColumnModel.addColumn(tableColumn);
+      //this.rowHeaderColumnModel.addColumn(tableColumn);
+      this.rowHeaderColumnTable.addColumn(tableColumn);
+      //this.updateView();
+      
     } else {
       return;
     }
@@ -395,24 +361,10 @@ public class SimSearchTable extends JScrollPane{
   
   
   private void updateTablePosition() {
-//    this.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, this.rowHeaderColumnTable
-//        .getTableHeader());
-    //this.rowHeaderColumnTable.
-    //this.updateUI();
-    //this.updateView();
     JViewport jv = this.getRowHeader();
     if(jv==null) return;
     
     jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
-    //JViewport jv = new JViewport();
-    //jv.setView(this.rowHeaderColumnTable);
-    //jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
-
-    // With out shutting off autoResizeMode, our tables won't scroll
-    // correctly (horizontally, anyway)
-    //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-    //this.setRowHeader(jv);
   }
   
   private void showHeaderPopUp(Component comp, int x, int y) {
@@ -444,10 +396,73 @@ public class SimSearchTable extends JScrollPane{
     JMenu showColumnsMenu = new JMenu("Show columns");
     this.addShowColumnsSubMenuItems(showColumnsMenu);
     this.popupMenu.add(showColumnsMenu);
-    this.popupMenu.show(comp, x, y);
+    //this.popupMenu.show(comp, x, y);
+    this.popupMenu.show(tableHeader.getTable(), x, y);
   }
   
-  public void addShowColumnsSubMenuItems(JMenu menu) {
+  private void showRowPopUp(Component comp, int x, int y) {
+	    this.popupMenu.removeAll();
+	    
+	    JTable table = (JTable) comp;
+	    Point p = new Point(x,y);
+	    int columnIndex = table.columnAtPoint(p);
+	    int rowAtPoint = table.rowAtPoint(p);
+	    if(rowAtPoint<0 || columnIndex<0) return;
+	    
+	    int[] selectedRows = table.getSelectedRows();
+	    int[] rowIndices;
+	    if(IntStream.of(selectedRows).anyMatch(i -> i==rowAtPoint)) {
+	    	// take all selected Rows
+	    	rowIndices = selectedRows;
+	    } else {
+	    	rowIndices = new int[] {rowAtPoint};
+	    }
+	    
+	    int columnModelIndex = table.convertColumnIndexToModel(columnIndex);
+	    int[] rowModelIndices = new int[rowIndices.length];
+	    for(int i=0; i<rowIndices.length; ++i) rowModelIndices[i] = table.convertRowIndexToModel(rowIndices[i]);
+	    
+	    boolean isUnmergeAvailable = IntStream.of(rowModelIndices).allMatch(i -> (this.getModel().isMerged(i) || this.getModel().getMergeCount(i)>0));
+	    
+	    
+      JMenuItem unmergeMenuItem = new JMenuItem("unmerge");
+      unmergeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_MASK));
+      unmergeMenuItem.getAccessibleContext().setAccessibleDescription(
+          "Unmerge rows.");
+      unmergeMenuItem.setEnabled(isUnmergeAvailable);
+      
+      unmergeMenuItem.addActionListener(new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+          SimSearchTable.this.getModel().unmergeRows(rowModelIndices);          
+        }
+        
+      });
+      this.popupMenu.add(unmergeMenuItem);
+      
+      if(this.copyAdapter!=null) {
+	      JMenuItem copyMenuItem = new JMenuItem("copy");
+	      copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+	      copyMenuItem.getAccessibleContext().setAccessibleDescription(
+	          "Copy data to clipboard.");
+	      //unmergeMenuItem.setEnabled(isUnmergeAvailable);
+	      
+	      copyMenuItem.addActionListener(new ActionListener() {
+	
+	        @Override
+	        public void actionPerformed(ActionEvent arg0) {
+	          copyAdapter.copyData(table, rowIndices, columnIndex);          
+	        }
+	        
+	      });
+	      this.popupMenu.add(copyMenuItem);
+      }
+	    
+	    this.popupMenu.show(table, x, y);
+  }
+  
+  private void addShowColumnsSubMenuItems(JMenu menu) {
     //JPanel panel = new JPanel(); 
     for(int column=1; column<this.getModel().getColumnCount(); ++column) {
       
@@ -489,6 +504,16 @@ public class SimSearchTable extends JScrollPane{
         }
       }
     }
+    this.updateVisibleSorterColumns(this.getRowSorter());
+  }
+  
+  private void updateVisibleSorterColumns(SimSearchRowSorter rowSorter) {
+	  //SimSearchRowSorter rowSorter = this.getRowSorter();
+	  if(rowSorter!=null) {
+	    List<Integer> visibleColumns = new ArrayList<>();
+        for(JTable t: Arrays.asList(this.table, this.rowHeaderColumnTable)) for(int i=(t==this.rowHeaderColumnTable?1:0); i<t.getColumnCount(); ++i) visibleColumns.add(t.convertColumnIndexToModel(i));
+        rowSorter.setVisibleColumns(Collections.unmodifiableList(visibleColumns));
+	  }
   }
   
   private void initTables() {
@@ -508,172 +533,209 @@ public class SimSearchTable extends JScrollPane{
     this.table.setPartnerTable(this.rowHeaderColumnTable);
     this.rowHeaderColumnTable.setPartnerTable(this.table);
     
-//    this.table.setRowHeight(ViewSettings.ROW_HEIGHT_DEFAULT);
-//    this.rowHeaderColumnTable.setRowHeight(this.table.getRowHeight());
+    this.addPopupFeature();
+    this.addFrozenColumnsResizeFeature();
+    //this.addSelectionAndRowHeightUpdateOnSortFix();
     
-    //this.table.setIntercellSpacing(new Dimension(4,1));
-    //this.rowHeaderColumnTable.setIntercellSpacing(this.table.getIntercellSpacing());
-    
-    //this.table.setRowHeight(DEFAULT_ROW_HEIGHT);
-    //this.rowHeaderColumnTable.setRowHeight(DEFAULT_ROW_HEIGHT);
-    
- // Make sure that selections between the main table and the header stay
+    // Make sure that selections between the main table and the header stay
     // in sync (by sharing the same model)
-//    Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(t -> {
-//    
-//    });
-    this.popupMenu = new JPopupMenu();
-    
-    MouseListener popupListener = new MouseAdapter() {
-      public void mousePressed(MouseEvent e) {
-        maybeShowPopup(e);
-    }
-
-    public void mouseReleased(MouseEvent e) {
-        maybeShowPopup(e);
-    }
-
-    private void maybeShowPopup(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            SimSearchTable.this.showHeaderPopUp(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-    };
-    
-    Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(t -> t.getTableHeader().addMouseListener(popupListener));
-    
-    MouseAdapter mouseAdapter = new MouseAdapter() {
-      private int columnWidthAtMouseDragStart = -1;
-      private int tableWidthAtMouseDragStart = -1;
-      private int mouseDragStartX = -1;
-      private TableColumn tableColumn = null;
-      
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if(!e.isConsumed()) {
-          if(SwingUtilities.isLeftMouseButton(e)) {
-            // 
-            SimSearchTable.this.updateSelection();
-            SimSearchTable.this.updateView();
-          }
-        }
-      }
-
-      @Override
-      public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
-        this.tableColumn = null;
-//        System.out.println("mouseReleased");
-      }
-      
-      @Override
-      public void mouseDragged(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-        //System.out.println("mouseDragged");
-        if(SwingUtilities.isLeftMouseButton(arg0)) {
-          
-          //int columnIndex = header.
-          
-          if(this.tableColumn==null) {
-            JTableHeader header = (JTableHeader) arg0.getComponent();
-            int columnIndex = header.columnAtPoint(arg0.getPoint());
-            this.tableColumn = header.getColumnModel().getColumn(columnIndex);
-            this.tableWidthAtMouseDragStart = SimSearchTable.this.rowHeaderColumnTable.getWidth();
-            this.columnWidthAtMouseDragStart = this.tableColumn.getWidth();
-            this.mouseDragStartX = arg0.getX();
-          } else {
-            //Dimension dim = new Dimension(this.tableWidthAtMouseDragStart + arg0.getX() - this.mouseDragStartX, SimSearchTable.this.rowHeaderColumnTable.getHeight());
-//            Dimension tmp_min = SimSearchTable.this.rowHeaderColumnTable.getMinimumSize();
-//            Dimension tmp_max = SimSearchTable.this.rowHeaderColumnTable.getMaximumSize();
-//            Dimension tmp_SB = SimSearchTable.this.rowHeaderColumnTable.getSize();
-//            Dimension tmp_PSB = SimSearchTable.this.rowHeaderColumnTable.getPreferredSize();
-//            SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
-            
-//            SimSearchTable.this.rowHeaderColumnTable.setPreferredScrollableViewportSize(dim);
-            int delta = arg0.getX() - this.mouseDragStartX;
-      
-            tableColumn.setWidth(this.columnWidthAtMouseDragStart + delta);
-            delta = tableColumn.getWidth() - this.columnWidthAtMouseDragStart;
-            
-            Dimension dim = new Dimension(this.tableWidthAtMouseDragStart + delta, SimSearchTable.this.rowHeaderColumnTable.getHeight());
-            SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
-            SimSearchTable.this.getRowHeader().setPreferredSize(dim);
-            //tableColumn.setPreferredWidth(this.columnWidthAtMouseDragStart + arg0.getX() - this.mouseDragStartX);
-            //SimSearchTable.this.rowHeaderColumnTable.setCol
-            //Dimension tmp_SA = SimSearchTable.this.rowHeaderColumnTable.getSize();
-            //Dimension tmp_PSA = SimSearchTable.this.rowHeaderColumnTable.getPreferredSize();
-            //System.out.println("Size: " + tmp_SB.toString() + " -> " + tmp_SA.toString());
-            //System.out.println("PSize: " + tmp_PSB.toString() + " -> " + tmp_PSA.toString());
-            //SimSearchTable.this.getRowHeader().setPreferredSize(dim);
-            
-            //SimSearchTable.this.updateTablePosition();
-            //SimSearchTable.this.updateView();
-            //SimSearchTable.this.updateUI();
-          } 
-        }
-      }
-
-//      @Override
-//      public void mouseMoved(MouseEvent arg0) {
-//        // TODO Auto-generated method stub
-//        System.out.println("mouseMoved");
-//      }
-    };
-    this.rowHeaderColumnTable.getTableHeader().addMouseListener(mouseAdapter);
-    this.rowHeaderColumnTable.getTableHeader().addMouseMotionListener(mouseAdapter);
-    
-//    this.rowHeaderColumnTable.getTableHeader().addMouseMotionListener(new MouseMotionListener() {
-//      private int columnWidthAtMouseDragStart = -1;
-//      private int mouseDragDistance = -1;
-//      
-//      @Override
-//      public void mouseDragged(MouseEvent arg0) {
-//        // TODO Auto-generated method stub
-//        if(SwingUtilities.isRightMouseButton(arg0)) {
-//          if(columnWidthAtMouseDragStart>0) {
-//            
-//          }
-//          JTableHeader header = (JTableHeader) arg0.getComponent();
-//         this.columnWidthAtMouseDragStart = header.getColumnModel().getColumn(header.columnAtPoint(arg0.getPoint())).getPreferredWidth(); 
-//        }
-//      }
-//
-//      @Override
-//      public void mouseMoved(MouseEvent arg0) {
-//        // TODO Auto-generated method stub
-//        
-//      }
-//      
-//    });
     table.setSelectionModel(this.rowHeaderColumnTable.getSelectionModel());
-    System.out.println(table.getSelectionModel().getClass().getName());
-    table.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-      public void valueChanged(ListSelectionEvent event) {
-        
-        SimSearchTable.this.proccessSelectionEvent(event);
-//        for(int i=event.getFirstIndex(); i<= event.getLastIndex(); ++i) {
-//          if(SimSearchTable.this.table.isRowSelected(i)) {
-//            if()
-//          }
-//        }
-//          System.out.println(table.getValueAt(table.getSelectedRow(), 0).toString());
-      }
-  });
+    //this.rowHeaderColumnTable.setUpdateSelectionOnSort(false);
+    
+//    // the selection is not automatically updated with row sequence change
+//    table.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+//    	
+//      public void valueChanged(ListSelectionEvent event) {
+//        SimSearchTable.this.proccessSelectionEvent(event);
+//      }
+//    });
 
-    // Make the header column look pretty
-    //headerColumn.setBorder(BorderFactory.createEtchedBorder());
-    //this.rowHeaderColumnTable.setBackground(Color.lightGray);
-    //this.rowHeaderColumnTable.setColumnSelectionAllowed(false);
-    //this.rowHeaderColumnTable.setCellSelectionEnabled(false);
     
     this.addMouseListenerToTable();
-    this.addKeyListenerToTables();
     this.addDragAndDropFeature();
     this.addRowResizeFeature();
+    this.addCopyFeature();
     
     //this.rowHeaderColumnTable.setUpdateSelectionOnSort(false);
   }
+  
+  private void addCopyFeature() {
+	  this.copyAdapter = new CopyAdapter(this.table, this.rowHeaderColumnTable);
+  }
+  
+  private void addSelectionAndRowHeightUpdateOnSortFix(SimSearchRowSorter rowSorter) {
+	  rowSorter.addRowSorterListener(new RowSorterListener() {
 
+		@Override
+		public void sorterChanged(RowSorterEvent e) {
+			
+			// update row selection
+			int[] selectedRows = table.getSelectedRows();
+			//System.out.println("Rows in view (old): " + e.getPreviousRowCount() );
+			//System.out.println("Rows in view (cur): " + table.getRowCount() );
+//			System.out.println("\nNew sort event: ");
+//			System.out.println("SelectedoViewIndices: \t" + Arrays.toString(selectedRows));
+//			//System.out.println("SelectedModelIndexes: ");
+//			int[] selectedModelIndices = new int[selectedRows.length];
+//			for(int i=0; i<selectedRows.length; ++i) selectedModelIndices[i] = e.convertPreviousRowIndexToModel(selectedRows[i]);
+//			int[] oldModelSeq = new int[e.getPreviousRowCount()];
+//			for(int i=0; i<e.getPreviousRowCount(); ++i) oldModelSeq[i] = e.convertPreviousRowIndexToModel(i);
+//			System.out.println("OldModelSequence:     \t" + Arrays.toString(oldModelSeq));
+//			
+//			System.out.println("SelectedModelIndices: \t" + Arrays.toString(selectedModelIndices));
+//			List<Integer> newSelectedViewIndices = new ArrayList<>();
+//			int[] newModelSeq = new int[e.getSource().getViewRowCount()];
+//			for(int i=0; i<newModelSeq.length; ++i) newModelSeq[i] = e.getSource().convertRowIndexToModel(i);
+//			System.out.println("NewModelSequence:     \t" + Arrays.toString(newModelSeq));
+//			
+			table.clearSelection();
+			for(int i=0; i<selectedRows.length; ++i) { 
+				int modelIndex = e.convertPreviousRowIndexToModel(selectedRows[i]);
+				int viewIndex = ( modelIndex>=0 ? e.getSource().convertRowIndexToView(modelIndex) : -1 );
+				if(viewIndex>=0) {
+					//newSelectedViewIndices.add(viewIndex);
+					table.addRowSelectionInterval(viewIndex, viewIndex);
+				}
+			}
+//			System.out.println("SelectednViewIndices: \t" + String.join(", ", newSelectedViewIndices.stream().map(x -> x.toString()).collect(Collectors.toList())));
+//			System.out.println("SelectedRows: \t" + Arrays.toString(table.getSelectedRows()));
+			// update row heights
+			updateRowHeights();
+			// the next call is needed 
+			// because the table does not show the correct status if the filter removes all rows from view 
+			updateView();
+//			int n = table.getRowCount();
+//			for(int i=0; i<n; ++i) {
+//				int height = rowHeights[table.convertRowIndexToModel(i)];
+//				table.setRowHeight(i, height);
+//				rowHeaderColumnTable.setRowHeight(i, height);
+//			}
+			
+		}
+		  
+	  });
+  }
+  
+  private void addPopupFeature() {
+	  this.popupMenu = new JPopupMenu();
+	    
+	    MouseListener popupListener = new MouseAdapter() {
+	      public void mousePressed(MouseEvent e) {
+	        maybeShowPopup(e);
+	    }
+
+	    public void mouseReleased(MouseEvent e) {
+	        maybeShowPopup(e);
+	    }
+
+	    private void maybeShowPopup(MouseEvent e) {
+	        if (e.isPopupTrigger()) {
+	        	if(e.getSource() instanceof JTable) {
+	        		SimSearchTable.this.showRowPopUp(e.getComponent(), e.getX(), e.getY());
+	        	} else {
+	        		SimSearchTable.this.showHeaderPopUp(e.getComponent(), e.getX(), e.getY());
+	        	}
+	        }
+	    }
+	    };
+	    
+	    Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(t -> {
+	    	t.addMouseListener(popupListener);
+	    	t.getTableHeader().addMouseListener(popupListener);
+	    });
+	    
+  }
+
+  private void addFrozenColumnsResizeFeature() {
+	  MouseAdapter mouseAdapter = new MouseAdapter() {
+	      private int columnWidthAtMouseDragStart = -1;
+	      private int tableWidthAtMouseDragStart = -1;
+	      private int mouseDragStartX = -1;
+	      private TableColumn tableColumn = null;
+	      
+	      @Override
+	      public void mouseClicked(MouseEvent e) {
+	        if(!e.isConsumed()) {
+	          if(SwingUtilities.isLeftMouseButton(e)) {
+	            // 
+	            //SimSearchTable.this.updateSelection();
+	            SimSearchTable.this.updateView();
+	          }
+	        }
+	      }
+
+	      @Override
+	      public void mouseReleased(MouseEvent e) {
+	        // TODO Auto-generated method stub
+	        this.tableColumn = null;
+//	        System.out.println("mouseReleased");
+	      }
+	      
+	      @Override
+	      public void mousePressed(MouseEvent e) {
+	    	  if(SwingUtilities.isLeftMouseButton(e)) {
+	    		  // this might be the start of an drag operation
+	    		  JTableHeader header = (JTableHeader) e.getComponent();
+		            int columnIndex = header.columnAtPoint(e.getPoint());
+		            this.tableColumn = header.getColumnModel().getColumn(columnIndex);
+		            this.tableWidthAtMouseDragStart = SimSearchTable.this.rowHeaderColumnTable.getWidth();
+		            this.columnWidthAtMouseDragStart = this.tableColumn.getWidth();
+		            this.mouseDragStartX = e.getX();
+	    	  }
+	        
+	      }
+	      
+	      @Override
+	      public void mouseDragged(MouseEvent arg0) {
+	        //System.out.println("mouseDragged");
+	        if(SwingUtilities.isLeftMouseButton(arg0)) {
+	          
+	          //int columnIndex = header.
+	          
+	          if(this.tableColumn==null) {
+//	            JTableHeader header = (JTableHeader) arg0.getComponent();
+//	            int columnIndex = header.columnAtPoint(arg0.getPoint());
+//	            this.tableColumn = header.getColumnModel().getColumn(columnIndex);
+//	            this.tableWidthAtMouseDragStart = SimSearchTable.this.rowHeaderColumnTable.getWidth();
+//	            this.columnWidthAtMouseDragStart = this.tableColumn.getWidth();
+//	            this.mouseDragStartX = arg0.getX();
+	          } else {
+	            //Dimension dim = new Dimension(this.tableWidthAtMouseDragStart + arg0.getX() - this.mouseDragStartX, SimSearchTable.this.rowHeaderColumnTable.getHeight());
+//	            Dimension tmp_min = SimSearchTable.this.rowHeaderColumnTable.getMinimumSize();
+//	            Dimension tmp_max = SimSearchTable.this.rowHeaderColumnTable.getMaximumSize();
+//	            Dimension tmp_SB = SimSearchTable.this.rowHeaderColumnTable.getSize();
+//	            Dimension tmp_PSB = SimSearchTable.this.rowHeaderColumnTable.getPreferredSize();
+//	            SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
+	            
+//	            SimSearchTable.this.rowHeaderColumnTable.setPreferredScrollableViewportSize(dim);
+	            int delta = arg0.getX() - this.mouseDragStartX;
+	      
+	            tableColumn.setWidth(this.columnWidthAtMouseDragStart + delta);
+	            delta = tableColumn.getWidth() - this.columnWidthAtMouseDragStart;
+	            
+	            Dimension dim = new Dimension(this.tableWidthAtMouseDragStart + delta, SimSearchTable.this.rowHeaderColumnTable.getHeight());
+	            SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
+	            SimSearchTable.this.getRowHeader().setPreferredSize(dim);
+	            //tableColumn.setPreferredWidth(this.columnWidthAtMouseDragStart + arg0.getX() - this.mouseDragStartX);
+	            //SimSearchTable.this.rowHeaderColumnTable.setCol
+	            //Dimension tmp_SA = SimSearchTable.this.rowHeaderColumnTable.getSize();
+	            //Dimension tmp_PSA = SimSearchTable.this.rowHeaderColumnTable.getPreferredSize();
+	            //System.out.println("Size: " + tmp_SB.toString() + " -> " + tmp_SA.toString());
+	            //System.out.println("PSize: " + tmp_PSB.toString() + " -> " + tmp_PSA.toString());
+	            //SimSearchTable.this.getRowHeader().setPreferredSize(dim);
+	            
+	            //SimSearchTable.this.updateTablePosition();
+	            //SimSearchTable.this.updateView();
+	            //SimSearchTable.this.updateUI();
+	          } 
+	        }
+	      }
+	    };
+	    this.rowHeaderColumnTable.getTableHeader().addMouseListener(mouseAdapter);
+	    this.rowHeaderColumnTable.getTableHeader().addMouseMotionListener(mouseAdapter);
+	    
+  }
+  
   private SimSearchTableModel getModel() {
     return ((this.table==null || this.table.getModel()==null || !(this.table.getModel() instanceof SimSearchTableModel)) ? null :  (SimSearchTableModel) this.table.getModel());
   }
@@ -682,23 +744,23 @@ public class SimSearchTable extends JScrollPane{
     return ((this.table==null || this.table.getRowSorter()==null) ? null :  (SimSearchRowSorter) this.table.getRowSorter());
   }
   
-  private void proccessSelectionEvent(ListSelectionEvent event) {
-    this.selectedModelIndices = new HashSet<>();
-    for(int i=event.getFirstIndex(); i<= event.getLastIndex(); ++i) {
-      if(this.table.isRowSelected(i)) this.selectedModelIndices.add(this.getRowSorter().convertRowIndexToModel(i));
-      //else this.selectedIds.remove(this.getModel().getID(this.getRowSorter().convertRowIndexToModel(i)));
-    }
-  }
+//  private void proccessSelectionEvent(ListSelectionEvent event) {
+//    this.selectedModelIndices = new HashSet<>();
+//    for(int i=event.getFirstIndex(); i<= event.getLastIndex(); ++i) {
+//      if(this.table.isRowSelected(i)) this.selectedModelIndices.add(this.getRowSorter().convertRowIndexToModel(i));
+//      //else this.selectedIds.remove(this.getModel().getID(this.getRowSorter().convertRowIndexToModel(i)));
+//    }
+//  }
   
-  public void updateSelection() {
-    Set<Integer> selectedModelIndices = this.selectedModelIndices.stream().collect(Collectors.toSet());
-    this.table.getSelectionModel().clearSelection();
-    Map<Integer, Integer> modelIndexToViewIndexMap = new HashMap<>();
-    for(int i=0; i<this.table.getRowCount(); ++i) modelIndexToViewIndexMap.put(this.table.getRowSorter().convertRowIndexToModel(i), i);
-    selectedModelIndices = Sets.intersection(selectedModelIndices, modelIndexToViewIndexMap.keySet()).stream().collect(Collectors.toSet());
-    for(Integer id: selectedModelIndices) table.addRowSelectionInterval(modelIndexToViewIndexMap.get(id), modelIndexToViewIndexMap.get(id)); 
-    this.selectedModelIndices = selectedModelIndices;
-  }
+//  public void updateSelection() {
+//    Set<Integer> selectedModelIndices = this.selectedModelIndices.stream().collect(Collectors.toSet());
+//    this.table.getSelectionModel().clearSelection();
+//    Map<Integer, Integer> modelIndexToViewIndexMap = new HashMap<>();
+//    for(int i=0; i<this.table.getRowCount(); ++i) modelIndexToViewIndexMap.put(this.table.getRowSorter().convertRowIndexToModel(i), i);
+//    selectedModelIndices = Sets.intersection(selectedModelIndices, modelIndexToViewIndexMap.keySet()).stream().collect(Collectors.toSet());
+//    for(Integer id: selectedModelIndices) table.addRowSelectionInterval(modelIndexToViewIndexMap.get(id), modelIndexToViewIndexMap.get(id)); 
+//    this.selectedModelIndices = selectedModelIndices;
+//  }
   
   private int[] convertViewRowsToModelRows(int[] rows) {
     for(int i=0; i<rows.length; ++i) rows[i] = this.table.getRowSorter().convertRowIndexToModel(rows[i]);
@@ -715,28 +777,11 @@ public class SimSearchTable extends JScrollPane{
     this.rowHeaderColumnTable.updateUI();
   }
 
-  //    public boolean areRowsMovableTo(int[] rowsSource, int rowTarget) {
-  //      if(this.table==null) return false;
-  //      for(int i=0; i<rowsSource.length; ++i) if(rowsSource[i]==rowTarget) return false;
-  //      
-  //      
-  //      int modelTarget = this.convertViewRowsToModelRows(new int[] {rowTarget})[0];
-  //      int mergeTarget = ((SimSearch.SimSearchTableModel) this.table.getModel()).getMergeTo(modelTarget);
-  //      
-  //      rowsSource = this.convertViewRowsToModelRows(rowsSource);
-  //      if(mergeTarget>=0) {
-  //        
-  //        return false;
-  //      } else {
-  //        
-  //      }
-  //    }
-
   private void processInactiveRowFilterEnabledChangedEvent() {
     if(this.getRowSorter()!=null) {
       this.getRowSorter().setInactiveRowFilterEnabled(this.inactiveRowFilterSwitch.isSelected());
-      this.updateSelection();
-      this.updateView();
+//      this.updateSelection();
+//      this.updateView();
     }
   }
   
@@ -748,8 +793,8 @@ public class SimSearchTable extends JScrollPane{
 
 //    this.table.updateUI();
 //    this.rowHeaderColumnTable.updateUI();
-    this.updateSelection();
-    this.updateView();
+    //this.updateSelection();
+    //this.updateView();
     
     //      SimSearchRowSorter rowSorter = (SimSearchRowSorter) this.table.getRowSorter();
     //      this.table.setRowSorter(null);
@@ -766,13 +811,18 @@ public class SimSearchTable extends JScrollPane{
         Pattern pattern = Pattern.compile( this.filterTextBox.getText() );
         this.filterTextBox.setBackground(Color.white);
         this.getRowSorter().setRowFilter(pattern);
+        //System.out.println("No PatternSyntaxException");
+        this.filterTextBox.setToolTipText("Enter regular expression to filter rows.");
       } catch(PatternSyntaxException e) {
+    	 // System.out.println("PatternSyntaxException");
         ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter("");
         this.filterTextBox.setBackground(Color.RED);
+        this.filterTextBox.setToolTipText("The syntax of the regular expression is not valid.");
       }
     } else {
       ((SimSearchRowSorter) this.table.getRowSorter()).setRowFilter(this.filterTextBox.getText());
       this.filterTextBox.setBackground(Color.white);
+      this.filterTextBox.setToolTipText("Enter text to filter rows.");
     }
   }
 
@@ -849,42 +899,17 @@ public class SimSearchTable extends JScrollPane{
   }
 
   private void processIgnoreButtonEvent(JButton ignoreButton) {
+	//boolean[] rowIsMissing = new boolean[this.getModel().getRowCount()];
+	//Arrays.fill(rowIsMissing, true);
+	//for(int row=0; row<this.table.getRowCount(); ++row) rowIsMissing[this.table.convertRowIndexToModel(row)] = false;
+	  int n = this.getModel().getRowCount();
+	for(int row=0; row<n; ++row) if(this.table.convertRowIndexToView(row)<0 && !this.getModel().isMerged(row))
+		if(JOptionPane.showConfirmDialog(this, "Not all rows are shown in the view (filter is active). Proceed nethertheless?","Confirm dissimilarity mark",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)!=JOptionPane.YES_OPTION) return;
+	
     if(ignoreButton == this.ignoreSimSetButton) this.getModel().ignoreSimSet();
     else if(ignoreButton == this.ignoreAllPairsInSimSetButton) this.getModel().ignoreAllPairsInSimSet();
   }
 
-  
-//  public void undo() {
-//    if(this.getModel()!=null) this.getModel().undo();
-////      if(this.getRowSorter()!=null) this.getRowSorter().sort();
-////      this.updateSelection();
-////      this.updateView();
-////    }
-//  }
-  
-//  public void redo() {
-//    if(this.getModel()!=null) this.getModel().redo();
-////      if(this.getRowSorter()!=null) this.getRowSorter().sort();
-////      this.updateSelection();
-////      this.updateView();
-////    }
-//  }
-  
-//  public boolean isUndoAvailable() {
-//    return this.getModel().isUndoAvailable();
-//  }
-//  
-//  public boolean isRedoAvailable() {
-//    return ((SimSearchTableModel) this.table.getModel()).isRedoAvailable();
-//  }
-  
-//  public String getUndoType() {
-//    return ((SimSearchTableModel) this.table.getModel()).getUndoType();
-//  }
-  
-//  public String getRedoType() {
-//    return ((SimSearchTableModel) this.table.getModel()).getRedoType();
-//  }
   
   protected ViewSettings getViewSettings() {
 	  return this.viewSettings;
@@ -926,8 +951,8 @@ public class SimSearchTable extends JScrollPane{
     rowsToMove = convertViewRowsToModelRows(rowsToMove);
     rowToMoveBefore = convertDropRowToModelRow(rowToMoveBefore);
     this.getRowSorter().moveRows(rowsToMove, rowToMoveBefore);
-    this.updateSelection();
-    this.updateView();
+//    this.updateSelection();
+//    this.updateView();
   }
   
 //  public void setInactiveRowFilterEnabled(boolean value) {
@@ -1055,23 +1080,22 @@ public class SimSearchTable extends JScrollPane{
 	  SimSearchTableModel tableModel = this.getModel();
 	  SimSearch.SimSet simSet = tableModel.getSimSet();
 	  Map<Integer,Integer> idToRowHeight = viewSettings.rowHeights.get(simSet.getType());
-	  this.rowHeights = new int[tableModel.getRowCount()];
+	  rowHeights = new int[tableModel.getRowCount()];
 	  int nRows = tableModel.getRowCount();
 	  for(int row=0; row<nRows; ++row) {
 		  Integer rowHeight = (idToRowHeight==null?null:idToRowHeight.get(tableModel.getID(row)));
 		  if(rowHeight!=null) rowHeights[row] = rowHeight;
 		  else rowHeights[row] = getPreferredRowHeight(row);
 	  }
-	  nRows = this.table.getRowCount();
-	  for(int row=0; row<nRows; ++row) {
-		  this.setRowHeight(row, rowHeights[this.table.convertRowIndexToModel(row)]);
-	  }
+	  
+	  this.rowHeaderColumnTable.setRowHeights(rowHeights);
+	  this.updateRowHeights();
   }
   
   private int getPreferredRowHeight(int row) {
 	  int height = ViewSettings.ROW_HEIGHT_MIN;
 	  for(SimSearchJTable table : Arrays.asList(this.table, this.rowHeaderColumnTable)) {
-		  height = Math.max(height, table.getPreferredRowHeight(row, viewSettings.useSimpleRowHeightAsDefault));
+		  height = Math.max(height, table.getPreferredRowHeight(row));
 	  }
 	  return height;
   }
@@ -1094,14 +1118,28 @@ public class SimSearchTable extends JScrollPane{
 //    for(int row=0; row<this.table.getRowCount(); ++row) setRowHeight(row, this.rowHeights[this.table.convertRowIndexToModel(row)]);
 //  }
   
-  private void setRowHeight(int row, int height) {
-    EventQueue.invokeLater(new Runnable() {
-      @Override public void run() {
-        table.setRowHeight(row, height);
-        rowHeaderColumnTable.setRowHeight(row, height);
-      }
-    });
-  }
+//  private void setRowHeight(int row, int height) {
+//    EventQueue.invokeLater(new Runnable() {
+//      @Override public void run() {
+//        table.setRowHeight(row, height);
+//        rowHeaderColumnTable.setRowHeight(row, height);
+//      }
+//    });
+//  }
+  
+  private void updateRowHeights() {
+	    EventQueue.invokeLater(new Runnable() {
+	      @Override public void run() {
+	    	  int n = table.getRowCount();
+	    	  for(int viewIndex=0; viewIndex<n; ++viewIndex) {
+	    		  int modelIndex = table.convertRowIndexToModel(viewIndex);
+	    		  table.setRowHeight(viewIndex, rowHeights[modelIndex]);
+	  	          rowHeaderColumnTable.setRowHeight(viewIndex, rowHeights[modelIndex]);
+	    	  }
+	        
+	      }
+	    });
+	  }
   
   private void applyRowSortingToView() {
     SimSearchTableModel tableModel = this.getModel();
@@ -1150,10 +1188,10 @@ public class SimSearchTable extends JScrollPane{
       }
     }
     this.viewSettings.columnWidths.put(simSet, columnWidths);
-//    Map<Integer, Integer> rowHeights = this.viewSettings.rowHeights.get(simSet.getType());
-//    if(rowHeights==null) rowHeights = new HashMap<>();
-//    for(int row=0; row<tableModel.getRowCount(); ++row) rowHeights.put(tableModel.getID(row), this.rowHeights[row]);
-//    this.viewSettings.rowHeights.put(simSet.getType(), rowHeights);
+    Map<Integer, Integer> rowHeights = this.viewSettings.rowHeights.get(simSet.getType());
+    if(rowHeights==null) rowHeights = new HashMap<>();
+    for(int row=0; row<tableModel.getRowCount(); ++row) rowHeights.put(tableModel.getID(row), this.rowHeights[row]);
+    this.viewSettings.rowHeights.put(simSet.getType(), rowHeights);
     //List<Integer> idOrder = this.getRowSorter().getIdOrder();
   }
   
@@ -1189,33 +1227,13 @@ public class SimSearchTable extends JScrollPane{
         table.initColumnRenderers();
         table.updateUI();
       });
-  //    
       
-  //    //this.table.createDefaultColumnsFromModel();
-  //    //this.rowHeaderColumnTable.createDefaultColumnsFromModel();
-  //
-  //    //this.table.getColumn(table.getColumnName(0)).sizeWidthToFit();
-  //    //this.table.getTableHeader().addMouseListener(new );
-      SimSearchRowSorter rowSorter = new SimSearchRowSorter(tableModel);
-//      rowSorter.addRowSorterListener(new RowSorterListener() {
-//        @Override
-//        public void sorterChanged(RowSorterEvent e) {
-//            SimSearchTable.this.processSortingChangedEvent();
-//        }
-//    });
-      rowSorter.setInactiveRowFilterEnabled(this.isInactiveRowFilterEnabled());
-      table.setRowSorter(rowSorter);
-      this.rowHeaderColumnTable.setRowSorter(rowSorter);
-      
-      this.applyColumnSettingsToView();
-  //    
-      if(this.filterTextBox.getText()!=null && this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
-  //    
-      this.applyRowSortingToView();
+      this.resetRowSorter(tableModel);
   //
       // Put it in a viewport that we can control a bit
       JViewport jv = new JViewport();
       jv.setView(this.rowHeaderColumnTable);
+      Dimension dim = this.rowHeaderColumnTable.getMaximumSize();
       jv.setPreferredSize(this.rowHeaderColumnTable.getMaximumSize());
       this.setRowHeader(jv);
   //
@@ -1235,9 +1253,45 @@ public class SimSearchTable extends JScrollPane{
       this.table.applyIdSelection(selectedIds);
       //this.selectedModelIndices.clear();
       this.setBorderTitle(tableModel.getSimSet().getType());
+      //this.table.setRowHeight(2,30);
     } 
   }
   
+  
+  private void resetRowSorter(SimSearchTableModel tableModel) {
+	  SimSearchRowSorter rowSorter = new SimSearchRowSorter(tableModel);
+      this.updateVisibleSorterColumns(rowSorter);
+//      rowSorter.addRowSorterListener(new RowSorterListener() {
+//        @Override
+//        public void sorterChanged(RowSorterEvent e) {
+//            SimSearchTable.this.processSortingChangedEvent();
+//        }
+//    });
+      
+      //rowSorter.setInactiveRowFilterEnabled(this.isInactiveRowFilterEnabled());
+      
+      table.setRowSorter(rowSorter);
+      this.rowHeaderColumnTable.setRowSorter(rowSorter);
+      
+      this.applyRowSettingsToView();
+      this.applyColumnSettingsToView();
+  //    
+      rowSorter.setInactiveRowFilterEnabled(this.isInactiveRowFilterEnabled());
+      if(this.filterTextBox.getText()!=null && !this.filterTextBox.getText().isEmpty()) this.applyTextFilterToRowSorter();
+  //    
+      this.applyRowSortingToView();
+      
+      this.addSelectionAndRowHeightUpdateOnSortFix(rowSorter);
+//      rowSorter.addRowSequenceChangedListener(new SimSearchRowSorter.RowSequenceChangedListener() {
+//
+//		@Override
+//		public void RowSequenceChanged(List<Integer> oldViewToModel) {
+//			// TODO Auto-generated method stub
+//			
+//		}
+//    	  
+//      });
+  }
 //  private void processSortingChangedEvent() {
 //    this.applyRowSettingsToView();  
 //  }
@@ -1310,6 +1364,8 @@ public class SimSearchTable extends JScrollPane{
   }
   
   public void clear() {
+	this.table.setRowSorter(null);
+	this.rowHeaderColumnTable.setRowSorter(null);
     this.table.setModel(null);
     this.rowHeaderColumnTable.setModel(this.table.getModel());
     this.setBorderTitle("");
@@ -1405,15 +1461,15 @@ public class SimSearchTable extends JScrollPane{
 //    }
   }
   
-  private class SwitchColumnVisibilityActionListener implements ActionListener{
-    private final int column;
-    SwitchColumnVisibilityActionListener(int column) { this.column = column; }
-    
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      SimSearchTable.this.setColumnVisible(column, ((JCheckBoxMenuItem) e.getSource()).isSelected());
-    }
-  }
+//  private class SwitchColumnVisibilityActionListener implements ActionListener{
+//    private final int column;
+//    SwitchColumnVisibilityActionListener(int column) { this.column = column; }
+//    
+//    @Override
+//    public void actionPerformed(ActionEvent e) {
+//      SimSearchTable.this.setColumnVisible(column, ((JCheckBoxMenuItem) e.getSource()).isSelected());
+//    }
+//  }
   
   class Repainter implements PropertyChangeListener {
 	  public void propertyChange(PropertyChangeEvent pce) {
@@ -1469,6 +1525,64 @@ public class SimSearchTable extends JScrollPane{
       this.rowHeaderColumnTable.setFont(font);
     }
     
+  }
+  
+  private static class CopyAdapter implements ActionListener {
+	  
+	  private JTable rowHeader;
+	  private JTable table;
+	  
+	  private CopyAdapter(JTable table, JTable rowHeader) {
+		  //jTable1 = myJTable;
+		  this.rowHeader = rowHeader;
+		  this.table = table;
+	      KeyStroke copy = KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK,false);
+	      // Identifying the copy KeyStroke user can modify this
+	      // to copy on some other Key combination.
+	      //KeyStroke paste = KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK,false);
+	      // Identifying the Paste KeyStroke user can modify this
+	      //to copy on some other Key combination.
+	      table.registerKeyboardAction(this,"Copy",copy,JComponent.WHEN_FOCUSED);
+	      rowHeader.registerKeyboardAction(this,"Copy",copy,JComponent.WHEN_FOCUSED);
+	      //system = Toolkit.getDefaultToolkit().getSystemClipboard();
+	  }
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+		JTable tableToCopyFrom = (JTable) e.getSource();
+		
+		int[] rowsToCopyFrom = tableToCopyFrom.getSelectedRows();
+        int colToCopyFrom = tableToCopyFrom.getSelectedColumn();
+        if(rowsToCopyFrom.length>0) this.copyData(tableToCopyFrom, rowsToCopyFrom, colToCopyFrom);
+        
+	}
+	
+	public void copyData(JTable tableToCopyFrom, int[] rowIndices, int columnIndex ) {
+		Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+		List<String> rowTextList = new ArrayList<>();
+        for(int row : rowIndices) {
+        	List<String> cellTextList = new ArrayList<>();
+        	if(tableToCopyFrom==rowHeader && columnIndex==0) {
+        		// full row copy
+        		for(JTable table : Arrays.asList(rowHeader, table)) {
+        			for(int col=(table==rowHeader?1:0); col<table.getColumnCount(); ++col) {
+        				Object value = table.getValueAt(row,col);
+        				cellTextList.add((value==null?"":value.toString()));
+        			}
+        		}
+        	} else {
+        		// cell copy
+        		Object value = tableToCopyFrom.getValueAt(row,columnIndex);
+        		cellTextList.add((value==null?"":value.toString()));
+        	}
+        	rowTextList.add(String.join("\t", cellTextList));
+        }
+        
+        StringSelection strSel = new StringSelection(String.join("\n", rowTextList));
+        cb.setContents(strSel, strSel);
+	}
+	  
   }
 
 }

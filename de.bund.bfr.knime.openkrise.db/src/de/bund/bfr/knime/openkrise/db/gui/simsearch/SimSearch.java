@@ -19,34 +19,23 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.swing.table.DefaultTableModel;
-import com.google.common.collect.Sets;
-
 import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet.Type;
 
 public final class SimSearch {
   
-  private final static int STATION_NUMBER = 4;
-  private final static int RESULT_NUMBER = 5;
-
+  // Setting object to store the search settings
   public static class Settings {
     
     public enum Attribute {
@@ -71,9 +60,6 @@ public final class SimSearch {
     private boolean useFormat2017;
     private boolean readOnly;
     private boolean ignoreKnownDissimilarities;
-    //private boolean ignoreNonSimilarLists;
-    
-    
 
     public Settings() {
       this.attributeTresholdMap = new HashMap<>();
@@ -82,7 +68,6 @@ public final class SimSearch {
       this.useLevenshtein = false;
       this.useFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
       this.readOnly = false;
-      //this.ignoreNonSimilarLists = false;
       this.ignoreKnownDissimilarities = false;
     }
     
@@ -92,7 +77,6 @@ public final class SimSearch {
       
       this.useLevenshtein = settingsToCopyFrom.useLevenshtein;
       this.useFormat2017 = settingsToCopyFrom.useFormat2017;
-      //this.ignoreNonSimilarLists = settingsToCopyFrom.ignoreNonSimilarLists;
       this.ignoreKnownDissimilarities = settingsToCopyFrom.ignoreKnownDissimilarities;
       this.readOnly = false;
     }
@@ -113,24 +97,17 @@ public final class SimSearch {
     
     public boolean getUseAllInOneAddress() { return this.useFormat2017; }
     public boolean getUseArrivedDate() { return this.useFormat2017; }
+    
     public boolean getUseLevenshtein() { return this.useLevenshtein; }
     public void setUseLevenshtein(boolean value) { if(!this.readOnly) this.useLevenshtein=value; }
-    
-//    public boolean getIgnoreNonSimilarLists() { return this.ignoreNonSimilarLists; }
-//    public void setIgnoreNonSimilarLists(boolean value) { this.ignoreNonSimilarLists = value; }
-    
+       
     public boolean getIgnoreKnownDissimilarities() { return this.ignoreKnownDissimilarities; }
-    public void setIgnoreKnownDissimilarities(boolean value) { this.ignoreKnownDissimilarities = value; }
+    public void setIgnoreKnownDissimilarities(boolean value) { if(!this.readOnly) this.ignoreKnownDissimilarities = value; }
   }
 
   public interface SimSearchListener {
-    //public void searchFinished();
-    //public void searchCanceled();
     public void newSimSetFound();
     public void searchProgressed();
-    //public void dataLoaded(SimSearchTableModel tableModel, int index);
-    //public void dataSaved(boolean complete);
-    //public void simSearchError(Exception err);
   }
 
 
@@ -147,12 +124,10 @@ public final class SimSearch {
 		  public int getValue() { return this.value; }
 	  }
 
-    //protected SimType simType;
     private Type type;
     private List<Integer> idList;
     private Integer referenceId;
-    //private String alignmentReferenceID;
-
+    
     private SimSet(Type type, List<Integer> idList) throws Exception {
       this.type = type;
       if(idList==null || idList.isEmpty()) throw(new Exception("The parameter idList may not be null or empty."));
@@ -164,14 +139,7 @@ public final class SimSearch {
     public List<Integer> getIdList() { return this.idList; }
     public Integer getReferenceId() { return this.referenceId; }
     
-//    void addId(String id) { 
-//    	if(idList.isEmpty()) this.referenceId = id;
-//    	this.idList.add(id); 
-//    }
-//    void removeId(String id) { 
-//    	this.idList.remove(id);
-//    	if(id.equals(this.referenceId)) this.referenceId = null;
-//    }
+
     public void setMissing(List<Integer> missingIds) {
       List<Integer> newIds = new ArrayList<>(this.idList);
       newIds.removeAll(missingIds);
@@ -179,12 +147,14 @@ public final class SimSearch {
     }
   }
 
+  // SimSearch required a data source which provides search the search results and an interface to load the corresponding data
   protected static abstract class DataSource {
     public interface DataSourceListener {
       public void similaritiesFound(SimSet.Type simSetType, List<Integer> idList) throws Exception;
       public void missingIdsDetected(SimSet.Type simSetType, List<Integer> idList);
     }
     
+    // Class for foreign fields in db tables
     protected static class ForeignField {
     	private int id;
     	private String label;
@@ -199,6 +169,7 @@ public final class SimSearch {
     	public String toString() { return this.label; }
     }
     
+    // class to load the data
     protected static abstract class DataLoader {
     	ForeignField createForeignField(Integer id, String label) { return new ForeignField(id, label); }
     	public abstract void loadData() throws Exception;
@@ -212,7 +183,7 @@ public final class SimSearch {
     }
     
     DataSourceListener listener;
-    private boolean searchStopped;
+    private volatile boolean searchStopped;
     
     protected DataSource(DataSourceListener listener) {
       this.listener = listener;
@@ -220,14 +191,10 @@ public final class SimSearch {
     }
     
     public abstract void findSimilarities(Settings settings) throws Exception;
-    //public void findSimilarStations();
+    
     public abstract SimSearchDataLoader createDataLoader(SimSet simSet, SimSearchDataManipulationHandler dataManipulationsHandler);
     
     public abstract boolean save(SimSearchDataManipulationHandler dataManipulations) throws Exception;
-    
-    //public static boolean isIgnoreSimFeatureAvailable() { return false; }
-    
-    //public abstract boolean makeIgnoreSimFeatureAvailable() throws Exception;
     
     public final void stopSearch() {
       this.searchStopped = true;
@@ -242,7 +209,6 @@ public final class SimSearch {
   
   private Settings simSearchSettings;
   private List<SimSet> simSetList;
-  private volatile boolean searchStopped;
   private List<SimSearchListener> simSearchListenerList;
   private SimSearchDataManipulationHandler dataManipulationHandler;
   private DataSource dataSource;
@@ -278,16 +244,13 @@ public final class SimSearch {
 
   public boolean search(Settings settings) throws Exception {
     if(settings==null) return false;
+    settings.freeze();
     this.simSetList = Collections.synchronizedList(new ArrayList<SimSet>());
-    this.searchStopped = false;
+    //this.searchStopped = false;
     this.simSearchSettings = settings;
     this.dataSource.findSimilarities(this.simSearchSettings);
     return true;
   }
-  
-  //public boolean isIgnoreSimFeatureAvailable() { return (this.dataSource==null?false:this.dataSource.isIgnoreSimFeatureAvailable()); }
-  
-  //public boolean makeIgnoreSimFeatureAvailable() throws Exception { return (this.dataSource==null?false:this.dataSource.makeIgnoreSimFeatureAvailable()); }
   
   public boolean save() throws Exception {
     if(this.dataSource!=null) {
@@ -296,7 +259,7 @@ public final class SimSearch {
     		this.simSetList.removeIf(simSet -> this.dataManipulationHandler.isSimSetIgnored(simSet));
     		
     		// remove merge ids from simsets
-    		for(SimSearch.SimSet simSet: this.simSetList) simSet.getIdList().removeIf(id -> this.dataManipulationHandler.isMerged(simSet.getType(), id));
+    		for(SimSearch.SimSet simSet: this.simSetList) simSet.setMissing(simSet.getIdList().stream().filter(id -> this.dataManipulationHandler.isMerged(simSet.getType(), id)).collect(Collectors.toList()));        //getIdList().removeIf(id -> this.dataManipulationHandler.isMerged(simSet.getType(), id));
     		
     		// remove simsets which are cleared
     		this.simSetList.removeIf(simSet -> simSet.idList.size()<=1 || !simSet.idList.contains(simSet.referenceId));
@@ -357,18 +320,21 @@ public final class SimSearch {
   
   public boolean isUndoAvailable() { return this.dataManipulationHandler.isUndoAvailable(); }
   public boolean isRedoAvailable() { return this.dataManipulationHandler.isRedoAvailable(); }
+  
+  public String getUndoType() { return this.dataManipulationHandler.getUndoType(); }
+  public String getRedoType() { return this.dataManipulationHandler.getRedoType(); }
+  
   public void redo() { this.dataManipulationHandler.redo(); }
   public void undo() { this.dataManipulationHandler.undo(); }
 
   private void call(Consumer<SimSearchListener> action) {
     this.simSearchListenerList.forEach(action);
-    //Stream.of(getListeners(CanvasListener.class)).forEach(action);
   }
 
   public void stopSearch() {
-	  this.searchStopped = true;
+	  if(this.dataSource!=null) this.dataSource.stopSearch();
   }
-
+  
   public void addEventListener(SimSearchListener listener) {
     this.simSearchListenerList.add(listener);
   }

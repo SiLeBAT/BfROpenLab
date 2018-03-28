@@ -10,9 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import com.google.common.collect.Sets;
 
 public class SimSearchDataManipulationHandler {
@@ -28,80 +26,83 @@ public class SimSearchDataManipulationHandler {
   public static class MergeMap {
     
     public class MergeException extends Exception {
-      private MergeException(String message) {
-        super(message);
-      }
+      
+		private static final long serialVersionUID = -583464476829861354L;
+
+    	private MergeException(String message) {
+    		super(message);
+    	}
     }
-    
+
     private Map<Integer,Integer> mergeIntoAssignment;  //oldId -> newId
     private Map<Integer, Set<Integer>> mergesFromAssignment;     //newId -> {oldIds, ...}
 
     public MergeMap() {
-      this.mergeIntoAssignment = new HashMap<>();
-      this.mergesFromAssignment = new HashMap<>();
+    	this.mergeIntoAssignment = new HashMap<>();
+    	this.mergesFromAssignment = new HashMap<>();
     }
 
     public Integer getMergeAssignment(Integer id) { return this.mergeIntoAssignment.get(id); }
 
     public void mergeInto(Integer idToMerge, Integer idToMergeInto) throws MergeException {
-      if(mergeIntoAssignment.containsKey(idToMergeInto)) throw(new MergeException("Cascading merges are not allowed."));
-      if(mergeIntoAssignment.containsKey(idToMerge)) throw(new MergeException("ID is already merged."));
+    	if(mergeIntoAssignment.containsKey(idToMergeInto)) throw(new MergeException("Cascading merges are not allowed."));
+    	if(mergeIntoAssignment.containsKey(idToMerge)) throw(new MergeException("ID is already merged."));
 
-      mergeIntoAssignment.put(idToMerge, idToMergeInto);
-      if(!mergesFromAssignment.containsKey(idToMergeInto)) this.mergesFromAssignment.put(idToMergeInto, new HashSet<>());
-      mergesFromAssignment.get(idToMergeInto).add(idToMerge);
+    	mergeIntoAssignment.put(idToMerge, idToMergeInto);
+    	if(!mergesFromAssignment.containsKey(idToMergeInto)) this.mergesFromAssignment.put(idToMergeInto, new HashSet<>());
+    	mergesFromAssignment.get(idToMergeInto).add(idToMerge);
     }
-    
+
     public boolean isMerged(Integer id) {
-      return this.mergeIntoAssignment.containsKey(id);
+    	return this.mergeIntoAssignment.containsKey(id);
     }
-    
+
     public void unmerge(Integer id) throws MergeException {
-      if(mergeIntoAssignment.containsKey(id)) {
-        // this is a merge source
-        Integer targetId = mergeIntoAssignment.get(id);
-        this.mergeIntoAssignment.remove(id);
-        this.mergesFromAssignment.get(targetId).remove(id);
-        if(this.mergesFromAssignment.get(targetId).isEmpty()) this.mergesFromAssignment.remove(targetId);
-        
-      } else if (mergesFromAssignment.containsKey(id)) {
-        // this is a merge target
-        for(Integer mergeSourceId: mergesFromAssignment.get(id)) this.mergeIntoAssignment.remove(mergeSourceId);
-        mergesFromAssignment.remove(id);
-      } else {
-        throw(new MergeException("Merge was not found."));
-      }
+    	if(mergeIntoAssignment.containsKey(id)) {
+    		// this is a merge source
+    		Integer targetId = mergeIntoAssignment.get(id);
+    		this.mergeIntoAssignment.remove(id);
+    		this.mergesFromAssignment.get(targetId).remove(id);
+    		if(this.mergesFromAssignment.get(targetId).isEmpty()) this.mergesFromAssignment.remove(targetId);
+
+    	} else if (mergesFromAssignment.containsKey(id)) {
+    		// this is a merge target
+    		for(Integer mergeSourceId: mergesFromAssignment.get(id)) this.mergeIntoAssignment.remove(mergeSourceId);
+    		mergesFromAssignment.remove(id);
+    	} else {
+    		throw(new MergeException("Merge was not found."));
+    	}
     }
-    
+
     public int getMergeCount(Integer mergeTragetId) {
-      return (this.mergesFromAssignment.containsKey(mergeTragetId)?this.mergesFromAssignment.get(mergeTragetId).size():0);
+    	return (this.mergesFromAssignment.containsKey(mergeTragetId)?this.mergesFromAssignment.get(mergeTragetId).size():0);
     }
-    
+
     private MergeMap deepClone() {
-      MergeMap cloned = new MergeMap();
-      cloned.mergeIntoAssignment =  this.mergeIntoAssignment.entrySet().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-      cloned.mergesFromAssignment = this.mergesFromAssignment.entrySet().stream().collect(Collectors.toMap( e->e.getKey(), e -> new HashSet<>(e.getValue())));
-      return cloned;
+    	MergeMap cloned = new MergeMap();
+    	cloned.mergeIntoAssignment =  this.mergeIntoAssignment.entrySet().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    	cloned.mergesFromAssignment = this.mergesFromAssignment.entrySet().stream().collect(Collectors.toMap( e->e.getKey(), e -> new HashSet<>(e.getValue())));
+    	return cloned;
     }
-    
+
     private void setMissing(List<Integer> ids) {
-      this.mergeIntoAssignment.keySet().removeAll(ids);
-      this.mergesFromAssignment.keySet().removeAll(ids);
-      
-      for(Integer id: new ArrayList<>(this.mergesFromAssignment.keySet())) {
-        Set<Integer> mergedIds = this.mergesFromAssignment.get(id);
-        mergedIds.removeAll(ids);
-        if(mergedIds.isEmpty()) this.mergesFromAssignment.remove(id);
-      }
+    	this.mergeIntoAssignment.keySet().removeAll(ids);
+    	this.mergesFromAssignment.keySet().removeAll(ids);
+
+    	for(Integer id: new ArrayList<>(this.mergesFromAssignment.keySet())) {
+    		Set<Integer> mergedIds = this.mergesFromAssignment.get(id);
+    		mergedIds.removeAll(ids);
+    		if(mergedIds.isEmpty()) this.mergesFromAssignment.remove(id);
+    	}
     }
-    
+
     private boolean isEmpty() { return this.mergeIntoAssignment.isEmpty(); }
-    
+
     public boolean equals(MergeMap mergeMap) {
-      if(this.mergeIntoAssignment.size()!=mergeMap.mergeIntoAssignment.size()) return false;
-      if(!this.mergeIntoAssignment.keySet().containsAll(mergeMap.mergeIntoAssignment.keySet())) return false;
-      for(Entry<Integer, Integer> entry:this.mergeIntoAssignment.entrySet()) if(mergeMap.mergeIntoAssignment.get(entry.getKey())!=entry.getValue()) return false;
-      return true;
+    	if(this.mergeIntoAssignment.size()!=mergeMap.mergeIntoAssignment.size()) return false;
+    	if(!this.mergeIntoAssignment.keySet().containsAll(mergeMap.mergeIntoAssignment.keySet())) return false;
+    	for(Entry<Integer, Integer> entry:this.mergeIntoAssignment.entrySet()) if(mergeMap.mergeIntoAssignment.get(entry.getKey())!=entry.getValue()) return false;
+    	return true;
     }
   }
   
@@ -237,7 +238,13 @@ public class SimSearchDataManipulationHandler {
   
   public void unmerge(SimSearch.SimSet.Type simSetType, List<Integer> idsToUnmerge) throws MergeMap.MergeException {
     ManipulationState manipulationState = (undoStack.isEmpty()?new ManipulationState(ManipulationType.Unmerge):new ManipulationState(ManipulationType.Unmerge, this.undoStack.peek()));
-    for(Integer id: idsToUnmerge) manipulationState.mergeMaps.get(simSetType).unmerge(id); 
+    MergeMap mergeMap = manipulationState.mergeMaps.get(simSetType);
+    
+    Set<Integer> mergeContainerIds = Sets.intersection(mergeMap.mergesFromAssignment.keySet(), new HashSet<>(idsToUnmerge));
+    Set<Integer> containedIds = new HashSet<>();
+    for(Integer id: mergeContainerIds) containedIds.addAll(mergeMap.mergesFromAssignment.get(id));
+    idsToUnmerge.removeAll(containedIds); // because they don't need to be unmerged twice
+    for(Integer id: idsToUnmerge) mergeMap.unmerge(id); 
     
     this.undoStack.push(manipulationState);
     this.redoStack.clear();
@@ -285,13 +292,13 @@ public class SimSearchDataManipulationHandler {
     } else {
       switch(this.undoStack.peek().typeOfLastManipulation) {
         case Merge:
-          return "Undo merge.";
+          return "Undo merge operation.";
         case Unmerge:
-          return "Undo unmerge.";
+          return "Undo unmerge operation.";
         case Ignore:
-          return "Undo ignore.";
+          return "Undo ignore operation.";
         case Unignore:
-          return "Undo unignore.";
+          return "Undo unignore operation.";
         default:
           return "Undo operation.";
       }
@@ -304,15 +311,15 @@ public class SimSearchDataManipulationHandler {
     } else {
       switch(this.redoStack.peek().typeOfLastManipulation) {
         case Merge:
-          return "Redo merge.";
+          return "Redo merge operation.";
         case Unmerge:
-          return "Redo unmerge.";
+          return "Redo unmerge operation.";
         case Ignore:
-          return "Redo ignore.";
+          return "Redo ignore operation.";
         case Unignore:
-          return "Redo unignore.";
+          return "Redo unignore operation.";
         default:
-          return "Redo.";
+          return "Redo operation.";
       }
     }
   }
@@ -380,7 +387,7 @@ public class SimSearchDataManipulationHandler {
 		  return new HashMap<>(); 
 	  } else {
 		  Map<Integer,Set<Integer>> result = new HashMap<>();
-		  MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSetType);
+//		  MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSetType);
 		  
 		  for(Set<Integer> idSet : this.undoStack.peek().ignoreMaps.get(simSetType).idSetsToIgnore) {
 		    Integer id = idSet.iterator().next(); //get(0);
@@ -390,11 +397,7 @@ public class SimSearchDataManipulationHandler {
 		    ignoreIds.remove(id);
 		    result.get(id).addAll(ignoreIds);
 		  }
-//		  for(SimSearch.SimSet simSet: this.undoStack.peek().ignoreMaps.get(simSetType).simSetsToIgnore) {
-//			  if(simSet.getIdList().contains(simSet.getReferenceId()) && !mergeMap.isMerged(simSet.getReferenceId())) {
-//				  result.put(simSet.getReferenceId(), simSet.getIdList().stream().filter(id -> !mergeMap.isMerged(id) && !id.equals(simSet.getReferenceId())).collect(Collectors.toList()));
-//			  }
-//		  }
+
 		  return result;
 	  }
   }
@@ -407,32 +410,17 @@ public class SimSearchDataManipulationHandler {
 	  }
   }
   
-//  public void setSimSetIgnored(SimSearch.SimSet simSet, boolean value) {
-//	  if(value!=this.isSimSetIgnored(simSet)) {
-//		  ManipulationType manipulationType = (value?ManipulationType.Ignore:ManipulationType.Unignore);
-//		  ManipulationState manipulationState = (undoStack.isEmpty()?new ManipulationState(manipulationType):new ManipulationState(manipulationType, this.undoStack.peek()));
-//		  manipulationState.ignoreMaps.get(simSet.getType()).setSimSetIgnored(simSet,value); 
-//
-//		  this.undoStack.push(manipulationState);
-//		  this.redoStack.clear();
-//		  this.informListeners();
-//	  }
-//  }
-  
   public boolean isSimSetIgnored(SimSearch.SimSet simSet) {
     if(this.cachedIgnoreStatus.containsKey(simSet)) return this.cachedIgnoreStatus.get(simSet);
     boolean result;
     if(this.undoStack.isEmpty()) {
       result = simSet.getIdList().size()==1 || !simSet.getIdList().contains(simSet.getReferenceId());
-      //      this.cachedIgnoreStatus.put(simSet, result);
-      //      return result;
     } else {
       MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSet.getType());
       if(mergeMap.isMerged(simSet.getReferenceId()) || 
           (mergeMap.mergesFromAssignment.containsKey(simSet.getReferenceId()) && 
               !(Sets.intersection(mergeMap.mergesFromAssignment.get(simSet.getReferenceId()), new HashSet<>(simSet.getIdList())).isEmpty()))) {
         result = false;
-        //return false;
       } else {
         Set<Integer> ids = getIgnorableIdsFromSimSet(simSet);
         result = ids.isEmpty();
@@ -494,13 +482,11 @@ public class SimSearchDataManipulationHandler {
   }
   
   public void setMissing(SimSearch.SimSet.Type simSetType, List<Integer> missingIds) {
-    //this.missingIds.get(simSetType).addAll(ids);
     this.updateUndoRedoStacks(simSetType, missingIds);
     this.fireManipulationStateChangedEvent(false);
   }
   
   private void updateUndoRedoStacks(SimSearch.SimSet.Type simSetType, List<Integer> missingIds) {
-    //Set<Integer> missingIds = this.missingIds.get(simSetType);
     // update manipulationStates according to missing Ids 
     for(ManipulationState manipulationState: this.undoStack) {
       MergeMap mergeMap = manipulationState.mergeMaps.get(simSetType);
@@ -523,6 +509,5 @@ public class SimSearchDataManipulationHandler {
     if(this.undoStack.isEmpty()) return new HashSet<>();
     
     return this.undoStack.peek().ignoreMaps.get(simSet.getType()).getIgnoredIds(simSet.getReferenceId());
-    //return this.undoStack.peek().ignoreMaps.get(simSetType).getIgnoreList(referenceId);
   }
 }

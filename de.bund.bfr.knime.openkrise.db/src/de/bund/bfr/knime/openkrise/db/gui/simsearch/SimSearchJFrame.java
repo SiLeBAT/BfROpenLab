@@ -21,37 +21,20 @@ package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.ComponentOrientation;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -63,30 +46,20 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
 import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 import de.bund.bfr.knime.openkrise.db.gui.MainFrame;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
-//import com.sun.glass.ui.Cursor;
-//import DBMergeServer.SimSearch;
-//import SimSearch.SimSearchListener;
-//import DBMergeServer.SimSearch.SimSearchTableModel;
+
 
 public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListener {
   
-//  static {
-//    //SimSearchJFrame.setDefaultLookAndFeelDecorated(false);
-//  }
+
+private static final long serialVersionUID = 8165724594614226211L;
 
   private SimSearchTable table;
 
@@ -110,7 +83,6 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   private JLabel simSetCountLabel;
 
   private JCheckBoxMenuItem hideInactiveRowsMenuItem; 
-  private JMenu showColumnsMenuItem;
   private JMenu rowHeightMenu;
   private JMenu fontSizeMenu;
 
@@ -120,12 +92,10 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   private int currentSimSetIndex;
   private boolean userIsWaiting;
   private boolean searchIsOn;
-  private boolean saveIsOn;
+  private boolean closeWindow;
 
   public SimSearchJFrame(Frame owner) {
     super();
-    //this();
-    //this.addWindowListener(this);
     this.initComponents();
     this.userIsWaiting = false;
   }
@@ -137,7 +107,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   }
 
   public void startSearch(SimSearch.Settings settings) {
-    this.simSearchSettings = settings; //new SimSearch.Settings();
+    this.simSearchSettings = settings; 
     this.currentSimSetIndex = -1;
 
     this.simSearch = new SimSearch();
@@ -178,13 +148,14 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   private void finishAsyncSearch(boolean searchCompleted) {
 	  if(SwingUtilities.isEventDispatchThread()) {
 		  // 
-		  this.setUserIsWaiting(false);
-		  this.searchIsOn = false;
-	      this.updateSimSetCountLabel();
-	      this.navToLast.setEnabled((this.simSearch.getSimSetCount()>this.currentSimSetIndex+1));
-	      //if(this.simSearch.getSimSetCount()==0 && searchCompleted) JOptionPane.showConfirmDialog(this, "No similarities found.", "Similarity search result", JOptionPane.NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-	      if(this.simSearch.getSimSetCount()==0 && searchCompleted) JOptionPane.showMessageDialog(null, "No similarities found.", "Similarity search result", 1);
-	      //JOptionPane.
+		  if(this.closeWindow) this.dispose();
+		  else {
+			  this.setUserIsWaiting(false);
+			  this.searchIsOn = false;
+		      this.updateSimSetCountLabel();
+		      this.navToLast.setEnabled((this.simSearch.getSimSetCount()>Math.max(0,this.currentSimSetIndex+1)));
+		      if(this.simSearch.getSimSetCount()==0 && searchCompleted) JOptionPane.showMessageDialog(null, "No similarities found.", "Similarity search result", 1);
+		  }
 	      
 	  } else {
 		  SwingUtilities.invokeLater(new Runnable() {
@@ -224,7 +195,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     this.addTopPanel();
     this.addTable();
     this.addBottomPanel();
-    this.table.registerRowTextFilter(this.filterTextField, null);
+    this.table.registerRowTextFilter(this.filterTextField, this.useRegularExpressionsFilterCheckBox);
     this.table.registerInactiveRowFilterSwitch(this.hideInactiveRowsMenuItem);
     this.table.registerSimSetIgnoreButtons(this.ignoreSimSetButton, this.ignoreAllPairsInSimSetButton);
   
@@ -257,19 +228,19 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
 
     this.undoButton = new JButton("undo");
-    this.undoButton.setToolTipText("undo merge/unmerge operation"); //  bundle.getString("MainFrame.button10.toolTipText"));
+    this.undoButton.setToolTipText("Undo operation."); //  bundle.getString("MainFrame.button10.toolTipText"));
     //this.undoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/undo.gif")));
     this.redoButton = new JButton("redo");
-    this.redoButton.setToolTipText("redo merge/unmerge operation"); //  bundle.getString("MainFrame.button10.toolTipText"));
+    this.redoButton.setToolTipText("Redo operation."); //  bundle.getString("MainFrame.button10.toolTipText"));
     //this.redoButton.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/redo.gif")));
     Arrays.asList(this.undoButton, this.redoButton).forEach(c -> undoRedoPanel.add(c));
     
     JPanel ignorePanel = new JPanel();
     //topPanel.add(ignorePanel, BorderLayout.LINE_END);
-    this.ignoreSimSetButton = new JButton("Ignore SimSet");   //new JToggleButton("Ignore");
+    this.ignoreSimSetButton = new JButton("Ignore similarities");   //new JToggleButton("Ignore");
     this.ignoreSimSetButton.setToolTipText("Mark all rows as different to the reference row."); //  bundle.getString("MainFrame.button10.toolTipText"));
-    this.ignoreAllPairsInSimSetButton = new JButton("Ignore all pairs.");
-    this.ignoreAllPairsInSimSetButton.setToolTipText("Mark all rows as different to the reference row."); 
+    this.ignoreAllPairsInSimSetButton = new JButton("Ignore all pairs");
+    this.ignoreAllPairsInSimSetButton.setToolTipText("Mark all rows as pairwise different."); 
     Arrays.asList(ignoreSimSetButton, ignoreAllPairsInSimSetButton).forEach(b -> {
       ignorePanel.add(b);
       b.setEnabled(false);
@@ -307,12 +278,17 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 
     this.navToFirst = new JButton();
     this.navToFirst.setText("<<");
+    this.navToFirst.setToolTipText("Show first findings.");
     this.navToLast = new JButton();
     this.navToLast.setText(">>");
+    this.navToLast.setToolTipText("Show last findings.");
     this.navBack = new JButton();
     this.navBack.setText("<");
+    this.navBack.setToolTipText("Show previous findings.");
     this.navForward = new JButton();
     this.navForward.setText(">");
+    this.navForward.setToolTipText("Show next findings.");
+    
     List<JButton> navButtonList = Arrays.asList(this.navToFirst, this.navBack, this.navForward, this.navToLast);
     ActionListener actionListener = new ActionListener() {
 
@@ -366,6 +342,7 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
       }
     });
     this.applyButton.setEnabled(false);
+    this.registerCancelAndOkButtons();
   }
   
   private void registerCancelAndOkButtons() {
@@ -414,7 +391,11 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     if(SwingUtilities.isEventDispatchThread()) {
       // 
       this.redoButton.setEnabled(this.simSearch.isRedoAvailable());
+      this.redoButton.setToolTipText(this.simSearch.getRedoType());
+      
       this.undoButton.setEnabled(this.simSearch.isUndoAvailable());
+      this.undoButton.setToolTipText(this.simSearch.getUndoType());
+      
       //this.ignoreButton.setSelected(this.table.isSimSetIgnored());
       this.applyButton.setEnabled(this.simSearch.existDataManipulations());
       
@@ -438,9 +419,9 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   
   private void clearTable() {
     this.table.clear();
-    Arrays.asList(this.navBack, this.navForward, this.navToFirst, this.navToLast).forEach(b -> b.setEnabled(false));
+    Arrays.asList(this.navBack, this.navForward, this.navToFirst, this.navToLast, this.ignoreSimSetButton, this.ignoreAllPairsInSimSetButton).forEach(b -> b.setEnabled(false));
     this.currentSimSetIndex = -1;
-    this.showColumnsMenuItem.setEnabled(false);
+//    this.showColumnsMenuItem.setEnabled(false);
     this.rowHeightMenu.setEnabled(false);
     this.updateSimSetCountLabel();
   }
@@ -464,10 +445,15 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     bar.setBorder(bo);
     // Erzeugung eines Objektes der Klasse JMenu
     JMenu menu = new JMenu("View");
-    this.hideInactiveRowsMenuItem =  new JCheckBoxMenuItem("Hide inactive rows");
+    this.hideInactiveRowsMenuItem =  new JCheckBoxMenuItem("Hide merged rows");
     this.hideInactiveRowsMenuItem.setSelected(false);
-    this.showColumnsMenuItem = new JMenu("Show Columns");
-    this.showColumnsMenuItem.setEnabled(false);
+//    this.hideInactiveRowsMenuItem.getAccessibleContext().setAccessibleDescription(
+//            "Switches the filtering of already merged rows on/off.");
+    menu.add(this.hideInactiveRowsMenuItem);
+//    this.showColumnsMenuItem = new JMenu("Show Columns");
+//    this.showColumnsMenuItem.setEnabled(false);
+    
+    
     this.rowHeightMenu = new JMenu("Row height");
     this.rowHeightMenu.setEnabled(false);
     JMenuItem rowHeightIncrease = new JMenuItem("Increase");
@@ -502,17 +488,17 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
     
     //JMenuItem rowHeightDecrease = new JMenuItem("Decrease");
     //menu.add(this.hideInactiveRowsMenuItem);
-    for(JMenuItem menuItem : Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem, this.rowHeightMenu, this.fontSizeMenu)) menu.add(menuItem);
+    //for(JMenuItem menuItem : Arrays.asList(this.hideInactiveRowsMenuItem,this.showColumnsMenuItem, this.rowHeightMenu, this.fontSizeMenu)) menu.add(menuItem);
+    //for(JMenuItem menuItem : Arrays.asList(this.hideInactiveRowsMenuItem, this.rowHeightMenu, this.fontSizeMenu)) menu.add(menuItem);
     
-    
-    JMenuItem showViewSettings = new JMenuItem("Preferences..");
-    showViewSettings.addActionListener(new ActionListener() {
-    	@Override
-        public void actionPerformed(ActionEvent arg0) {
-          SimSearchJFrame.this.processShowPreferencesUserRequest();
-        }
-    });
-    menu.add(showViewSettings);
+//    JMenuItem showViewSettings = new JMenuItem("Preferences..");
+//    showViewSettings.addActionListener(new ActionListener() {
+//    	@Override
+//        public void actionPerformed(ActionEvent arg0) {
+//          SimSearchJFrame.this.processShowPreferencesUserRequest();
+//        }
+//    });
+//    menu.add(showViewSettings);
     
     
     // Men� wird der Men�leiste hinzugef�gt
@@ -619,8 +605,8 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   
   private void finishAsyncDataLoad(SimSearchTableModel tableModel, int simSetIndex) {
 	  if(SwingUtilities.isEventDispatchThread()) {
-	      this.showColumnsMenuItem.removeAll();
-	      this.showColumnsMenuItem.setEnabled(false);
+	      //this.showColumnsMenuItem.removeAll();
+	      //this.showColumnsMenuItem.setEnabled(false);
 		  if(tableModel!=null) {
 //			  if(this.currentSimSetIndex>=0) this.saveTableSettings();
 //			  else {
@@ -636,8 +622,8 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 			    //this.filterText.setEnabled(true);
 			    this.table.loadData(tableModel);
 			    //this.ignoreButton.setSelected(this.table.isSimSetIgnored());
-			    this.table.addShowColumnsSubMenuItems(this.showColumnsMenuItem);
-			    this.showColumnsMenuItem.setEnabled(true);
+			    //this.table.addShowColumnsSubMenuItems(this.showColumnsMenuItem);
+			    //this.showColumnsMenuItem.setEnabled(true);
 			    this.table.updateRowHeightMenu(this.rowHeightMenu, true);
 			    this.table.updateFontSizeMenu(this.fontSizeMenu);
 		  } else {
@@ -700,6 +686,22 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   }
 
   private void processWindowCloseRequest() {
+	if(this.simSearch!=null && this.simSearch.existDataManipulations()) {
+		switch(JOptionPane.showConfirmDialog(this, "Your changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+		case JOptionPane.YES_OPTION:
+			this.processUserSaveRequest();
+			return;
+		case JOptionPane.CANCEL_OPTION:
+			return;
+		case JOptionPane.NO_OPTION:
+			this.closeWindow = true;
+			if(this.searchIsOn) {
+				this.simSearch.stopSearch();
+				return;
+			}
+			// just continue closing the window
+		}
+	}
     this.dispose();
   }
   
@@ -742,6 +744,11 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
   }
   
   private void startAsyncSave(boolean applyOnly) {
+	  if(this.simSearch.existDataManipulations() && searchIsOn) {
+		  JOptionPane.showMessageDialog(this, "Data cannot saved before the search is finished.",null,JOptionPane.INFORMATION_MESSAGE);
+		  return;
+	  }
+	  
 	  SimSearch.SimSet simSet = this.simSearch.getSimSet(this.currentSimSetIndex);
 	  Runnable runnable = new Runnable(){
 

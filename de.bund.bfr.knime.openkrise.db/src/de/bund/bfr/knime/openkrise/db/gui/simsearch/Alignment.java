@@ -35,6 +35,8 @@ public class Alignment {
 		Replace, Insert, Delete,  //Operation for non reference sequences
 	}
 	
+	// Class holds a sequence of characters (the text)
+	// and the edit operation
 	public static class AlignedSequence implements Comparable<AlignedSequence>{
 	      private String sequence;
 	      private List<Alignment.EditOperation> editOperations;
@@ -46,7 +48,6 @@ public class Alignment {
 	      
 	      public AlignedSequence(String sequence) {
             this.sequence = sequence;
-            //this.editOperations = new ArrayList<>();
           }
 	      
 	      public String getSequence() { return this.sequence; }
@@ -54,7 +55,6 @@ public class Alignment {
 
 	      @Override
 	      public int compareTo(AlignedSequence o) {
-	        // TODO Auto-generated method stub
 	        if(this.sequence==null && (o==null || o.getSequence()==null)) return 0;
 	        if(this.sequence==null) return -o.getSequence().compareTo(this.sequence);
 	        return this.sequence.compareTo((o==null?null:o.getSequence()));
@@ -62,11 +62,11 @@ public class Alignment {
 	      
 	      @Override
 	      public String toString() {
-	        return this.sequence;
+	        return (this.sequence==null?"":this.sequence);
 	      }
 	    }
 	
-	
+	// global optimal aligns the referenceText to another text
 	private static List<EditOperation> alignToReference(String referenceText, String alignText) {
 	  
 		if(referenceText==null || alignText==null) return null;
@@ -121,32 +121,38 @@ public class Alignment {
 		return editOperations;
 	}
 	
-	public static List<List<EditOperation>> alignSequences(List<String> stringList, int referenceIndex) {
-	  if(stringList==null) return null;
-	  if(stringList.size()<=1) return new ArrayList<>();
-	  
-	  Map<Integer, List<EditOperation>> editOperationsAlign = new HashMap<>();
-	  Map<Integer, List<EditOperation>> editOperationsReference = new HashMap<>();
-	  
-	  for(int iSeq = 0; iSeq < stringList.size(); ++iSeq) {
-	    if(iSeq != referenceIndex) {
-	      List<EditOperation> editOperations = alignToReference(stringList.get(referenceIndex),stringList.get(iSeq));
-	      editOperationsAlign.put(iSeq, editOperations);
-	      editOperationsReference.put(iSeq, getReferenceOperations(editOperations));
-	    }
-	  }
-	  
-	  mergeEditOperations(editOperationsAlign, editOperationsReference);
-	  
-	  editOperationsAlign.put(referenceIndex, editOperationsReference.get(editOperationsReference.keySet().toArray()[0]));
-	  
-	  return editOperationsAlign.keySet().stream().sorted().map(index -> editOperationsAlign.get(index)).collect(Collectors.toList());
-    }
+//	// aligns multiple sequences
+//	// First step: each sequence is global optimal aligned to the reference sequence
+//	// Second step: the alignments are aggregate to a global not necessarily optimal alignment
+//	public static List<List<EditOperation>> _alignSequences(List<String> stringList, int referenceIndex) {
+//	  if(stringList==null) return null;
+//	  if(stringList.size()<=1) return new ArrayList<>();
+//	  
+//	  Map<Integer, List<EditOperation>> editOperationsAlign = new HashMap<>();
+//	  Map<Integer, List<EditOperation>> editOperationsReference = new HashMap<>();
+//	  
+//	  for(int iSeq = 0; iSeq < stringList.size(); ++iSeq) {
+//	    if(iSeq != referenceIndex) {
+//	      List<EditOperation> editOperations = alignToReference(stringList.get(referenceIndex),stringList.get(iSeq));
+//	      editOperationsAlign.put(iSeq, editOperations);
+//	      editOperationsReference.put(iSeq, getReferenceOperations(editOperations));
+//	    }
+//	  }
+//	  
+//	  mergeEditOperations(editOperationsAlign, editOperationsReference);
+//	  
+//	  editOperationsAlign.put(referenceIndex, editOperationsReference.get(editOperationsReference.keySet().toArray()[0]));
+//	  
+//	  return editOperationsAlign.keySet().stream().sorted().map(index -> editOperationsAlign.get(index)).collect(Collectors.toList());
+//    }
 	
+	// aligns multiple sequences
+	// First step: each sequence is global optimal aligned to the reference sequence
+	// Second step: the alignments are aggregate to a global not necessarily optimal alignment
 	public static AlignedSequence[] alignSequences(String[] sequences, int referenceIndex) {
 		  if(sequences==null) return null;
 		  if(sequences.length==0) return new AlignedSequence[0];
-		  //if(sequences.length==1) return new AlignedSequence[] {new AlignedSequence(sequences[0])};
+		  
 		  AlignedSequence[] result = new AlignedSequence[sequences.length];
 		  if(referenceIndex<0 || referenceIndex>=sequences.length || 
 				  sequences[referenceIndex]==null || sequences[referenceIndex].isEmpty()) {
@@ -179,26 +185,9 @@ public class Alignment {
 		  return result;
 	    }
 	
-//	private static void mergeEditOperations(Map<Integer, List<EditOperation>> editOperationsAlign, Map<Integer, List<EditOperation>> editOperationsReference) {
-////	  editOperationsReference.entrySet().stream().filter(e -> e.getValue()!=null && e.getValue().size()>0).map(e -> e.getKey()).collect(Collectors.toList()).forEach( index -> {
-////	    editOperationsReference.remove(index);
-////	  });
-//	  int column = 0;
-//	  Stream<Entry<Integer, List<EditOperation>>> editOperationsStream = editOperationsReference.entrySet().stream();
-//	  while(editOperationsStream.anyMatch(e -> e.getValue().size() > column)) {
-//	    if(editOperationsStream.anyMatch(e -> e.getValue().size()<=column || e.getValue().get(column)==EditOperation.GAP)) {
-//	      editOperationsStream.filter(e -> e.getValue().size()<=column || e.getValue().get(column)!=EditOperation.GAP).forEach(e -> {
-//	        e.getValue().add(column, EditOperation.GAP);
-//	        editOperationsAlign.get(e.getKey()).add(column, EditOperation.GAP);
-//	      });
-//	    }
-//	  }
-//	}
 	
+	// merges lists of edit operations
 	private static void mergeEditOperations(Map<Integer, List<EditOperation>> editOperationsAlign, Map<Integer, List<EditOperation>> editOperationsReference) {
-//    editOperationsReference.entrySet().stream().filter(e -> e.getValue()!=null && e.getValue().size()>0).map(e -> e.getKey()).collect(Collectors.toList()).forEach( index -> {
-//      editOperationsReference.remove(index);
-//    });
 	  final int seqCount = editOperationsAlign.size();
 	  
 	  int[] seqLength = new int[seqCount];
@@ -239,17 +228,9 @@ public class Alignment {
         }
         ++column;
       }
-//      Stream<Entry<Integer, List<EditOperation>>> editOperationsStream = editOperationsReference.entrySet().stream();
-//      while(editOperationsStream.anyMatch(e -> e.getValue().size() > column)) {
-//        if(editOperationsStream.anyMatch(e -> e.getValue().size()<=column || e.getValue().get(column)==EditOperation.GAP)) {
-//          editOperationsStream.filter(e -> e.getValue().size()<=column || e.getValue().get(column)!=EditOperation.GAP).forEach(e -> {
-//            e.getValue().add(column, EditOperation.GAP);
-//            editOperationsAlign.get(e.getKey()).add(column, EditOperation.GAP);
-//          });
-//        }
-//      }
     }
 	
+	// converts a list of edit operations to a list of reference operations
 	private static List<EditOperation> getReferenceOperations(List<EditOperation> editOperations) {
 	  return editOperations.stream().map(o -> (Arrays.asList(EditOperation.Insert, EditOperation.None, EditOperation.Replace).contains(o) ? EditOperation.None : EditOperation.GAP)).collect(Collectors.toList());
 	}

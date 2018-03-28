@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -55,6 +56,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.RowSorter;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
@@ -64,12 +66,16 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
 import sun.swing.SwingUtilities2;
@@ -86,6 +92,11 @@ public class SimSearchJTable extends JTable {
 	private List<MouseListener> mouseListeners;
 	private SimSearchTable.ViewSettings viewSettings;
 	private int[] rowHeights;
+//	private List<RowHeightChangedListener> rowHeightListeners;
+//	
+//	interface RowHeightChangedListener {
+//		void rowHeightChanged(int row, int height);
+//	}
 	
 	public class HeaderRenderer implements TableCellRenderer {
 	    private final JTableHeader header;
@@ -133,6 +144,31 @@ public class SimSearchJTable extends JTable {
 	  
 	}
 	
+//	@Override
+//	public void setRowSorter(RowSorter<? extends TableModel> sorter) {
+//		super.setRowSorter(sorter);
+////		if(rowHeights!=null) 
+//		((SimSearchRowSorter) sorter).addRowSequenceChangedListener(new SimSearchRowSorter.RowSequenceChangedListener() {
+//			//addRowSorterListener(new RowSorterListener() {
+//
+////			@Override
+////			public void sorterChanged(RowSorterEvent e) {
+////				int i = SimSearchJTable.this.getRowCount();
+////				//for(int row=0; row<n; ++row) SimSearchJTable.this.setRowHeight(row, )
+////				
+////			}
+//
+//			@Override
+//			public void RowSequenceChanged(List<Integer> oldViewToModel) {
+//				int n = getRowCount();
+//				//for(int i=0; i<n; ++i) setRowHeight(i, rowHeights[convertRowIndexToModel(i)]);
+//				
+//				
+//			}
+//			
+//		});
+//	}
+	
 	@Override
 	protected JTableHeader createDefaultTableHeader() {
       return new SimSearchJTableHeader(this.getColumnModel());
@@ -175,8 +211,8 @@ public class SimSearchJTable extends JTable {
       //private Color defaultBackgroundColor = null;
       private static final Color COLOR_INACTIVEROW_BACKGROUND = Color.LIGHT_GRAY;
       private static Color COLOR_DROPLOCATION_BACKGROUND = null;
-      //static final int EXTRA_X_MARGIN = 4;
-      //static final int EXTRA_Y_MARGIN = 2;//2
+      private static final int EXTRA_X_MARGIN = 1; //4;
+      private static final int EXTRA_Y_MARGIN = 1;//2
       //static final int INNER_MARGIN_X = 10;
       //static final int INNER_MARGIN_Y = 0;//10
       
@@ -202,6 +238,9 @@ public class SimSearchJTable extends JTable {
           if(!(border instanceof CompoundBorder)) {
             border = new CompoundBorder(border, new EmptyBorder(viewSettings.cellMarginY,viewSettings.cellMarginX,viewSettings.cellMarginY, viewSettings.cellMarginX));
             ((JLabel) c).setBorder(border);
+            int height = c.getFontMetrics(table.getFont()).getHeight();
+            Insets insets = border.getBorderInsets(this);
+            this.setPreferredSize(new Dimension(this.getTextWidth(value) + insets.left + insets.right + EXTRA_X_MARGIN, height + insets.top + insets.bottom + EXTRA_Y_MARGIN));
           }
         //setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         JTable.DropLocation dropLocation = table.getDropLocation();
@@ -258,22 +297,29 @@ public class SimSearchJTable extends JTable {
         return this;
       }
       
-      public int getFittingWidth(int column, JTable table) {
-        FontMetrics fm = table.getFontMetrics( table.getFont() );
-        int width = fm.stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
-        
-        for(int row=0; row<table.getRowCount(); ++row) {
-            Object o = table.getValueAt(row, column);
-            if(o!=null) width = Math.max(width, fm.stringWidth(o.toString()));
-        }
-        
-        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
+      int getTextWidth(Object value) {
+    	  if(value==null) return 0;
+    	  
+    	  FontMetrics fm = getFontMetrics(getFont());
+    	  return fm.stringWidth(value.toString());
       }
       
-      public int getFittingHeight(int row, int column, JTable table) {
-        FontMetrics fm = table.getFontMetrics( table.getFont() );
-        return fm.getHeight() + ((int) (2*table.getIntercellSpacing().getHeight())) + 2*((SimSearchJTable) table).viewSettings.cellMarginY;      
-      }
+//      public int getFittingWidth(int column, JTable table) {
+//        FontMetrics fm = table.getFontMetrics( table.getFont() );
+//        int width = fm.stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
+//        
+//        for(int row=0; row<table.getRowCount(); ++row) {
+//            Object o = table.getValueAt(row, column);
+//            if(o!=null) width = Math.max(width, fm.stringWidth(o.toString()));
+//        }
+//        
+//        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
+//      }
+//      
+//      public int getFittingHeight(int row, int column, JTable table) {
+//        FontMetrics fm = table.getFontMetrics( table.getFont() );
+//        return fm.getHeight() + ((int) (2*table.getIntercellSpacing().getHeight())) + 2*((SimSearchJTable) table).viewSettings.cellMarginY;      
+//      }
       
       
 
@@ -311,10 +357,11 @@ public class SimSearchJTable extends JTable {
     public static class AlignmentColumnRenderer extends DefaultColumnRenderer implements ToolTipRenderer { 
     
     	private static Font font;
-    	public static final String SYMBOL_GAP = "&#752;";
+    	public static final String SYMBOL_GAP = "<b>&#752;</b>";
     	public static final String SYMBOL_SPACE_DELETE = "&#8718;";//"&#8215;";
     	      
       private String[] data;
+      private int columnWidth = -1;
       
       public static String getColoredMismatchText(String text) {
         return "<font color=\"red\">" + text + "</font>";
@@ -341,22 +388,45 @@ public class SimSearchJTable extends JTable {
         super.getTableCellRendererComponent(table, value, isSelected,
                                             hasFocus, row, column);
 
+        
         //if(font==null) {
         //  AlignmentColumnRenderer.font = new Font(Font.MONOSPACED, Font.PLAIN, table.getFont().getSize());
         //}
         //setFont(font);
        
         int modelRow = table.getRowSorter().convertRowIndexToModel(row);
+        int columnWidth = table.getColumnModel().getColumn(column).getWidth();
         
-        if(data[modelRow]==null)
+        if(columnWidth!=this.columnWidth) {
+        	Arrays.fill(data,null);
+        	this.columnWidth = columnWidth;
+        }
+        
+        if(data[modelRow]==null && value!=null) {
+            Insets insets = this.getBorder().getBorderInsets(this);	
+            int availableWidth = Math.max(0, columnWidth - insets.left - insets.right);
+        	Alignment.AlignedSequence alignedSeq = (Alignment.AlignedSequence) value;
+          
+        	  Font currentFont = getFont();
+        	  Font monospacedFont = new Font("Monospaced",currentFont.getStyle(), currentFont.getSize());
+        	  FontMetrics fm = getFontMetrics(monospacedFont);
+        	  int nSymbols = (alignedSeq.getEditOperations()==null ? 0 : alignedSeq.getEditOperations().size());
+        	  int textWidth = (nSymbols>0 ? fm.stringWidth(StringUtils.repeat("W",nSymbols)) : 0);
+        	  
+        	  if(availableWidth<textWidth) {
+        		  fm = getFontMetrics(currentFont);
+            	  int suffixWidth = fm.stringWidth("...");
+        		  nSymbols = (int) Math.floor(nSymbols * Math.max(0,(availableWidth-suffixWidth))/textWidth);
+        	  }
           try {
-            data[modelRow] = (value==null? "": createHtmlCode((Alignment.AlignedSequence) value, true));
+            data[modelRow] = (nSymbols>0 ? createHtmlCode(alignedSeq, true, nSymbols) : "");
+            
           } catch (Exception e) {
             // TODO Auto-generated catch block
             data[modelRow] = String.format("<html><font color=\"red\" style=\"italic\">Could not visualize edits: </font>%s</html>", StringEscapeUtils.escapeHtml4(((Alignment.AlignedSequence) value).getSequence()));
             e.printStackTrace();
           }
-        
+        }
         //System.out.println("AL:" + data[row]);
         setText(data[modelRow]);
         
@@ -365,7 +435,24 @@ public class SimSearchJTable extends JTable {
         return this;
       }
       
-      public static String createHtmlCode(Alignment.AlignedSequence alignedSequence, boolean addHtmlTag) throws Exception {
+      @Override
+      int getTextWidth(Object value) {
+    	  if(value==null) return 0;
+    	  Font currentFont = getFont();
+    	  Font monospacedFont = new Font("Monospaced",currentFont.getStyle(), currentFont.getSize());
+    	  FontMetrics fm = getFontMetrics(monospacedFont);
+    	  Alignment.AlignedSequence alignedSeq = (Alignment.AlignedSequence) value;
+   
+    	  int nSymbols = (alignedSeq.getEditOperations()==null ? 0 : alignedSeq.getEditOperations().size());
+    	  if(nSymbols>0) return fm.stringWidth(StringUtils.repeat("W",nSymbols));
+    	  else return 0;
+      }
+      
+      public static String createHtmlCode(Alignment.AlignedSequence alignedSequence, boolean addHtmlTag) throws Exception { 
+    	  return createHtmlCode(alignedSequence, addHtmlTag, Integer.MAX_VALUE);
+      }
+      
+      private static String createHtmlCode(Alignment.AlignedSequence alignedSequence, boolean addHtmlTag, int nSymbols) throws Exception {
         if(alignedSequence==null || alignedSequence.getEditOperations()==null || alignedSequence.getEditOperations().isEmpty()) {
           return "";
         }
@@ -377,7 +464,13 @@ public class SimSearchJTable extends JTable {
         final String SYMBOL_SPACE = "&nbsp;";
         int textPos = -1;
         EditType editType = EditType.None;
+        int iSymbol = -1;
         for(Alignment.EditOperation op : alignedSequence.getEditOperations()) {
+        	++iSymbol;
+        	if(iSymbol>=nSymbols) {
+        		if(editType!=EditType.None) sb.append("</font>");
+        		break;
+        	}
           if(!editType.matches(op)) {
             if(editType!=EditType.None) sb.append("</font>");
             editType = EditType.getType(op);
@@ -398,6 +491,7 @@ public class SimSearchJTable extends JTable {
         }
         //sb.append("</nobr>");
         sb.append("</font>");
+        if(nSymbols<alignedSequence.getEditOperations().size()) sb.append("...");
         if(addHtmlTag) sb.append("<nobr></html>");
         return sb.toString();
       }  
@@ -443,25 +537,25 @@ public class SimSearchJTable extends JTable {
         return null;
       }
       
-      @Override
-      public int getFittingWidth(int column, JTable table) {
-        int width = table.getFontMetrics(table.getFont()).stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
-        
-        FontMetrics fm = table.getFontMetrics( new Font("Monospaced",Font.PLAIN,table.getFont().getSize()) );
-        
-        final double MONOSPACE_CHAR_WIDTH =  ((double) fm.stringWidth(String.join("", Collections.nCopies(100, "W"))))/100;
-        
-        for(int row=0; row<table.getRowCount(); ++row) {
-            Object o = table.getValueAt(row, column);
-            if(o!=null && (o instanceof Alignment.AlignedSequence)) {
-              Alignment.AlignedSequence alignedSeq = (Alignment.AlignedSequence) o;
-              if(alignedSeq.getEditOperations()!=null)   width = Math.max(width, (int) (alignedSeq.getEditOperations().size()*MONOSPACE_CHAR_WIDTH));
-              else if(alignedSeq.getSequence()!=null)  width = Math.max(width, (int) (alignedSeq.getSequence().length()*MONOSPACE_CHAR_WIDTH));
-            }
-        }
-        
-        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
-      }
+//      @Override
+//      public int getFittingWidth(int column, JTable table) {
+//        int width = table.getFontMetrics(table.getFont()).stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
+//        
+//        FontMetrics fm = table.getFontMetrics( new Font("Monospaced",Font.PLAIN,table.getFont().getSize()) );
+//        
+//        final double MONOSPACE_CHAR_WIDTH =  ((double) fm.stringWidth(String.join("", Collections.nCopies(100, "W"))))/100;
+//        
+//        for(int row=0; row<table.getRowCount(); ++row) {
+//            Object o = table.getValueAt(row, column);
+//            if(o!=null && (o instanceof Alignment.AlignedSequence)) {
+//              Alignment.AlignedSequence alignedSeq = (Alignment.AlignedSequence) o;
+//              if(alignedSeq.getEditOperations()!=null)   width = Math.max(width, (int) (alignedSeq.getEditOperations().size()*MONOSPACE_CHAR_WIDTH));
+//              else if(alignedSeq.getSequence()!=null)  width = Math.max(width, (int) (alignedSeq.getSequence().length()*MONOSPACE_CHAR_WIDTH));
+//            }
+//        }
+//        
+//        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
+//      }
     }
     
     /**
@@ -516,34 +610,45 @@ public class SimSearchJTable extends JTable {
 //        return textArea;
       }
       
-      private String createHtml(List<String> list) {
-        StringBuilder sb = new StringBuilder("<html>");
-        for(String element: list) sb.append(StringEscapeUtils.escapeHtml4(element) + "<br>");
-        sb.append("</html>");
-        return sb.toString();
-      }
-      
-      public int getFittingWidth(int column, JTable table) {
-        FontMetrics fm = table.getFontMetrics( table.getFont() );
-        int width = fm.stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
-        
-        for(int row=0; row<table.getRowCount(); ++row) {
-            Object o = table.getValueAt(row, column);
-            if(o!=null) for(String element: (List<String>) o) width = Math.max(width, fm.stringWidth(element));
-        }
-        
-        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
-      }
-      
       @Override
-      public int getFittingHeight(int row, int column, JTable table) {
-        FontMetrics fm = table.getFontMetrics( table.getFont() );
-        int width = fm.getHeight(); 
-        
-        Object o = table.getValueAt(row, column);
-        if(o!=null) width *= Math.max(((List<String>) o).size(),1); // width = Math.max(width, fm.stringWidth(element));
-        return width + ((int) (2*table.getIntercellSpacing().getHeight())) + 2*((SimSearchJTable) table).viewSettings.cellMarginY;      
+      int getTextWidth(Object value) {
+    	  if(value==null) return 0;
+    	  FontMetrics fm = getFontMetrics(getFont());
+    	  
+    	  int width = 0;
+    	  for(String text: ((List<String>) value)) width = Math.max(width, fm.stringWidth(text));
+    	  
+    	  return width;
       }
+      
+//      private String createHtml(List<String> list) {
+//        StringBuilder sb = new StringBuilder("<html>");
+//        for(String element: list) sb.append(StringEscapeUtils.escapeHtml4(element) + "<br>");
+//        sb.append("</html>");
+//        return sb.toString();
+//      }
+      
+//      public int getFittingWidth(int column, JTable table) {
+//        FontMetrics fm = table.getFontMetrics( table.getFont() );
+//        int width = fm.stringWidth((String) table.getColumnModel().getColumn(column).getHeaderValue());
+//        
+//        for(int row=0; row<table.getRowCount(); ++row) {
+//            Object o = table.getValueAt(row, column);
+//            if(o!=null) for(String element: (List<String>) o) width = Math.max(width, fm.stringWidth(element));
+//        }
+//        
+//        return width + ((int) (2*table.getIntercellSpacing().getWidth())) + 2*((SimSearchJTable) table).viewSettings.cellMarginX;        
+//      }
+//      
+//      @Override
+//      public int getFittingHeight(int row, int column, JTable table) {
+//        FontMetrics fm = table.getFontMetrics( table.getFont() );
+//        int width = fm.getHeight(); 
+//        
+//        Object o = table.getValueAt(row, column);
+//        if(o!=null) width *= Math.max(((List<String>) o).size(),1); // width = Math.max(width, fm.stringWidth(element));
+//        return width + ((int) (2*table.getIntercellSpacing().getHeight())) + 2*((SimSearchJTable) table).viewSettings.cellMarginY;      
+//      }
       
       public void paint(Graphics g) {
 			super.paint(g);
@@ -572,6 +677,7 @@ public class SimSearchJTable extends JTable {
 			// text with some padding.
 			int y = inset.top; //   ypad; // + ascent;
 			int maxWidth = this.getWidth()-inset.left-inset.right; //   2*xpad;
+			int tmp = this.getHeight();
 			int maxHeight = this.getHeight()-inset.top -inset.bottom;
 			
 			g.setFont(this.getFont());
@@ -581,19 +687,19 @@ public class SimSearchJTable extends JTable {
 			
 			
 		    
-			Rectangle rect = new Rectangle(0,this.getHeight()-inset.bottom-descent,inset.bottom+descent,this.getWidth());
+//			Rectangle rect = new Rectangle(0,this.getHeight()-inset.bottom-descent,inset.bottom+descent,this.getWidth());
 			//g.copyArea(0, this.getHeight()- (int) Math.round(hgt/2.5), this.getWidth(), (int) Math.round(hgt/2.5), dx, dy);
-			g.copyArea(rect.x, rect.y, rect.width, rect.height, dx, dy);
+//			g.copyArea(rect.x, rect.y, rect.width, rect.height, dx, dy);
 			
-			Robot robot = null;
-			try {
-				robot = new Robot();
-			} catch (AWTException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			Robot robot = null;
+//			try {
+//				robot = new Robot();
+//			} catch (AWTException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		    //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		    BufferedImage bufferedImage = robot.createScreenCapture(rect);
+		    //BufferedImage bufferedImage = robot.createScreenCapture(rect);
 		    int yLine;
 		   
 		    Shape oldClip = g.getClip();
@@ -619,7 +725,7 @@ public class SimSearchJTable extends JTable {
 					//itemClip = new Rectangle(itemClip.x, itemClip.y, itemClip.width, itemClip.height-heightContinueMark);
 					g.setClip(new Rectangle(inset.left, inset.top, maxWidth, maxHeight-heightContinueMark));
 					showContinueMark = true;
-					System.out.println("showContinueMark = true");
+					//System.out.println("showContinueMark = true");
 				}
 				
 				g.drawString(s, inset.left, yLine+ascent);
@@ -866,6 +972,23 @@ public class SimSearchJTable extends JTable {
       }
 	}
 	
+	public TableCellRenderer getCellRenderer(int row, int column) {
+		TableColumn tableColumn;
+		TableCellRenderer renderer;
+		try {
+		tableColumn = getColumnModel().getColumn(column);
+		renderer = tableColumn.getCellRenderer();
+		if (renderer == null) {
+		   renderer = getDefaultRenderer(getColumnClass(column));
+		}
+		return renderer;
+		} catch(Exception e) {
+			System.out.println("Could not retrieve cell renderer of cell[" + row + ", " + column + "]");
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 //	@Override
 //	public TableModel getModel() { return this.tableModel; }
 //	
@@ -926,7 +1049,7 @@ public class SimSearchJTable extends JTable {
 	  for(int row=0; row<this.getRowCount(); ++row) if(idList.contains(tableModel.getID(this.convertRowIndexToModel(row)))) this.addRowSelectionInterval(row, row);
 	}
 	
-	protected int getPreferredRowHeight(int row, boolean useSimpleRowHeightAsDefault) {
+	protected int getPreferredRowHeight(int row) {
 		int height = 0;
 		for(int column=0; column<this.getColumnCount(); ++column) {
 			TableColumn tableColumn = this.getColumnModel().getColumn(column);
@@ -1024,11 +1147,53 @@ public class SimSearchJTable extends JTable {
     
     public SimSearchJTable getPartnerTable() { return this.partnerTable; }
     
+    
+    public static void packColumns(JTable table, int maxColumnWidth) {
+		for (int c = 0; c < table.getColumnCount(); c++) {
+			TableColumn col = table.getColumnModel().getColumn(c);
+
+			if (col.getPreferredWidth() == 0) {
+				continue;
+			}
+
+			TableCellRenderer renderer = col.getHeaderRenderer();
+			Component comp = table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table,
+					col.getHeaderValue(), false, false, 0, 0);
+			int width = comp.getPreferredSize().width + 20;
+
+			for (int r = 0; r < table.getRowCount(); r++) {
+				renderer = table.getCellRenderer(r, c);
+				comp = renderer.getTableCellRendererComponent(table, table.getValueAt(r, c), false, false, r, c);
+				width = Math.max(width, comp.getPreferredSize().width);
+			}
+
+			col.setPreferredWidth(Math.min(width + 5, maxColumnWidth));
+		}
+	}
+    
     public void adjustColumnWidth(int column) {
       
       TableColumn tableColumn = this.getColumnModel().getColumn(column);
       
-      if(tableColumn.getCellRenderer() instanceof DefaultColumnRenderer) tableColumn.setPreferredWidth(((DefaultColumnRenderer) tableColumn.getCellRenderer()).getFittingWidth(column, this));
+      if (tableColumn.getPreferredWidth() == 0) return;
+			
+      int width = tableColumn.getMinWidth();
+      
+      TableCellRenderer renderer = tableColumn.getHeaderRenderer();
+		Component comp = this.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(this,
+				tableColumn.getHeaderValue(), false, false, 0, 0);
+		width = Math.max(width, comp.getPreferredSize().width + 2*viewSettings.cellMarginX);
+		
+		for (int r = 0; r < this.getRowCount(); r++) {
+			renderer = this.getCellRenderer(r, column);
+			comp = renderer.getTableCellRendererComponent(this, this.getValueAt(r, column), false, false, r, column);
+			width = Math.max(width, comp.getPreferredSize().width);
+		}
+
+		tableColumn.setPreferredWidth(Math.min(width, tableColumn.getMaxWidth()));
+      
+      //if(tableColumn.getCellRenderer() instanceof DefaultColumnRenderer) tableColumn.setPreferredWidth(((DefaultColumnRenderer) tableColumn.getCellRenderer()).getFittingWidth(column, this));
+      
       
 //      
 //      
@@ -1061,6 +1226,22 @@ public class SimSearchJTable extends JTable {
 //      tableColumn.setPreferredWidth( preferredWidth );
     }
     
+    public void setRowHeights(int[] rowHeights) {
+    	this.rowHeights = rowHeights;
+    	for(int i=0; i<this.getRowCount(); ++i) {
+    		this.setRowHeight(i, rowHeights[i]);
+    		this.partnerTable.setRowHeight(i, rowHeights[i]);
+    	}
+    }
+    
+//    public void setRowHeight(int row, int height) {
+//    	if(this.rowHeights!=null) {
+//    		this.rowHeights[this.convertRowIndexToModel(row)] = height;
+//    		//this.partnerTable.setRowHeight(row, height);
+//    	}
+//    	super.setRowHeight(row, height);
+//    }
+    
     public void adjustTableColumns() {
       for (int column = 0; column < this.getColumnCount(); column++) this.adjustColumnWidth(column);
     }
@@ -1081,6 +1262,11 @@ public class SimSearchJTable extends JTable {
     	this.mouseListeners.add(listener);
     	super.addMouseListener(listener);
     }
+    
+//    public void addRowHeightChangedListener(RowHeightChangedListener listener) {
+//    	if(this.rowHeightListeners==null) this.rowHeightListeners = new ArrayList<>();
+//    	this.rowHeightListeners
+//    }
     
     public void removeMouseListener(MouseListener listener) {
     	if(this.mouseListeners==null) this.mouseListeners = new ArrayList<>();
@@ -1188,13 +1374,19 @@ public class SimSearchJTable extends JTable {
     		if(table.getCursor()==ROW_RESIZE_CURSOR) {
     			e.consume();
     			int delta = e.getPoint().y - yBeforeDrag;
-    			setRowHeight(rowDragged, Math.max(hBeforeDrag + delta, MIN_ROW_HEIGHT));
-    			table.partnerTable.setRowHeight(rowDragged, Math.max(hBeforeDrag + delta, MIN_ROW_HEIGHT));
+    			int rowDraggedModelIndex = table.convertRowIndexToModel(rowDragged);
+    			
+    			int newHeight = Math.max(hBeforeDrag + delta, MIN_ROW_HEIGHT);
+    			//rowHeights[convertRowIndexToModel(rowDragged)] = newHeight;
+    			setRowHeight(rowDragged, newHeight);
+    			table.partnerTable.setRowHeight(rowDragged, newHeight);
+    			if(rowHeights!=null) rowHeights[rowDraggedModelIndex] = newHeight;
+    			//if(rowHeightListeners!=null) rowHeightListeners.forEach(l -> l.rowHeightChanged(rowDraggedModelIndex, newHeight));
     		}
     	}
     	@Override
     	public void mouseReleased(MouseEvent e) {
-    		System.out.println("mouseReleased");
+    		//System.out.println("mouseReleased");
 
     	}
 

@@ -1,11 +1,8 @@
 package de.bund.bfr.knime.openkrise.db.gui.simsearch;
 
-import java.io.Console;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -23,36 +20,27 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.google.common.collect.Sets;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyTable;
-import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet;
 
 public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
   
   public static class ResultSetIsNullException extends Exception {
-    private ResultSetIsNullException() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1289626393329897668L;
+
+	private ResultSetIsNullException() {
       super("A ResultSet object returned by Stament:executeQuery is never null - rule violated;");
     }
   }
+  
   private static final String ID_COLUMN_NAME = "ID";
-  private static final int ID_COLUMN = 1;
   private static final Map<Integer, Class<?>> typeMap;
-  //private static final Map<String, String> tableToLabelColumnMap;
-  //private static final Map<String, SimSearch.SimSet.Type> tableToSimSetTypeMap;
   private static Map<String, ForeignField> foreignKeyMap;
-  
-  //private Map<SimSearch.SimSet.Type, Map<Integer, String>> foreignDataCacheMap;
-  
-  
-//  public String[] columnNames;
-//  public Class<?>[] columnClasses;
-//  public Object[][] data;
- 
-  //public SimSearch.SimSet.Type[] columnSimSetTypes;
   
   private SimSearch.DataSource.DataSourceListener dataSourceListener;
   
@@ -254,12 +242,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
     }
     
   }
-  
-  
-  private static String convertToDate(String day, String month, String year) {
-    if((day==null || day.isEmpty()) && (month==null || month.isEmpty()) && (year==null || year.isEmpty())) return "?";
-    else return (day==null || day.isEmpty()?"?":day)+"."+(month==null || month.isEmpty()?"?":month)+"."+(year==null || year.isEmpty()?"?":year);
-  }
+
   
   static {
 	  typeMap = new HashMap<>();
@@ -267,31 +250,13 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
 	  Arrays.asList(Types.BIGINT, Types.INTEGER, Types.SMALLINT, Types.TINYINT).forEach(i -> typeMap.put(i, Integer.class));
 	  Arrays.asList(Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.NUMERIC, Types.REAL).forEach(i -> typeMap.put(i, Double.class));
 	  Arrays.asList(Types.DATE).forEach(i -> typeMap.put(i, Date.class));
-	  
-	  
-	  
-	  //tableToLabelColumnMap.put(DBInfo.TABLE.LOT.getName(), DBInfo.COLUMN.LOT_.getName());
-	  //tableToLabelColumnMap.put(DBInfo.TABLE.STATION.getName(), DBInfo.COLUMN.STATION_NAME.getName());
-	  
-	  // create ForeignMaps
-	  //foreignKeyMap.put(DBInfo.COLUMN.STATION_AGENTS.getName(), value
-//	  Map<String, ForeignField> map = null;
-//	  try {
-//        map = createForeignKeyMap();
-//      } catch (Exception e) {
-//        e.printStackTrace();
-//      }
-//	  foreignKeyMap = map;
+	 
   }
   
-//  public SimSearchDataLoader(SimSearch.DataSource.DataSourceListener dataSourceListener) {
-//    this.dataSourceListeners = new ArrayList<>();
-//    this.dataSourceListeners.add(dataSourceListener);
-//  }
-  
-//  private void informListeners(SimSearch.SimSet.Type simSetType, List<Integer> missingIds) {
-//    this.dataSourceListeners.forEach(l -> l.missingIdsDetected(simSetType, missingIds));
-//  }
+  private static String convertToDate(String day, String month, String year) {
+	  if((day==null || day.isEmpty()) && (month==null || month.isEmpty()) && (year==null || year.isEmpty())) return "?";
+	  else return (day==null || day.isEmpty()?"?":day)+"."+(month==null || month.isEmpty()?"?":month)+"."+(year==null || year.isEmpty()?"?":year);
+  }
   
   private static Map<String, ForeignField> createForeignKeyMap() throws Exception {
     MyDBI myDBi = DBKernel.myDBi;
@@ -492,17 +457,17 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
     return result;
   }
   
+  
+  
+  
+  
   private SimSearch.SimSet simSet;
   private SimSearchDataManipulationHandler dataManipulationHandler;
-  private PreparedStatement preparedStatementLoadTableData;
   
   public SimSearchDataLoader(SimSearch.SimSet simSet, SimSearchDataManipulationHandler dataManipulationHandler, SimSearch.DataSource.DataSourceListener dataSourceListener) {
     this.simSet = simSet;
     this.dataManipulationHandler = dataManipulationHandler;
     this.dataSourceListener = dataSourceListener;
-    //this.dataSourceListeners.add(dataSourceListener);
-    //this.foreignDataCacheMap = new HashMap<>();
-    //for(SimSearch.SimSet.Type simSetType: SimSearch.SimSet.Type.class.getEnumConstants()) this.foreignDataCacheMap.put(simSetType, new HashMap<>());
   }
   
   public void loadData() throws Exception {
@@ -526,15 +491,15 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
     }
   }
   
-  private Map<String, String> loadForeignFields(DBInfo.TABLE table) {
-	  Map<String, String> result = new HashMap<>();
-	  MyDBI myDBI = DBKernel.myDBi;
-      MyTable myTable = myDBI.getTable(table.getName());
-      MyTable[] foreignTables = myTable.getForeignFields();
-      for(int i=0; i<foreignTables.length; ++i) if(foreignTables[i]!=null) result.put(myTable.getForeignFieldName(foreignTables[i]), foreignTables[i].getTablename());
-      //String tmp2 = myTable.getForeignFieldName(tmp[0]);
-      return result;
-  }
+//  private Map<String, String> loadForeignFields(DBInfo.TABLE table) {
+//	  Map<String, String> result = new HashMap<>();
+//	  MyDBI myDBI = DBKernel.myDBi;
+//      MyTable myTable = myDBI.getTable(table.getName());
+//      MyTable[] foreignTables = myTable.getForeignFields();
+//      for(int i=0; i<foreignTables.length; ++i) if(foreignTables[i]!=null) result.put(myTable.getForeignFieldName(foreignTables[i]), foreignTables[i].getTablename());
+//      //String tmp2 = myTable.getForeignFieldName(tmp[0]);
+//      return result;
+//  }
   
   private static String idsToString(Collection<Integer> ids) {
     return String.join(", ", ids.stream().map(id -> id.toString()).collect(Collectors.toList()));
@@ -559,7 +524,7 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       
       
       String sql = myTable.getSelectSQL() + " where " + ID_COLUMN_NAME + " IN (" + idsToString(idsToLoad) +  ")";
-      if(sql==null) throw(new Exception("Cannot retrieve sql statement for table query."));
+      //if(sql==null) throw(new Exception("Cannot retrieve sql statement for table query."));
  
       Statement statement = con.createStatement();
       ResultSet resultSet = statement.executeQuery(sql);
@@ -579,16 +544,13 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       this.columnComments[0] = "Status";
       String[] columnComments = myTable.getFieldComments();
       System.arraycopy(columnComments, 0, this.columnComments, 2, Math.min(columnComments.length,this.columnComments.length-2));
-      //this.columnSimSetTypes = new SimSearch.SimSet.Type[this.columnCount+1];
       
       this.columnFormatComments = new String[this.columnCount+1];
-      //this.columnFormatComments[0] = Integer.class;
       
       for(int i=0; i<this.columnCount; ++i) {
         this.columnNames[i+1] = resultSetMetaData.getColumnName(i+1);
         if(!SimSearchDataLoader.typeMap.containsKey(resultSetMetaData.getColumnType(i+1))) throw(new SQLException("Unkown DB Type: " + resultSetMetaData.getColumnType(i+1)));
         this.columnClasses[i+1] = SimSearchDataLoader.typeMap.get(resultSetMetaData.getColumnType(i+1));
-        //this.columnComments[i+1] = myTable.getFieldComments()[i];
       }
       
       
@@ -615,7 +577,6 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
       this.data = new Object[idToDataMap.size()][]; 
       
       List<Integer> missingIds = new ArrayList<>(Sets.difference(new HashSet<>(idsToLoad), idToDataMap.keySet()));
-      //ids.removeAll(missingIds);
       if(this.dataSourceListener!=null && !missingIds.isEmpty()) this.dataSourceListener.missingIdsDetected(simSet.getType(), missingIds);
       idsToLoad.removeAll(missingIds);
       
@@ -624,77 +585,10 @@ public class SimSearchDataLoader extends SimSearch.DataSource.DataLoader{
         ++row;
         this.data[row] = idToDataMap.get(id);
       }
-      
-//      for(int column=1; column<this.columnCount+1; ++column) {
-//        String fullColumnName = table.getName() + "." + this.columnNames[column];
-//        ForeignField foreignField = foreignKeyMap.get(fullColumnName);
-//        
-//        if(foreignField!=null) {
-//          List<String> labelColumns = new ArrayList<String>(Arrays.asList(foreignField.labelColumns));
-//          for(int i=0; i<this.rowCount; ++i) {
-//            sql = foreignField.createSql(data[i][ID_COLUMN], dataManipulations);
-//            ResultSet resultSet = statement.executeQuery(sql);
-//            if(resultSet==null) throw(new Exception("a ResultSet object is never null rule violated")); //definition according to api information
-//            
-//            if(foreignField.getResultType().equals(String.class)) {
-//              // the result Set should contain exactly one result
-//              while(resultSet.next()) data[i][ID_COLUMN] = foreignField.formatFunction.apply(labelColumns.stream().map(colName -> (String) resultSet.getObject(colName)).collect(Collectors.toList()));
-//            }
-//            else {
-//              List<String> resultList= new ArrayList<>();
-//              while(resultSet.next()) resultList.add(foreignField.formatFunction.apply(labelColumns.stream().map(colName -> (String) resultSet.getObject(colName)).collect(Collectors.toList())));
-//              data[i][ID_COLUMN] = resultList;
-//            }
-//            resultSet.close();
-//          }
-//          this.columnClasses[column] = foreignField.getResultType();
-//        }
-//      }
     }
   }
-  
-//  private void cacheForeignData(Map<Integer, String> foreignDataMap, SimSearch.SimSet.Type simSetType) {
-//	  for(Entry<Integer, String> entry: foreignDataMap.entrySet()) this.foreignDataCacheMap.get(simSetType).put(entry.getKey(), entry.getValue());
-//  }
-  
-//  private Map<Integer, String> loadForeignData(Set<Integer> ids, String tableName) throws Exception {
-//	  Connection con = DBKernel.getDBConnection();
-//	  if(con==null) throw(new Exception("No database connection available."));
-//	  
-//	  final String RESET = "\033[0m";  // Text Reset
-//
-//	    // Regular Colors
-//	  final String BLACK = "\033[0;30m";   // BLACK
-//	  final String RED = "\033[0;31m";     // RED
-//	  
-//	  if(SimSearchDataLoader.tableToLabelColumnMap.get(tableName)==null) {
-//		  MyTable tmp = DBKernel.myDBi.getTable(tableName);
-//		  String[] tmp2 = tmp.getFieldNames();
-//		  System.out.println(RED + "LabelColumn for table " + tableName + " is missing. " + RESET + "");
-//	  }
-//	  Map<Integer, String> result = new HashMap<>();
-//	  Statement statement = con.createStatement();
-//	  String sql = "SELECT ID, " + DBKernel.delimitL(SimSearchDataLoader.tableToLabelColumnMap.get(tableName)) + " " + 
-//			  "FROM " + DBKernel.delimitL(tableName) + " WHERE ID IN (" + String.join(", ", ids.stream().map(id -> id.toString()).collect(Collectors.toList())) + ")";
-//	  ResultSet resultSet = statement.executeQuery(sql);
-//	  
-//	  if(resultSet!=null) {
-//		  
-//		  while(resultSet.next()) result.put(resultSet.getInt(1), resultSet.getString(2));
-//			  
-//		  resultSet.close();
-//	  }
-//	  statement.close();
-//	  
-//	  return result;
-//  }
-  
-  private static void printWarning(String text) {
-    //final String RESET = "\033[0m";  // Text Reset
-    //final String BLACK = "\033[0;30m";   // BLACK
-    //final String RED = "\033[0;31m";     // RED
     
+  private static void printWarning(String text) {
     System.err.println("Warning: " + text);
-    //System.out.println(RED + text + RESET );
   }
 }
