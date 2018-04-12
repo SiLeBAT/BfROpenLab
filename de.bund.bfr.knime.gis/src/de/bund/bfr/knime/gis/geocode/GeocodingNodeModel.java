@@ -505,7 +505,7 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 
             results.add(new GeocodingResult(urlWithoutKey, read(r, "$.address.addressLine"), read(r, "$.address.locality"),
                     read(r, "$.address.adminDistrict2"), read(r, "$.address.adminDistrict"), read(r, "$.address.countryRegion"),
-                    read(r, "$.address.postalCode"), readDouble(r, "$.point.coordinates[0]"), readDouble(r, "$.point.coordinates[0]")));
+                    read(r, "$.address.postalCode"), readDouble(r, "$.point.coordinates[0]"), readDouble(r, "$.point.coordinates[1]")));
           }
         }
 
