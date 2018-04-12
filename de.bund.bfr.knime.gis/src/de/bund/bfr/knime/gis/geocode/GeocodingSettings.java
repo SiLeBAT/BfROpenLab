@@ -74,6 +74,7 @@ public class GeocodingSettings extends NodeSettings {
 	private static final String CFG_PHOTON_SERVER = "PhotonServer";
 	private static final String CFG_REQUEST_DELAY = "RequestDelay";
 	private static final String CFG_MULTIPLE_RESULTS = "UseMultiple";
+	private static final String CFG_USE_SINGLE_LINE_ADDRESS = "UseSingleLineAddress";
 
 	private Provider serviceProvider;
 	private String addressColumn;
@@ -85,6 +86,7 @@ public class GeocodingSettings extends NodeSettings {
 	private String photonServer;
 	private int requestDelay;
 	private Multiple multipleResults;
+	private boolean useSingleLineAddress;
 
 	public GeocodingSettings() {
 		serviceProvider = Provider.MAPQUEST;
@@ -97,10 +99,12 @@ public class GeocodingSettings extends NodeSettings {
 		photonServer = null;
 		requestDelay = 500;
 		multipleResults = Multiple.DO_NOT_USE;
+		useSingleLineAddress = true;
 	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+	    boolean useSingleLineAddressSettingWasFound = false;
 		try {
 			try {
 				serviceProvider = Provider.valueOf(settings.getString(CFG_SERVICE_PROVIDER));
@@ -109,7 +113,13 @@ public class GeocodingSettings extends NodeSettings {
 			}
 		} catch (InvalidSettingsException e) {
 		}
-
+		
+		try {
+          useSingleLineAddress = settings.getBoolean(CFG_USE_SINGLE_LINE_ADDRESS);
+          useSingleLineAddressSettingWasFound = true;
+        } catch (InvalidSettingsException e) {
+        }
+		
 		try {
 			addressColumn = settings.getString(CFG_ADDRESS_COLUMN);
 		} catch (InvalidSettingsException e) {
@@ -117,16 +127,19 @@ public class GeocodingSettings extends NodeSettings {
 
 		try {
 			streetColumn = settings.getString(CFG_STREET_COLUMN);
+			if(!useSingleLineAddressSettingWasFound) useSingleLineAddress = false;
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			cityColumn = settings.getString(CFG_CITY_COLUMN);
+			if(!useSingleLineAddressSettingWasFound) useSingleLineAddress = false;
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			zipColumn = settings.getString(CFG_ZIP_COLUMN);
+			if(!useSingleLineAddressSettingWasFound) useSingleLineAddress = false;
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -172,6 +185,7 @@ public class GeocodingSettings extends NodeSettings {
 		settings.addString(CFG_PHOTON_SERVER, photonServer);
 		settings.addInt(CFG_REQUEST_DELAY, requestDelay);
 		settings.addString(CFG_MULTIPLE_RESULTS, multipleResults.name());
+		settings.addBoolean(CFG_USE_SINGLE_LINE_ADDRESS, useSingleLineAddress);
 	}
 
 	public Provider getServiceProvider() {
@@ -253,4 +267,12 @@ public class GeocodingSettings extends NodeSettings {
 	public void setMultipleResults(Multiple multipleResults) {
 		this.multipleResults = multipleResults;
 	}
+	
+	public boolean getUseSingleLineAddress() {
+      return useSingleLineAddress;
+    }
+	
+	public void setUseSingleLineAddress(boolean useSingleLineAddress) {
+      this.useSingleLineAddress = useSingleLineAddress;
+    }
 }
