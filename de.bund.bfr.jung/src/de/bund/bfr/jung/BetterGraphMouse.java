@@ -137,10 +137,11 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 	}
 
 	public void setPickingDeactivated(boolean pickingDeactivated) {
-		if(pickingDeactivated && (this.picktransPlugin != null)) {
-			// do nothing 
-		} else {
-			if (pickingDeactivated != this.pickingDeactivated && mode == Mode.PICKING) {
+		if(pickingDeactivated != this.pickingDeactivated) {
+		  if(this.picktransPlugin != null) {
+		    this.picktransPlugin.setPickingDeactivated(pickingDeactivated);
+		  }
+		  else if (mode == Mode.PICKING) {
 				if (pickingDeactivated) {
 					remove(pickingPlugin);
 				} else {

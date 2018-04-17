@@ -22,6 +22,7 @@ implements MouseListener, MouseMotionListener, JungListener, KeyListener {
 	private EventListenerList listeners;
 
 	private boolean pickingStarted;
+	private boolean pickingIsDeactivated;
 	private boolean translatingStarted;
 	private BetterPickingGraphMousePlugin<V,E> pickingPlugin;
 	private BetterTranslatingGraphMousePlugin translatingPlugin;
@@ -31,6 +32,7 @@ implements MouseListener, MouseMotionListener, JungListener, KeyListener {
 	public PickingAndTranslatingGraphMousePlugin(BetterPickingGraphMousePlugin<V,E> pickingPlugin, BetterTranslatingGraphMousePlugin translatingPlugin) {
 		super(0);
 		this.pickingPlugin = pickingPlugin;
+		this.pickingIsDeactivated = false;
 		if (this.pickingPlugin != null) this.pickingPlugin.addChangeListener(this);
 		this.translatingPlugin = translatingPlugin;
 		if (this.translatingPlugin != null) this.translatingPlugin.addChangeListener(this);
@@ -48,13 +50,13 @@ implements MouseListener, MouseMotionListener, JungListener, KeyListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (this.pickingPlugin != null) this.pickingPlugin.mouseClicked(e);
+		if (this.pickingPlugin != null && !pickingIsDeactivated) this.pickingPlugin.mouseClicked(e);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		
-		boolean isPickingEvent = (e.getButton() == MouseEvent.BUTTON1) && (e.isShiftDown() || this.hoversMouseOverEdgeOrNode(e));
+		boolean isPickingEvent = (e.getButton() == MouseEvent.BUTTON1) && (e.isShiftDown() || this.hoversMouseOverEdgeOrNode(e)) && !pickingIsDeactivated;
 		boolean isTranslatingEvent = (e.getButton() == MouseEvent.BUTTON1) && !isPickingEvent;
 
 		if (isPickingEvent && (this.pickingPlugin != null)) {
@@ -107,7 +109,7 @@ implements MouseListener, MouseMotionListener, JungListener, KeyListener {
 			((VisualizationViewer<V, E>) e.getSource()).addKeyListener(this);
 		}
 		if (!this.translatingStarted && this.mouseHoversOverNodeOrEdge) {
-			((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			if(!pickingIsDeactivated) ((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		}
 	}
 
@@ -118,6 +120,12 @@ implements MouseListener, MouseMotionListener, JungListener, KeyListener {
 		return (viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(), e.getY()) != null) ||
 				(viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY()) != null);
 	}
+	
+	public void setPickingDeactivated(boolean deactivated) {
+	  this.pickingIsDeactivated = deactivated;
+	  if(!deactivated) pickingStarted = false;
+	}
+	
 	@Override
 	public void mouseExited(MouseEvent e) {
 		this.mouseHoversOverNodeOrEdge = false;
@@ -129,7 +137,8 @@ implements MouseListener, MouseMotionListener, JungListener, KeyListener {
 		this.mouseHoversOverNodeOrEdge = this.hoversMouseOverEdgeOrNode(e);
 		
 		if (!this.translatingStarted && (this.hoversMouseOverEdgeOrNode(e) || e.isShiftDown())) {
-			((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			if(!pickingIsDeactivated) ((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			else ((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		} else {
 			((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
