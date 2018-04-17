@@ -68,7 +68,7 @@ public class ColumnComboBox extends JPanel {
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		enableBox.setEnabled(enabled);
-		selectionBox.setEnabled(enabled && enableBox.isSelected());
+		selectionBox.setEnabled(enabled && (enableBox.isSelected() || !optional));
 	}
 
 	public void removeAllColumns() {
@@ -115,5 +115,18 @@ public class ColumnComboBox extends JPanel {
 		}
 
 		setSelectedColumn(null);
+	}
+	
+	public boolean getOptional() { return this.optional; }
+	
+	public void setOptional(boolean optional) {
+	  if(optional!=this.optional) {
+	    if (optional) {
+          add(enableBox, BorderLayout.WEST);
+        } else {
+          remove(enableBox);
+        }
+	    this.optional = optional;
+	  }
 	}
 }

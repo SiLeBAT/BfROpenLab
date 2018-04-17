@@ -24,6 +24,8 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,9 +75,8 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 	private ColumnComboBox zipBox;
 	private ColumnComboBox countryCodeBox;
 	private JTextField serverField;
-	private JRadioButton singleLineAddressRadioButton; // for MapQuest
-	private JRadioButton fiveBoxAddressRadioButton;    // for MapQuest
-	//private ButtonGroup addressButtonGroup;
+	private JRadioButton singleColumnAddressRadioButton; // for MapQuest
+	private JRadioButton multiColumnAddressRadioButton;    // for MapQuest
 
 	private JPanel panel;
 
@@ -95,11 +96,22 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		zipBox = new ColumnComboBox(true);
 		countryCodeBox = new ColumnComboBox(false);
 		serverField = new JTextField();
-		singleLineAddressRadioButton = new JRadioButton("Use single-line address");
-		fiveBoxAddressRadioButton = new JRadioButton("Use box address");
+		singleColumnAddressRadioButton = new JRadioButton("Address information in one column");
+		multiColumnAddressRadioButton = new JRadioButton("Address information in several columns");
 		ButtonGroup buttonGroup = new ButtonGroup();
-	    buttonGroup.add(singleLineAddressRadioButton);
-	    buttonGroup.add(fiveBoxAddressRadioButton);
+	    buttonGroup.add(singleColumnAddressRadioButton);
+	    buttonGroup.add(multiColumnAddressRadioButton);
+	    ActionListener actionListener = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+          setMapQuestAddressInputElements();
+        }
+	      
+	    };
+	    
+	    singleColumnAddressRadioButton.addActionListener(actionListener);
+	    multiColumnAddressRadioButton.addActionListener(actionListener);
 
 		panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -133,8 +145,8 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		cityBox.setSelectedColumnName(set.getCityColumn());
 		zipBox.setSelectedColumnName(set.getZipColumn());
 		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
-		singleLineAddressRadioButton.setSelected(set.getUseSingleLineAddress());
-		fiveBoxAddressRadioButton.setSelected(!set.getUseSingleLineAddress());
+		singleColumnAddressRadioButton.setSelected(set.getUseSingleLineAddress());
+		multiColumnAddressRadioButton.setSelected(!set.getUseSingleLineAddress());
 		
 		
 		if (set.getServiceProvider() == GeocodingSettings.Provider.GISGRAPHY) {
@@ -163,16 +175,18 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		}
 		
 		
-		//set.setAddressColumn(addressBox.getSelectedColumnName());
 		set.setServiceProvider((GeocodingSettings.Provider) providerBox.getSelectedItem());
 		set.setRequestDelay(Integer.parseInt(delayField.getText()));
         set.setMultipleResults((GeocodingSettings.Multiple) multipleBox.getSelectedItem());
         
 		if (set.getServiceProvider() == GeocodingSettings.Provider.MAPQUEST) {
-		  set.setUseSingleLineAddress(this.singleLineAddressRadioButton.isSelected());
+		  set.setUseSingleLineAddress(this.singleColumnAddressRadioButton.isSelected());
 		  if(set.getUseSingleLineAddress()) {
 		    set.setAddressColumn(addressBox.getSelectedColumnName());
 		  } else {
+		    if(streetBox.getSelectedColumnName()==null && cityBox.getSelectedColumnName()==null && zipBox.getSelectedColumnName()==null && countryCodeBox.getSelectedColumnName()==null) {
+		      throw new InvalidSettingsException("No columns specified with address information.");
+		    }
 		    set.setStreetColumn(streetBox.getSelectedColumnName());
             set.setCityColumn(cityBox.getSelectedColumnName());
             set.setZipColumn(zipBox.getSelectedColumnName());
@@ -195,11 +209,7 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 			}
 
 			set.setPhotonServer(serverField.getText().trim());
-		} else if (set.getServiceProvider() == GeocodingSettings.Provider.MAPQUEST) {
-//			set.setStreetColumn(streetBox.getSelectedColumnName());
-//			set.setCityColumn(cityBox.getSelectedColumnName());
-//			set.setZipColumn(zipBox.getSelectedColumnName());
-		}
+		} 
 
 		set.saveSettings(settings);
 	}
@@ -230,12 +240,25 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		panel.add(UI.createOptionsPanel("Provider", Arrays.asList(new JLabel("Service Provider")),
 				Arrays.asList(providerBox)));
 		
-		//panel.add(UI.createOptionsPanel("Addresses", addressLabels, addressBoxes));
-		if (providerBox.getSelectedItem() == GeocodingSettings.Provider.MAPQUEST) createMapQuestAddressPanel( addressLabels, addressBoxes);
-		else panel.add(UI.createOptionsPanel("Addresses", addressLabels, addressBoxes));
+		createAddressPanel("Addresses", addressLabels, addressBoxes);
 		
 		panel.add(UI.createOptionsPanel("Other Options", otherLabels, otherFields));
 		panel.revalidate();
+	}
+	
+	
+	private void createAddressPanel(String title, List<? extends Component> addressLabels, List<? extends Component> addressBoxes) {
+	  if (providerBox.getSelectedItem() == GeocodingSettings.Provider.MAPQUEST) {
+	    countryCodeBox.setOptional(true);
+	    setMapQuestAddressInputElements();
+	    createMapQuestAddressPanel( addressLabels, addressBoxes);
+	  }
+      else {
+        countryCodeBox.setOptional(false);
+        countryCodeBox.setEnabled(true);
+        addressBox.setEnabled(true);
+        panel.add(UI.createOptionsPanel(title, addressLabels, addressBoxes));
+      }
 	}
 	
 	private void createMapQuestAddressPanel(List<? extends Component> leftComponents, List<? extends Component> rightComponents) {
@@ -245,16 +268,14 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 	  JPanel innerPanel = new JPanel();
 	  innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.PAGE_AXIS));
 	  
-	//setFont(new Font("Helvetica", Font.PLAIN, 14));
-      innerPanel.setLayout(gridbag);
+	  innerPanel.setLayout(gridbag);
      
       c.gridwidth = GridBagConstraints.REMAINDER; //end of row
-      //c.gridwidth = 1; // next component doesn't take up a whole row), you'll see the same instance variable reset to its default value:
-
+    
       c.fill = GridBagConstraints.BOTH;
       c.weightx = 1.0;
-      gridbag.setConstraints(singleLineAddressRadioButton, c);
-      innerPanel.add(singleLineAddressRadioButton);
+      gridbag.setConstraints(singleColumnAddressRadioButton, c);
+      innerPanel.add(singleColumnAddressRadioButton);
       
       c.weightx = 0.0;
       c.gridwidth = 1; 
@@ -271,10 +292,9 @@ public class GeocodingNodeDialog extends NodeDialogPane {
       leftComponents.remove(0);
       rightComponents.remove(0);
       
-      //c.fill = GridBagConstraints.BOTH;
       c.weightx = 1.0;
-      gridbag.setConstraints(fiveBoxAddressRadioButton, c);
-      innerPanel.add(fiveBoxAddressRadioButton);
+      gridbag.setConstraints(multiColumnAddressRadioButton, c);
+      innerPanel.add(multiColumnAddressRadioButton);
       
       c.weightx = 0.0;
       c.gridwidth = 1; 
@@ -287,124 +307,23 @@ public class GeocodingNodeDialog extends NodeDialogPane {
       JPanel fiveBoxPanel = UI.createOptionsPanel(null, leftComponents, rightComponents);
       gridbag.setConstraints(fiveBoxPanel, c);
       innerPanel.add(fiveBoxPanel);
-      
-//      makebutton("Button1", gridbag, c);
-//      makebutton("Button2", gridbag, c);
-//      makebutton("Button3", gridbag, c);
-//
-//      c.gridwidth = GridBagConstraints.REMAINDER; //end of row
-//      makebutton("Button4", gridbag, c);
-//
-//      c.weightx = 0.0;                   //reset to the default
-//      makebutton("Button5", gridbag, c); //another row
-//
-//      c.gridwidth = GridBagConstraints.RELATIVE; //next to last in row
-//      makebutton("Button6", gridbag, c);
-//
-//      c.gridwidth = GridBagConstraints.REMAINDER; //end of row
-//      makebutton("Button7", gridbag, c);
-//
-//      c.gridwidth = 1;                      //reset to the default
-//      c.gridheight = 2;
-//      c.weighty = 1.0;
-//      makebutton("Button8", gridbag, c);
-//
-//      c.weighty = 0.0;                   //reset to the default
-//      c.gridwidth = GridBagConstraints.REMAINDER; //end of row
-//      c.gridheight = 1;                   //reset to the default
-//      makebutton("Button9", gridbag, c);
-//      makebutton("Button10", gridbag, c);
-//	  
-//	  
-//	  
-//	  
-//	  
-//	  
-//	  
-//	    innerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//	    innerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);     //setHorizontalAlignment(SwingConstants.LEFT)
-//	    //innerPanel.setLayout(new BorderLayout(5, 5));
-//	    singleLineAddressRadioButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-//	    singleLineAddressRadioButton.setHorizontalAlignment(SwingConstants.LEFT); 
-//	    innerPanel.add(singleLineAddressRadioButton); //leftPanel, BorderLayout.CENTER);
-//	    singleLineAddressRadioButton.setHorizontalAlignment(SwingConstants.LEFT); 
-//	    singleLineAddressRadioButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-//	    
-//	    innerPanel.add(UI.createOptionsPanel(null, Arrays.asList(leftComponents.get(0)), Arrays.asList(rightComponents.get(0))));
-//	    
-//	    leftComponents.remove(0);
-//	    rightComponents.remove(0);
-//	      
-//	    innerPanel.add(fiveBoxAddressRadioButton);
-//	    fiveBoxAddressRadioButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-//	    innerPanel.add(UI.createOptionsPanel(null, leftComponents, rightComponents));
-	    
+      	    
 	  JPanel outerPanel = new JPanel();
 
 	  outerPanel.setBorder(BorderFactory.createTitledBorder("Addresses"));
 	  outerPanel.setLayout(new BorderLayout());
 	  outerPanel.add(innerPanel, BorderLayout.CENTER);
-//	  singleLineAddressRadioButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-	  //return outerPanel;
-	  
-	  
-	  
-	  
-//	  List<Component> singleLineComponents = new ArrayList<>();
-//	  List<Component> boxComponents = new ArrayList<>();
-//	  
-//	  singleLineComponents.add(singleLineAddressRadioButton);
-//	  singleLineComponents.add(createOptionsPanel(null, Arrays.asList(leftComponents.get(0),null,null), Arrays.asList(rightComponents.get(0),null,null), BorderLayout.CENTER));
-//	  
-//	  leftComponents.remove(0);
-//	  rightComponents.remove(0);
-//	  
-//	  boxComponents.add(fiveBoxAddressRadioButton);
-//	  boxComponents.add(UI.createOptionsPanel(null, leftComponents, rightComponents));
-	  
-	  //JPanel panel = UI.createOptionsPanel("Addresses", leftComponents, rightComponents);
-	  
-//	  JPanel panel2 = new JPanel();
-//	  panel2.add(singleLineAddressRadioButton);
-//	  panel2.add(fiveBoxAddressRadioButton);
-//	  panel.add(panel2,0);
+
 	  this.panel.add(outerPanel);
-//	  singleLineAddressRadioButton.setHorizontalAlignment(SwingConstants.LEFT); 
-//	  singleLineAddressRadioButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 	}
 	
-//	public static JPanel createOptionsPanel(String name, List<? extends Component> leftComponents,
-//        List<? extends Component> rightComponents) {
-//    int n = leftComponents.size();
-//
-//    JPanel leftPanel = new JPanel();
-//    JPanel rightPanel = new JPanel();
-//
-//    leftPanel.setLayout(new GridLayout(n, 1, 5, 5));
-//    rightPanel.setLayout(new GridLayout(n, 1, 5, 5));
-//
-//    for (int i = 0; i < n; i++) {
-//        if(leftComponents.get(i)!=null) leftPanel.add(leftComponents.get(i), 0, i);
-//        if(rightComponents.get(i)!=null) rightPanel.add(rightComponents.get(i), 0, i);
-//    }
-//
-//    JPanel innerPanel = new JPanel();
-//
-//    innerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//    innerPanel.setLayout(new BorderLayout(5, 5));
-//    innerPanel.add(leftPanel, BorderLayout.CENTER);
-//    innerPanel.add(rightPanel, constraints);
-//
-//    if (name == null) {
-//        return innerPanel;
-//    }
-//
-//    JPanel outerPanel = new JPanel();
-//
-//    outerPanel.setBorder(BorderFactory.createTitledBorder(name));
-//    outerPanel.setLayout(new BorderLayout());
-//    outerPanel.add(innerPanel, BorderLayout.CENTER);
-//
-//    return outerPanel;
-//}
+	private void setMapQuestAddressInputElements() {
+      
+      addressBox.setEnabled(singleColumnAddressRadioButton.isSelected());
+      streetBox.setEnabled(multiColumnAddressRadioButton.isSelected());
+      zipBox.setEnabled(multiColumnAddressRadioButton.isSelected());
+      cityBox.setEnabled(multiColumnAddressRadioButton.isSelected());
+      countryCodeBox.setEnabled(multiColumnAddressRadioButton.isSelected());
+
+    }
 }

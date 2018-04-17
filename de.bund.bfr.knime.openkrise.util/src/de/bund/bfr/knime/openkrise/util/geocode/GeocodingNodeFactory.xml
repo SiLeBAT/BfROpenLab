@@ -32,6 +32,26 @@
 				options are provided on how to perform in this case.
 			</option>
 		</tab>
+		<tab name="MapQuest">
+		  <option name="Address information in one column">
+				Use a single column for the address information.
+			</option>
+			<option name="Address information in several columns">
+				Use specific address information (from several columns).
+			</option>
+			<option name="Street">
+				The optional street of the address.
+			</option>
+			<option name="City">
+				The optional city of the address.
+			</option>
+			<option name="Zip">
+				The optional postal code of the address.
+			</option>
+			<option name="Country Code">
+				The optional country code (ISO 3166-1 alpha-2).
+			</option>
+		</tab>
 		<tab name="Gisgraphy">
 			<option name="Country Code">
 				The mandatory country code (ISO 3166-1 alpha-2).
