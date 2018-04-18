@@ -179,6 +179,8 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		BufferedDataContainer nodeContainer = exec.createDataContainer(spec);
 		int index = 0;
 
+		int isSelectedIndex = spec.findColumnIndex(TracingColumns.IS_SELECTED);
+		
 		for (Element node : elements) {
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
@@ -190,12 +192,6 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 				int column = spec.findColumnIndex(property);
 
 				if (column != -1) {
-				  
-				  if((node instanceof Node) && property.equals(TracingColumns.IS_SELECTED))
-				    
-				    cells[column] =  IO.createCell((Boolean) set.isNodeSelected(node.getId()));
-				  
-				  else {
 				    
 					if (type == String.class) {
 						cells[column] = IO.createCell((String) node.getProperties().get(property));
@@ -207,8 +203,10 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 						cells[column] = IO.createCell((Boolean) node.getProperties().get(property));
 					}
 				  }
-				}
+
 			});
+			
+			if(isSelectedIndex>=0) cells[isSelectedIndex] =  IO.createCell((Boolean) (node instanceof Node ? set.isNodeSelected(node.getId()):set.isEdgeSelected(node.getId())));
 
 			nodeContainer.addRowToTable(new DefaultRow(index++ + "", cells));
 			exec.checkCanceled();
@@ -285,6 +283,17 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 				throw new InvalidSettingsException("Type of column \"" + columnName + "\" must be \"" + type + "\"");
 			}
 		}
+		
+		for (String columnName : TracingColumns.DELIVERY_OUTPORTONLY_COLUMNS) {
+          DataType type = TracingColumns.IN_OUT_COLUMN_TYPES.get(columnName);
+          DataType oldType = columns.get(columnName);
+
+          if (oldType == null) {
+              newEdgeSpec.add(new DataColumnSpecCreator(columnName, type).createSpec());
+          } else if (!oldType.equals(type)) {
+              throw new InvalidSettingsException("Type of column \"" + columnName + "\" must be \"" + type + "\"");
+          }
+      }
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
 	}

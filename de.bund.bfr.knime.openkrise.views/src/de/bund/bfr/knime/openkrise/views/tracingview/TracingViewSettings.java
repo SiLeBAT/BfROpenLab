@@ -355,6 +355,10 @@ public class TracingViewSettings extends NodeSettings {
 	  return false;
 	}
 
+	protected boolean isEdgeSelected(String id) {
+      return this.selectedEdges.contains(id);
+    }
+	
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
 		showLegend = canvas.getOptionsPanel().isShowLegend();
 		joinEdges = canvas.getOptionsPanel().isJoinEdges();

@@ -100,6 +100,7 @@ public interface TracingColumns {
 			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
 	
 	public static final ImmutableList<String> STATION_OUTPORTONLY_COLUMNS = ImmutableList.of(IS_SELECTED);
+	public static final ImmutableList<String> DELIVERY_OUTPORTONLY_COLUMNS = ImmutableList.of(IS_SELECTED);
 	
 	public static final ImmutableList<String> DELIVERY_OUT_COLUMNS = ImmutableList.of(SCORE, LOT_SCORE,
 			NORMALIZED_SCORE, POSITIVE_SCORE, NEGATIVE_SCORE, BACKWARD, FORWARD);
