@@ -107,7 +107,6 @@ public final class SimSearch {
 
   public interface SimSearchListener {
     public void newSimSetFound();
-    public void searchProgressed();
   }
 
 

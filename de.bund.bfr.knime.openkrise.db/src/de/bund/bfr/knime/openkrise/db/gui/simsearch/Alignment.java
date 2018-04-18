@@ -121,31 +121,6 @@ public class Alignment {
 		return editOperations;
 	}
 	
-//	// aligns multiple sequences
-//	// First step: each sequence is global optimal aligned to the reference sequence
-//	// Second step: the alignments are aggregate to a global not necessarily optimal alignment
-//	public static List<List<EditOperation>> _alignSequences(List<String> stringList, int referenceIndex) {
-//	  if(stringList==null) return null;
-//	  if(stringList.size()<=1) return new ArrayList<>();
-//	  
-//	  Map<Integer, List<EditOperation>> editOperationsAlign = new HashMap<>();
-//	  Map<Integer, List<EditOperation>> editOperationsReference = new HashMap<>();
-//	  
-//	  for(int iSeq = 0; iSeq < stringList.size(); ++iSeq) {
-//	    if(iSeq != referenceIndex) {
-//	      List<EditOperation> editOperations = alignToReference(stringList.get(referenceIndex),stringList.get(iSeq));
-//	      editOperationsAlign.put(iSeq, editOperations);
-//	      editOperationsReference.put(iSeq, getReferenceOperations(editOperations));
-//	    }
-//	  }
-//	  
-//	  mergeEditOperations(editOperationsAlign, editOperationsReference);
-//	  
-//	  editOperationsAlign.put(referenceIndex, editOperationsReference.get(editOperationsReference.keySet().toArray()[0]));
-//	  
-//	  return editOperationsAlign.keySet().stream().sorted().map(index -> editOperationsAlign.get(index)).collect(Collectors.toList());
-//    }
-	
 	// aligns multiple sequences
 	// First step: each sequence is global optimal aligned to the reference sequence
 	// Second step: the alignments are aggregate to a global not necessarily optimal alignment
