@@ -14,7 +14,7 @@
 			DBSCAN and k-means.
 		</intro>
 
-		<option name="Algorithm">
+		<option name="Cluster Algorithm">
 			Algorithm used for clustering: DBSCAN (http://en.wikipedia.org/wiki/DBSCAN) or
 			k-means (http://en.wikipedia.org/wiki/K-means_clustering).
 		</option>
@@ -23,13 +23,13 @@
 			clustering.
 		</option>
 		<option name="DBSCAN -> Min Number of Points per Cluster">
-			Minimum number of points needed for a cluster. Only used by DBSCAN.
+			Minimum number of points needed for a cluster. Only available, if Cluster Algorithm is set to DBSCAN.
 		</option>
 		<option name="DBSCAN -> Max Neighborhood Distance (km)">
-			Maximum radius of the neighborhood to be considered. Only used by DBSCAN.
+			Maximum radius of the neighborhood to be considered. Only available, if Cluster Algorithm is set to DBSCAN.
 		</option>
 		<option name="k-means -> Number of Clusters">
-			The number of clusters to split the data into. Only used by k-means.
+			The number of clusters to split the data into. Only available, if Cluster Algorithm is set to k-means.
 		</option>
 	</fullDescription>
 

@@ -13,6 +13,12 @@
 			the network with Network Mining node
 			<a href="https://tech.knime.org/network-mining">https://tech.knime.org/network-mining.</a>
 		</intro>
+		
+		<tab name="Options">
+			<option name="Add Prefix to Node and Edge IDs">
+				If checked, a prefix is added to each node id and each edge id. This is needed, if a node id is equal to an edge id.
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
