@@ -3,29 +3,23 @@
     <name>TracingXmlOut</name>
     
     <shortDescription>
-        
+        Sends a report on the investigated case number back to the web service, which needs to be defined in a preceding 'SupplyChain Xml Reader'.
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
-        
-        
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
+        <intro>
+        </intro>
     </fullDescription>
     
-    <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-    </ports>    
+	<ports>
+		<inPort index="0" name="Stations">
+			Table with Station data - including scores.
+		</inPort>
+		<inPort index="1" name="Deliveries">
+			Table with Delivery data - including scores.
+		</inPort>
+		<inPort index="2" name="Reporting Image">
+			An image that is part of the report. Most probably an image from the outport of a TracingView is chosen here.
+		</inPort>
+	</ports>
 </knimeNode>
