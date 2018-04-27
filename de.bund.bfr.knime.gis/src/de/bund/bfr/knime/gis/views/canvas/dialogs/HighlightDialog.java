@@ -494,12 +494,12 @@ public class HighlightDialog extends KnimeDialog {
 
 	private HighlightCondition createCondition() {
 		boolean invisible = allowInvisible && invisibleBox.isSelected();
-		boolean useThickness = allowThickness && thicknessBox.isEnabled() && thicknessBox.isSelected();
+		boolean useThickness = allowThickness && thicknessBox.isSelected();
 		String name = allowName ? Strings.emptyToNull(nameField.getText().trim()) : null;
 		boolean showInLegend = (allowColor || allowShape) && legendBox.isEnabled() && legendBox.isSelected();
 		Color color = allowColor && colorBox.isEnabled() && colorBox.isSelected() ? this.color : null;
-		String labelProperty = allowLabel && labelBox.isEnabled() ? (String) labelBox.getSelectedItem() : null;
-		NamedShape shape = allowShape && shapeBox.isEnabled() ? (NamedShape) shapeBox.getSelectedItem() : null;
+		String labelProperty = allowLabel ? (String) labelBox.getSelectedItem() : null;
+		NamedShape shape = allowShape ? (NamedShape) shapeBox.getSelectedItem() : null;
 
 		switch (type) {
 		case LOGICAL_CONDITION:
