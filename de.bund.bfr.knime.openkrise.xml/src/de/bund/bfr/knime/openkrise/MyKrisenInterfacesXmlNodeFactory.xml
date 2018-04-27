@@ -4,7 +4,7 @@
 	<name>Supply Chain Xml Reader</name>
 
 	<shortDescription>
-		Reads supply chain xml data from a folder.
+		Reads supply chain xml data from a folder or a web service.
 	</shortDescription>
 
 	<fullDescription>
@@ -15,12 +15,24 @@
 		</intro>
 
 		<tab name="Options">
+			<option name="Use Busstop">
+				If checked, the data is collected from a web service.
+			</option>
+			<option name="Server Address">
+				This option is enabled only if 'Use Busstop' is set. The address of the server providing the web service.
+			</option>
+			<option name="Client ID">
+				This option is enabled only if 'Use Busstop' is set. Username for authenticating on the server.
+			</option>
+			<option name="Xml Path">
+				This option is enabled only if 'Use Busstop' is not set. Here the folder is defined where the xml files are located.
+			</option>
+			<option name="Case Number">
+				There may be many different investigations on this topic. The 'Case Number' defines which one to get the data from.
+			</option>
 			<option name="Anonymize Data">
 				If checked, the data is anonymized. That means addresses, names of companies
 				and names of products are removed.
-			</option>
-			<option name="Xml Path">
-				Folder where the xml files are located.
 			</option>
 		</tab>
 	</fullDescription>
