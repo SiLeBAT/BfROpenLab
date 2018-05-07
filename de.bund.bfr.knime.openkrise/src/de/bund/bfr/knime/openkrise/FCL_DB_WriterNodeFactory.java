@@ -62,7 +62,7 @@ public class FCL_DB_WriterNodeFactory
      */
     @Override
     public boolean hasDialog() {
-        return false;
+        return true;
     }
 
     /**
@@ -70,7 +70,7 @@ public class FCL_DB_WriterNodeFactory
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return null;
+        return new FCL_DB_WriterNodeDialog();
     }
 
 }

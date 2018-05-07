@@ -21,6 +21,7 @@ package de.bund.bfr.knime.openkrise;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.HashMap;
 
 import org.knime.core.data.DataRow;
@@ -35,6 +36,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.gui.Login;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.Delivery;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.Lot;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.Product;
@@ -51,11 +54,14 @@ import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.XlsStruct;
  */
 public class FCL_DB_WriterNodeModel extends NodeModel {
     
-    /**
+	private FCL_DB_WriterSettings set;
+
+	/**
      * Constructor for the node model.
      */
     protected FCL_DB_WriterNodeModel() {
         super(3, 0);
+		set = new FCL_DB_WriterSettings();
     }
 
     /**
@@ -162,6 +168,11 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 				}
 			}
 		}
+		
+		if (set.isClearDB()) {
+			Login.dropDatabase();
+			DBKernel.getLocalConn(false, false);
+		}
 		for (Delivery d : deliveryMap.values()) {
 			//System.out.println(d.getLot().getProduct().getStation().getId());
 			d.insertIntoDb(null);
@@ -211,6 +222,7 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
+    	set.saveSettings(settings);
     }
 
     /**
@@ -219,6 +231,7 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
+    	set.loadSettings(settings);
     }
 
     /**

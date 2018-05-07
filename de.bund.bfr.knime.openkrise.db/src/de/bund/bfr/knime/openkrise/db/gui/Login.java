@@ -101,6 +101,9 @@ public class Login extends JFrame {
 	}
 
 	public Login(String dbPath, String username, String password, boolean readOnly, Boolean autoUpdate) {
+		this(dbPath, username, password, readOnly, autoUpdate, true);
+	}
+	public Login(String dbPath, String username, String password, boolean readOnly, Boolean autoUpdate, boolean reallyShowIt) {
 		this.firstRun = false;
 		initComponents();
 		textField1.setText(username);
@@ -108,10 +111,13 @@ public class Login extends JFrame {
 		textField2.setText(dbPath);
 		checkBox1.setSelected(false);
 		checkBox2.setSelected(readOnly);
-		startTheDB(autoUpdate, false);
+		startTheDB(autoUpdate, false, reallyShowIt);
 	}
 
 	private void startTheDB(Boolean autoUpdate, boolean openTheGui) {
+		startTheDB(autoUpdate, openTheGui, true);
+	}
+	private void startTheDB(Boolean autoUpdate, boolean openTheGui, boolean reallyShowIt) {
 		MainFrame mf = null;
 		DBKernel.myDBi = MyDBI.loadDB(textField2.getText() + System.getProperty("file.separator") + "DB.xml");
 		if (DBKernel.myDBi != null) {
@@ -127,7 +133,7 @@ public class Login extends JFrame {
 					DBKernel.HSHDB_PATH += System.getProperty("file.separator");
 				}
 			}
-			mf = loadDB(autoUpdate, openTheGui, autoUpdate == null);
+			mf = loadDB(autoUpdate, openTheGui, autoUpdate == null, reallyShowIt);
 		}
 		if (mf != null) {
 			//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
@@ -247,6 +253,9 @@ public class Login extends JFrame {
 	}
 
 	private MainFrame loadDB(Boolean autoUpdate, boolean openTheGui, boolean beInteractive) {
+		return loadDB(autoUpdate, openTheGui, beInteractive, true);
+	}
+	private MainFrame loadDB(Boolean autoUpdate, boolean openTheGui, boolean beInteractive, boolean reallyShowIt) {
 		MainFrame mf = null;
 		MyDBTable myDB = null;
 		boolean doUpdates = false;
@@ -366,15 +375,17 @@ public class Login extends JFrame {
 						}
 					}					
 
-					IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					
-					if (eclipseWindow != null) {						
-						MessageDialog.openInformation(eclipseWindow.getShell(), "Internal database created", "Internal database created in folder '" + DBKernel.HSHDB_PATH + "'");
-					} else {
-						JOptionPane pane = new JOptionPane("Internal database created in folder '" + DBKernel.HSHDB_PATH + "'", JOptionPane.INFORMATION_MESSAGE);
-						JDialog dialog = pane.createDialog("Internal database created");
-						dialog.setAlwaysOnTop(true);
-						dialog.setVisible(true);
+					if (reallyShowIt) {
+						IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+						
+						if (eclipseWindow != null) {						
+							MessageDialog.openInformation(eclipseWindow.getShell(), "Internal database created", "Internal database created in folder '" + DBKernel.HSHDB_PATH + "'");
+						} else {
+							JOptionPane pane = new JOptionPane("Internal database created in folder '" + DBKernel.HSHDB_PATH + "'", JOptionPane.INFORMATION_MESSAGE);
+							JDialog dialog = pane.createDialog("Internal database created");
+							dialog.setAlwaysOnTop(true);
+							dialog.setVisible(true);
+						}
 					}
 										
 					mf = initGui(myDB);
@@ -388,7 +399,7 @@ public class Login extends JFrame {
 				}
 			}
 
-			startMainFrame(mf, myDB, openTheGui);
+			startMainFrame(mf, myDB, openTheGui, reallyShowIt);
 		} catch (Exception e) {
 			MyLogger.handleException(e);
 		}
@@ -488,6 +499,9 @@ public class Login extends JFrame {
 	}
 
 	private void startMainFrame(MainFrame mf, MyDBTable myDB, boolean openTheGui) {
+		startMainFrame(mf, myDB, openTheGui, true);
+	}
+	private void startMainFrame(MainFrame mf, MyDBTable myDB, boolean openTheGui, boolean reallyShowIt) {
 		if (mf != null) {
 			if (!mf.getMyList().setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", null))) {
 				mf.getMyList().setSelection(null);
@@ -512,7 +526,7 @@ public class Login extends JFrame {
 			mf.setBounds(x, y, w, h);
 			if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			else mf.setExtendedState(JFrame.NORMAL);
-			if (openTheGui) {
+			if (openTheGui && reallyShowIt) {
 				mf.setVisible(true);
 				mf.toFront();
 				myDB.grabFocus();//myDB.selectCell(0, 0);
@@ -521,7 +535,7 @@ public class Login extends JFrame {
 		}
 	}
 
-	static void dropDatabase() {
+	public static void dropDatabase() {
 		DBKernel.closeDBConnections(false);
 		File f = new File(DBKernel.HSHDB_PATH);
 		File[] files = f.listFiles();

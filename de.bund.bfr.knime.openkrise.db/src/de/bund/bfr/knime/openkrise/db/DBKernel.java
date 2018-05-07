@@ -635,10 +635,13 @@ public class DBKernel {
 	 */
 	// Still to look at... myDBI... KNIME...
 	public static Connection getLocalConn(boolean autoUpdate) {
+		return getLocalConn(autoUpdate, true);
+	}
+	public static Connection getLocalConn(boolean autoUpdate, boolean reallyShowIt) {
 		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getConn();
 		try {
 			if ((localConn == null || localConn.isClosed()) && isKNIME) {
-				localConn = getInternalKNIMEDB_LoadGui(autoUpdate);
+				localConn = getInternalKNIMEDB_LoadGui(autoUpdate, reallyShowIt);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1487,6 +1490,9 @@ public class DBKernel {
 
 	// Still to look at... myDBI...KNIME...
 	private static Connection getInternalKNIMEDB_LoadGui(boolean autoUpdate) {
+		return getInternalKNIMEDB_LoadGui(autoUpdate, true);
+	}
+	private static Connection getInternalKNIMEDB_LoadGui(boolean autoUpdate, boolean reallyShowIt) {
 		Connection result = null;
 		//try {
 		String internalPath = DBKernel.prefs.get("FC_LAB_SETTINGS_DB_PATH", DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath()));
@@ -1497,7 +1503,7 @@ public class DBKernel {
 		String password = DBKernel.prefs.get("FC_LAB_SETTINGS_DB_PASSWORD" + crc32Out, DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, ""));
 
 		try {
-			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
+			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate, reallyShowIt);
 		}
 		catch (Exception he) { //HeadlessException
 			he.printStackTrace();
