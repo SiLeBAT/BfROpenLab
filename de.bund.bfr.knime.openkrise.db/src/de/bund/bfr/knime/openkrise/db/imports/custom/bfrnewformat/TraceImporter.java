@@ -19,7 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
-import java.awt.Container;
 import java.awt.Cursor;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,13 +46,11 @@ import java.util.Set;
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -728,11 +725,15 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								    try {
 										d = formatter.parse(date);
 									} catch (ParseException e) {}
+								    formatter = new SimpleDateFormat("dd/MM/yyyy");
+								    try {
+										d = formatter.parse(date);
+									} catch (ParseException e) {}
 								    if (d != null) {
 										Calendar calendar = new GregorianCalendar();
 										calendar.setTime(d);
 										f4 = calendar.get(Calendar.DAY_OF_MONTH);
-										f5 = calendar.get(Calendar.MONTH);
+										f5 = calendar.get(Calendar.MONTH) + 1;
 										f6 = calendar.get(Calendar.YEAR);
 								    }
 								    else {

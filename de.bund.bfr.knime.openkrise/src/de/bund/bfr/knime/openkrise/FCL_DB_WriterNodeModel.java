@@ -46,6 +46,13 @@ import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.XlsLot;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.XlsProduct;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.XlsStruct;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 /**
  * This is the model implementation of FCL_DB_Writer.
  * 
@@ -85,7 +92,7 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 				s.setName(cs);
 				String address = null;
 				if (addressIndex >= 0) {
-					address = IO.getCleanString(row.getCell(addressIndex));
+					address = IO.getString(row.getCell(addressIndex));
 					s.setAddress(address);
 				}
 				if (countryIndex >= 0) s.setCountry(IO.getCleanString(row.getCell(countryIndex)));
@@ -105,9 +112,11 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 		int eanIndex = edgeTable.getSpec().findColumnIndex("EAN");
 		int lotIndex = edgeTable.getSpec().findColumnIndex("Lot Number");
 		int mhdIndex = edgeTable.getSpec().findColumnIndex("BBD"); // MHD
+		int mhdIndex2 = edgeTable.getSpec().findColumnIndex("BestBefore"); // MHD
 		int ddIndex = edgeTable.getSpec().findColumnIndex("Date Delivery - Day");
 		int dmIndex = edgeTable.getSpec().findColumnIndex("Date Delivery - Month");
 		int dyIndex = edgeTable.getSpec().findColumnIndex("Date Delivery - Year");
+		int ddaIndex = edgeTable.getSpec().findColumnIndex("Date Delivery Arrival"); // Date Delivery Arrival as String
 		int amountIndex = edgeTable.getSpec().findColumnIndex("Amount");
 		int commentIndex = edgeTable.getSpec().findColumnIndex("Comment");
 		HashMap<String, Delivery> deliveryMap = new HashMap<>();
@@ -128,12 +137,38 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 					p.setId(pID);
 					// Lot
 					f2 = IO.getCleanString(row.getCell(lotIndex));
-					f3 = mhdIndex < 0 ? null : IO.getCleanString(row.getCell(mhdIndex));
+					f3 = mhdIndex < 0 ? (mhdIndex2 < 0 ? null : IO.getCleanString(row.getCell(mhdIndex2))) : IO.getCleanString(row.getCell(mhdIndex));
 					Integer f4 = ddIndex < 0 ? null : IO.getInt(row.getCell(ddIndex));
 					Integer f5 = dmIndex < 0 ? null : IO.getInt(row.getCell(dmIndex));
 					Integer f6 = dyIndex < 0 ? null : IO.getInt(row.getCell(dyIndex));
 					String f7 = amountIndex < 0 ? null : IO.getCleanString(row.getCell(amountIndex));
 					String f8 = commentIndex < 0 ? null : IO.getCleanString(row.getCell(commentIndex));
+					String dda = ddaIndex < 0 ? null : IO.getCleanString(row.getCell(ddaIndex));
+					if (dda != null && f4 == null && f5 == null && f6 == null) {
+					    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+					    Date d = null;
+					    try {
+							d = formatter.parse(dda);
+						} catch (ParseException e) {}
+					    formatter = new SimpleDateFormat("dd.MM.yyyy");
+					    try {
+							d = formatter.parse(dda);
+						} catch (ParseException e) {}
+					    formatter = new SimpleDateFormat("dd/MM/yyyy");
+					    try {
+							d = formatter.parse(dda);
+						} catch (ParseException e) {}
+					    if (d != null) {
+							Calendar calendar = new GregorianCalendar();
+							calendar.setTime(d);
+							f4 = calendar.get(Calendar.DAY_OF_MONTH);
+							f5 = calendar.get(Calendar.MONTH) + 1;
+							f6 = calendar.get(Calendar.YEAR);
+					    }
+					    else {
+					    	System.err.println("date not recognized: " + dda);
+					    }
+					}
 					if (f2 == null && f3 == null) {
 						if (f4 == null && f5 == null && f6 == null && f7 == null && stationMap.get(to).getName() == null) {
 							;//exceptions.add(new Exception("You have no lot information at all in Row " + (i+1) + "."));
@@ -150,6 +185,12 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 					lot.setNumber(f2);
 					lot.addFlexibleField(XlsLot.MHD("en"), f3);
 					int lID = genDbId(""+p.getId() + f2 + f3);
+					if (f2 != null) {
+						lID = genDbId(""+p.getId() + f2);
+					}
+					else if (f3 != null) {
+						lID = genDbId(""+p.getId() + f3);
+					}
 					lot.setId(lID);
 					// Delivery
 					Delivery d = new Delivery();
@@ -161,6 +202,7 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 					d.addFlexibleField("Amount", f7);
 					d.setComment(f8);								
 					d.setReceiver(stationMap.get(to));
+					//int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+(doPreCollect==backtracing?supplierS.getId():focusS.getId()));						
 					int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+stationMap.get(to).getId());						
 					d.setId(dID+"");
 					
@@ -171,7 +213,7 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 		
 		if (set.isClearDB()) {
 			Login.dropDatabase();
-			DBKernel.getLocalConn(false, false);
+			DBKernel.getLocalConn(false);
 		}
 		for (Delivery d : deliveryMap.values()) {
 			//System.out.println(d.getLot().getProduct().getStation().getId());

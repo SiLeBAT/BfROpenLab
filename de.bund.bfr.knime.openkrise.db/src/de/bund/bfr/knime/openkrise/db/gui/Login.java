@@ -101,9 +101,6 @@ public class Login extends JFrame {
 	}
 
 	public Login(String dbPath, String username, String password, boolean readOnly, Boolean autoUpdate) {
-		this(dbPath, username, password, readOnly, autoUpdate, true);
-	}
-	public Login(String dbPath, String username, String password, boolean readOnly, Boolean autoUpdate, boolean reallyShowIt) {
 		this.firstRun = false;
 		initComponents();
 		textField1.setText(username);
@@ -111,13 +108,10 @@ public class Login extends JFrame {
 		textField2.setText(dbPath);
 		checkBox1.setSelected(false);
 		checkBox2.setSelected(readOnly);
-		startTheDB(autoUpdate, false, reallyShowIt);
+		startTheDB(autoUpdate, false);
 	}
 
 	private void startTheDB(Boolean autoUpdate, boolean openTheGui) {
-		startTheDB(autoUpdate, openTheGui, true);
-	}
-	private void startTheDB(Boolean autoUpdate, boolean openTheGui, boolean reallyShowIt) {
 		MainFrame mf = null;
 		DBKernel.myDBi = MyDBI.loadDB(textField2.getText() + System.getProperty("file.separator") + "DB.xml");
 		if (DBKernel.myDBi != null) {
@@ -133,7 +127,7 @@ public class Login extends JFrame {
 					DBKernel.HSHDB_PATH += System.getProperty("file.separator");
 				}
 			}
-			mf = loadDB(autoUpdate, openTheGui, autoUpdate == null, reallyShowIt);
+			mf = loadDB(autoUpdate, openTheGui, autoUpdate == null);
 		}
 		if (mf != null) {
 			//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
@@ -253,9 +247,6 @@ public class Login extends JFrame {
 	}
 
 	private MainFrame loadDB(Boolean autoUpdate, boolean openTheGui, boolean beInteractive) {
-		return loadDB(autoUpdate, openTheGui, beInteractive, true);
-	}
-	private MainFrame loadDB(Boolean autoUpdate, boolean openTheGui, boolean beInteractive, boolean reallyShowIt) {
 		MainFrame mf = null;
 		MyDBTable myDB = null;
 		boolean doUpdates = false;
@@ -354,28 +345,28 @@ public class Login extends JFrame {
 					DBKernel.myDBi.bootstrapDB();
 				} else {
 					File temp = DBKernel.getCopyOfInternalDB();
-					if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
-						if (BackupMyDBI.doRestore(myDB, temp, true, true)) {
-							DBKernel.myDBi.addUserInCaseNotThere(username, password);
-						}
-						else {  // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
-							passwordField1.setBackground(Color.RED);
-							passwordField2.setBackground(Color.WHITE);
-							passwordField3.setBackground(Color.WHITE);
-							passwordField1.requestFocus();
-							return mf;
-						}
-					} else {
-						if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
-							passwordField1.setBackground(Color.RED);
-							passwordField2.setBackground(Color.WHITE);
-							passwordField3.setBackground(Color.WHITE);
-							passwordField1.requestFocus();
-							return mf;
-						}
-					}					
+						if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
+							if (BackupMyDBI.doRestore(myDB, temp, true, true)) {
+								DBKernel.myDBi.addUserInCaseNotThere(username, password);
+							}
+							else {  // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+								passwordField1.setBackground(Color.RED);
+								passwordField2.setBackground(Color.WHITE);
+								passwordField3.setBackground(Color.WHITE);
+								passwordField1.requestFocus();
+								return mf;
+							}
+						} else {
+							if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+								passwordField1.setBackground(Color.RED);
+								passwordField2.setBackground(Color.WHITE);
+								passwordField3.setBackground(Color.WHITE);
+								passwordField1.requestFocus();
+								return mf;
+							}
+						}											
 
-					if (reallyShowIt) {
+					//if (reallyShowIt) {
 						IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 						
 						if (eclipseWindow != null) {						
@@ -386,7 +377,7 @@ public class Login extends JFrame {
 							dialog.setAlwaysOnTop(true);
 							dialog.setVisible(true);
 						}
-					}
+					//}
 										
 					mf = initGui(myDB);
 				}
@@ -399,7 +390,7 @@ public class Login extends JFrame {
 				}
 			}
 
-			startMainFrame(mf, myDB, openTheGui, reallyShowIt);
+			startMainFrame(mf, myDB, openTheGui);
 		} catch (Exception e) {
 			MyLogger.handleException(e);
 		}
@@ -499,9 +490,6 @@ public class Login extends JFrame {
 	}
 
 	private void startMainFrame(MainFrame mf, MyDBTable myDB, boolean openTheGui) {
-		startMainFrame(mf, myDB, openTheGui, true);
-	}
-	private void startMainFrame(MainFrame mf, MyDBTable myDB, boolean openTheGui, boolean reallyShowIt) {
 		if (mf != null) {
 			if (!mf.getMyList().setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", null))) {
 				mf.getMyList().setSelection(null);
@@ -526,7 +514,7 @@ public class Login extends JFrame {
 			mf.setBounds(x, y, w, h);
 			if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			else mf.setExtendedState(JFrame.NORMAL);
-			if (openTheGui && reallyShowIt) {
+			if (openTheGui) {
 				mf.setVisible(true);
 				mf.toFront();
 				myDB.grabFocus();//myDB.selectCell(0, 0);
