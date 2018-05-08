@@ -33,6 +33,9 @@ public enum NamedShape {
 	TRIANGLE("Triangle", r -> createPolygon(new double[] { 0, 0.433 * r, -0.433 * r },
 			new double[] { -0.5 * r, 0.25 * r, 0.25 * r }, 3)),
 
+	TRIANGLEREV("TriangleRev", r -> createPolygon(new double[] { 0, 0.433 * r, -0.433 * r },
+			new double[] { 0.5 * r, -0.25 * r, -0.25 * r }, 3)),
+
 	STAR("Star",
 			r -> createPolygon(
 					new double[] { 0, 0.150 * r, 0.391 * r, 0.337 * r, 0.487 * r, 0.271 * r, 0.217 * r, 0, -0.217 * r,
