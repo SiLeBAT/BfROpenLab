@@ -89,7 +89,7 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 				value) -> setWarningMessage("Deliveries Table: Row " + key.getString() + " skipped (" + value + ")"));
 		skippedDeliveryRelationsRows.forEach((key, value) -> setWarningMessage(
 				"Deliveries Relations Table: Row " + key.getString() + " skipped (" + value + ")"));
-
+ 
 		BufferedDataContainer container = exec.createDataContainer(configure(null)[0]);
 		JsonNodeFactory nodeFactory = JacksonUtils.nodeFactory();
 		ObjectNode rootNode = nodeFactory.objectNode();
