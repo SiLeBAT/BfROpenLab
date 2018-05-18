@@ -27,10 +27,21 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import javax.json.JsonValue;
+import org.knime.core.data.RowKey;
+import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.json.JSONCellFactory;
+import org.knime.core.data.json.JacksonConversions;
+import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.fge.jackson.JacksonUtils;
 import com.google.common.collect.Ordering;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.NodeSettings;
@@ -78,6 +89,8 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 	private static final String CFG_SHOW_DELIVERIES_WITHOUT_DATE = "ShowDeliveriesWithoutDate";
 	private static final String CFG_SHOW_TO_DATE = "ShowToDate";
+	
+	
 
 	private boolean showGis;
 	private GisType gisType;
@@ -522,4 +535,93 @@ public class TracingViewSettings extends NodeSettings {
 		observedNodes.clear();
 		observedEdges.clear();
 	}
+	
+	public JsonValue toJson() {
+	  ObjectMapper mapper = new ObjectMapper();
+      JsonFormat obj = new JsonFormat();
+
+      this.saveSettings(obj);
+      this.graphSettings.saveSettings(obj.graphView);
+      
+      ObjectNode rootNode = mapper.valueToTree(obj);
+      
+      return JacksonConversions.getInstance().toJSR353(rootNode);
+	}
+	
+	private void saveSettings(JsonFormat obj) {
+	  obj.global.collapsedNodes = this.collapsedNodes.entrySet().stream().map(entry -> new JsonFormat.Global.MetaNode(entry.getKey(), entry.getValue().keySet().stream().toArray(String[]::new))).toArray(JsonFormat.Global.MetaNode[]::new);
+	}
+	
+	public void fromJson(JsonValue json) throws JsonProcessingException {
+	  ObjectMapper mapper = new ObjectMapper();
+	  
+	  JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
+      JsonFormat obj = mapper.treeToValue(rootNode, JsonFormat.class);
+
+      this.showLegend = obj.global.showLegend;
+      this.joinEdges = obj.global.edges.joinEdges;
+	}
+	
+	public static class JsonFormat {
+	  public Global global = new Global();
+	  public GraphView graphView = new GraphView();
+	  
+	  public static class Global {
+	    public boolean showLegend = true;
+	    public Edges edges = new Edges();
+	    public MetaNode[] collapsedNodes;
+	    
+	    public static class Edges {
+	      public boolean joinEdges = true;
+	    }
+	    
+	    public static class MetaNode {
+	      public String type = "DEFAULT";
+	      public String id;
+	      public String[] members;
+	      
+	      public MetaNode() {}
+	      
+	      private MetaNode(String id, String[] members) {
+	        this.id = id;
+	        this.members = members;
+	      }
+	    }
+	  }
+	  
+	  public static class GraphView {
+	    public NodePosition[] nodePositions;
+	    public Transformation transformation = new Transformation();
+	  }
+	  
+	  public static class NodePosition {
+	    public String id;
+	    public XYPair position;
+	    public NodePosition() {}
+	    
+	    protected NodePosition(String id, Point2D point) {
+	      this.id = id;
+	      this.position = new XYPair(point.getX(), point.getY());
+	    }
+	  }
+	  
+	  public static class Transformation {
+	    public XYPair scale = new XYPair();
+	    public XYPair translation = new XYPair();
+	  }
+	  
+	  public static class XYPair {
+	    
+	    public double x;
+        public double y;
+        
+        public XYPair() {}
+        
+        public XYPair(double x, double y) {
+          this.x = x;
+          this.y = y;
+        }
+	  }
+	}
+	
 }

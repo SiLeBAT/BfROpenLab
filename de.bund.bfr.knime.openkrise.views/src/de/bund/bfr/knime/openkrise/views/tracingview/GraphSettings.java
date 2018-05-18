@@ -30,6 +30,7 @@ import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
+import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.JsonFormat;
 
 public class GraphSettings extends NodeSettings {
 
@@ -175,5 +176,13 @@ public class GraphSettings extends NodeSettings {
 		settings.addInt(prefix + CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
 		settings.addInt(prefix + CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(prefix + CFG_FONT_BOLD, fontBold);
+	}
+	
+	public void saveSettings(JsonFormat.GraphView graphView) {
+	  graphView.nodePositions = this.nodePositions.entrySet().stream().map(entry -> new JsonFormat.NodePosition(entry.getKey(), entry.getValue())).toArray(JsonFormat.NodePosition[]::new);
+	  graphView.transformation.scale.x = transform.getScaleX();
+	  graphView.transformation.scale.y = transform.getScaleY();
+	  graphView.transformation.translation.x = transform.getTranslationX();
+	  graphView.transformation.translation.y = transform.getTranslationY();
 	}
 }

@@ -384,6 +384,9 @@
 		<inPort index="3" name="Shapes">
 			Optional Table with geographical shape column.
 		</inPort>
+		<inPort index="4" name="Configuration">
+			Optional Table with TracingView configuration settings in JSON-format.
+		</inPort>
 		<outPort index="0" name="Stations">
 			Table with Station data. Contains meta stations instead of
 			stations contained in meta stations.
@@ -399,6 +402,9 @@
 		</outPort>
 		<outPort index="4" name="Combined Image">
 			Graph and GIS image combined.
+		</outPort>
+		<outPort index="5" name="Configuration">
+			Table with TracingView configuration settings in JSON-format.
 		</outPort>
 	</ports>
 </knimeNode>

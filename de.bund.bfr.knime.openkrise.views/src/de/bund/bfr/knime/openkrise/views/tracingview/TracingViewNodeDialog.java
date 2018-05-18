@@ -47,7 +47,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
@@ -60,6 +60,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.util.json.Utils;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionListener;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.IExplosionCanvas;
@@ -227,7 +228,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		this.edgeTable = (BufferedDataTable) input[1];
 		this.tracingTable = (BufferedDataTable) input[2];
 		this.shapeTable = (BufferedDataTable) input[3];
+		BufferedDataTable configurationTable = (BufferedDataTable) input[4];
 		this.set.loadSettings(settings);
+		
+		try {
+          this.set.fromJson(Utils.extractJsonValueFromBufferedDataTable(configurationTable));
+        } catch (JsonProcessingException e1) {
+          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e1.getMessage())));
+        }
 		
 		this.undoButton.setEnabled(false);
 		this.redoButton.setEnabled(false);

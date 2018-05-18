@@ -42,7 +42,9 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NoSettingsNodeModel;
-
+import org.knime.core.node.port.PortType;
+import org.knime.core.node.port.image.ImagePortObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -65,7 +67,12 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 	 * Constructor for the node model.
 	 */
 	protected ToJsonNodeModel() {
-		super(3, 1);
+	  super(4,1);
+	  // Todo make 4th inport optional
+//		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+//            BufferedDataTable.TYPE_OPTIONAL },
+//            new PortType[] { BufferedDataTable.TYPE });
+		//super(4, 1);
 	}
 
 	@Override
@@ -73,6 +80,8 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
 		BufferedDataTable tracingTable = inData[2];
+		BufferedDataTable configurationTable = inData[3];
+		
 		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(nodeTable.getSpec()),
 				TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(TracingUtils.getTableColumns(edgeTable.getSpec()),
@@ -142,6 +151,10 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 			}
 		}
 
+		if(configurationTable!=null) {
+		  rootNode.set(JsonConstants.SETTINGS,  JacksonConversions.getInstance().toJackson(Utils.extractJsonValueFromBufferedDataTable(configurationTable)));
+		}
+		
 		container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
 				JSONCellFactory.create(JacksonConversions.getInstance().toJSR353(rootNode))));
 		container.close();
