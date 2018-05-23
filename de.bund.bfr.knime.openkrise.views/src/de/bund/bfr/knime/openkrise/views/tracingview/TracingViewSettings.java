@@ -28,20 +28,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import javax.json.JsonValue;
-import org.knime.core.data.RowKey;
-import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.json.JSONCellFactory;
 import org.knime.core.data.json.JacksonConversions;
-import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.jackson.JacksonUtils;
 import com.google.common.collect.Ordering;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.NodeSettings;
@@ -553,13 +547,15 @@ public class TracingViewSettings extends NodeSettings {
 	}
 	
 	public void fromJson(JsonValue json) throws JsonProcessingException {
-	  ObjectMapper mapper = new ObjectMapper();
-	  
-	  JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
-      JsonFormat obj = mapper.treeToValue(rootNode, JsonFormat.class);
-
-      this.showLegend = obj.global.showLegend;
-      this.joinEdges = obj.global.edges.joinEdges;
+	  if(json != null) {
+  	    ObjectMapper mapper = new ObjectMapper();
+  	  
+  	    JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
+        JsonFormat obj = mapper.treeToValue(rootNode, JsonFormat.class);
+  
+        this.showLegend = obj.global.showLegend;
+        this.joinEdges = obj.global.edges.joinEdges;
+	  }
 	}
 	
 	public static class JsonFormat {

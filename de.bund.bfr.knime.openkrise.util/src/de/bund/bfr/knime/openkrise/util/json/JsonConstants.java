@@ -25,8 +25,9 @@ public class JsonConstants {
 
 	public static final String JSON_COLUMN = "json";
 
-	public static final String STATION_ID_PREFIX = "S";
-	public static final String DELIVERY_ID_PREFIX = "D";
+	// ToDo: remove these two constants
+	public static final String STATION_ID_PREFIX = ""; //S";
+	public static final String DELIVERY_ID_PREFIX = ""; //D";
 	
 	public static final String SETTINGS = "settings";
 

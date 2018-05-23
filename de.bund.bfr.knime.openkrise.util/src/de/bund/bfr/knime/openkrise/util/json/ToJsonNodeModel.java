@@ -190,6 +190,7 @@ public class ToJsonNodeModel extends NoSettingsNodeModel {
 		}
 	}
 
+	// ToDo: remove these two functions
 	private static String createStationId(String id) {
 		return JsonConstants.STATION_ID_PREFIX + id;
 	}
