@@ -879,7 +879,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		// collect simple chains
 		List<List<V>> simpleChainList = getSimpleChains();
 		
-		if (simpleChainList.size()>1) {
+		if (!simpleChainList.isEmpty()) {
 			Set<String> simpleChainIds = new HashSet<>();
 			// c
 			Map<String, Set<String>> newCollapsedNodes = this.collapsedNodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<>(e.getValue())));
@@ -895,9 +895,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 			});
 			
 			this.setCollapsedNodes(newCollapsedNodes);
-//			applyChanges();
 			setSelectedNodeIdsWithoutListener(simpleChainIds);
-//			call(l -> l.collapsedNodesAndPickingChanged(this));
 		}
 	
 	}
