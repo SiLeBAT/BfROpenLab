@@ -1058,8 +1058,8 @@ public class SimSearchTable extends JScrollPane{
   }
   
   private void repaintDropLocation(Object object) {
-	  this.table.updateUI();
-	  this.rowHeaderColumnTable.updateUI();
+    this.table.repaint();
+    this.rowHeaderColumnTable.repaint();
   }
   
   public void processUserChangeRowHeightRequest(int rowHeightDelta) {
