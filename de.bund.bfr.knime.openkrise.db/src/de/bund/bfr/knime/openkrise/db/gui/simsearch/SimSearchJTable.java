@@ -41,6 +41,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -875,6 +876,27 @@ public class SimSearchJTable extends JTable {
 			} else return null;
 		}
 	}
-
+	
 	// Cell Renderer end
+	
+	// this function is required to get to allow a one click drag operation on unselected rows
+	// Background:
+	// in single row selection mode, drag & drop works with one click on unselected or selected rows
+	// in multi row selection mode, the user usually has to select the rows he wants the drag first (he needs 2 clicks at least to drag unselected rows)
+	//
+	// Solution: if the left mouse button was pressed & shift and ctrl are not pressed & the mouse cursor hovers over an unselected cell the selection is changed to that cell (the system automates the first click)
+	@Override
+    protected void processMouseEvent(MouseEvent e) {
+         if (e.getID() == MouseEvent.MOUSE_PRESSED
+                   && SwingUtilities.isLeftMouseButton(e)
+                   && !e.isShiftDown() && !e.isControlDown()) {
+              Point pt = e.getPoint();
+              int row = rowAtPoint(pt);
+              int col = columnAtPoint(pt);
+              if (row >= 0 && col >= 0 && !super.isCellSelected(row, col))
+                   changeSelection(row, col, false, false);
+         }
+         super.processMouseEvent(e);
+    }
+	
 }
