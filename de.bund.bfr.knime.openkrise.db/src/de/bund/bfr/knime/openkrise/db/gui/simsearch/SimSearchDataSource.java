@@ -333,7 +333,12 @@ public class SimSearchDataSource extends SimSearch.DataSource{
       //return ldResult;
     }
       
-
+  /**
+   * loads the ignore map for a specified simset type from the database
+   *
+   * @param  type of simSet to retrieve the map for
+   * @return : map: id of an item -> ids of items the key item was marked to be different to
+   */
   private Map<Integer,Set<Integer>> loadIgnoreList(SimSearch.SimSet.Type simSetType) throws Exception {
 	  Connection con = DBKernel.getDBConnection();
       if(con==null) throw(new Exception("No database connection available."));

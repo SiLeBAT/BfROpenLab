@@ -382,20 +382,33 @@ public class SimSearchDataManipulationHandler {
 	  else return this.undoStack.peek().mergeMaps.get(simSetType).mergeIntoAssignment.entrySet().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
   
+  /**
+   * get the ignore map for a specified simset type from user changes
+   * <p>
+   * Please note: The map is not symmetric, which means:
+   * If map.get(id1).contains(id2) it does not follow that map.get(id2).contains(id1)
+   * In this sense the map is not complete
+   * 
+   * @return :  map: id of an item -> ids of items the key item was marked to be different to
+   */
   public Map<Integer,Set<Integer>> getIgnoreMap(SimSearch.SimSet.Type simSetType) {
 	  if(this.undoStack.isEmpty()) {
 		  return new HashMap<>(); 
 	  } else {
 		  Map<Integer,Set<Integer>> result = new HashMap<>();
-//		  MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSetType);
 		  
 		  for(Set<Integer> idSet : this.undoStack.peek().ignoreMaps.get(simSetType).idSetsToIgnore) {
-		    Integer id = idSet.iterator().next(); //get(0);
-		    
-		    if(!result.containsKey(id)) result.put(id, new HashSet<>());
 		    Set<Integer> ignoreIds = new HashSet<>(idSet);
-		    ignoreIds.remove(id);
-		    result.get(id).addAll(ignoreIds);
+		    
+		    for(int id: idSet) {
+		    
+		      ignoreIds.remove(id);
+		      
+		      if(!ignoreIds.isEmpty()) {
+		        if(!result.containsKey(id)) result.put(id, new HashSet<>());
+		        result.get(id).addAll(ignoreIds);
+		      }
+		    }
 		  }
 
 		  return result;

@@ -130,7 +130,7 @@ public final class SimSearch {
     private SimSet(Type type, List<Integer> idList) throws Exception {
       this.type = type;
       if(idList==null || idList.isEmpty()) throw(new Exception("The parameter idList may not be null or empty."));
-      this.referenceId = idList.get(1);
+      this.referenceId = idList.get(0);
       this.idList = Collections.unmodifiableList(idList);
     }
     
