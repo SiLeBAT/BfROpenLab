@@ -869,11 +869,26 @@ public class SimSearchJTable extends JTable {
 		public String createToolTipText(SimSearchTableModel tableModel, int modelRow, int modelColumn) {
 			if(tableModel!=null) {
 				List<String> toolTipText = new ArrayList<>();
-				if(tableModel.isSimReferenceRow(modelRow)) toolTipText.add("This is the reference row.");
+				if(tableModel.isSimReferenceRow(modelRow)) toolTipText.add(getReferenceRowToolTipText(tableModel)); //"This is the reference row.");
 				if(tableModel.isMerged(modelRow)) toolTipText.add("The row was merged.");
 				if(tableModel.getMergeCount(modelRow)>0) toolTipText.add(tableModel.getMergeCount(modelRow) + " rows were merged into this row.");
 				return (toolTipText.isEmpty()?null:String.join(" ", toolTipText));
 			} else return null;
+		}
+		
+		private static String getReferenceRowToolTipText(SimSearchTableModel tableModel) {
+		  switch(tableModel.getSimSet().getType()) {
+		      case STATION:
+		        return "This is the comparison station";
+		      case PRODUCT:
+		        return "This is the comparison product";
+		      case LOT:
+		        return "This is the comparison lot";
+		      case DELIVERY:
+		        return "This is the comparison delivery";
+		      default:
+		        return null;
+		    }
 		}
 	}
 	

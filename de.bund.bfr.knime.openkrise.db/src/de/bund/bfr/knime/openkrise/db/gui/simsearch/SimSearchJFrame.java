@@ -169,9 +169,9 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 		Arrays.asList(this.undoButton, this.redoButton).forEach(c -> undoRedoPanel.add(c));
 
 		JPanel ignorePanel = new JPanel();
-		this.ignoreSimSetButton = new JButton("Ignore similarities");   //new JToggleButton("Ignore");
-		this.ignoreSimSetButton.setToolTipText("Mark all rows as different to the reference row."); //  bundle.getString("MainFrame.button10.toolTipText"));
-		this.ignoreAllPairsInSimSetButton = new JButton("Ignore all pairs");
+		this.ignoreSimSetButton = new JButton("<html>Comparison row (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") is unique</html>");   //new JToggleButton("Ignore");
+		this.ignoreSimSetButton.setToolTipText("Mark all rows as different to the comparison row."); //  bundle.getString("MainFrame.button10.toolTipText"));
+		this.ignoreAllPairsInSimSetButton = new JButton("All rows are unique");
 		this.ignoreAllPairsInSimSetButton.setToolTipText("Mark all rows as pairwise different."); 
 		Arrays.asList(ignoreSimSetButton, ignoreAllPairsInSimSetButton).forEach(b -> {
 			ignorePanel.add(b);

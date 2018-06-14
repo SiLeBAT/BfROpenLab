@@ -943,6 +943,7 @@ public class SimSearchTable extends JScrollPane{
   
       this.table.applyIdSelection(selectedIds);
       this.setBorderTitle(tableModel.getSimSet().getType());
+      this.setIgnoreButtonTitle(tableModel.getSimSet().getType());
     } 
   }
   
@@ -986,19 +987,43 @@ public class SimSearchTable extends JScrollPane{
   private void setBorderTitle(SimSearch.SimSet.Type simSetType) {
     switch(simSetType) {
       case STATION:
-        setBorderTitle("Similar stations:");
+        setBorderTitle("<html>Comparison station (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") and similar findings:</html>");
         break;
       case PRODUCT:
-        setBorderTitle("Similar products:");
+        setBorderTitle("<html>Comparison product (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") and similar findings:</html>");
       case LOT:
-        setBorderTitle("Similar lots:");
+        setBorderTitle("<html>Comparison lot (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") and similar findings:</html>");
         break;
       case DELIVERY:
-        setBorderTitle("Similar deliveries:");
+        setBorderTitle("<html>Comparison delivery (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") and similar findings:</html>");
         break;
       default:
         setBorderTitle((String) null);
     }
+  }
+  
+  private void setIgnoreButtonTitle(SimSearch.SimSet.Type simSetType) {
+    String caption = "Comparison row (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") is unique";
+    String captionPW = "All rows are unique";
+    switch(simSetType) {
+      case STATION:
+        caption = "Comparison station (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") is unique";
+        captionPW = "All stations are unique";
+        break;
+      case PRODUCT:
+        caption = "Comparison product (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") is unique";
+        captionPW = "All products are unique";
+      case LOT:
+        caption = "Comparison lot (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") is unique";
+        captionPW = "All lots are unique";
+        break;
+      case DELIVERY:
+        caption = "Comparison delivery (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") is unique";
+        captionPW = "All deliveries are unique";
+        break;
+    }
+    if(this.ignoreSimSetButton!=null) this.ignoreSimSetButton.setText("<html>" + caption + "</html>");
+    if(this.ignoreAllPairsInSimSetButton!=null) this.ignoreAllPairsInSimSetButton.setText(captionPW );
   }
   
   public void clear() {
