@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -75,7 +76,7 @@ private String inhalt = "";
     super(owner, "Info", modal);
     init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal, false);
   }
-  public InfoBox(JFrame owner, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal, boolean isHtml) {
+  public InfoBox(JDialog owner, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal, boolean isHtml) {
     super(owner, "Info", modal);
     init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal, isHtml);
   }

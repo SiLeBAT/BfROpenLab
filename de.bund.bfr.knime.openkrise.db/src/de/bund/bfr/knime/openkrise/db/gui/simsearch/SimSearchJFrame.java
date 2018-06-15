@@ -38,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -55,7 +56,7 @@ import de.bund.bfr.knime.openkrise.db.gui.MainFrame;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
 
 
-public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListener {
+public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListener {
 
 
 	private static final long serialVersionUID = 8165724594614226211L;
@@ -93,16 +94,17 @@ public class SimSearchJFrame extends JFrame implements SimSearch.SimSearchListen
 	private boolean closeWindow;
 
 	public SimSearchJFrame(Frame owner) {
-		super();
+		super(owner);
+		this.setModal(true);
 		this.initComponents();
 		this.userIsWaiting = false;
 	}
 
-	public SimSearchJFrame() {
-		this(null);
-		this.initComponents();
-		this.userIsWaiting = false;
-	}
+//	public SimSearchJFrame() {
+//		this(null);
+////		this.initComponents();
+////		this.userIsWaiting = false;
+//	}
 
 	// GUI setup start
 

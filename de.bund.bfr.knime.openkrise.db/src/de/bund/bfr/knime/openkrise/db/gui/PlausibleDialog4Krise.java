@@ -79,7 +79,7 @@ public class PlausibleDialog4Krise extends JDialog {
 //		this.okButton.setEnabled(false);
 //	}
 	 
-	private PlausibleDialog4Krise(Frame owner, SimSearch.Settings settings) {
+	private PlausibleDialog4Krise(JDialog owner, SimSearch.Settings settings) {
       //this(owner, settingList.get(0));
 	  super(owner);
 	  //SimSearch.Settings settings = (settingList.isEmpty()?new SimSearch.Settings():settingList.get(0));
@@ -212,7 +212,7 @@ public class PlausibleDialog4Krise extends JDialog {
 		dispose();
 	}
 	
-	public static SimSearch.Settings showSettings(Frame owner, SimSearch.Settings settings) {
+	public static SimSearch.Settings showSettings(JDialog owner, SimSearch.Settings settings) {
 	  //List<SimSearch.Settings> settingList = new ArrayList<>();
 	  //if(settings!=null) settingList.add(settings);
 	  
@@ -222,7 +222,7 @@ public class PlausibleDialog4Krise extends JDialog {
       else return null;
 	}
 
-	public static SimSearch.Settings showSettings(Frame owner) { return showSettings(owner, null); }
+	public static SimSearch.Settings showSettings(JDialog owner) { return showSettings(owner, null); }
 	
 	private void button1ActionPerformed(ActionEvent e) {
 		// Direkter Zugang zur SimSuche über Menü! Mergen Selbsterklärender machen!
