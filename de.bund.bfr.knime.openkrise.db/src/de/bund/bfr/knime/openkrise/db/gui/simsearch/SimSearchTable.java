@@ -789,30 +789,77 @@ public class SimSearchTable extends JScrollPane{
     return columnSorting;
   }
   
+//  private void applyColumnSettingsToView() {
+//    
+//    SimSearchTableModel tableModel = this.getModel();
+//    SimSearch.SimSet simSet = tableModel.getSimSet();
+//    
+//    Map<Integer, Integer> columnWidths = this.viewSettings.columnWidths.get(simSet);
+//    
+//    Arrays.asList(this.rowHeaderColumnTable, this.table).forEach(table -> {
+//      for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
+//        int modelIndex = table.convertColumnIndexToModel(column);
+//        TableColumn tableColumn = table.getColumnModel().getColumn(column);
+//        int width = ((columnWidths!=null && columnWidths.containsKey(modelIndex) )
+//        		? columnWidths.get(modelIndex)
+//        				:table.getPreferredColumnWidth(column));
+//          
+//        if(table==this.rowHeaderColumnTable) {
+//
+//        	
+//        	Dimension dim = new Dimension(this.rowHeaderColumnTable.getColumnModel().getColumn(0).getWidth()+width, this.rowHeaderColumnTable.getHeight() );
+//        	SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
+//            this.getRowHeader().setPreferredSize(new Dimension(dim.width, this.rowHeaderColumnTable.getMaximumSize().height));
+//            tableColumn.setPreferredWidth(width);
+//        } else {
+//        	tableColumn.setPreferredWidth(width); //           getColumnModel().getColumn(column).sizeWidthToFit();
+//        }
+//      }
+//    });
+//  }
+  
   private void applyColumnSettingsToView() {
     
     SimSearchTableModel tableModel = this.getModel();
     SimSearch.SimSet simSet = tableModel.getSimSet();
     
     Map<Integer, Integer> columnWidths = this.viewSettings.columnWidths.get(simSet);
+    if(columnWidths==null) columnWidths = new HashMap<>();
     
+    this.initMissingColumnWidths(columnWidths);
+    this.applyColumnWidthsToView(columnWidths);
+    
+  }
+  
+  private void initMissingColumnWidths(Map<Integer, Integer> columnWidths) {
+        
     Arrays.asList(this.rowHeaderColumnTable, this.table).forEach(table -> {
       for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
         int modelIndex = table.convertColumnIndexToModel(column);
+        if(columnWidths.containsKey(modelIndex)) continue;
+        
+        columnWidths.put(modelIndex, table.getPreferredColumnWidth(column));
+      }
+    });
+  }
+  
+  private void applyColumnWidthsToView(Map<Integer, Integer> columnWidths) {
+        
+    Arrays.asList(this.rowHeaderColumnTable, this.table).forEach(table -> {
+      for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
+        int modelIndex = table.convertColumnIndexToModel(column);
+        if(columnWidths.containsKey(modelIndex)) continue;
+        
         TableColumn tableColumn = table.getColumnModel().getColumn(column);
-        int width = ((columnWidths!=null && columnWidths.containsKey(modelIndex) )
-        		? columnWidths.get(modelIndex)
-        				:table.getPreferredColumnWidth(column));
-          
+        Integer width = columnWidths.get(modelIndex);
+        if(width==null) continue;   
         if(table==this.rowHeaderColumnTable) {
-
-        	
-        	Dimension dim = new Dimension(this.rowHeaderColumnTable.getColumnModel().getColumn(0).getWidth()+width, this.rowHeaderColumnTable.getHeight() );
-        	SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
+            Dimension dim = new Dimension(this.rowHeaderColumnTable.getColumnModel().getColumn(0).getWidth()+width, this.rowHeaderColumnTable.getHeight() );
+            SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
             this.getRowHeader().setPreferredSize(new Dimension(dim.width, this.rowHeaderColumnTable.getMaximumSize().height));
             tableColumn.setPreferredWidth(width);
         } else {
-        	tableColumn.setPreferredWidth(width); //           getColumnModel().getColumn(column).sizeWidthToFit();
+            tableColumn.setPreferredWidth(width);            
         }
       }
     });
@@ -840,6 +887,12 @@ public class SimSearchTable extends JScrollPane{
 		  height = Math.max(height, table.getPreferredRowHeight(row));
 	  }
 	  return height;
+  }
+  
+  
+  private void updateColumnWidths() {
+    // This function is supposed to be called than the font size changed
+    
   }
   
   private void updateRowHeights() {
@@ -1026,6 +1079,14 @@ public class SimSearchTable extends JScrollPane{
     if(this.ignoreAllPairsInSimSetButton!=null) this.ignoreAllPairsInSimSetButton.setText(captionPW );
   }
   
+  private void increaseFontSize() {
+   this.viewSettings.changeZoom(10); 
+  }
+  
+  private void decreaseFontSize() {
+    this.viewSettings.changeZoom(-10);   
+  }
+  
   public void clear() {
 	this.table.setRowSorter(null);
 	this.rowHeaderColumnTable.setRowSorter(null);
@@ -1152,7 +1213,8 @@ public static class ViewSettings {
     public static final int ROW_HEIGHT_MIN = 20;
     private static final int CELL_MARGIN_Y_DEFAULT = 2;
     private static final int CELL_MARGIN_X_DEFAULT = 5;
-  
+    private static final double ZOOM_SENSITIVITY = 100; 
+    private double zoom = 1;
     
     private Map<SimSearch.SimSet.Type, List<String>> columnOrder;
     private Map<SimSearch.SimSet.Type, List<String>> frozenColumns;
@@ -1162,8 +1224,8 @@ public static class ViewSettings {
     private Map<SimSearch.SimSet, List<Integer>> rowOrder;
     private Map<SimSearch.SimSet, List<SortKey>> sortKeys;
     private Font font;
-    protected int cellMarginY;
-    protected int cellMarginX;
+    private int cellMarginY;
+    private int cellMarginX;
     
     public ViewSettings() {
       this.columnOrder = new HashMap<>();
@@ -1188,6 +1250,25 @@ public static class ViewSettings {
     }
     
     protected Font getFont() { return this.font; }
+    
+    protected void changeZoom(int steps)  {
+      if(steps==0) return;
+      this.setZoom(steps<0 ? zoom / (1 + steps/ZOOM_SENSITIVITY) : zoom * (1 + steps/ZOOM_SENSITIVITY));
+    }
+ 
+    protected void resetZoom() {
+      this.setZoom(1);
+    }
+    
+    private void setZoom(double zoom) {
+      this.zoom = zoom;
+      this.cellMarginX = (int) (CELL_MARGIN_X_DEFAULT * zoom);
+      this.cellMarginY = (int) (CELL_MARGIN_Y_DEFAULT * zoom);
+      this.font = UIManager.getFont("Table.font");
+      this.font = new Font(this.font.getName(), this.font.getSize(), (int) (this.font.getSize()*zoom));
+    }
+    
+    
   }
   
 
