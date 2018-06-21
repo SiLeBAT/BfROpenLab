@@ -47,8 +47,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.IntStream;
-
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
 import javax.swing.JButton;
@@ -99,6 +100,10 @@ public class SimSearchTable extends JScrollPane{
   private SimSearchJTable rowHeaderColumnTable;
   
   
+  private JMenu fontSizeMenu;
+  private JMenuItem increaseFontSizeMenuItem;
+  private JMenuItem decreaseFontSizeMenuItem;
+  
   private JTextField filterTextBox;
   private JCheckBox useRegexFilterCheckBox;
   private AbstractButton inactiveRowFilterSwitch;
@@ -107,7 +112,7 @@ public class SimSearchTable extends JScrollPane{
   private JButton ignoreAllPairsInSimSetButton;
   
   private ViewSettings viewSettings;
-  private int[] rowHeights;
+  private double[] rowHeights;
   private List<Integer> frozenColumns; 
   private Set<Integer> invisibleColumns; 
     
@@ -868,11 +873,11 @@ public class SimSearchTable extends JScrollPane{
   private void applyRowSettingsToView() {
 	  SimSearchTableModel tableModel = this.getModel();
 	  SimSearch.SimSet simSet = tableModel.getSimSet();
-	  Map<Integer,Integer> idToRowHeight = viewSettings.rowHeights.get(simSet.getType());
-	  rowHeights = new int[tableModel.getRowCount()];
+	  Map<Integer,Double> idToRowHeight = viewSettings.rowHeights.get(simSet.getType());
+	  rowHeights = new double[tableModel.getRowCount()];
 	  int nRows = tableModel.getRowCount();
 	  for(int row=0; row<nRows; ++row) {
-		  Integer rowHeight = (idToRowHeight==null?null:idToRowHeight.get(tableModel.getID(row)));
+		  Double rowHeight = (idToRowHeight==null?null:idToRowHeight.get(tableModel.getID(row)));
 		  if(rowHeight!=null) rowHeights[row] = rowHeight;
 		  else rowHeights[row] = getPreferredRowHeight(row);
 	  }
@@ -890,9 +895,16 @@ public class SimSearchTable extends JScrollPane{
   }
   
   
-  private void updateColumnWidths() {
+  private void scaleColumnWidths(double scale) {
     // This function is supposed to be called than the font size changed
-    
+    Map<Integer, Integer> columnWidths = new HashMap<>();
+    for(SimSearchJTable table : Arrays.asList(this.rowHeaderColumnTable, this.table)) {
+      for(int i=0; i<table.getColumnCount(); ++i) {
+        TableColumn column = table.getColumnModel().getColumn(i);
+        columnWidths.put(column.getModelIndex(), (int) (column.getPreferredWidth()*scale));
+      }
+    }
+    this.applyColumnWidthsToView(columnWidths);
   }
   
   private void updateRowHeights() {
@@ -901,8 +913,8 @@ public class SimSearchTable extends JScrollPane{
 	    	  int n = table.getRowCount();
 	    	  for(int viewIndex=0; viewIndex<n; ++viewIndex) {
 	    		  int modelIndex = table.convertRowIndexToModel(viewIndex);
-	    		  table.setRowHeight(viewIndex, rowHeights[modelIndex]);
-	  	          rowHeaderColumnTable.setRowHeight(viewIndex, rowHeights[modelIndex]);
+	    		  table.setRowHeight(viewIndex, (int) rowHeights[modelIndex]);
+	  	          rowHeaderColumnTable.setRowHeight(viewIndex, (int) rowHeights[modelIndex]);
 	    	  }
 	        
 	      }
@@ -947,7 +959,7 @@ public class SimSearchTable extends JScrollPane{
       }
     }
     this.viewSettings.columnWidths.put(simSet, columnWidths);
-    Map<Integer, Integer> rowHeights = this.viewSettings.rowHeights.get(simSet.getType());
+    Map<Integer, Double> rowHeights = this.viewSettings.rowHeights.get(simSet.getType());
     if(rowHeights==null) rowHeights = new HashMap<>();
     for(int row=0; row<tableModel.getRowCount(); ++row) rowHeights.put(tableModel.getID(row), this.rowHeights[row]);
     this.viewSettings.rowHeights.put(simSet.getType(), rowHeights);
@@ -998,6 +1010,7 @@ public class SimSearchTable extends JScrollPane{
       this.setBorderTitle(tableModel.getSimSet().getType());
       this.setIgnoreButtonTitle(tableModel.getSimSet().getType());
     } 
+    this.updateMenuItems();
   }
   
   
@@ -1080,11 +1093,196 @@ public class SimSearchTable extends JScrollPane{
   }
   
   private void increaseFontSize() {
-   this.viewSettings.changeZoom(10); 
+   // StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+    this.changeFontSize(+1);
   }
   
   private void decreaseFontSize() {
-    this.viewSettings.changeZoom(-10);   
+    this.changeFontSize(-1);   
+  }
+  
+  private void changeFontSize(int change) {
+    
+    double oldZoom = this.viewSettings.getZoom();
+    this.viewSettings.changeFontSize(change); 
+    double zoomChange = this.viewSettings.getZoom() / oldZoom;
+    if(zoomChange!=1) {
+      this.table.setFont(this.viewSettings.getFont());
+      this.table.getTableHeader().setFont(this.viewSettings.getFont());
+      this.rowHeaderColumnTable.setFont(this.viewSettings.getFont());
+      this.rowHeaderColumnTable.getTableHeader().setFont(this.viewSettings.getFont());
+      this.scaleColumnWidths(zoomChange);
+      this.scaleRowHeights(zoomChange);
+      this.increaseFontSizeMenuItem.setEnabled(this.viewSettings.isFontSizeIncreasable());
+      this.decreaseFontSizeMenuItem.setEnabled(this.viewSettings.isFontSizeDecreasable());
+    }
+    
+  }
+  
+  private void scaleRowHeights(double scale) {
+    for(int i=this.rowHeights.length-1; i>=0; --i) this.rowHeights[i]*=scale;
+    this.updateRowHeights();
+  }
+
+  protected void addMenuItems(JMenu menu) {
+    //JMenu menu = new JMenu("View");
+    this.fontSizeMenu = new JMenu("Table Font Size");
+    this.fontSizeMenu.setEnabled(false);
+    this.increaseFontSizeMenuItem =  new IncreaseFontSizeMenuItem("increase");
+        
+    
+    //this.increaseFontSizeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, ActionEvent.CTRL_MASK));
+    //this.increaseFontSizeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, ActionEvent.CTRL_MASK));
+    //this.increaseFontSizeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getExtendedKeyCodeForChar('+'), ActionEvent.CTRL_MASK));
+    
+    this.increaseFontSizeMenuItem.addActionListener(new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            SimSearchTable.this.increaseFontSize();
+        }
+
+    });
+    
+    fontSizeMenu.add(this.increaseFontSizeMenuItem);
+    fontSizeMenu.setEnabled(false);
+    
+    this.decreaseFontSizeMenuItem =  new DecreaseFontSizeMenuItem("decrease");
+    //this.decreaseFontSizeMenuItem.setEnabled(false);
+    
+    //this.decreaseFontSizeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, ActionEvent.CTRL_MASK));
+    this.decreaseFontSizeMenuItem.addActionListener(new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            SimSearchTable.this.decreaseFontSize();
+        }
+
+    });
+    
+    fontSizeMenu.add(this.decreaseFontSizeMenuItem);
+    
+    menu.add(fontSizeMenu);
+  }
+  
+//  public class MyKeyEvent extends KeyEvent {
+//
+//    public MyKeyEvent(KeyEvent keyEvent) {
+//      this(keyEvent.getComponent(), keyEvent.getID(), keyEvent.getWhen(), keyEvent.getModifiers(), keyEvent.getKeyCode(), keyEvent.getKeyChar(),   keyEvent.getKeyLocation());  
+//      this.
+//    }
+//    
+//    public MyKeyEvent(Component source, int id, long when, int modifiers, int keyCode, char keyChar,
+//        int keyLocation) {
+//      super(source, id, when, modifiers, keyCode, keyChar, keyLocation);
+//      // TODO Auto-generated constructor stub
+//    }
+//    
+//  }
+  
+  public class ChangeFontSizeMenuItem extends JMenuItem {
+    
+    public ChangeFontSizeMenuItem(String text, int[] keyEvents) {
+      super(text);
+      final String EVENT_NAME = "changeFontSize."+keyEvents.hashCode();
+      
+      for(int i=0; i<keyEvents.length; ++i) {
+        KeyStroke keyStroke = KeyStroke.getKeyStroke(keyEvents[i], ActionEvent.CTRL_MASK);
+        if(i==0) super.setAccelerator( keyStroke );
+        getInputMap( WHEN_IN_FOCUSED_WINDOW ).put( keyStroke, EVENT_NAME );
+      }
+      
+      getActionMap().put(EVENT_NAME,
+          new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//              increaseFontSize();
+//              ActionListener[] actionListeners = ChangeFontSizeMenuItem.this.getActionListeners();
+//              if(actionListeners.length>0) actionListeners[0].actionPerformed(e);
+              
+              for(ActionListener listener : ChangeFontSizeMenuItem.this.getActionListeners()) {
+                listener.actionPerformed(e);
+              }
+              
+            }
+      });
+    }
+    
+    @Override public void setAccelerator( KeyStroke keyStroke ) {}
+  }
+  
+  public class IncreaseFontSizeMenuItem extends ChangeFontSizeMenuItem {
+  
+  //public class MyJMenuItem extends JMenuItem {
+    
+    public IncreaseFontSizeMenuItem(String text) {
+      super(text, new int[] {KeyEvent.VK_PLUS, KeyEvent.VK_ADD});
+    }
+//      final String EVENT_NAME = "increaseFontSize";
+//      
+//      Arrays.asList(KeyEvent.VK_PLUS, KeyEvent.VK_ADD).forEach(keyEvent -> {
+//        KeyStroke keyStroke = KeyStroke.getKeyStroke(keyEvent, ActionEvent.CTRL_MASK);
+//        if(super.getAccelerator()==null) super.setAccelerator( keyStroke );
+//        getInputMap( WHEN_IN_FOCUSED_WINDOW ).put( keyStroke, EVENT_NAME );
+//      });
+//      //KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, ActionEvent.CTRL_MASK);
+//      
+//      
+//      //super.setAccelerator( keyStroke );
+//      //getInputMap( WHEN_IN_FOCUSED_WINDOW ).put( keyStroke, EVENT_NAME );
+//      //keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ADD, ActionEvent.CTRL_MASK);
+//      getActionMap().put(EVENT_NAME,
+//          new AbstractAction() {
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//              increaseFontSize();
+//            }
+//      });
+//    }
+    
+//  @Override public void setAccelerator( KeyStroke keyStroke ) {
+    // do nothing
+    //super.setAccelerator( keyStroke );
+    //getInputMap( WHEN_IN_FOCUSED_WINDOW ).put( keyStroke, "none" );
+ }
+  
+//  @Override
+//  public String getActionCommand() {
+//    return super.getActionCommand().replaceFirst("(?^[^\\+]\\s*\\+\\s*)\\S.*", "+");
+//  }
+//  }
+  
+//  public class MyKeyEvent extends KeyEvent {
+//
+////    public MyKeyEvent(char key) {
+////    ;
+////      this.getComponent()
+////    }
+//    public MyKeyEvent(Component source, int id, long when, int modifiers, int keyCode, char keyChar,
+//        int keyLocation) {
+//      super(source, id, when, modifiers, keyCode, keyChar, keyLocation);
+//      
+//      // TODO Auto-generated constructor stub
+//    }
+//    
+//  }
+  
+  public class DecreaseFontSizeMenuItem extends ChangeFontSizeMenuItem {
+    
+    //public class MyJMenuItem extends JMenuItem {
+      
+      public DecreaseFontSizeMenuItem(String text) {
+        super(text, new int[] {KeyEvent.VK_MINUS, KeyEvent.VK_SUBTRACT});
+      }
+  }
+  
+  private void updateMenuItems() {
+    final boolean enableItems = this.getModel()!=null;
+    this.fontSizeMenu.setEnabled(enableItems);
+    //Arrays.asList(this.increaseFontSizeMenuItem, this.decreaseFontSizeMenuItem).forEach(m -> m.setEnabled(enableItems));
   }
   
   public void clear() {
@@ -1213,14 +1411,16 @@ public static class ViewSettings {
     public static final int ROW_HEIGHT_MIN = 20;
     private static final int CELL_MARGIN_Y_DEFAULT = 2;
     private static final int CELL_MARGIN_X_DEFAULT = 5;
-    private static final double ZOOM_SENSITIVITY = 100; 
+    private static final int FONT_SIZE_MIN = 6;
+    private static final int FONT_SIZE_MAX = 16;
+    
     private double zoom = 1;
     
     private Map<SimSearch.SimSet.Type, List<String>> columnOrder;
     private Map<SimSearch.SimSet.Type, List<String>> frozenColumns;
     private Map<SimSearch.SimSet.Type, Set<String>> invisibleColumns;
     private Map<SimSearch.SimSet, Map<Integer,Integer>> columnWidths;
-    private Map<SimSearch.SimSet.Type, Map<Integer, Integer>> rowHeights;
+    private Map<SimSearch.SimSet.Type, Map<Integer, Double>> rowHeights;
     private Map<SimSearch.SimSet, List<Integer>> rowOrder;
     private Map<SimSearch.SimSet, List<SortKey>> sortKeys;
     private Font font;
@@ -1251,21 +1451,53 @@ public static class ViewSettings {
     
     protected Font getFont() { return this.font; }
     
-    protected void changeZoom(int steps)  {
-      if(steps==0) return;
-      this.setZoom(steps<0 ? zoom / (1 + steps/ZOOM_SENSITIVITY) : zoom * (1 + steps/ZOOM_SENSITIVITY));
+//    protected void changeZoom(int steps)  {
+//      if(steps==0) return;
+//      this.setZoom(steps<0 ? zoom / (1 + steps/ZOOM_SENSITIVITY) : zoom * (1 + steps/ZOOM_SENSITIVITY));
+//    }
+// 
+//    protected void resetZoom() {
+//      this.setZoom(1);
+//    }
+    
+    protected void changeFontSize(int change) {
+      Font oldFont = this.font; //UIManager.getFont("Table.font");
+      Font defaultFont = UIManager.getFont("Table.font");
+      //this.font = new Font(oldFont.getFontName(), oldFont.getStyle(), this.font.getSize()+change);
+      this.setZoom((oldFont.getSize()+change)/((double) defaultFont.getSize()));
     }
- 
-    protected void resetZoom() {
-      this.setZoom(1);
+    
+//    protected void resetFontSize() {
+//      //this.font = UIManager.getFont("Table.font");
+//      this.setZoom(1);
+//    }
+    protected boolean isFontSizeDecreasable() {
+      return this.font.getSize()>FONT_SIZE_MIN;
+    }
+    
+    protected boolean isFontSizeIncreasable() {
+      return this.font.getSize()<FONT_SIZE_MAX;
+    }
+    
+    protected double getZoom() {
+      return this.zoom;
+    }
+    
+    protected int getCellMarginX() {
+      return this.cellMarginX;
+    }
+    
+    protected int getCellMarginY() {
+      return this.cellMarginY;
     }
     
     private void setZoom(double zoom) {
       this.zoom = zoom;
       this.cellMarginX = (int) (CELL_MARGIN_X_DEFAULT * zoom);
       this.cellMarginY = (int) (CELL_MARGIN_Y_DEFAULT * zoom);
-      this.font = UIManager.getFont("Table.font");
-      this.font = new Font(this.font.getName(), this.font.getSize(), (int) (this.font.getSize()*zoom));
+      Font defaultFont = UIManager.getFont("Table.font");
+      if(zoom==1.0) this.font = defaultFont;
+      else this.font = defaultFont.deriveFont((float) (defaultFont.getSize()*zoom)); //    new Font(defaultFont.getName(), defaultFont.getSize(), (int) (defaultFont.getSize()*zoom));
     }
     
     

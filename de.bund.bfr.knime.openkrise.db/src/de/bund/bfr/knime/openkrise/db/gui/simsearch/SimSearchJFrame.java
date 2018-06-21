@@ -129,9 +129,10 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		}
 
 		this.setTitle("Similarity Search");
-		this.addMenu();
+		
 		this.addTopPanel();
 		this.addTable();
+		this.addMenu();
 		this.addBottomPanel();
 		this.table.registerRowTextFilter(this.filterTextField, this.useRegularExpressionsFilterCheckBox);
 		this.table.registerInactiveRowFilterSwitch(this.hideInactiveRowsMenuItem);
@@ -300,6 +301,8 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		this.hideInactiveRowsMenuItem.setSelected(false);
 
 		menu.add(this.hideInactiveRowsMenuItem);
+		
+		this.table.addMenuItems(menu);
 
 		bar.add(menu);
 

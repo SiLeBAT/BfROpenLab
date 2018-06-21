@@ -87,7 +87,7 @@ public class SimSearchJTable extends JTable {
 	private RowResizeAdapter rowResizeAdapter;
 	private List<MouseListener> mouseListeners;
 	private SimSearchTable.ViewSettings viewSettings;
-	private int[] rowHeights;
+	private double[] rowHeights;
 
 	SimSearchJTable(SimSearchTable.ViewSettings viewSettings) { 
 		super();
@@ -166,7 +166,7 @@ public class SimSearchJTable extends JTable {
 		TableCellRenderer renderer = tableColumn.getHeaderRenderer();
 		Component comp = this.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(this,
 				tableColumn.getHeaderValue(), false, false, 0, 0);
-		width = Math.max(width, comp.getPreferredSize().width + 2*viewSettings.cellMarginX);
+		width = Math.max(width, comp.getPreferredSize().width + 2*viewSettings.getCellMarginX());
 
 		for (int r = 0; r < this.getRowCount(); r++) {
 			renderer = this.getCellRenderer(r, column);
@@ -208,11 +208,11 @@ public class SimSearchJTable extends JTable {
 
 	}
 
-	public void setRowHeights(int[] rowHeights) {
+	public void setRowHeights(double[] rowHeights) {
 		this.rowHeights = rowHeights;
 		for(int i=0; i<this.getRowCount(); ++i) {
-			this.setRowHeight(i, rowHeights[i]);
-			this.partnerTable.setRowHeight(i, rowHeights[i]);
+			this.setRowHeight(i, (int) rowHeights[i]);
+			this.partnerTable.setRowHeight(i, (int) rowHeights[i]);
 		}
 	}
 
@@ -393,7 +393,7 @@ public class SimSearchJTable extends JTable {
 			Border border = getBorder();
 			if(border!=null) 
 				if(!(border instanceof CompoundBorder)) {
-					border = new CompoundBorder(border, new EmptyBorder(viewSettings.cellMarginY,viewSettings.cellMarginX,viewSettings.cellMarginY, viewSettings.cellMarginX));
+					border = new CompoundBorder(border, new EmptyBorder(viewSettings.getCellMarginY(),viewSettings.getCellMarginX(),viewSettings.getCellMarginY(), viewSettings.getCellMarginX()));
 					setBorder(border);
 					int height = c.getFontMetrics(table.getFont()).getHeight();
 					Insets insets = border.getBorderInsets(this);
@@ -781,7 +781,8 @@ public class SimSearchJTable extends JTable {
 
 		private String[] data;
 
-		public static final String HTML_SYMBOL_SIM_REFERENCE = "&#9733;";
+		public static final String HTML_SYMBOL_SIM_REFERENCE = "&#9830"; // Karo
+		//public static final String HTML_SYMBOL_SIM_REFERENCE = "&#9733;"; // star
 		private static final String SYMBOL_MERGEDTO_PRESENT_ROW = "&#8593;";
 		private static final String SYMBOL_MERGEDTO_NON_PRESENT_ROW = "&#8625;"; //"&#8592;";
 		private static final String SYMBOL_GAP = "&nbsp;";
