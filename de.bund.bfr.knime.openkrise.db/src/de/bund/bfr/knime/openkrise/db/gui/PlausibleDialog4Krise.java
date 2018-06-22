@@ -293,7 +293,7 @@ public class PlausibleDialog4Krise extends JDialog {
 	        button1 = new JButton();
 
 	        //======== this ========
-	        setTitle("SimSearch Options");
+	        setTitle("Similarity Search Options");
 	        setModal(true);
 	        Container contentPane = getContentPane();
 	        contentPane.setLayout(new BorderLayout());

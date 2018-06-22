@@ -75,13 +75,17 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.plaf.MenuItemUI;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import com.google.common.collect.ImmutableSet;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchJTable.RowHeaderColumnRenderer;
 
@@ -112,7 +116,9 @@ public class SimSearchTable extends JScrollPane{
   private JButton ignoreAllPairsInSimSetButton;
   
   private ViewSettings viewSettings;
-  private double[] rowHeights;
+  private double[] unzoomedRowHeights;
+  private Map<Integer, Double> unzoomedColumnWidths;
+  
   private List<Integer> frozenColumns; 
   private Set<Integer> invisibleColumns; 
     
@@ -374,10 +380,14 @@ public class SimSearchTable extends JScrollPane{
     if(visible) {
       if(!this.invisibleColumns.contains(modelColumnIndex)) return;
       this.invisibleColumns.remove((Integer) modelColumnIndex);
+      
       TableColumn tableColumn = new TableColumn(modelColumnIndex);
       this.table.addColumn(tableColumn);
       this.table.initColumnRenderer(tableColumn);
-      tableColumn.setPreferredWidth(this.table.getPreferredColumnWidth(this.table.getColumnCount()-1));
+      this.initMissingColumnWidths();
+      //tableColumn.setPreferredWidth(this.table.getPreferredColumnWidth(this.table.getColumnCount()-1));
+      //this.unzoomedColumnWidths.put(modelColumnIndex, tableColumn.getPreferredWidth()/viewSettings.getZoom());
+      tableColumn.setPreferredWidth((int) (this.unzoomedColumnWidths.get(modelColumnIndex) * viewSettings.getZoom()));
     } else {
       if(this.invisibleColumns.contains(modelColumnIndex)) return;
       this.invisibleColumns.add(modelColumnIndex);
@@ -398,6 +408,7 @@ public class SimSearchTable extends JScrollPane{
           this.table.getColumnModel().removeColumn(tableColumn);
         }
       }
+      this.unzoomedColumnWidths.remove(modelColumnIndex);
     }
     this.updateVisibleSorterColumns(this.getRowSorter());
   }
@@ -416,10 +427,12 @@ public class SimSearchTable extends JScrollPane{
 
     this.table = new SimSearchJTable(this.viewSettings);
     this.table.setAutoCreateColumnsFromModel(false);
+    this.table.setFont(viewSettings.getFont());
     
     this.getViewport().setView(this.table);
     this.rowHeaderColumnTable = new SimSearchJTable(this.viewSettings);
     this.rowHeaderColumnTable.setAutoCreateColumnsFromModel(false);
+    this.rowHeaderColumnTable.setFont(viewSettings.getFont());
 
     this.table.setColumnModel(this.tableColumnModel);
     this.rowHeaderColumnTable.setColumnModel(this.rowHeaderColumnModel);
@@ -429,7 +442,8 @@ public class SimSearchTable extends JScrollPane{
     this.rowHeaderColumnTable.setPartnerTable(this.table);
     
     this.addPopupFeature();
-    this.addFrozenColumnsResizeFeature();
+    this.addColumnsResizeFeature();
+    //this.addFrozenColumnsResizeFeature();
     
     // Make sure that selections between the main table and the header stay
     // in sync (by sharing the same model)
@@ -504,6 +518,43 @@ public class SimSearchTable extends JScrollPane{
 	    
   }
 
+  private void addColumnsResizeFeature() {
+    TableColumnModelListener listener = new TableColumnModelListener(){
+        @Override
+        public void columnMarginChanged(ChangeEvent e)
+        {
+            /* columnMarginChanged is called continuously as the column width is changed
+               by dragging. Therefore, execute code below ONLY if we are not already
+               aware of the column width having changed */
+            //if(e.getSource()==null || !(e.getSource() instanceof JTable)) return;
+            
+            TableColumn column = table.getTableHeader().getResizingColumn();
+            if(column==null) column = rowHeaderColumnTable.getTableHeader().getResizingColumn();
+            
+            if(column != null) {
+              unzoomedColumnWidths.put(column.getModelIndex(), column.getPreferredWidth()/viewSettings.getZoom());
+            }
+              
+        }
+
+        @Override
+        public void columnMoved(TableColumnModelEvent e) { }
+
+        @Override
+        public void columnAdded(TableColumnModelEvent e) { }
+
+        @Override
+        public void columnRemoved(TableColumnModelEvent e) { }
+
+        @Override
+        public void columnSelectionChanged(ListSelectionEvent e) { }
+    };
+    
+    Arrays.asList(this.table, this.rowHeaderColumnTable).forEach(table -> table.getColumnModel().addColumnModelListener(listener));
+    
+    this.addFrozenColumnsResizeFeature();
+  }
+  
   private void addFrozenColumnsResizeFeature() {
 	  MouseAdapter mouseAdapter = new MouseAdapter() {
 	      private int columnWidthAtMouseDragStart = -1;
@@ -828,61 +879,86 @@ public class SimSearchTable extends JScrollPane{
     SimSearchTableModel tableModel = this.getModel();
     SimSearch.SimSet simSet = tableModel.getSimSet();
     
-    Map<Integer, Integer> columnWidths = this.viewSettings.columnWidths.get(simSet);
-    if(columnWidths==null) columnWidths = new HashMap<>();
+    unzoomedColumnWidths = this.viewSettings.unzoomedColumnWidths.get(simSet);
+    if(unzoomedColumnWidths==null) unzoomedColumnWidths = new HashMap<>();
     
-    this.initMissingColumnWidths(columnWidths);
-    this.applyColumnWidthsToView(columnWidths);
+    this.initMissingColumnWidths();
+    this.updateColumnWidths();
+    //this.applyColumnWidthsToView(columnWidths);
     
   }
   
-  private void initMissingColumnWidths(Map<Integer, Integer> columnWidths) {
+  private void initMissingColumnWidths() {
         
     Arrays.asList(this.rowHeaderColumnTable, this.table).forEach(table -> {
       for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
         int modelIndex = table.convertColumnIndexToModel(column);
-        if(columnWidths.containsKey(modelIndex)) continue;
-        
-        columnWidths.put(modelIndex, table.getPreferredColumnWidth(column));
+        if(unzoomedColumnWidths.containsKey(modelIndex)) continue;
+        unzoomedColumnWidths.put(modelIndex, table.getPreferredColumnWidth(column)/viewSettings.getZoom());
       }
     });
   }
   
-  private void applyColumnWidthsToView(Map<Integer, Integer> columnWidths) {
-        
+  
+  private void updateColumnWidths() {
     Arrays.asList(this.rowHeaderColumnTable, this.table).forEach(table -> {
       for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
         int modelIndex = table.convertColumnIndexToModel(column);
-        if(columnWidths.containsKey(modelIndex)) continue;
+        Double unzoomedColumnWidth = unzoomedColumnWidths.get(modelIndex);
+        
+        if(unzoomedColumnWidth==null) continue;
         
         TableColumn tableColumn = table.getColumnModel().getColumn(column);
-        Integer width = columnWidths.get(modelIndex);
-        if(width==null) continue;   
+        int zommedColumnWidth = (int) Math.ceil(unzoomedColumnWidth * viewSettings.getZoom());
+        //Integer width = columnWidths.get(modelIndex);
+        //if(width==null) continue;   
         if(table==this.rowHeaderColumnTable) {
-            Dimension dim = new Dimension(this.rowHeaderColumnTable.getColumnModel().getColumn(0).getWidth()+width, this.rowHeaderColumnTable.getHeight() );
+            Dimension dim = new Dimension(this.rowHeaderColumnTable.getColumnModel().getColumn(0).getWidth()+zommedColumnWidth, this.rowHeaderColumnTable.getHeight() );
             SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
             this.getRowHeader().setPreferredSize(new Dimension(dim.width, this.rowHeaderColumnTable.getMaximumSize().height));
-            tableColumn.setPreferredWidth(width);
+            tableColumn.setPreferredWidth(zommedColumnWidth);
         } else {
-            tableColumn.setPreferredWidth(width);            
+            tableColumn.setPreferredWidth(zommedColumnWidth);            
         }
       }
     });
   }
   
+//  private void applyColumnWidthsToView(Map<Integer, Integer> columnWidths) {
+//        
+//    Arrays.asList(this.rowHeaderColumnTable, this.table).forEach(table -> {
+//      for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
+//        int modelIndex = table.convertColumnIndexToModel(column);
+//        if(columnWidths.containsKey(modelIndex)) continue;
+//        
+//        TableColumn tableColumn = table.getColumnModel().getColumn(column);
+//        Integer width = columnWidths.get(modelIndex);
+//        if(width==null) continue;   
+//        if(table==this.rowHeaderColumnTable) {
+//            Dimension dim = new Dimension(this.rowHeaderColumnTable.getColumnModel().getColumn(0).getWidth()+width, this.rowHeaderColumnTable.getHeight() );
+//            SimSearchTable.this.rowHeaderColumnTable.setSize(dim);
+//            this.getRowHeader().setPreferredSize(new Dimension(dim.width, this.rowHeaderColumnTable.getMaximumSize().height));
+//            tableColumn.setPreferredWidth(width);
+//        } else {
+//            tableColumn.setPreferredWidth(width);            
+//        }
+//      }
+//    });
+//  }
+  
   private void applyRowSettingsToView() {
 	  SimSearchTableModel tableModel = this.getModel();
 	  SimSearch.SimSet simSet = tableModel.getSimSet();
-	  Map<Integer,Double> idToRowHeight = viewSettings.rowHeights.get(simSet.getType());
-	  rowHeights = new double[tableModel.getRowCount()];
+	  Map<Integer,Double> idToUnzoomedRowHeight = viewSettings.unzoomedRowHeights.get(simSet.getType());
+	  unzoomedRowHeights = new double[tableModel.getRowCount()];
 	  int nRows = tableModel.getRowCount();
 	  for(int row=0; row<nRows; ++row) {
-		  Double rowHeight = (idToRowHeight==null?null:idToRowHeight.get(tableModel.getID(row)));
-		  if(rowHeight!=null) rowHeights[row] = rowHeight;
-		  else rowHeights[row] = getPreferredRowHeight(row);
+		  Double unzoomedRowHeight = (idToUnzoomedRowHeight==null?null:idToUnzoomedRowHeight.get(tableModel.getID(row)));
+		  if(unzoomedRowHeight!=null) unzoomedRowHeights[row] = unzoomedRowHeight;
+		  else unzoomedRowHeights[row] = getPreferredRowHeight(row)/viewSettings.getZoom();
 	  }
 	  
-	  this.rowHeaderColumnTable.setRowHeights(rowHeights);
+	  this.rowHeaderColumnTable.setUnzoomedRowHeights(unzoomedRowHeights);
 	  this.updateRowHeights();
   }
   
@@ -895,17 +971,17 @@ public class SimSearchTable extends JScrollPane{
   }
   
   
-  private void scaleColumnWidths(double scale) {
-    // This function is supposed to be called than the font size changed
-    Map<Integer, Integer> columnWidths = new HashMap<>();
-    for(SimSearchJTable table : Arrays.asList(this.rowHeaderColumnTable, this.table)) {
-      for(int i=0; i<table.getColumnCount(); ++i) {
-        TableColumn column = table.getColumnModel().getColumn(i);
-        columnWidths.put(column.getModelIndex(), (int) (column.getPreferredWidth()*scale));
-      }
-    }
-    this.applyColumnWidthsToView(columnWidths);
-  }
+//  private void scaleColumnWidths(double scale) {
+//    // This function is supposed to be called than the font size changed
+//    Map<Integer, Integer> columnWidths = new HashMap<>();
+//    for(SimSearchJTable table : Arrays.asList(this.rowHeaderColumnTable, this.table)) {
+//      for(int i=0; i<table.getColumnCount(); ++i) {
+//        TableColumn column = table.getColumnModel().getColumn(i);
+//        columnWidths.put(column.getModelIndex(), (int) (column.getPreferredWidth()*scale));
+//      }
+//    }
+//    this.applyColumnWidthsToView(columnWidths);
+//  }
   
   private void updateRowHeights() {
 	    EventQueue.invokeLater(new Runnable() {
@@ -913,10 +989,10 @@ public class SimSearchTable extends JScrollPane{
 	    	  int n = table.getRowCount();
 	    	  for(int viewIndex=0; viewIndex<n; ++viewIndex) {
 	    		  int modelIndex = table.convertRowIndexToModel(viewIndex);
-	    		  table.setRowHeight(viewIndex, (int) rowHeights[modelIndex]);
-	  	          rowHeaderColumnTable.setRowHeight(viewIndex, (int) rowHeights[modelIndex]);
+	    		  int zoomedRowHeight = (int) Math.ceil(unzoomedRowHeights[modelIndex]*viewSettings.getZoom());
+	    		  table.setRowHeight(viewIndex, zoomedRowHeight);
+	  	          rowHeaderColumnTable.setRowHeight(viewIndex, zoomedRowHeight);
 	    	  }
-	        
 	      }
 	    });
 	  }
@@ -952,17 +1028,20 @@ public class SimSearchTable extends JScrollPane{
     this.viewSettings.rowOrder.put(simSet, this.getRowSorter().getIdOrder());
     this.viewSettings.sortKeys.put(simSet, new ArrayList<>(this.getRowSorter().getSortKeys()));
     
-    Map<Integer, Integer> columnWidths = new HashMap<>(); 
-    for(JTable table: Arrays.asList(this.table, this.rowHeaderColumnTable)) {
-      for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
-        columnWidths.put(table.convertColumnIndexToModel(column), table.getColumnModel().getColumn(column).getPreferredWidth());
-      }
-    }
-    this.viewSettings.columnWidths.put(simSet, columnWidths);
-    Map<Integer, Double> rowHeights = this.viewSettings.rowHeights.get(simSet.getType());
-    if(rowHeights==null) rowHeights = new HashMap<>();
-    for(int row=0; row<tableModel.getRowCount(); ++row) rowHeights.put(tableModel.getID(row), this.rowHeights[row]);
-    this.viewSettings.rowHeights.put(simSet.getType(), rowHeights);
+    // save column widths
+//    Map<Integer, Double> unzoomedColumnWidths = new HashMap<>(); 
+//    for(JTable table: Arrays.asList(this.table, this.rowHeaderColumnTable)) {
+//      for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
+//        unzoomedColumnWidths.put(table.convertColumnIndexToModel(column), table.getColumnModel().getColumn(column).getPreferredWidth()/viewSettings.getZoom());
+//      }
+//    }
+    this.viewSettings.unzoomedColumnWidths.put(simSet, unzoomedColumnWidths);
+    
+    // save row heights
+    Map<Integer, Double> unzoomedRowHeights = this.viewSettings.unzoomedRowHeights.get(simSet.getType());
+    if(unzoomedRowHeights==null) unzoomedRowHeights = new HashMap<>();
+    for(int row=0; row<tableModel.getRowCount(); ++row) unzoomedRowHeights.put(tableModel.getID(row), this.unzoomedRowHeights[row]);
+    this.viewSettings.unzoomedRowHeights.put(simSet.getType(), unzoomedRowHeights);
   }
   
   private void addColumns() {
@@ -1111,18 +1190,20 @@ public class SimSearchTable extends JScrollPane{
       this.table.getTableHeader().setFont(this.viewSettings.getFont());
       this.rowHeaderColumnTable.setFont(this.viewSettings.getFont());
       this.rowHeaderColumnTable.getTableHeader().setFont(this.viewSettings.getFont());
-      this.scaleColumnWidths(zoomChange);
-      this.scaleRowHeights(zoomChange);
+      this.updateColumnWidths();
+      //this.scaleColumnWidths(zoomChange);
+      //this.scaleRowHeights(zoomChange);
+      this.updateRowHeights();
       this.increaseFontSizeMenuItem.setEnabled(this.viewSettings.isFontSizeIncreasable());
       this.decreaseFontSizeMenuItem.setEnabled(this.viewSettings.isFontSizeDecreasable());
     }
     
   }
   
-  private void scaleRowHeights(double scale) {
-    for(int i=this.rowHeights.length-1; i>=0; --i) this.rowHeights[i]*=scale;
-    this.updateRowHeights();
-  }
+//  private void scaleRowHeights(double scale) {
+//    //for(int i=this.rowHeights.length-1; i>=0; --i) this.rowHeights[i]*=scale;
+//    this.updateRowHeights();
+//  }
 
   protected void addMenuItems(JMenu menu) {
     //JMenu menu = new JMenu("View");
@@ -1419,25 +1500,28 @@ public static class ViewSettings {
     private Map<SimSearch.SimSet.Type, List<String>> columnOrder;
     private Map<SimSearch.SimSet.Type, List<String>> frozenColumns;
     private Map<SimSearch.SimSet.Type, Set<String>> invisibleColumns;
-    private Map<SimSearch.SimSet, Map<Integer,Integer>> columnWidths;
-    private Map<SimSearch.SimSet.Type, Map<Integer, Double>> rowHeights;
+    private Map<SimSearch.SimSet, Map<Integer,Double>> unzoomedColumnWidths;
+    private Map<SimSearch.SimSet.Type, Map<Integer, Double>> unzoomedRowHeights;
     private Map<SimSearch.SimSet, List<Integer>> rowOrder;
     private Map<SimSearch.SimSet, List<SortKey>> sortKeys;
     private Font font;
     private int cellMarginY;
     private int cellMarginX;
+    private static int FONT_SIZE_PREFERENCE = 12;
+    private static ImmutableSet<Integer> INVALID_FONTSIZES = new ImmutableSet.Builder<Integer>().add(13).build();
     
     public ViewSettings() {
       this.columnOrder = new HashMap<>();
       this.frozenColumns = new HashMap<>();
       this.invisibleColumns = this.createDefaultInvisibleColumnsMap();
-      this.columnWidths = new HashMap<>();
-      this.rowHeights = new HashMap<>();
+      this.unzoomedColumnWidths = new HashMap<>();
+      this.unzoomedRowHeights = new HashMap<>();
       this.rowOrder = new HashMap<>();
       this.sortKeys = new HashMap<>();
       this.cellMarginX = CELL_MARGIN_X_DEFAULT;
       this.cellMarginY = CELL_MARGIN_Y_DEFAULT;
       this.font = UIManager.getFont("Table.font");
+      if(this.font.getSize()!=FONT_SIZE_PREFERENCE) this.changeFontSize(FONT_SIZE_PREFERENCE - this.font.getSize());     
     }
     
     private Map<SimSearch.SimSet.Type, Set<String>> createDefaultInvisibleColumnsMap() {
@@ -1461,10 +1545,12 @@ public static class ViewSettings {
 //    }
     
     protected void changeFontSize(int change) {
-      Font oldFont = this.font; //UIManager.getFont("Table.font");
+      //Font oldFont = this.font; //UIManager.getFont("Table.font");
       Font defaultFont = UIManager.getFont("Table.font");
+      int newFontSize = this.font.getSize() + change;
+      while(INVALID_FONTSIZES.contains(newFontSize)) newFontSize = newFontSize + (change<0?-1:+1);
       //this.font = new Font(oldFont.getFontName(), oldFont.getStyle(), this.font.getSize()+change);
-      this.setZoom((oldFont.getSize()+change)/((double) defaultFont.getSize()));
+      this.setZoom(newFontSize/((double) defaultFont.getSize()));
     }
     
 //    protected void resetFontSize() {

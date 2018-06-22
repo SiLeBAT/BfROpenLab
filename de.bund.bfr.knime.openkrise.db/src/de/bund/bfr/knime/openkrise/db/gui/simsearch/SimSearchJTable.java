@@ -87,7 +87,7 @@ public class SimSearchJTable extends JTable {
 	private RowResizeAdapter rowResizeAdapter;
 	private List<MouseListener> mouseListeners;
 	private SimSearchTable.ViewSettings viewSettings;
-	private double[] rowHeights;
+	private double[] unzoomedRowHeights;
 
 	SimSearchJTable(SimSearchTable.ViewSettings viewSettings) { 
 		super();
@@ -179,6 +179,11 @@ public class SimSearchJTable extends JTable {
 		return width;
 	}
 	
+//	@Override 
+//	public void setFont(Font font) {
+//	  this.
+//	}
+	
 	@Override
 	public void setModel(TableModel model) {
 		if(model!=this.getModel()) this.removeColumns();
@@ -208,11 +213,12 @@ public class SimSearchJTable extends JTable {
 
 	}
 
-	public void setRowHeights(double[] rowHeights) {
-		this.rowHeights = rowHeights;
+	public void setUnzoomedRowHeights(double[] unzoomedRowHeights) {
+		this.unzoomedRowHeights = unzoomedRowHeights;
 		for(int i=0; i<this.getRowCount(); ++i) {
-			this.setRowHeight(i, (int) rowHeights[i]);
-			this.partnerTable.setRowHeight(i, (int) rowHeights[i]);
+		    int zoomedRowHeight = (int) (unzoomedRowHeights[i] * viewSettings.getZoom());
+			this.setRowHeight(i, zoomedRowHeight);
+			this.partnerTable.setRowHeight(i, zoomedRowHeight);
 		}
 	}
 
@@ -312,7 +318,7 @@ public class SimSearchJTable extends JTable {
 
 				setRowHeight(rowDragged, newHeight);
 				table.partnerTable.setRowHeight(rowDragged, newHeight);
-				if(rowHeights!=null) rowHeights[rowDraggedModelIndex] = newHeight;
+				if(unzoomedRowHeights!=null) unzoomedRowHeights[rowDraggedModelIndex] = newHeight/viewSettings.getZoom();
 			}
 		}
 
@@ -464,7 +470,7 @@ public class SimSearchJTable extends JTable {
 						"  <tr>\n" + 
 						"    <td>" + StringEscapeUtils.escapeHtml4(value.toString())  + "</td>\n" + 
 						"  </tr>\n" + 
-						"</table></html>";
+						"</table></font></html>";
 			} catch (Exception e) {
 				e.printStackTrace();
 				return null;
