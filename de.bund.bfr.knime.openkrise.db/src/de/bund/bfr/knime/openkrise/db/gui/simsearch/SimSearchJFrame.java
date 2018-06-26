@@ -82,8 +82,8 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 
 	private JLabel simSetCountLabel;
 
-	private JCheckBoxMenuItem hideInactiveRowsMenuItem; 
-	private JMenu rowHeightMenu;
+	//private JCheckBoxMenuItem hideInactiveRowsMenuItem; 
+	//private JMenu rowHeightMenu;
 
 	private SimSearch simSearch;
 	private SimSearch.Settings simSearchSettings;
@@ -99,12 +99,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		this.initComponents();
 		this.userIsWaiting = false;
 	}
-
-//	public SimSearchJFrame() {
-//		this(null);
-////		this.initComponents();
-////		this.userIsWaiting = false;
-//	}
 
 	// GUI setup start
 
@@ -135,7 +129,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		this.addMenu();
 		this.addBottomPanel();
 		this.table.registerRowTextFilter(this.filterTextField, this.useRegularExpressionsFilterCheckBox);
-		this.table.registerInactiveRowFilterSwitch(this.hideInactiveRowsMenuItem);
 		this.table.registerSimSetIgnoreButtons(this.ignoreSimSetButton, this.ignoreAllPairsInSimSetButton);
 
 		Arrays.asList(this.filterLabel, this.filterTextField, this.useRegularExpressionsFilterCheckBox,  
@@ -297,10 +290,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		bar.setBorder(bo);
 
 		JMenu menu = new JMenu("View");
-		this.hideInactiveRowsMenuItem =  new JCheckBoxMenuItem("Hide merged rows");
-		this.hideInactiveRowsMenuItem.setSelected(false);
-
-		menu.add(this.hideInactiveRowsMenuItem);
 		
 		this.table.addMenuItems(menu);
 
@@ -567,7 +556,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		this.table.clear();
 		Arrays.asList(this.navBack, this.navForward, this.navToFirst, this.navToLast, this.ignoreSimSetButton, this.ignoreAllPairsInSimSetButton).forEach(b -> b.setEnabled(false));
 		this.currentSimSetIndex = -1;
-		this.rowHeightMenu.setEnabled(false);
 		this.updateSimSetCountLabel();
 	}
 
@@ -667,29 +655,30 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		String help = "<html>\n";
 
 		help += "This view shows the findings of the similarity search.\n";
-		help += "The table lists similar stations, products, lots or deliveries. One line of the result list shows the " + 
-				SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + " symbol which refers to the row which was found to be similar to all the other rows. ";
+		help += "The table lists either similar stations, products, lots or deliveries. One line of the result list shows the " + 
+				SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + " symbol which refers to the row which was used for the comparison and was found to be similar to all the other rows. ";
 		help += "<br>\n";
 		help += "Some of the columns may contain colored text or special symbols like " + 
 				SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP) + ", " +
 				SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText(SimSearchJTable.AlignmentColumnRenderer.SYMBOL_SPACE_DELETE) + ", " + 
 				SimSearchJTable.AlignmentColumnRenderer.getColoredNeutralGap() + ".";
-		help += " The coloring reflects the difference of the text to the text in the reference row.";
+		help += " The coloring reflects the difference of the text to the text in the comparison row (" +  
+		                    SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ").";
 
 		help += "<br><h2>Color coding</h2>\n";
 		help += "The visualizations of the text comparisons use 3 colors.";
-		help += " The color red indicates a difference from a text to the text in the reference row. Black indicates no difference. And green indicates a gap in a text which is aligned to a character in some other text.";
+		help += " The color red indicates a difference from a text to the text in the comparison row. Black indicates no difference. And green indicates a gap in a text which is aligned to a character in some other text.";
 		help += "The symbols " + SimSearchJTable.AlignmentColumnRenderer.getColoredNeutralGap() + " and " + 
 				SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText( SimSearchJTable.AlignmentColumnRenderer.SYMBOL_GAP) + " represent a gap in a text.";
 
 		help += "The symbol " + SimSearchJTable.AlignmentColumnRenderer.getColoredMismatchText(SimSearchJTable.AlignmentColumnRenderer.SYMBOL_SPACE_DELETE) +
-				" represents a space character in a text which is aligned to a different character or a gap in the reference text."; 
+				" represents a space character in a text which is aligned to a different character or a gap in the comparison text."; 
 
 		help += " The coloring is described in the following example:<br>";
 		Alignment.AlignedSequence[] alignedSeq = Alignment.alignSequences(new String[] {"Am Burggraben 128",  "Am Burg grabem 18", "Amm Bruggraben 128"},0);
 		try {
 			help += "<br><table cellpadding=0>" +
-					"<tr><td>Text 1 in reference row (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + "):&nbsp;</td><td>" + 
+					"<tr><td>Text 1 in comparison row (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + "):&nbsp;</td><td>" + 
 					SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[0], false) + "</td></tr>" + 
 					"<tr><td>Text 2 in row x:</td><td>" + SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[1], false) + "</td></tr>" + 
 					"<tr><td>Text 3 in row y:</td><td>" + SimSearchJTable.AlignmentColumnRenderer.createHtmlCode(alignedSeq[2], false) + "</td></tr>" + 
@@ -698,15 +687,20 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 			help += "<i>Example is missing.</i>";
 		} 
 
-		help += "This example shows an alignment of the 3 texts. Text 3 has a double &lsquo;mm&rsquo; which is different to the reference text. Text 2 has a space character between the double &lsquo;gg&rsquo; which is not matched by the reference sequence.";
+		help += "This example shows an alignment of the 3 texts. Text 3 has a double &lsquo;mm&rsquo; which is different to the text in the comparison row. Text 2 has a space character between the double &lsquo;gg&rsquo; which is not matched by the comparison sequence.";
 
 		help += "<h2>Merging rows</h2>\n";
-		help += "To merge rows you need only to first select the row(s) you want to merge into another row. Then you drag the selected rows onto the row you want the selected rows to be merged into.";
+		help += "To merge stations/products/lots/deliveries you need only to drag the representing row(s) onto the station/product/lot/delivery you want them to be merged into. It is like moving a file (or a selection of files) to a folder in a file browser.<br>" +
+		"You can merge any row into any other row (which was not already merged). If e.g.  two rows are representing the same station/product/lot/delivery, you have to decide which row to merge onto which. The comparison row is not to be understood as a preference.<br>" +
+		    "Please note, that a drop of a row/rows between other rows does not result in a merge, but in another row ordering.";
 
 		help += "<h2>Ignore rows</h2>\n";
-		help += "If you can also mark similar rows as different to exclude them from future similarity searches. The button &lsquo;<strong>Ignore similarities</strong>&rsquo; marks all rows (that are not already merged) as different to the reference row.  The button &lsquo;<strong>Ignore all pairs</strong>&rsquo; marks all pairs of rows (that are not already merged) as different to each other.";
+		help += "You can also mark similar rows as different to exclude them from future similarity searches. The button &lsquo;<strong>Comparison station/product/lot/deliveries is unique</strong>&rsquo; marks all rows (that are not already merged) as different to the comparison row.  The button &lsquo;<strong>All stations/products/lots/deliveries are unique</strong>&rsquo; marks all pairs of rows (that are not already merged) as different to each other.";
 		help += "The result of this action might be that the view switches to the next finding. ";
-
+		
+		help += "<h2>View customization</h2>\n";
+        help += "You can disable the showing of already merged rows, by checking the &lsquo;<strong>Hide merged rows</strong>&rsquo; entry in the &lsquo;<strong>View</strong>&rsquo; menu.";
+		
 		help += "</html>\n";
 
 		InfoBox ib = new InfoBox(this, help, true, new Dimension(800, 400), null, true, true);

@@ -103,14 +103,14 @@ public class SimSearchTable extends JScrollPane{
   private SimSearchJTable table;
   private SimSearchJTable rowHeaderColumnTable;
   
-  
+  private JCheckBoxMenuItem hideInactiveRowsMenuItem;
   private JMenu fontSizeMenu;
   private JMenuItem increaseFontSizeMenuItem;
   private JMenuItem decreaseFontSizeMenuItem;
   
   private JTextField filterTextBox;
   private JCheckBox useRegexFilterCheckBox;
-  private AbstractButton inactiveRowFilterSwitch;
+  //private AbstractButton inactiveRowFilterSwitch;
   
   private JButton ignoreSimSetButton;
   private JButton ignoreAllPairsInSimSetButton;
@@ -640,7 +640,7 @@ public class SimSearchTable extends JScrollPane{
 
   private void processInactiveRowFilterEnabledChangedEvent() {
     if(this.getRowSorter()!=null) {
-      this.getRowSorter().setInactiveRowFilterEnabled(this.inactiveRowFilterSwitch.isSelected());
+      this.getRowSorter().setInactiveRowFilterEnabled(this.hideInactiveRowsMenuItem.isSelected());
     }
   }
   
@@ -713,18 +713,18 @@ public class SimSearchTable extends JScrollPane{
     }
   }
   
-  public void registerInactiveRowFilterSwitch(AbstractButton inactiveRowFilterSwitch) {
-    if(inactiveRowFilterSwitch==null) return;
-    this.inactiveRowFilterSwitch = inactiveRowFilterSwitch;
-    inactiveRowFilterSwitch.addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(ActionEvent arg0) {
-        SimSearchTable.this.processInactiveRowFilterEnabledChangedEvent();
-      }
-
-    });
-  }
+//  public void registerInactiveRowFilterSwitch(AbstractButton inactiveRowFilterSwitch) {
+//    if(inactiveRowFilterSwitch==null) return;
+//    this.inactiveRowFilterSwitch = inactiveRowFilterSwitch;
+//    inactiveRowFilterSwitch.addActionListener(new ActionListener() {
+//
+//      @Override
+//      public void actionPerformed(ActionEvent arg0) {
+//        SimSearchTable.this.processInactiveRowFilterEnabledChangedEvent();
+//      }
+//
+//    });
+//  }
   
   public void registerSimSetIgnoreButtons(JButton ignoreSimSetButton, JButton ignoreAllPairsInSimSetButton) {
 	  if(ignoreSimSetButton==null) return;
@@ -789,7 +789,7 @@ public class SimSearchTable extends JScrollPane{
     this.getRowSorter().moveRows(rowsToMove, rowToMoveBefore);
   }
   
-  private boolean isInactiveRowFilterEnabled() { return (this.inactiveRowFilterSwitch==null?false:this.inactiveRowFilterSwitch.isSelected()); }
+  private boolean isInactiveRowFilterEnabled() { return (this.hideInactiveRowsMenuItem==null?false:this.hideInactiveRowsMenuItem.isSelected()); }
  
   public void updateView() {
     ((RowHeaderColumnRenderer) this.rowHeaderColumnTable.getColumnModel().getColumn(0).getCellRenderer()).emptyCache();
@@ -894,7 +894,7 @@ public class SimSearchTable extends JScrollPane{
       for(int column=(table==this.table?0:1); column<table.getColumnCount(); ++column) {
         int modelIndex = table.convertColumnIndexToModel(column);
         if(unzoomedColumnWidths.containsKey(modelIndex)) continue;
-        unzoomedColumnWidths.put(modelIndex, table.getPreferredColumnWidth(column)/viewSettings.getZoom());
+        unzoomedColumnWidths.put(modelIndex, (table.getPreferredColumnWidth(column) + 1)/viewSettings.getZoom()); // + 1 because of rounding issues
       }
     });
   }
@@ -1113,12 +1113,8 @@ public class SimSearchTable extends JScrollPane{
   }
   
   public void setBorderTitle(String text) {
-    if(text==null || text.isEmpty()) text = "Results";
-    if(this.getBorder()==null || !(this.getBorder() instanceof TitledBorder)) {
-      this.setBorder(BorderFactory.createTitledBorder(text));
-    } else {
-      ((TitledBorder) this.getBorder()).setTitle(text);
-    }
+    if(text==null || text.isEmpty()) text = ""; 
+    this.setBorder(BorderFactory.createTitledBorder(text));
   }
   
   public void updateRowHeightMenu(JMenu menu, boolean addShortCuts) {
@@ -1136,6 +1132,7 @@ public class SimSearchTable extends JScrollPane{
         break;
       case PRODUCT:
         setBorderTitle("<html>Comparison product (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") and similar findings:</html>");
+        break;
       case LOT:
         setBorderTitle("<html>Comparison lot (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") and similar findings:</html>");
         break;
@@ -1158,6 +1155,7 @@ public class SimSearchTable extends JScrollPane{
       case PRODUCT:
         caption = "Comparison product (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") is unique";
         captionPW = "All products are unique";
+        break;
       case LOT:
         caption = "Comparison lot (" + SimSearchJTable.RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + ") is unique";
         captionPW = "All lots are unique";
@@ -1172,8 +1170,7 @@ public class SimSearchTable extends JScrollPane{
   }
   
   private void increaseFontSize() {
-   // StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-    this.changeFontSize(+1);
+   this.changeFontSize(+1);
   }
   
   private void decreaseFontSize() {
@@ -1191,30 +1188,31 @@ public class SimSearchTable extends JScrollPane{
       this.rowHeaderColumnTable.setFont(this.viewSettings.getFont());
       this.rowHeaderColumnTable.getTableHeader().setFont(this.viewSettings.getFont());
       this.updateColumnWidths();
-      //this.scaleColumnWidths(zoomChange);
-      //this.scaleRowHeights(zoomChange);
       this.updateRowHeights();
       this.increaseFontSizeMenuItem.setEnabled(this.viewSettings.isFontSizeIncreasable());
       this.decreaseFontSizeMenuItem.setEnabled(this.viewSettings.isFontSizeDecreasable());
     }
     
   }
-  
-//  private void scaleRowHeights(double scale) {
-//    //for(int i=this.rowHeights.length-1; i>=0; --i) this.rowHeights[i]*=scale;
-//    this.updateRowHeights();
-//  }
 
   protected void addMenuItems(JMenu menu) {
-    //JMenu menu = new JMenu("View");
+        
+    this.hideInactiveRowsMenuItem =  new JCheckBoxMenuItem("Hide merged rows");
+    this.hideInactiveRowsMenuItem.setSelected(false);
+    this.hideInactiveRowsMenuItem.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        SimSearchTable.this.processInactiveRowFilterEnabledChangedEvent();
+      }
+
+    });
+
+    menu.add(this.hideInactiveRowsMenuItem);
+    
     this.fontSizeMenu = new JMenu("Table Font Size");
     this.fontSizeMenu.setEnabled(false);
     this.increaseFontSizeMenuItem =  new IncreaseFontSizeMenuItem("increase");
-        
-    
-    //this.increaseFontSizeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, ActionEvent.CTRL_MASK));
-    //this.increaseFontSizeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, ActionEvent.CTRL_MASK));
-    //this.increaseFontSizeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getExtendedKeyCodeForChar('+'), ActionEvent.CTRL_MASK));
     
     this.increaseFontSizeMenuItem.addActionListener(new ActionListener() {
 
@@ -1229,9 +1227,7 @@ public class SimSearchTable extends JScrollPane{
     fontSizeMenu.setEnabled(false);
     
     this.decreaseFontSizeMenuItem =  new DecreaseFontSizeMenuItem("decrease");
-    //this.decreaseFontSizeMenuItem.setEnabled(false);
-    
-    //this.decreaseFontSizeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, ActionEvent.CTRL_MASK));
+
     this.decreaseFontSizeMenuItem.addActionListener(new ActionListener() {
 
         @Override
@@ -1246,21 +1242,7 @@ public class SimSearchTable extends JScrollPane{
     menu.add(fontSizeMenu);
   }
   
-//  public class MyKeyEvent extends KeyEvent {
-//
-//    public MyKeyEvent(KeyEvent keyEvent) {
-//      this(keyEvent.getComponent(), keyEvent.getID(), keyEvent.getWhen(), keyEvent.getModifiers(), keyEvent.getKeyCode(), keyEvent.getKeyChar(),   keyEvent.getKeyLocation());  
-//      this.
-//    }
-//    
-//    public MyKeyEvent(Component source, int id, long when, int modifiers, int keyCode, char keyChar,
-//        int keyLocation) {
-//      super(source, id, when, modifiers, keyCode, keyChar, keyLocation);
-//      // TODO Auto-generated constructor stub
-//    }
-//    
-//  }
-  
+  @SuppressWarnings("serial")
   public class ChangeFontSizeMenuItem extends JMenuItem {
     
     public ChangeFontSizeMenuItem(String text, int[] keyEvents) {
@@ -1278,11 +1260,7 @@ public class SimSearchTable extends JScrollPane{
 
             @Override
             public void actionPerformed(ActionEvent e) {
-              //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-//              increaseFontSize();
-//              ActionListener[] actionListeners = ChangeFontSizeMenuItem.this.getActionListeners();
-//              if(actionListeners.length>0) actionListeners[0].actionPerformed(e);
-              
+
               for(ActionListener listener : ChangeFontSizeMenuItem.this.getActionListeners()) {
                 listener.actionPerformed(e);
               }
@@ -1294,67 +1272,17 @@ public class SimSearchTable extends JScrollPane{
     @Override public void setAccelerator( KeyStroke keyStroke ) {}
   }
   
+  @SuppressWarnings("serial")
   public class IncreaseFontSizeMenuItem extends ChangeFontSizeMenuItem {
   
-  //public class MyJMenuItem extends JMenuItem {
-    
-    public IncreaseFontSizeMenuItem(String text) {
+     public IncreaseFontSizeMenuItem(String text) {
       super(text, new int[] {KeyEvent.VK_PLUS, KeyEvent.VK_ADD});
     }
-//      final String EVENT_NAME = "increaseFontSize";
-//      
-//      Arrays.asList(KeyEvent.VK_PLUS, KeyEvent.VK_ADD).forEach(keyEvent -> {
-//        KeyStroke keyStroke = KeyStroke.getKeyStroke(keyEvent, ActionEvent.CTRL_MASK);
-//        if(super.getAccelerator()==null) super.setAccelerator( keyStroke );
-//        getInputMap( WHEN_IN_FOCUSED_WINDOW ).put( keyStroke, EVENT_NAME );
-//      });
-//      //KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, ActionEvent.CTRL_MASK);
-//      
-//      
-//      //super.setAccelerator( keyStroke );
-//      //getInputMap( WHEN_IN_FOCUSED_WINDOW ).put( keyStroke, EVENT_NAME );
-//      //keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ADD, ActionEvent.CTRL_MASK);
-//      getActionMap().put(EVENT_NAME,
-//          new AbstractAction() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//              increaseFontSize();
-//            }
-//      });
-//    }
-    
-//  @Override public void setAccelerator( KeyStroke keyStroke ) {
-    // do nothing
-    //super.setAccelerator( keyStroke );
-    //getInputMap( WHEN_IN_FOCUSED_WINDOW ).put( keyStroke, "none" );
  }
   
-//  @Override
-//  public String getActionCommand() {
-//    return super.getActionCommand().replaceFirst("(?^[^\\+]\\s*\\+\\s*)\\S.*", "+");
-//  }
-//  }
-  
-//  public class MyKeyEvent extends KeyEvent {
-//
-////    public MyKeyEvent(char key) {
-////    ;
-////      this.getComponent()
-////    }
-//    public MyKeyEvent(Component source, int id, long when, int modifiers, int keyCode, char keyChar,
-//        int keyLocation) {
-//      super(source, id, when, modifiers, keyCode, keyChar, keyLocation);
-//      
-//      // TODO Auto-generated constructor stub
-//    }
-//    
-//  }
-  
+  @SuppressWarnings("serial")
   public class DecreaseFontSizeMenuItem extends ChangeFontSizeMenuItem {
     
-    //public class MyJMenuItem extends JMenuItem {
-      
       public DecreaseFontSizeMenuItem(String text) {
         super(text, new int[] {KeyEvent.VK_MINUS, KeyEvent.VK_SUBTRACT});
       }
@@ -1362,8 +1290,8 @@ public class SimSearchTable extends JScrollPane{
   
   private void updateMenuItems() {
     final boolean enableItems = this.getModel()!=null;
+    this.hideInactiveRowsMenuItem.setEnabled(enableItems);
     this.fontSizeMenu.setEnabled(enableItems);
-    //Arrays.asList(this.increaseFontSizeMenuItem, this.decreaseFontSizeMenuItem).forEach(m -> m.setEnabled(enableItems));
   }
   
   public void clear() {
@@ -1372,11 +1300,11 @@ public class SimSearchTable extends JScrollPane{
     this.table.setModel(null);
     this.rowHeaderColumnTable.setModel(this.table.getModel());
     this.setBorderTitle("");
-    this.inactiveRowFilterSwitch.setEnabled(false);
     this.filterTextBox.setEnabled(false);
     if(useRegexFilterCheckBox!=null) this.useRegexFilterCheckBox.setEnabled(false);
     this.ignoreAllPairsInSimSetButton.setEnabled(false);
     this.ignoreSimSetButton.setEnabled(false);
+    this.updateMenuItems();
   }
   
   // this class is needed because the default JCheckBoxMenuItem closes the popup menu then clicked
