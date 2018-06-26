@@ -508,15 +508,17 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, TracingColumns.TO, createCell(to));
 
 		String los = p == null ? null : p.getLosNummer() == null ? p.getChargenNummer() : p.getLosNummer();
+		String charge = p == null ? null : p.getChargenNummer();
 		String hn = p == null ? null : p.getHandelsname();
+		String pb = p == null ? null : p.getProduktBezeichnung();
 		fillCell(specD, cells, TracingColumns.NAME, createCell(hn));
 		fillCell(specD, cells, TracingColumns.PRODUCT_NUMBER, createCell(p == null ? null : p.getArtikelnummer()));
 		fillCell(specD, cells, "EAN", createCell(p == null ? null : p.getEan()));
-		String lot_id = from + "_" + hn + "_" + los;
+		String lot_id = from + "_" + hn + "_" + pb + "_" + los + "_" + charge;
 		fillCell(specD, cells, TracingColumns.LOT_ID, createCell(lot_id));
 		fillCell(specD, cells, TracingColumns.LOT_NUMBER, createCell(los));
-		fillCell(specD, cells, "Chargennummer", createCell(p == null ? null : p.getChargenNummer()));
-		fillCell(specD, cells, "Bezeichnung", createCell(p == null ? null : p.getProduktBezeichnung()));
+		fillCell(specD, cells, "Chargennummer", createCell(charge));
+		fillCell(specD, cells, "Bezeichnung", createCell(pb));
 
 		fillCell(specD, cells, TracingColumns.DELIVERY_NUM_PU, createCell(wu == null || wu.getMengeEinheit() == null ? null : wu.getMengeEinheit().getMenge().doubleValue()));
 		fillCell(specD, cells, TracingColumns.DELIVERY_TYPE_PU, createCell(wu == null || wu.getMengeEinheit() == null ? null : wu.getMengeEinheit().getEinheit()));
@@ -533,7 +535,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		fillCell(specD, cells, "BetriebsTyp", createCell(betriebsTyp));
 		fillCell(specD, cells, "ReferenzDelivery", createCell(referenceDelivery));
 		
-		String delivery_id = from + ";;;" + to + ";;;" + los + ";;;" + ld;
+		String delivery_id = from + ";;;" + to + ";;;" + lot_id + ";;;" + ld;
 
 		return new String[] {lot_id, delivery_id};
 	}	
