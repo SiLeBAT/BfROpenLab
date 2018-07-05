@@ -78,7 +78,8 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	//private Map<String,Set<String>> allCollapsedNodes;
 	
 	private BufferedImage image;
-	private Polygon boundaryArea;
+	// private Polygon boundaryArea;
+	private Boundary boundary;
 	
 
 	public ExplosionTracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
@@ -147,13 +148,13 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		return server;
 	}
 	
-	@Override
-	public void nodeMovementFinished() {
-		
-		this.placeBoundaryNodes(false);
-		super.nodeMovementFinished();
-		
-	}
+//	@Override
+//	public void nodeMovementFinished() {
+//		
+//		this.placeBoundaryNodes(false);
+//		super.nodeMovementFinished();
+//		
+//	}
 	
 	private void call(Consumer<CanvasListener> action) {
 		Stream.of(getListeners(CanvasListener.class)).forEach(action);
@@ -193,7 +194,7 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 				
 		this.applyChanges();
 				
-		if(this.boundaryNodes != null) this.placeBoundaryNodes(false);
+		//if(this.boundaryNodes != null) this.placeBoundaryNodes(false);
 		        
 		call(l -> l.collapsedNodesChanged(this));
 	}
@@ -205,11 +206,28 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	
 	@Override
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
-		super.applyLayout(layoutType, nodesForLayout, showProgressDialog, false);
+	    Set<GraphNode> nonBoundaryNodesForLayout = new HashSet<>(Sets.intersection(nodesForLayout, this.nonBoundaryNodes));
+	    Set<GraphNode> boundaryNodesForLayout = new HashSet<>(Sets.difference(nodesForLayout, this.nonBoundaryNodes));
+	    
+	    boolean resetBoundary = !Sets.difference(this.boundaryNodes, boundaryNodesForLayout).isEmpty();
+	    
+	    
+	    
+	    //if(resetBoundary) boundary.resetBounds(super.getLayoutBounds()); // todo: transfrom layoutbounds to boundary area
+	    if(resetBoundary) boundary.resetBounds(this.getViewer().getSize(),  getInnerBounds()); // todo: transfrom layoutbounds to boundary area
+	    
+		//super.applyLayout(layoutType, nodesForLayout, showProgressDialog, false);
+	    super.applyLayout(layoutType, nonBoundaryNodesForLayout, showProgressDialog, false);
 		
-		this.placeBoundaryNodes(false);
+	    //  this.placeBoundaryNodes(false);
+	    if(boundaryNodesForLayout.isEmpty()) this.placeBoundaryNodes(boundaryNodesForLayout);
+		
 		
 		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
+	}
+	
+	private Rectangle2D getInnerBounds() {
+	  return PointUtils.getBounds(this.getNodePositions(this.nonBoundaryNodes).values());
 	}
 	
 	/*
@@ -217,104 +235,228 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	 */
 	@Override
 	public void transformFinished() {
-		this.placeBoundaryNodes(true);
+		//this.placeBoundaryNodes(true);
 		this.flushImage();
 		super.transformFinished();
 	}
 	
-	/*
-	 * sets the boundary area and place the boundary nodes
-	 */
-	public void placeBoundaryNodes(boolean onlyUpdateBoundaryAreaPosition) {
-		
-		if(this.isPerformTracing()) {
-		
-			if (!((this.boundaryNodes == null) || this.boundaryNodes.isEmpty())) {
-				
-				// Step 1: get the bounds of the inner nodes
-				
-				
-				Map<String, Point2D> positions = this.getNodePositions(this.nonBoundaryNodes);
-				
-				// safety test
-				if(positions == null) return;
-				
-				/* the positions might not be available for all nodes because e.g. the date filter specified by the user 
-				 * might remove some inner nodes from the graph so the layout methods do not set their position
-				 * --> these empty position are set to the left upper corner of default bounds
-				 */
-				
-				
-				Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(this);
-				
-				Set<String> nodesWithoutPosition = positions.entrySet().stream().filter(e -> Double.isNaN(e.getValue().getX()) || Double.isNaN(e.getValue().getY())).map(e -> e.getKey()).collect(Collectors.toSet());
-				
-				nodesWithoutPosition.forEach(nodeId -> positions.put(nodeId, new Point2D.Double(defaultBounds.getX(), defaultBounds.getY())));
-				
-				
-				Rectangle2D bounds = PointUtils.getBounds(positions.values());
-				
-				if(bounds.isEmpty()) {
-					
-					boundaryArea = null;
-					this.flushImage();
-					return;
-				}
-			
-				Polygon newBoundaryArea = ExplosionCanvasUtils.createBoundaryArea(bounds);
-
-				boolean boundaryAreaChanged = boundaryArea==null || !newBoundaryArea.equals(boundaryArea);
-			
-				boundaryArea = newBoundaryArea;
-			
-				Rectangle2D rect = ExplosionCanvasUtils.getAreaRect(this.boundaryArea);
-				double w = ExplosionCanvasUtils.getAreaBorderWidth(this.boundaryArea);
-			
-				if(!onlyUpdateBoundaryAreaPosition) {
-					
-					// <code>updateSet</code> is supposed to be the set of ids of visible boundary nodes if no date filter is applied
-					Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
-					
-					collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
-					
-					// sets the positions of the boundary nodes to nearby positions on the boundary area
-					for(String boundaryNodeKey: updateSet) {
-						
-						Point2D pCenter = PointUtils.getCenter(
-								this.boundaryNodesToInnerNodesMap.get(boundaryNodeKey).stream().map(innerNodeKey -> positions.get(innerNodeKey))
-								.collect(Collectors.toList()));
-						
-						Point2D pBR = ExplosionCanvasUtils.getClosestPointOnRect(pCenter, rect);
-						 
-						positions.put(boundaryNodeKey, pBR);
-					}
-					
-					// if an inner node has connections to several boundary nodes
-					// then their might be positioned on the same spot (depending on their other connections)
-					// this method distributes the boundary nodes with identical positions
-		            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(
-		            		positions, rect, 
-		            		boundaryNodesToInnerNodesMap.asMap().entrySet().stream().filter(e -> updateSet.contains(e.getKey()))
-		            		.collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<String>(e.getValue()))),
-		            		w);
-					
-					// the boundary positions were only set for the visual nodes so far
-					// but the position of the boundary meta nodes will be overwritten by 
-					// the position of the center of their contained nodes ->
-					// the position of the contained nodes is set to the position of their meta node
-		            Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
-					        	  Point2D p = positions.get(metaKey);
-					        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
-					          });
-					
-					this.setNodePositions(positions);
-				}
-				
-				if(boundaryAreaChanged) this.flushImage();
-			}
-		}
-
+//	/*
+//	 * sets the boundary area and place the boundary nodes
+//	 */
+//	public void placeBoundaryNodes(boolean onlyUpdateBoundaryAreaPosition) {
+//		
+//		if(this.isPerformTracing()) {
+//		
+//			if (!((this.boundaryNodes == null) || this.boundaryNodes.isEmpty())) {
+//				
+//				// Step 1: get the bounds of the inner nodes
+//				
+//				
+//				Map<String, Point2D> positions = this.getNodePositions(this.nonBoundaryNodes);
+//				
+//				// safety test
+//				if(positions == null) return;
+//				
+//				/* the positions might not be available for all nodes because e.g. the date filter specified by the user 
+//				 * might remove some inner nodes from the graph so the layout methods do not set their position
+//				 * --> these empty position are set to the left upper corner of default bounds
+//				 */
+//				
+//				
+//				Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(this);
+//				
+//				Set<String> nodesWithoutPosition = positions.entrySet().stream().filter(e -> Double.isNaN(e.getValue().getX()) || Double.isNaN(e.getValue().getY())).map(e -> e.getKey()).collect(Collectors.toSet());
+//				
+//				nodesWithoutPosition.forEach(nodeId -> positions.put(nodeId, new Point2D.Double(defaultBounds.getX(), defaultBounds.getY())));
+//				
+//				
+//				Rectangle2D bounds = PointUtils.getBounds(positions.values());
+//				
+//				if(bounds.isEmpty()) {
+//					
+//					boundaryArea = null;
+//					this.flushImage();
+//					return;
+//				}
+//			
+//				Polygon newBoundaryArea = ExplosionCanvasUtils.createBoundaryArea(bounds);
+//
+//				boolean boundaryAreaChanged = boundaryArea==null || !newBoundaryArea.equals(boundaryArea);
+//			
+//				boundaryArea = newBoundaryArea;
+//			
+//				Rectangle2D rect = ExplosionCanvasUtils.getAreaRect(this.boundaryArea);
+//				double w = ExplosionCanvasUtils.getAreaBorderWidth(this.boundaryArea);
+//			
+//				if(!onlyUpdateBoundaryAreaPosition) {
+//					
+//					// <code>updateSet</code> is supposed to be the set of ids of visible boundary nodes if no date filter is applied
+//					Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
+//					
+//					collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
+//					
+//					// sets the positions of the boundary nodes to nearby positions on the boundary area
+//					for(String boundaryNodeKey: updateSet) {
+//						
+//						Point2D pCenter = PointUtils.getCenter(
+//								this.boundaryNodesToInnerNodesMap.get(boundaryNodeKey).stream().map(innerNodeKey -> positions.get(innerNodeKey))
+//								.collect(Collectors.toList()));
+//						
+//						Point2D pBR = ExplosionCanvasUtils.getClosestPointOnRect(pCenter, rect);
+//						 
+//						positions.put(boundaryNodeKey, pBR);
+//					}
+//					
+//					// if an inner node has connections to several boundary nodes
+//					// then their might be positioned on the same spot (depending on their other connections)
+//					// this method distributes the boundary nodes with identical positions
+//		            ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(
+//		            		positions, rect, 
+//		            		boundaryNodesToInnerNodesMap.asMap().entrySet().stream().filter(e -> updateSet.contains(e.getKey()))
+//		            		.collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<String>(e.getValue()))),
+//		            		w);
+//					
+//					// the boundary positions were only set for the visual nodes so far
+//					// but the position of the boundary meta nodes will be overwritten by 
+//					// the position of the center of their contained nodes ->
+//					// the position of the contained nodes is set to the position of their meta node
+//		            Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
+//					        	  Point2D p = positions.get(metaKey);
+//					        	  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+//					          });
+//					
+//					this.setNodePositions(positions);
+//				}
+//				
+//				if(boundaryAreaChanged) this.flushImage();
+//			}
+//		}
+//
+//	}
+	
+	@Override
+	public void initLayout() {
+	  if(this.boundaryNodes.isEmpty()) this.initBoundary();
+	  super.initLayout();  
+//      if (!this.getLayoutableNodes().isEmpty()) {
+//          applyLayout(LayoutType.ISOM_LAYOUT, this.getLayoutableNodes(), false);
+//      }
+	  this.initBoundaryNodePositions();
+  }
+	
+	private void initBoundary() {
+	  boundary = new Boundary(this.nonBoundaryNodes, this.boundaryNodes, this.edges, this.getViewer().getSize());
 	}
+	
+	private void initBoundaryNodePositions() {
+	  if(this.boundary!=null) boundary.initNodePositions(this.getNodePositions());
+	}
+	
+	/*
+     * sets the boundary area and place the boundary nodes
+     */
+    public void placeBoundaryNodes(Set<GraphNode> nonBoundaryNodesToPlace) {
+        
+        if(this.isPerformTracing()) {
+        
+            if (!((nonBoundaryNodesToPlace == null) || nonBoundaryNodesToPlace.isEmpty())) {
+                
+                if(boundary!=null) {
+                  boundary.placeNodes(nonBoundaryNodesToPlace, this.getNodePositions(this.nonBoundaryNodes));
+                  this.setNodePositions(boundary.getNodePositions());
+                }
+                // Step 1: get the bounds of the inner nodes
+                
+                
+//                Map<String, Point2D> innerNodePositions = this.getNodePositions(this.nonBoundaryNodes);
+//                
+//                // safety test
+//                if(innerNodePositions == null) return;
+//                
+//                /* the positions might not be available for all nodes because e.g. the date filter specified by the user 
+//                 * might remove some inner nodes from the graph so the layout methods do not set their position
+//                 * --> these empty position are set to the left upper corner of default bounds
+//                 */
+//                
+//                
+//                
+//                
+//                
+//                
+//                
+//                
+//                
+//                
+//                Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(this);
+//                
+//                Set<String> nodesWithoutPosition = positions.entrySet().stream().filter(e -> Double.isNaN(e.getValue().getX()) || Double.isNaN(e.getValue().getY())).map(e -> e.getKey()).collect(Collectors.toSet());
+//                
+//                nodesWithoutPosition.forEach(nodeId -> positions.put(nodeId, new Point2D.Double(defaultBounds.getX(), defaultBounds.getY())));
+//                
+//                
+//                Rectangle2D bounds = PointUtils.getBounds(positions.values());
+//                
+//                if(bounds.isEmpty()) {
+//                    
+//                    boundaryArea = null;
+//                    this.flushImage();
+//                    return;
+//                }
+//            
+//                Polygon newBoundaryArea = ExplosionCanvasUtils.createBoundaryArea(bounds);
+//
+//                boolean boundaryAreaChanged = boundaryArea==null || !newBoundaryArea.equals(boundaryArea);
+//            
+//                boundaryArea = newBoundaryArea;
+//            
+//                Rectangle2D rect = ExplosionCanvasUtils.getAreaRect(this.boundaryArea);
+//                double w = ExplosionCanvasUtils.getAreaBorderWidth(this.boundaryArea);
+//            
+//                if(!onlyUpdateBoundaryAreaPosition) {
+//                    
+//                    // <code>updateSet</code> is supposed to be the set of ids of visible boundary nodes if no date filter is applied
+//                    Set<String> updateSet = boundaryNodesToInnerNodesMap.keySet().stream().collect(Collectors.toSet());
+//                    
+//                    collapsedNodes.entrySet().forEach(e -> updateSet.removeAll(e.getValue()));
+//                    
+//                    // sets the positions of the boundary nodes to nearby positions on the boundary area
+//                    for(String boundaryNodeKey: updateSet) {
+//                        
+//                        Point2D pCenter = PointUtils.getCenter(
+//                                this.boundaryNodesToInnerNodesMap.get(boundaryNodeKey).stream().map(innerNodeKey -> positions.get(innerNodeKey))
+//                                .collect(Collectors.toList()));
+//                        
+//                        Point2D pBR = ExplosionCanvasUtils.getClosestPointOnRect(pCenter, rect);
+//                         
+//                        positions.put(boundaryNodeKey, pBR);
+//                    }
+//                    
+//                    // if an inner node has connections to several boundary nodes
+//                    // then their might be positioned on the same spot (depending on their other connections)
+//                    // this method distributes the boundary nodes with identical positions
+//                    ExplosionCanvasUtils.updateBoundaryNodePositionsByRemovingVisualConflicts(
+//                            positions, rect, 
+//                            boundaryNodesToInnerNodesMap.asMap().entrySet().stream().filter(e -> updateSet.contains(e.getKey()))
+//                            .collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<String>(e.getValue()))),
+//                            w);
+//                    
+//                    // the boundary positions were only set for the visual nodes so far
+//                    // but the position of the boundary meta nodes will be overwritten by 
+//                    // the position of the center of their contained nodes ->
+//                    // the position of the contained nodes is set to the position of their meta node
+//                    Sets.intersection(collapsedNodes.keySet(), updateSet).forEach(metaKey -> {
+//                                  Point2D p = positions.get(metaKey);
+//                                  collapsedNodes.get(metaKey).forEach(k -> positions.put(k, p));
+//                              });
+//                    
+//                    this.setNodePositions(positions);
+//                }
+//                
+//                if(boundaryAreaChanged) this.flushImage();
+            }
+        }
+
+    }
 	
 	/*
 	 * deletes the buffered image
