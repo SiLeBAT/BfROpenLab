@@ -478,7 +478,7 @@ public class PlausibleDialog4Krise extends JDialog {
 	            contentPanel.add(separator42, CC.xywh(1, 15, 25, 1));
 
 	            //---- ignoreKnownDissimilaritiesCheckBox ----
-	            ignoreKnownDissimilaritiesCheckBox.setText("Ignore known dissimilarities");
+	            ignoreKnownDissimilaritiesCheckBox.setText("Also show results previously marked as unique");
 	            contentPanel.add(ignoreKnownDissimilaritiesCheckBox, CC.xywh(1, 17, 13, 1));
 	          }
 	          dialogPane.add(contentPanel, BorderLayout.CENTER);
