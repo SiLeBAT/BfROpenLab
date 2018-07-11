@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import com.google.common.collect.Sets;
 import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch.SimSet.Type;
@@ -103,6 +104,17 @@ public final class SimSearch {
        
     public boolean getIgnoreKnownDissimilarities() { return this.ignoreKnownDissimilarities; }
     public void setIgnoreKnownDissimilarities(boolean value) { if(!this.readOnly) this.ignoreKnownDissimilarities = value; }
+    
+    public boolean equals(Settings settings) {
+      return (useLevenshtein==settings.useLevenshtein &&
+         useFormat2017==settings.useFormat2017 &&
+         ignoreKnownDissimilarities==settings.ignoreKnownDissimilarities && 
+         checkList.equals(settings.checkList) &&
+         attributeTresholdMap.equals(settings.attributeTresholdMap));
+         //!Sets.symmetricDifference(checkList, settings.checkList).isEmpty()) return false;
+      
+      //return true;
+    }
   }
 
   public interface SimSearchListener {
@@ -252,22 +264,24 @@ public final class SimSearch {
   }
   
   public boolean save() throws Exception {
-    if(this.dataSource!=null) {
-    	if(this.dataSource.save(this.dataManipulationHandler)) {
-    		// remove discarded simsets
-    		this.simSetList.removeIf(simSet -> this.dataManipulationHandler.isSimSetIgnored(simSet));
-    		
-    		// remove merge ids from simsets
-    		for(SimSearch.SimSet simSet: this.simSetList) simSet.setMissing(simSet.getIdList().stream().filter(id -> this.dataManipulationHandler.isMerged(simSet.getType(), id)).collect(Collectors.toList()));        //getIdList().removeIf(id -> this.dataManipulationHandler.isMerged(simSet.getType(), id));
-    		
-    		// remove simsets which are cleared
-    		this.simSetList.removeIf(simSet -> simSet.idList.size()<=1 || !simSet.idList.contains(simSet.referenceId));
-    		
-    		this.dataManipulationHandler.clearManipulations();
-    		return true;
-    	}
-    }
-    return false;
+    // ToDo: remove
+    return true;
+//    if(this.dataSource!=null) {
+//    	if(this.dataSource.save(this.dataManipulationHandler)) {
+//    		// remove discarded simsets
+//    		this.simSetList.removeIf(simSet -> this.dataManipulationHandler.isSimSetIgnored(simSet));
+//    		
+//    		// remove merge ids from simsets
+//    		for(SimSearch.SimSet simSet: this.simSetList) simSet.setMissing(simSet.getIdList().stream().filter(id -> this.dataManipulationHandler.isMerged(simSet.getType(), id)).collect(Collectors.toList()));        //getIdList().removeIf(id -> this.dataManipulationHandler.isMerged(simSet.getType(), id));
+//    		
+//    		// remove simsets which are cleared
+//    		this.simSetList.removeIf(simSet -> simSet.idList.size()<=1 || !simSet.idList.contains(simSet.referenceId));
+//    		
+//    		this.dataManipulationHandler.clearManipulations();
+//    		return true;
+//    	}
+//    }
+//    return false;
   }
 
   public int getSimSetCount() { return (this.simSetList==null?0:this.simSetList.size()); }

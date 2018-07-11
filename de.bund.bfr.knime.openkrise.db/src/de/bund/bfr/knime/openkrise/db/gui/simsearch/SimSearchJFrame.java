@@ -32,6 +32,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -90,14 +91,23 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 
 	private int currentSimSetIndex;
 	private boolean userIsWaiting;
-	private boolean searchIsOn;
-	private boolean closeWindow;
+	private volatile boolean searchIsOn;
+	private boolean  blockActions;
+	//private boolean saveIsOn;
+	//private boolean closeWindow;
+	//private boolean isClosing;
+	// private Consumer<SimSearch> searchFinishedCallBack;
+	// private BiConsumer<SimSearch, Boolean> saveFinishedCallBack;
 
 	public SimSearchJFrame(Frame owner) {
 		super(owner);
 		this.setModal(true);
 		this.initComponents();
 		this.userIsWaiting = false;
+		this.searchIsOn = false;
+		this.blockActions = false;
+//		this.saveIsOn = false;
+//		this.isClosing = false;
 	}
 
 	// GUI setup start
@@ -107,7 +117,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				SimSearchJFrame.this.processWindowCloseRequest();
+				SimSearchJFrame.this.processUserCloseRequest();
 			}
 
 			@Override
@@ -245,14 +255,14 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				SimSearchJFrame.this.processWindowCloseRequest();
+				SimSearchJFrame.this.processUserCloseRequest();
 			}
 
 		});
 		this.okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				SimSearchJFrame.this.processUserSaveRequest();
+				SimSearchJFrame.this.processUserOkRequest();
 			}
 		});
 		this.applyButton.addActionListener(new ActionListener() {
@@ -296,12 +306,12 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		bar.add(menu);
 
 		menu = new JMenu("Settings");
-		JMenuItem menuItem = new JMenuItem("Show search settings ..");
+		JMenuItem menuItem = new JMenuItem("Search settings ..");
 		menuItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				SimSearchJFrame.this.processOpenSettingsRequest();
+				SimSearchJFrame.this.processEditSettingsRequest();
 			}
 
 		});
@@ -327,7 +337,55 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 
 	// GUI setup end
 	
+	private void restartSearch(SimSearch.Settings settings) {
+	  if(simSearch!=null) {
+        this.simSearch.removeEventListener(this);
+        //ToDo: check whether to unregister ManipulationState listeners to
+        this.simSearch = null;
+        this.updateSimSetIndependentButtons();
+        this.clearTable();
+      }
+	  startSearch(settings);
+	}
+	
+	
+//	private void restartSearch(SimSearch.Settings settings) {
+//	  if(blockActions || searchIsOn) return;
+//      
+////    if(searchIsOn) {
+////      JOptionPane.showMessageDialog(this, "Search is already running.",null,JOptionPane.INFORMATION_MESSAGE);
+////      return;
+////    }
+////    if(saveIsOn) {
+////      JOptionPane.showMessageDialog(this, "Saving data. Search cannot be started.",null,JOptionPane.INFORMATION_MESSAGE);
+////        return;
+////    }
+//      if(simSearch!=null) {
+//        this.simSearch.removeEventListener(this);
+//        //ToDo: check whether to unregister ManipulationState listeners to
+//      }
+//      
+//      this.simSearch = null;
+//      this.simSearchSettings = settings; 
+//      this.currentSimSetIndex = -1;
+//	}
+	
 	public void startSearch(SimSearch.Settings settings) {
+	    if(blockActions || searchIsOn) return;
+	    
+//	    if(searchIsOn) {
+//	      JOptionPane.showMessageDialog(this, "Search is already running.",null,JOptionPane.INFORMATION_MESSAGE);
+//	      return;
+//	    }
+//	    if(saveIsOn) {
+//	      JOptionPane.showMessageDialog(this, "Saving data. Search cannot be started.",null,JOptionPane.INFORMATION_MESSAGE);
+//          return;
+//	    }
+	    if(simSearch!=null) {
+	      restartSearch(settings);
+	      return;
+	    }
+	      	    
 		this.simSearchSettings = settings; 
 		this.currentSimSetIndex = -1;
 
@@ -354,7 +412,9 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 			public void run(){
 				boolean searchCompleted = false;
 				try {
+				    System.out.println(Thread.currentThread().getId() + "\tSimSearch.startAsyncSearch.asyncThread before search");
 					searchCompleted = SimSearchJFrame.this.simSearch.search(settings);
+					System.out.println(Thread.currentThread().getId() + "\tSimSearch.startAsyncSearch.asyncThread after search");
 				} catch (Exception err) {
 					SimSearchJFrame.this.showError(err, "Similarity search failed."); 
 				}      
@@ -367,17 +427,18 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	}
 
 	private void finishAsyncSearch(boolean searchCompleted) {
+	  System.out.println("finishAsynSearch entered (IsEventDispatchThread: " + SwingUtilities.isEventDispatchThread() + ")...");
 		if(SwingUtilities.isEventDispatchThread()) {
-			// 
-			if(this.closeWindow) this.dispose();
-			else {
-				this.setUserIsWaiting(false);
-				this.searchIsOn = false;
-				this.updateSimSetCountLabel();
-				this.navToLast.setEnabled((this.simSearch.getSimSetCount()>Math.max(0,this.currentSimSetIndex+1)));
-				if(this.simSearch.getSimSetCount()==0 && searchCompleted) JOptionPane.showMessageDialog(null, "No similarities found.", "Similarity search result", 1);
+		  	// 
+			this.setUserIsWaiting(false);
+			this.searchIsOn = false;
+			
+			this.updateSimSetCountLabel();
+			this.navToLast.setEnabled((this.simSearch.getSimSetCount()>Math.max(0,this.currentSimSetIndex+1)));
+			if(this.simSearch.getSimSetCount()==0 && searchCompleted) {
+			  JOptionPane.showMessageDialog(null, "No similarities found.", "Similarity search result", 1);
+			  processEditSettingsRequest();
 			}
-
 		} else {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
@@ -385,6 +446,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 				}
 			});
 		}
+		System.out.println("finishAsynSearch leaving (IsEventDispatchThread: " + SwingUtilities.isEventDispatchThread() + ")...");
 	}
 
 	private void processNavigationRequest(JButton source) {
@@ -457,63 +519,300 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		}
 	}
 
-	private void processUserSaveRequest() {
-		if(this.simSearch!=null) startAsyncSave(false);
+//	private void processUserSaveRequest() {
+//	    //if(this.saveIsOn) return;
+//		//if(this.simSearch!=null) startAsyncSave(false);
+//	  if(this.simSearch.existDataManipulations() && searchIsOn) {
+//	    switch(JOptionPane.showConfirmDialog(this, "Before the data can be saved the search must be finished. DYour changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+//          case JOptionPane.CANCEL_OPTION:
+//            return false;
+//          case JOptionPane.YES_OPTION:
+//            saveChanges = true;
+//        }
+//      }
+//	  
+//	}
+	
+	private boolean preprocessUserSaveOrApplyRequest() {
+	  if(this.simSearch.existDataManipulations() && searchIsOn) {
+        switch(JOptionPane.showConfirmDialog(this, "Before the data can be saved the search will be stopped. Proceed?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+          case JOptionPane.NO_OPTION:
+            return false;
+          case JOptionPane.YES_OPTION:
+            return true;
+          default:
+            return true;
+        }
+      } else return true;
 	}
 
+	private void blockActions(boolean block) {
+	  System.out.println(Thread.currentThread().getId() + "\tSimSearchJFrame.blockActions(" + block + ")");
+	  blockActions = block;
+	}
+	
+//	private void stopSearchAndWait() {
+//	  if(searchIsOn) {
+//        simSearch.stopSearch();
+//        while(searchIsOn) { Thread.currentThread().sleep(100); }
+//      }
+//	}
+	
+	private void asyncSave(Consumer<Boolean> notifier) {
+	  Runnable runnable = new Runnable(){
+
+	    public void run(){
+	      System.out.println("asyncSave.asynThread entered ...");
+	      boolean result = false;
+	      try {
+
+	        syncStopSearchAndWait();
+
+	        result = syncSave();
+
+	      } catch (Exception err) {
+	        SimSearchJFrame.this.showError(err, "Data could not be saved."); 
+
+	      } finally {
+	        notifier.accept(result);
+	      }
+	      System.out.println("asyncSave.asynThread leaving");
+	    }
+	  };
+
+	  Thread thread = new Thread(runnable);
+	  thread.start();
+	}
+	
+//	private void callInEventDispatchThread(Runnable runnable) {
+//      if(SwingUtilities.isEventDispatchThread()) {
+//        runnable.run();
+//      } else {
+//        SwingUtilities.invokeLater(runnable);
+//      }
+//    }
+	
 	private void processUserApplyRequest() {
-		if(this.simSearch!=null) this.startAsyncSave(true);
+	  if (this.simSearch==null) return;
+	  if(areActionsBlocked()) return; 
+	  
+	  if(!this.preprocessUserSaveOrApplyRequest()) return;
+	  blockActions(true);
+	  
+	  asyncSave(b -> finishUserApplyRequestProcessing(b));
+	}
+	
+	private void finishUserApplyRequestProcessing(boolean applySucceeded) {
+	  if(SwingUtilities.isEventDispatchThread()) {
+	    // 
+	    blockActions(false);
+	    reloadData();
+
+	  } else {
+	    SwingUtilities.invokeLater(new Runnable() {
+	      public void run() {
+	        finishUserApplyRequestProcessing(applySucceeded);
+	      }
+	    });
+	  }
+    }
+	
+	private void processUserOkRequest() {
+      if (this.simSearch==null) return;
+      if(areActionsBlocked()) return; 
+      if(!this.preprocessUserSaveOrApplyRequest()) return;
+      blockActions(true);
+      
+      asyncSave(b -> finishUserOkRequestProcessing(b));
+    }
+    
+    private void finishUserOkRequestProcessing(boolean saveSucceeded) {
+      if(SwingUtilities.isEventDispatchThread()) {
+        //
+        blockActions(false);
+        if(saveSucceeded) this.dispose();
+        else reloadData();
+      } else {
+        SwingUtilities.invokeLater(new Runnable() {
+          public void run() {
+            finishUserOkRequestProcessing(saveSucceeded);
+          }
+        });
+      }
+    }
+    
+    private void asyncStopSearchAndWait(Runnable notifier) {
+      Runnable runnable = new Runnable(){
+
+        public void run(){
+          System.out.println("asyncStopSearchAndWait.asynThread entered ...");
+          syncStopSearchAndWait();
+          notifier.run();
+          System.out.println("asyncSave.asynThread leaving");
+        }
+      };
+
+      Thread thread = new Thread(runnable);
+      thread.start();
+    }
+    
+    private boolean areActionsBlocked() { return blockActions; }
+    
+    private void processUserCloseRequest() {
+      
+      if (this.simSearch==null) return;
+      if(areActionsBlocked()) return; 
+      
+      if(this.simSearch.existDataManipulations()) {
+
+        switch(JOptionPane.showConfirmDialog(this, "Your changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+          case JOptionPane.YES_OPTION:
+            this.processUserOkRequest();
+            return;
+          case JOptionPane.CANCEL_OPTION:
+            return;
+          case JOptionPane.NO_OPTION:
+            // just continue closing the window
+        }
+        
+      } else if(searchIsOn) {
+        
+        switch(JOptionPane.showConfirmDialog(this, "The search is still running and will be stopped. Abort nevertheless?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+          case JOptionPane.YES_OPTION:
+           // just continue closing the window
+          case JOptionPane.NO_OPTION:
+            return;
+        }
+      }
+      
+      
+      blockActions(true);
+      
+      asyncStopSearchAndWait(new Runnable() { 
+        public void run() {
+          finishUserCloseRequestProcessing();
+        }
+      });
+    }
+    
+    private void finishUserCloseRequestProcessing() {
+      if(SwingUtilities.isEventDispatchThread()) {
+        //
+        blockActions(false);
+        this.dispose();
+      } else {
+        SwingUtilities.invokeLater(new Runnable() {
+          public void run() {
+            finishUserCloseRequestProcessing();
+          }
+        });
+      }
+    }
+//	private void startAsyncSave(boolean applyOnly) {
+//		if(this.simSearch.existDataManipulations() && searchIsOn) {
+//			JOptionPane.showMessageDialog(this, "Data cannot saved before the search is finished.",null,JOptionPane.INFORMATION_MESSAGE);
+//			return;
+//		}
+//
+//		SimSearch.SimSet simSet = this.simSearch.getSimSet(this.currentSimSetIndex);
+//		Runnable runnable = new Runnable(){
+//
+//			public void run(){
+//				try {
+//				    saveIsOn = true;
+//				    Thread.currentThread().sleep(4000);
+//					boolean result = SimSearchJFrame.this.simSearch.save();
+//					SimSearchJFrame.this.finishAsyncSave(applyOnly, result, simSet);  
+//				} catch (Exception err) {
+//					SimSearchJFrame.this.showError(err, "Saving data to database failed.");
+//					SimSearchJFrame.this.finishAsyncSave(applyOnly, false, simSet);  
+//				}       
+//			}
+//		};
+//
+//		Thread thread = new Thread(runnable);
+//		thread.start();
+//	}
+	
+    private void reloadData() {
+      int simSetIndex = this.currentSimSetIndex;
+      if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
+      if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
+      else this.clearTable();
+    }
+    
+//	private void refreshView() {
+//	  if(SwingUtilities.isEventDispatchThread()) {
+//	    if(currentSimSet)
+////      this.saveIsOn = false;
+////      if(completed) {
+////          if(!applyOnly) {
+////              this.closeWindow = true;
+////              this.dispose();
+////          } else {
+////              int newSimSetIndex = this.simSearch.getSimSetIndex(simSet);
+////              if(newSimSetIndex>0) {
+////                  this.startAsyncDataLoad(newSimSetIndex);
+////              } else if(this.simSearch.getSimSetCount()>0) {
+////                  this.startAsyncDataLoad(0);
+////              } else {
+////                  Arrays.asList(navToFirst, navBack, navForward, navToLast).forEach(b -> b.setEnabled(false));
+////                  this.table.clear();
+////              }
+////          }
+////      }  
+////  } else {
+////      SwingUtilities.invokeLater(new Runnable() {
+////          public void run() {
+////              SimSearchJFrame.this.finishAsyncSave(applyOnly, completed, simSet);
+////          }
+////      });
+////  }
+//	}
+	
+	private boolean syncSave() {
+	  boolean result = false;
+	  try {
+	    result = SimSearchJFrame.this.simSearch.save();
+
+	    //refreshView();
+	    //SimSearchJFrame.this.finishAsyncOrSyncSave(applyOnly, result, simSet);  
+	  } catch (Exception err) {
+	    SimSearchJFrame.this.showError(err, "Saving data to database failed.");
+	    //SimSearchJFrame.this.finishAsyncSave(applyOnly, false, simSet);  
+	  } finally {   
+	    //refreshView();
+	  }
+	  return result;
 	}
 
-	private void startAsyncSave(boolean applyOnly) {
-		if(this.simSearch.existDataManipulations() && searchIsOn) {
-			JOptionPane.showMessageDialog(this, "Data cannot saved before the search is finished.",null,JOptionPane.INFORMATION_MESSAGE);
-			return;
-		}
-
-		SimSearch.SimSet simSet = this.simSearch.getSimSet(this.currentSimSetIndex);
-		Runnable runnable = new Runnable(){
-
-			public void run(){
-				try {
-					boolean result = SimSearchJFrame.this.simSearch.save();
-					SimSearchJFrame.this.finishAsyncSave(applyOnly, result, simSet);  
-				} catch (Exception err) {
-					SimSearchJFrame.this.showError(err, "Saving data to database failed.");
-					SimSearchJFrame.this.finishAsyncSave(applyOnly, false, simSet);  
-				}       
-			}
-		};
-
-		Thread thread = new Thread(runnable);
-		thread.start();
-	}
-
-	private void finishAsyncSave(boolean applyOnly, boolean completed, SimSearch.SimSet simSet) {
-		if(SwingUtilities.isEventDispatchThread()) {
-			if(completed) {
-				if(!applyOnly) {
-					this.dispose();
-				} else {
-					int newSimSetIndex = this.simSearch.getSimSetIndex(simSet);
-					if(newSimSetIndex>0) {
-						this.startAsyncDataLoad(newSimSetIndex);
-					} else if(this.simSearch.getSimSetCount()>0) {
-						this.startAsyncDataLoad(0);
-					} else {
-						Arrays.asList(navToFirst, navBack, navForward, navToLast).forEach(b -> b.setEnabled(false));
-						this.table.clear();
-					}
-				}
-			}  
-		} else {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					SimSearchJFrame.this.finishAsyncSave(applyOnly, completed, simSet);
-				}
-			});
-		}
-	}
+//	private void finishAsyncSave(boolean applyOnly, boolean completed, SimSearch.SimSet simSet) {
+//		if(SwingUtilities.isEventDispatchThread()) {
+//		    this.saveIsOn = false;
+//			if(completed) {
+//				if(!applyOnly) {
+//				    this.closeWindow = true;
+//					this.dispose();
+//				} else {
+//					int newSimSetIndex = this.simSearch.getSimSetIndex(simSet);
+//					if(newSimSetIndex>0) {
+//						this.startAsyncDataLoad(newSimSetIndex);
+//					} else if(this.simSearch.getSimSetCount()>0) {
+//						this.startAsyncDataLoad(0);
+//					} else {
+//						Arrays.asList(navToFirst, navBack, navForward, navToLast).forEach(b -> b.setEnabled(false));
+//						this.table.clear();
+//					}
+//				}
+//			}  
+//		} else {
+//			SwingUtilities.invokeLater(new Runnable() {
+//				public void run() {
+//					SimSearchJFrame.this.finishAsyncSave(applyOnly, completed, simSet);
+//				}
+//			});
+//		}
+//	}
 
 
 	private void processUndoRedoRequest(JButton source) {
@@ -527,21 +826,22 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private void processManipulationStateChanged(boolean reloadRequired) {
 		if(SwingUtilities.isEventDispatchThread()) {
 			// 
-			this.redoButton.setEnabled(this.simSearch.isRedoAvailable());
-			this.redoButton.setToolTipText(this.simSearch.getRedoType());
+//			this.redoButton.setEnabled(this.simSearch.isRedoAvailable());
+//			this.redoButton.setToolTipText(this.simSearch.getRedoType());
+//
+//			this.undoButton.setEnabled(this.simSearch.isUndoAvailable());
+//			this.undoButton.setToolTipText(this.simSearch.getUndoType());
+//
+//			this.applyButton.setEnabled(this.simSearch.existDataManipulations());
+			this.updateSimSetIndependentButtons();
 
-			this.undoButton.setEnabled(this.simSearch.isUndoAvailable());
-			this.undoButton.setToolTipText(this.simSearch.getUndoType());
-
-			this.applyButton.setEnabled(this.simSearch.existDataManipulations());
-
-
-			if(reloadRequired) {
-				int simSetIndex = this.currentSimSetIndex;
-				if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
-				if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
-				else this.clearTable();
-			}
+			if(reloadRequired) reloadData();
+//			{
+//				int simSetIndex = this.currentSimSetIndex;
+//				if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
+//				if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
+//				else this.clearTable();
+//			}
 
 		} else {
 			SwingUtilities.invokeLater(new Runnable() {
@@ -550,6 +850,16 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 				}
 			});
 		}
+	}
+	
+	private void updateSimSetIndependentButtons() {
+	  this.redoButton.setEnabled(this.simSearch!=null && this.simSearch.isRedoAvailable());
+      this.redoButton.setToolTipText((this.simSearch!=null?this.simSearch.getRedoType():null));
+
+      this.undoButton.setEnabled(this.simSearch!=null && this.simSearch.isUndoAvailable());
+      this.undoButton.setToolTipText((this.simSearch!=null?this.simSearch.getUndoType():null));
+
+      this.applyButton.setEnabled(this.simSearch!=null && this.simSearch.existDataManipulations());
 	}
 
 	private void clearTable() {
@@ -581,7 +891,8 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	}
 
 	private void updateSimSetCountLabel() {
-		if(this.searchIsOn) {
+	    if(this.simSearch==null) this.simSetCountLabel.setText("");
+	    else if(this.searchIsOn) {
 			this.simSetCountLabel.setText(this.simSearch.getNotIgnoredSimSetIndex(currentSimSetIndex)+1 + " / ?(" + (this.simSearch.getNotIgnoredSimSetIndex(this.simSearch.getSimSetCount()-1)+1) + ")");
 		} else {
 			this.simSetCountLabel.setText(this.simSearch.getNotIgnoredSimSetIndex(currentSimSetIndex)+1 + " / " + (this.simSearch.getNotIgnoredSimSetIndex(this.simSearch.getSimSetCount()-1)+1));
@@ -620,35 +931,136 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	public void processWindowOpenedEvent() {
 		if(this.simSearchSettings==null ) {
 			// Initial openEvent
-			this.simSearchSettings = PlausibleDialog4Krise.showSettings(this);
+			this.simSearchSettings = PlausibleDialog4Krise.editSettings(this, new SimSearch.Settings(), null);
 			if(this.simSearchSettings==null) this.dispose();
 			else this.startSearch(this.simSearchSettings);
 		}
 	}
 
-	private void processWindowCloseRequest() {
-		if(this.simSearch!=null && this.simSearch.existDataManipulations()) {
-			switch(JOptionPane.showConfirmDialog(this, "Your changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
-			case JOptionPane.YES_OPTION:
-				this.processUserSaveRequest();
-				return;
-			case JOptionPane.CANCEL_OPTION:
-				return;
-			case JOptionPane.NO_OPTION:
-				this.closeWindow = true;
-				if(this.searchIsOn) {
-					this.simSearch.stopSearch();
-					return;
-				}
-				// just continue closing the window
-			}
-		}
-		this.dispose();
+	private void syncStopSearchAndWait() {
+      System.out.println(Thread.currentThread().getId() + "\tstopSearchAndWait entered");
+      //System.out.println(Thread.currentThread().getId() + "\tSimSearch.startAsyncSearch.asyncThread before search");
+      
+      this.simSearch.stopSearch();
+      while(this.searchIsOn)
+      try {
+        Thread.currentThread().sleep(100);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      System.out.println(Thread.currentThread().getId() + "\tstopSearchAndWait leaving");
+    }
+	
+//	private void processWindowCloseRequest() {
+//	    if(this.closeWindow) return; // already triggered
+//	    
+//		if(this.simSearch!=null && this.simSearch.existDataManipulations()) {
+//		    //int result = JOptionPane.showConfirmDialog(this, "Your changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+//		    
+//			switch(JOptionPane.showConfirmDialog(this, "Your changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+//			case JOptionPane.YES_OPTION:
+//				//this.processUserSaveRequest();
+//			    if(this.saveAndWait(false)) this.closeWindow = true;
+//				return;
+//			case JOptionPane.CANCEL_OPTION:
+//				return;
+//			case JOptionPane.NO_OPTION:
+//				this.closeWindow = true;
+//				if(this.searchIsOn) this.stopSearchAndWait();
+//				// just continue closing the window
+//			}
+//		} else this.closeWindow = true;
+//		if(this.closeWindow) this.dispose();
+//	}
+
+
+	private void processEditSettingsRequest() {
+	  System.out.println("processOpenSettingsRequest entered ...");
+	  SimSearch.Settings newSettings = PlausibleDialog4Krise.editSettings(this, this.simSearchSettings, (h) -> prepareSettingsChange(h));
+	  if(newSettings!=null && !newSettings.equals(this.simSearchSettings)) {
+	    // settings changed, start new search
+	    this.clearTable();
+	    //this.simSearch = new SimSearch();
+	    //this.clearTable();
+	    this.startSearch(newSettings);
+	  }
+	  System.out.println("processOpenSettingsRequest leaving ...");
 	}
-
-
-	private void processOpenSettingsRequest() {
-		PlausibleDialog4Krise.showSettings(this, this.simSearchSettings);
+	
+	
+	
+//	private boolean saveAndWait(boolean applyOnly) {
+//	  System.out.println("saveAndWait entered");
+//	  if(searchIsOn) this.stopSearchAndWait();
+//	  this.startAsyncSave(applyOnly);
+//	  while(this.saveIsOn) {
+//	      try {
+//	        Thread.currentThread().sleep(100);
+//	        Thread.currentThread().
+//	      } catch (InterruptedException e) {
+//	        // TODO Auto-generated catch block
+//	        e.printStackTrace();
+//	      }
+//	  }
+//	  System.out.println("saveAndWait leaving");
+//	  return !this.simSearch.existDataManipulations();
+//	}
+	
+	private void prepareSettingsChange(Consumer<Boolean> continueEditSettings) {
+	  //System.out.println("prepareSettingsChange entered ...");
+	  boolean saveChanges = false;
+	  
+	  if(this.simSearch!=null && this.simSearch.existDataManipulations()) {
+	    // ask whether to apply changes
+    	  switch(JOptionPane.showConfirmDialog(this, "A new search will be started. Your changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+    	    case JOptionPane.CANCEL_OPTION:
+    	      continueEditSettings.accept(false);
+              return;
+    	    case JOptionPane.YES_OPTION:
+    	      saveChanges = true;
+    	    case JOptionPane.NO_OPTION:
+    	      // just continue 
+    	  }
+      }
+	  
+	  if(this.searchIsOn) {
+	    // sha
+	    switch(JOptionPane.showConfirmDialog(this, "The previous search is still running and will be stopped. Change settings nevertheless?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+          case JOptionPane.NO_OPTION:
+            continueEditSettings.accept(false);
+            return;
+          case JOptionPane.YES_OPTION:
+            // just continue
+        }
+	  }
+	  
+	  final boolean finalSaveChanges = saveChanges;
+	  
+	  Runnable runnable = new Runnable(){
+    
+            public void run(){
+              System.out.println("prepareSettingsChange.asynThread entered ...");
+                boolean result = false;
+                try {
+                    syncStopSearchAndWait();
+                                          
+                    result = !finalSaveChanges || syncSave();
+                    
+                } catch (Exception err) {
+                  SimSearchJFrame.this.showError(err, "Settings could not be changed."); 
+             
+                } finally {
+                  continueEditSettings.accept(result);
+                }
+                System.out.println("prepareSettingsChange.asynThread leaving");
+            }
+        };
+    
+        Thread thread = new Thread(runnable);
+        thread.start();
+        
+        //System.out.println("prepareSettingsChange leaving");
 	}
 
 	private void processUserHelpRequest() {

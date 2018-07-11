@@ -32,12 +32,16 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import javax.swing.*;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch;
+import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchJFrame;
 
 /**
  * @author Armin Weiser
@@ -52,6 +56,8 @@ public class PlausibleDialog4Krise extends JDialog {
 	private SimSearch.Settings simSearchSettings;
 	//private List<SimSearch.Settings> settingList;
 	private JCheckBox ignoreKnownDisimilaritiesCheckBox;
+	private Consumer<Consumer<Boolean>> prepareSettingsChange;
+	private SimSearch.Settings pendingSettings;
 	
 	public PlausibleDialog4Krise(Frame owner, boolean isFormat2017) {
 		super(owner);
@@ -79,17 +85,18 @@ public class PlausibleDialog4Krise extends JDialog {
 //		this.okButton.setEnabled(false);
 //	}
 	 
-	private PlausibleDialog4Krise(JDialog owner, SimSearch.Settings settings) {
+	private PlausibleDialog4Krise(JDialog owner, SimSearch.Settings settings, Consumer<Consumer<Boolean>> prepareSettingsChange) {
       //this(owner, settingList.get(0));
 	  super(owner);
 	  //SimSearch.Settings settings = (settingList.isEmpty()?new SimSearch.Settings():settingList.get(0));
-	  if(settings==null) settings = new SimSearch.Settings();
+	  //if(settings==null) settings = new SimSearch.Settings();
+	  this.prepareSettingsChange = prepareSettingsChange;
 	  this.useAllInOneAddress = settings.getUseAllInOneAddress();
       this.simSearchSettings = settings;
       okPressed = false;
       initComponents();
       this.applySettingsToDialog();
-      this.okButton.setEnabled(!settings.isReadOnly());
+      //this.okButton.setEnabled(!settings.isReadOnly());
       //this.settingList = settingList;
       this.registerCancelAndOkButtons();
 	}
@@ -143,9 +150,9 @@ public class PlausibleDialog4Krise extends JDialog {
 	    
 	    this.ignoreKnownDissimilaritiesCheckBox.setSelected(this.simSearchSettings.getIgnoreKnownDissimilarities());
 	    
-	    if(this.simSearchSettings.isReadOnly()) {
-	    	Arrays.asList(cs,cp,cl,cd,sn,sz,ss,sc,snum,ps,pd,la,ll,dl,dd,dr,ignoreKnownDissimilaritiesCheckBox,okButton).forEach(c -> c.setEnabled(false));
-	    }
+//	    if(this.simSearchSettings.isReadOnly()) {
+//	    	Arrays.asList(cs,cp,cl,cd,sn,sz,ss,sc,snum,ps,pd,la,ll,dl,dd,dr,ignoreKnownDissimilaritiesCheckBox,okButton).forEach(c -> c.setEnabled(false));
+//	    }
 	  }
 	}
 	
@@ -192,13 +199,25 @@ public class PlausibleDialog4Krise extends JDialog {
 	
 	private void processUserOkRequest() {
 		
-		if(this.simSearchSettings!=null && !this.simSearchSettings.isReadOnly()) {
+		//if(this.simSearchSettings!=null && !this.simSearchSettings.isReadOnly()) {
 		  if(!Arrays.asList(cs,cp,cl,cd).stream().anyMatch(c -> c.isSelected())) {
-			  JOptionPane.showMessageDialog(this, "Please specify which category/ies (Station, Product, Lot, Delivery) you want to check for similarities.","Missing information",JOptionPane.WARNING_MESSAGE);
+			  JOptionPane.showMessageDialog(this, "Please specify which category (Station, Product, Lot, Delivery) you want to check for similarities.","Missing information",JOptionPane.WARNING_MESSAGE);
 			  return;
 		  }
+		  SimSearch.Settings newSettings = new SimSearch.Settings(); 
+	      applySettingsFromDialog(newSettings);
+	      
+	      if(!newSettings.equals(this.simSearchSettings)) {
+	        if(this.prepareSettingsChange!=null) {
+	          pendingSettings = newSettings;
+	          prepareSettingsChange.accept(b -> continueUserOkRequest(b));
+	          return;
+	        }
+	        //if(stopSearchAndDiscardOrSaveData!=null && !stopSearchAndDiscardOrSaveData.getAsBoolean()) return;
+	        this.simSearchSettings = newSettings;
+	      }
 		  okPressed = true;
-		  this.applySettingsFromDialog(this.simSearchSettings);
+		  //this.applySettingsFromDialog(this.simSearchSettings);
 		  //this.settingList.clear();
 		  //this.settingList.add(this.simSearchSettings);
 //		  if(!this.simSearchSettings.isReadOnly()) {
@@ -208,21 +227,41 @@ public class PlausibleDialog4Krise extends JDialog {
 //		    JOptionPane.showConfirmDialog(this, "The settings cannot be modified anymore.");
 //	        return;
 //		  }
-		} else	okPressed = true;
-		dispose();
+		//} else	okPressed = true;
+		if(okPressed) dispose();
 	}
 	
-	public static SimSearch.Settings showSettings(JDialog owner, SimSearch.Settings settings) {
+	private void continueUserOkRequest(Boolean proceedWithOkRequest) {
+	  if(SwingUtilities.isEventDispatchThread()) {
+	    if(proceedWithOkRequest) {
+	      this.simSearchSettings = pendingSettings;
+	      this.okPressed = true;
+	      this.dispose();
+	    }
+        
+    } else {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+              continueUserOkRequest(proceedWithOkRequest);
+            }
+        });
+    }
+	}
+	
+	public static SimSearch.Settings editSettings(JDialog owner, SimSearch.Settings settings, Consumer<Consumer<Boolean>> prepareSettingsChange) {
 	  //List<SimSearch.Settings> settingList = new ArrayList<>();
 	  //if(settings!=null) settingList.add(settings);
 	  
-	  final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(owner, settings); 
+	  final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(owner, settings, prepareSettingsChange); 
       pd4.setVisible(true);
-      if (pd4.okPressed)return pd4.getSettings();
+      if (pd4.okPressed) {
+        return pd4.getSettings();
+        //return newSettings;
+      }
       else return null;
 	}
 
-	public static SimSearch.Settings showSettings(JDialog owner) { return showSettings(owner, null); }
+	//public static SimSearch.Settings showSettings(JDialog owner) { return showSettings(owner, null); }
 	
 	private void button1ActionPerformed(ActionEvent e) {
 		// Direkter Zugang zur SimSuche über Menü! Mergen Selbsterklärender machen!
@@ -237,7 +276,9 @@ public class PlausibleDialog4Krise extends JDialog {
 		help += "A value of 0 means that two items are always treated as 'similar'.\n";
 		help += "\nThe parameters are entity dependant, i.e. each entity has its individual parameters.\n";
 		help += "Be aware: all parameter similarity definitions are 'AND'-connected.\n";
-		help += "\nThe algorithm behind the scenes is the Dice's similarity coefficient,\nsee: https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient";
+		help += "Thirdly:\n";
+		help += "Check option 'Also show results previously marked as unique' to disable filtering of similarities you have already decided on.";
+		help += "\n\nThe algorithm behind the scenes is the Dice's similarity coefficient,\nsee: https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient";
 		
 		InfoBox ib = new InfoBox(help, true, new Dimension(800, 400), null, true);
 		ib.setVisible(true);
@@ -293,7 +334,7 @@ public class PlausibleDialog4Krise extends JDialog {
 	        button1 = new JButton();
 
 	        //======== this ========
-	        setTitle("Similarity Search Options");
+	        setTitle("Similarity Search Settings");
 	        setModal(true);
 	        Container contentPane = getContentPane();
 	        contentPane.setLayout(new BorderLayout());
