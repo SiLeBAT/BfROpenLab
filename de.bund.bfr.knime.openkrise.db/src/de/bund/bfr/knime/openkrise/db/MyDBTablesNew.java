@@ -40,7 +40,7 @@ public class MyDBTablesNew extends MyDBI {
 	private String saUser = "SA";//"defad"; // SA
 	private String saPass = "";//"de6!§5ddy";
 	private String dbServerPath = "";
-	private String softwareVersion = "1.8.6";
+	private String softwareVersion = "1.8.7";
 	
 	/*
 	 * Still todo:

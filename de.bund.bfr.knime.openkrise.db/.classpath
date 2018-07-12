@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang3-3.7.jar" sourcepath="lib/commons-lang3-3.7-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-text-1.2.jar" sourcepath="lib/commons-text-1.2-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/universalserialiser-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/universalserialiser-commons-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gisgraphy-commons-4.0-beta1.jar"/>
@@ -10,5 +12,15 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry excluding="**/*.jfd|org/hsh/bfr/db/res/exclude/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/miglayout-swing.jar" sourcepath="lib/miglayout-swing-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/de.bund.bfr.knime.openkrise.db/lib/miglayout-swing-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/miglayout-core.jar" sourcepath="lib/miglayout-core-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/de.bund.bfr.knime.openkrise.db/lib/miglayout-core-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

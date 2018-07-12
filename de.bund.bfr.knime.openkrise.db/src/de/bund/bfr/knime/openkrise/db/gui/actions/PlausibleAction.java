@@ -44,6 +44,7 @@ import de.bund.bfr.knime.openkrise.db.MyTable;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren.MyIDFilter;
+import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchJFrame;
 
 /**
  * @author Armin
@@ -69,6 +70,12 @@ public class PlausibleAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
+	  if(true) {
+		final SimSearchJFrame simSearchFrame = new SimSearchJFrame(DBKernel.mainFrame);
+		
+		simSearchFrame.setVisible(true);
+		return;
+	  } 
 		isFormat2017 = !DeliveryUtils.hasOnlyPositiveIDs(DBKernel.getLocalConn(true));
 	  	final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(DBKernel.mainFrame, isFormat2017); 
 	  	pd4.setVisible(true);
