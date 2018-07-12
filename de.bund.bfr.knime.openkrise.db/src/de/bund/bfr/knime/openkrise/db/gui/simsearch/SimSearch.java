@@ -259,7 +259,7 @@ public final class SimSearch {
     //this.searchStopped = false;
     this.simSearchSettings = settings;
     this.dataSource.findSimilarities(this.simSearchSettings);
-    return true;
+    return !this.dataSource.getSearchStopped();
   }
   
   public boolean save() throws Exception {

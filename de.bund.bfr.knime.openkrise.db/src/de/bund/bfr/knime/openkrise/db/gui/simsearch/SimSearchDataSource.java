@@ -147,7 +147,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
       //ResultSet rs = DBKernel.getResultSet(sql, false);
       if (rs != null) { // && rs.first()) {
           while(rs.next()) {
-        	 //Thread.currentThread().sleep(1000);
+        	 //Thread.currentThread().sleep(10000);
             if(this.getSearchStopped()) return;
             
             String[] resRowFirst = new String[simCheckCount + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
