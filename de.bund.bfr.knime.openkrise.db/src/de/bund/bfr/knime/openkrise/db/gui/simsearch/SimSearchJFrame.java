@@ -37,10 +37,8 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -83,9 +81,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 
 	private JLabel simSetCountLabel;
 
-	//private JCheckBoxMenuItem hideInactiveRowsMenuItem; 
-	//private JMenu rowHeightMenu;
-
 	private SimSearch simSearch;
 	private SimSearch.Settings simSearchSettings;
 
@@ -93,11 +88,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private boolean userIsWaiting;
 	private volatile boolean searchIsOn;
 	private boolean  blockActions;
-	//private boolean saveIsOn;
-	//private boolean closeWindow;
-	//private boolean isClosing;
-	// private Consumer<SimSearch> searchFinishedCallBack;
-	// private BiConsumer<SimSearch, Boolean> saveFinishedCallBack;
 
 	public SimSearchJFrame(Frame owner) {
 		super(owner);
@@ -106,8 +96,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		this.userIsWaiting = false;
 		this.searchIsOn = false;
 		this.blockActions = false;
-//		this.saveIsOn = false;
-//		this.isClosing = false;
 	}
 
 	// GUI setup start
@@ -348,39 +336,9 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	  startSearch(settings);
 	}
 	
-	
-//	private void restartSearch(SimSearch.Settings settings) {
-//	  if(blockActions || searchIsOn) return;
-//      
-////    if(searchIsOn) {
-////      JOptionPane.showMessageDialog(this, "Search is already running.",null,JOptionPane.INFORMATION_MESSAGE);
-////      return;
-////    }
-////    if(saveIsOn) {
-////      JOptionPane.showMessageDialog(this, "Saving data. Search cannot be started.",null,JOptionPane.INFORMATION_MESSAGE);
-////        return;
-////    }
-//      if(simSearch!=null) {
-//        this.simSearch.removeEventListener(this);
-//        //ToDo: check whether to unregister ManipulationState listeners to
-//      }
-//      
-//      this.simSearch = null;
-//      this.simSearchSettings = settings; 
-//      this.currentSimSetIndex = -1;
-//	}
-	
 	public void startSearch(SimSearch.Settings settings) {
 	    if(blockActions || searchIsOn) return;
 	    
-//	    if(searchIsOn) {
-//	      JOptionPane.showMessageDialog(this, "Search is already running.",null,JOptionPane.INFORMATION_MESSAGE);
-//	      return;
-//	    }
-//	    if(saveIsOn) {
-//	      JOptionPane.showMessageDialog(this, "Saving data. Search cannot be started.",null,JOptionPane.INFORMATION_MESSAGE);
-//          return;
-//	    }
 	    if(simSearch!=null) {
 	      restartSearch(settings);
 	      return;
@@ -412,9 +370,9 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 			public void run(){
 				boolean searchCompleted = false;
 				try {
-				    System.out.println(Thread.currentThread().getId() + "\tSimSearch.startAsyncSearch.asyncThread before search");
+				    //System.out.println(Thread.currentThread().getId() + "\tSimSearch.startAsyncSearch.asyncThread before search");
 					searchCompleted = SimSearchJFrame.this.simSearch.search(settings);
-					System.out.println(Thread.currentThread().getId() + "\tSimSearch.startAsyncSearch.asyncThread after search");
+					//System.out.println(Thread.currentThread().getId() + "\tSimSearch.startAsyncSearch.asyncThread after search");
 				} catch (Exception err) {
 					SimSearchJFrame.this.showError(err, "Similarity search failed."); 
 				}      
@@ -427,7 +385,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	}
 
 	private void finishAsyncSearch(boolean searchCompleted) {
-	  System.out.println("finishAsynSearch entered (IsEventDispatchThread: " + SwingUtilities.isEventDispatchThread() + ")...");
+	  //System.out.println("finishAsynSearch entered (IsEventDispatchThread: " + SwingUtilities.isEventDispatchThread() + ")...");
 		if(SwingUtilities.isEventDispatchThread()) {
 		  	// 
 			this.setUserIsWaiting(false);
@@ -446,7 +404,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 				}
 			});
 		}
-		System.out.println("finishAsynSearch leaving (IsEventDispatchThread: " + SwingUtilities.isEventDispatchThread() + ")...");
+		//System.out.println("finishAsynSearch leaving (IsEventDispatchThread: " + SwingUtilities.isEventDispatchThread() + ")...");
 	}
 
 	private void processNavigationRequest(JButton source) {
@@ -518,20 +476,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 			});
 		}
 	}
-
-//	private void processUserSaveRequest() {
-//	    //if(this.saveIsOn) return;
-//		//if(this.simSearch!=null) startAsyncSave(false);
-//	  if(this.simSearch.existDataManipulations() && searchIsOn) {
-//	    switch(JOptionPane.showConfirmDialog(this, "Before the data can be saved the search must be finished. DYour changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
-//          case JOptionPane.CANCEL_OPTION:
-//            return false;
-//          case JOptionPane.YES_OPTION:
-//            saveChanges = true;
-//        }
-//      }
-//	  
-//	}
 	
 	private boolean preprocessUserSaveOrApplyRequest() {
 	  if(this.simSearch.existDataManipulations() && searchIsOn) {
@@ -547,22 +491,15 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	}
 
 	private void blockActions(boolean block) {
-	  System.out.println(Thread.currentThread().getId() + "\tSimSearchJFrame.blockActions(" + block + ")");
+	  //System.out.println(Thread.currentThread().getId() + "\tSimSearchJFrame.blockActions(" + block + ")");
 	  blockActions = block;
 	}
-	
-//	private void stopSearchAndWait() {
-//	  if(searchIsOn) {
-//        simSearch.stopSearch();
-//        while(searchIsOn) { Thread.currentThread().sleep(100); }
-//      }
-//	}
 	
 	private void asyncSave(Consumer<Boolean> notifier) {
 	  Runnable runnable = new Runnable(){
 
 	    public void run(){
-	      System.out.println("asyncSave.asynThread entered ...");
+	      //System.out.println("asyncSave.asynThread entered ...");
 	      boolean result = false;
 	      try {
 
@@ -576,21 +513,13 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	      } finally {
 	        notifier.accept(result);
 	      }
-	      System.out.println("asyncSave.asynThread leaving");
+	      //System.out.println("asyncSave.asynThread leaving");
 	    }
 	  };
 
 	  Thread thread = new Thread(runnable);
 	  thread.start();
 	}
-	
-//	private void callInEventDispatchThread(Runnable runnable) {
-//      if(SwingUtilities.isEventDispatchThread()) {
-//        runnable.run();
-//      } else {
-//        SwingUtilities.invokeLater(runnable);
-//      }
-//    }
 	
 	private void processUserApplyRequest() {
 	  if (this.simSearch==null) return;
@@ -645,10 +574,10 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
       Runnable runnable = new Runnable(){
 
         public void run(){
-          System.out.println("asyncStopSearchAndWait.asynThread entered ...");
+          //System.out.println("asyncStopSearchAndWait.asynThread entered ...");
           syncStopSearchAndWait();
           notifier.run();
-          System.out.println("asyncSave.asynThread leaving");
+          //System.out.println("asyncSave.asynThread leaving");
         }
       };
 
@@ -708,112 +637,24 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
         });
       }
     }
-//	private void startAsyncSave(boolean applyOnly) {
-//		if(this.simSearch.existDataManipulations() && searchIsOn) {
-//			JOptionPane.showMessageDialog(this, "Data cannot saved before the search is finished.",null,JOptionPane.INFORMATION_MESSAGE);
-//			return;
-//		}
-//
-//		SimSearch.SimSet simSet = this.simSearch.getSimSet(this.currentSimSetIndex);
-//		Runnable runnable = new Runnable(){
-//
-//			public void run(){
-//				try {
-//				    saveIsOn = true;
-//				    Thread.currentThread().sleep(4000);
-//					boolean result = SimSearchJFrame.this.simSearch.save();
-//					SimSearchJFrame.this.finishAsyncSave(applyOnly, result, simSet);  
-//				} catch (Exception err) {
-//					SimSearchJFrame.this.showError(err, "Saving data to database failed.");
-//					SimSearchJFrame.this.finishAsyncSave(applyOnly, false, simSet);  
-//				}       
-//			}
-//		};
-//
-//		Thread thread = new Thread(runnable);
-//		thread.start();
-//	}
-	
+
     private void reloadData() {
       int simSetIndex = this.currentSimSetIndex;
       if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
       if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
       else this.clearTable();
     }
-    
-//	private void refreshView() {
-//	  if(SwingUtilities.isEventDispatchThread()) {
-//	    if(currentSimSet)
-////      this.saveIsOn = false;
-////      if(completed) {
-////          if(!applyOnly) {
-////              this.closeWindow = true;
-////              this.dispose();
-////          } else {
-////              int newSimSetIndex = this.simSearch.getSimSetIndex(simSet);
-////              if(newSimSetIndex>0) {
-////                  this.startAsyncDataLoad(newSimSetIndex);
-////              } else if(this.simSearch.getSimSetCount()>0) {
-////                  this.startAsyncDataLoad(0);
-////              } else {
-////                  Arrays.asList(navToFirst, navBack, navForward, navToLast).forEach(b -> b.setEnabled(false));
-////                  this.table.clear();
-////              }
-////          }
-////      }  
-////  } else {
-////      SwingUtilities.invokeLater(new Runnable() {
-////          public void run() {
-////              SimSearchJFrame.this.finishAsyncSave(applyOnly, completed, simSet);
-////          }
-////      });
-////  }
-//	}
 	
 	private boolean syncSave() {
 	  boolean result = false;
 	  try {
 	    result = SimSearchJFrame.this.simSearch.save();
-
-	    //refreshView();
-	    //SimSearchJFrame.this.finishAsyncOrSyncSave(applyOnly, result, simSet);  
 	  } catch (Exception err) {
 	    SimSearchJFrame.this.showError(err, "Saving data to database failed.");
-	    //SimSearchJFrame.this.finishAsyncSave(applyOnly, false, simSet);  
 	  } finally {   
-	    //refreshView();
 	  }
 	  return result;
 	}
-
-//	private void finishAsyncSave(boolean applyOnly, boolean completed, SimSearch.SimSet simSet) {
-//		if(SwingUtilities.isEventDispatchThread()) {
-//		    this.saveIsOn = false;
-//			if(completed) {
-//				if(!applyOnly) {
-//				    this.closeWindow = true;
-//					this.dispose();
-//				} else {
-//					int newSimSetIndex = this.simSearch.getSimSetIndex(simSet);
-//					if(newSimSetIndex>0) {
-//						this.startAsyncDataLoad(newSimSetIndex);
-//					} else if(this.simSearch.getSimSetCount()>0) {
-//						this.startAsyncDataLoad(0);
-//					} else {
-//						Arrays.asList(navToFirst, navBack, navForward, navToLast).forEach(b -> b.setEnabled(false));
-//						this.table.clear();
-//					}
-//				}
-//			}  
-//		} else {
-//			SwingUtilities.invokeLater(new Runnable() {
-//				public void run() {
-//					SimSearchJFrame.this.finishAsyncSave(applyOnly, completed, simSet);
-//				}
-//			});
-//		}
-//	}
-
 
 	private void processUndoRedoRequest(JButton source) {
 		if(source==this.undoButton) this.simSearch.undo();
@@ -826,22 +667,10 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private void processManipulationStateChanged(boolean reloadRequired) {
 		if(SwingUtilities.isEventDispatchThread()) {
 			// 
-//			this.redoButton.setEnabled(this.simSearch.isRedoAvailable());
-//			this.redoButton.setToolTipText(this.simSearch.getRedoType());
-//
-//			this.undoButton.setEnabled(this.simSearch.isUndoAvailable());
-//			this.undoButton.setToolTipText(this.simSearch.getUndoType());
-//
-//			this.applyButton.setEnabled(this.simSearch.existDataManipulations());
+
 			this.updateSimSetIndependentButtons();
 
 			if(reloadRequired) reloadData();
-//			{
-//				int simSetIndex = this.currentSimSetIndex;
-//				if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
-//				if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
-//				else this.clearTable();
-//			}
 
 		} else {
 			SwingUtilities.invokeLater(new Runnable() {
@@ -938,74 +767,30 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	}
 
 	private void syncStopSearchAndWait() {
-      System.out.println(Thread.currentThread().getId() + "\tstopSearchAndWait entered");
+      //System.out.println(Thread.currentThread().getId() + "\tstopSearchAndWait entered");
       //System.out.println(Thread.currentThread().getId() + "\tSimSearch.startAsyncSearch.asyncThread before search");
       
       this.simSearch.stopSearch();
-      while(this.searchIsOn)
+      while(this.searchIsOn) 
       try {
-        Thread.currentThread().sleep(100);
+        Thread.sleep(100);
       } catch (InterruptedException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      System.out.println(Thread.currentThread().getId() + "\tstopSearchAndWait leaving");
+      //System.out.println(Thread.currentThread().getId() + "\tstopSearchAndWait leaving");
     }
 	
-//	private void processWindowCloseRequest() {
-//	    if(this.closeWindow) return; // already triggered
-//	    
-//		if(this.simSearch!=null && this.simSearch.existDataManipulations()) {
-//		    //int result = JOptionPane.showConfirmDialog(this, "Your changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-//		    
-//			switch(JOptionPane.showConfirmDialog(this, "Your changes have not been saved yet. Save?", null, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
-//			case JOptionPane.YES_OPTION:
-//				//this.processUserSaveRequest();
-//			    if(this.saveAndWait(false)) this.closeWindow = true;
-//				return;
-//			case JOptionPane.CANCEL_OPTION:
-//				return;
-//			case JOptionPane.NO_OPTION:
-//				this.closeWindow = true;
-//				if(this.searchIsOn) this.stopSearchAndWait();
-//				// just continue closing the window
-//			}
-//		} else this.closeWindow = true;
-//		if(this.closeWindow) this.dispose();
-//	}
-
-
 	private void processEditSettingsRequest() {
-	  System.out.println("processOpenSettingsRequest entered ...");
+	  //System.out.println("processOpenSettingsRequest entered ...");
 	  SimSearch.Settings newSettings = PlausibleDialog4Krise.editSettings(this, this.simSearchSettings, (h) -> prepareSettingsChange(h));
+	  
 	  if(newSettings!=null && !newSettings.equals(this.simSearchSettings)) {
 	    // settings changed, start new search
-	    this.clearTable();
-	    //this.simSearch = new SimSearch();
-	    //this.clearTable();
-	    this.startSearch(newSettings);
+	    this.restartSearch(newSettings);
 	  }
-	  System.out.println("processOpenSettingsRequest leaving ...");
+	  //System.out.println("processOpenSettingsRequest leaving ...");
 	}
-	
-	
-	
-//	private boolean saveAndWait(boolean applyOnly) {
-//	  System.out.println("saveAndWait entered");
-//	  if(searchIsOn) this.stopSearchAndWait();
-//	  this.startAsyncSave(applyOnly);
-//	  while(this.saveIsOn) {
-//	      try {
-//	        Thread.currentThread().sleep(100);
-//	        Thread.currentThread().
-//	      } catch (InterruptedException e) {
-//	        // TODO Auto-generated catch block
-//	        e.printStackTrace();
-//	      }
-//	  }
-//	  System.out.println("saveAndWait leaving");
-//	  return !this.simSearch.existDataManipulations();
-//	}
 	
 	private void prepareSettingsChange(Consumer<Boolean> continueEditSettings) {
 	  //System.out.println("prepareSettingsChange entered ...");
@@ -1040,7 +825,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	  Runnable runnable = new Runnable(){
     
             public void run(){
-              System.out.println("prepareSettingsChange.asynThread entered ...");
+              //System.out.println("prepareSettingsChange.asynThread entered ...");
                 boolean result = false;
                 try {
                     syncStopSearchAndWait();
@@ -1053,7 +838,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
                 } finally {
                   continueEditSettings.accept(result);
                 }
-                System.out.println("prepareSettingsChange.asynThread leaving");
+                //System.out.println("prepareSettingsChange.asynThread leaving");
             }
         };
     

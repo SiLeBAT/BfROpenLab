@@ -38,7 +38,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
     
   private boolean addLDFunctionToDB(SimSearch.Settings settings) {
 	this.removeLDFunctionFromDB();
-	System.out.println(Thread.currentThread().getId() + "\tCREATE FUNCTION LD sending ...");
+	//System.out.println(Thread.currentThread().getId() + "\tCREATE FUNCTION LD sending ...");
     return DBKernel.sendRequest(
         "CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
         (settings.getUseLevenshtein() ? "RETURNS INT\n" : "RETURNS DOUBLE\n") + 
@@ -56,7 +56,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   
   private void removeLDFunctionFromDB() {
     DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false, true);
-    System.out.println(Thread.currentThread().getId() + "\tDROP FUNCTION IF EXISTS LD sended");
+    //System.out.println(Thread.currentThread().getId() + "\tDROP FUNCTION IF EXISTS LD sended");
   }
   
   private class SimCheck {
@@ -147,7 +147,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
       //ResultSet rs = DBKernel.getResultSet(sql, false);
       if (rs != null) { // && rs.first()) {
           while(rs.next()) {
-        	 Thread.currentThread().sleep(1000);
+        	 //Thread.currentThread().sleep(1000);
             if(this.getSearchStopped()) return;
             
             String[] resRowFirst = new String[simCheckCount + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
@@ -260,7 +260,7 @@ public class SimSearchDataSource extends SimSearch.DataSource{
               if (rs2 != null) { // && rs2.first()) {
                   LinkedHashSet<String[]> resSetOther = new LinkedHashSet<>(); 
                   while(rs2.next()) {
-                    Thread.currentThread().sleep(500);
+                    //Thread.currentThread().sleep(500);
                       String[] resRowOther = new String[simCheckCount + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
                       //String[] resRowOther = new String[fieldnames.length + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
 
