@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="KNIME 3.6 TP" sequenceNumber="46">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
+<unit id="org.knime.features.base.feature.group" version="0.0.0"/>
+<repository location="http://update.knime.org/analytics-platform/3.6/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.knime.features.activelearning.feature.group" version="3.6.0.v201805030954"/>
+<unit id="org.knime.features.base.filehandling.feature.group" version="3.6.0.v201807051517"/>
+<unit id="org.knime.features.core.streaming.feature.group" version="3.6.0.v201805031009"/>
+<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.7.0.v201807061420"/>
+<unit id="org.knime.features.ext.jfreechart.feature.group" version="3.6.0.v201805031002"/>
+<unit id="org.knime.features.ext.osm.feature.group" version="3.6.0.v201805031003"/>
+<unit id="org.knime.features.ext.r.feature.group" version="3.6.0.v201805031004"/>
+<unit id="org.knime.features.ext.svg.feature.group" version="3.6.0.v201807091358"/>
+<unit id="org.knime.features.ext.textprocessing.feature.group" version="3.6.0.v201807031132"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.6.0.v201807101034"/>
+<unit id="org.knime.features.network.feature.group" version="3.6.0.v201807061308"/>
+<unit id="org.knime.features.quickform.legacy.feature.group" version="3.6.0.v201805031002"/>
+<unit id="org.knime.features.r.feature.group" version="3.6.0.v201807091405"/>
+<unit id="com.knime.features.reporting.designer.feature.group" version="3.6.0.v201807060750"/>
+<unit id="org.knime.features.rest.feature.group" version="3.6.0.v201806251157"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.6.0.v201805240833"/>
+<unit id="org.knime.product.desktop" version="3.6.0.v201807100940"/>
+<repository location="http://update.knime.org/analytics-platform/3.6/"/>
+</location>
+</locations>
+<targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+<launcherArgs>
+<vmArgs>-Xmx2048m&#13;
+-server&#13;
+-Dsun.java2d.d3d=false&#13;
+-Dosgi.classloader.lock=classname&#13;
+-XX:+UnlockDiagnosticVMOptions&#13;
+-XX:+UnsyncloadClass &#13;
+-Dknime.enable.fastload=true&#13;
+-ea&#13;
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false&#13;
+-Dorg.eclipse.swt.internal.gtk.useCairo=false&#13;
+-Dorg.eclipse.swt.browser.IEVersion=10001</vmArgs>
+</launcherArgs>
+</target>
