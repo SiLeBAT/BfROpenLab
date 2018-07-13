@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="spec.xml">
+<entry key="spec_name" type="xstring" value="default"/>
+<entry key="number_columns" type="xint" value="1"/>
+<config key="column_spec_0">
+<entry key="column_name" type="xstring" value="UnitWithRank"/>
+<config key="element_names">
+<entry key="array-size" type="xint" value="0"/>
+</config>
+<config key="column_type">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.StringCell"/>
+</config>
+<config key="column_domain">
+<config key="possible_values">
+<entry key="array-size" type="xint" value="1"/>
+<config key="0">
+<entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
+<config key="org.knime.core.data.def.StringCell">
+<entry key="StringCell" type="xstring" value="250:250.0:?:?|100g Bag:100.0:g:?|125 g Bag:125.0:g:?|500g Packets:500.0:g:?|125 g Packets:125.0:g:?|125g Punnet:125.0:g:?|100 g Punnet:100.0:g:?|100kg Bag:100.0:kg:?|5t Bag:5.0:t:?|95000.0 kg:95000.0:kg:?|95000.3kg:95000.3:kg:?|95000.0 Kg:95000.0:Kg:?|95000.3 t:95000.3:t:?|100 x 50ml Sachet:5000.0:ml:?|15x5L Can:75.0:L:?|15x5 L Can:75.0:L:?|15 x 5 L Can:75.0:L:?|100 Eier:100.0:Eier:?|5 Tütchen:5.0:Tütchen:?|10 bags:10.0:bags:?|46 Kartons:46.0:Kartons:?|15 Erdbeeren:15.0:Erdbeeren:true|26 Kartonse:26.0:Kartonse:true|24 a 100g Beutel:2400.0:g:?|24 á 100g Beutel:2400.0:g:?|24 à 100g Beutel:2400.0:g:?|24 * 100g Beutel:2400.0:g:?|24 x 100g Beutel:2400.0:g:?|10 Schalen a 125g:1250.0:g:?|10 Schalen á 125g:1250.0:g:?|10 Schalen à 125g:1250.0:g:?|10 Schalen À 125g:1250.0:g:?|10 Schalen x 125g:1250.0:g:?|10 Schalen X 125g:1250.0:g:?|10 Schalen * 125g:1250.0:g:?|10 Schalen 125g Heidelbeeren:?:?:?|10 Schalen a 125g Heidelbeeren:1250.0:g:?|10 Schalen á 125g Heidelbeeren:1250.0:g:?|10 Schalen à 125g Heidelbeeren:1250.0:g:?|10 Schalen x 125g Heidelbeeren:1250.0:g:?|10 Schalen * 125g Heidelbeeren:1250.0:g:?|&quot;Heidelbeeren: 10 Schalen à 250 g&quot;:?:?:?|10 Schalen Heidelbeeren a 125g:1250.0:g:?|95000,3 t:95000.3:t:?|1,375 g:1.375:g:true|10 Eier x 5 Packungen:50.0:Eier:?|5 Packungen x 10 Eier:50.0:Eier:?|10 Eier à 60 g:600.0:g:?|10 gekühlte handgesammelte Eier:10.0:gekühlte:true|100 Gramm Schalen:100.0:Gramm:true|100 kt Eier:100.0:kt:true|Kg:?:?:?|g:?:?:?|bag:?:?:?|X10g Packets:?:?:?|Each:?:?:?|NULL:?:?:?|24 100 g Beutel:?:?:?|10.568.786 * 0,1kg:1056878.6:kg:?|10.000 * 1kg:10000.0:kg:true|0.800,4 g:?:?:?|8.345,6 * 1kg:8345.6:kg:?|0,599kg *10:5.99:kg:?|1.000,5 * 0,001t:1.0005:t:?|1.000 * 1,000kg:1000.0:kg:true|5.800t *2:11600.0:t:true|10.000kg:10000.0:kg:true"/>
+</config>
+</config>
+</config>
+</config>
+<config key="column_properties"/>
+</config>
+</config>

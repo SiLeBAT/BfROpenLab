@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.5 TP" sequenceNumber="37">
+<?pde version="3.8"?><target name="KNIME 3.5 TP" sequenceNumber="41">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
+<unit id="org.knime.features.base.feature.group" version="0.0.0"/>
 <unit id="org.knime.features.stats2.feature.group" version="3.5.0.v201711282226"/>
 <repository location="http://update.knime.org/analytics-platform/3.5/"/>
 </location>
@@ -9,19 +11,19 @@
 <unit id="com.knime.features.explorer.serverspace.feature.group" version="4.6.0.v201711041633"/>
 <unit id="com.knime.features.reporting.designer.feature.group" version="3.5.0.v201711021646"/>
 <unit id="org.knime.features.activelearning.feature.group" version="3.5.0.v201711021628"/>
-<unit id="org.knime.features.base.filehandling.feature.group" version="3.5.3.v201804031047"/>
+<unit id="org.knime.features.base.filehandling.feature.group" version="3.5.4.v201806111419"/>
 <unit id="org.knime.features.core.streaming.feature.group" version="3.5.0.v201711021650"/>
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="3.5.0.v201711021643"/>
 <unit id="org.knime.features.ext.osm.feature.group" version="3.5.0.v201711021644"/>
 <unit id="org.knime.features.ext.svg.feature.group" version="3.5.0.v201711021650"/>
 <unit id="org.knime.features.ext.textprocessing.feature.group" version="3.5.3.v201804031050"/>
-<unit id="org.knime.features.js.views.feature.group" version="3.5.3.v201804031047"/>
+<unit id="org.knime.features.js.views.feature.group" version="3.5.4.v201806111419"/>
 <unit id="org.knime.features.network.feature.group" version="3.5.2.v201802051356"/>
 <unit id="org.knime.features.quickform.legacy.feature.group" version="3.5.0.v201711291013"/>
 <unit id="org.knime.features.r.feature.group" version="3.5.1.v201712211140"/>
 <unit id="org.knime.features.rest.feature.group" version="3.5.3.v201804031049"/>
 <unit id="org.knime.features.testingapplication.feature.group" version="3.5.2.v201802051355"/>
-<unit id="org.knime.product.desktop" version="3.5.3.v201804041546"/>
+<unit id="org.knime.product.desktop" version="3.5.4.v201806111433"/>
 <repository location="http://update.knime.org/analytics-platform/3.5/"/>
 </location>
 </locations>
