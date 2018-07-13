@@ -1,15 +1,22 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import com.vividsolutions.jts.geom.Polygon;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
@@ -21,6 +28,7 @@ public class Boundary<V extends Node,E> {
   private static final double STATION_DISTANCE = 10;
   
   private Polygon boundaryArea;
+  //private Shape boundaryArea;
   private Rectangle2D rect;
     
   private Map<V, Set<V>> bNodeToNonBNodeSetMap;
@@ -52,6 +60,24 @@ public class Boundary<V extends Node,E> {
      
   }
   
+  protected void paint(Graphics2D g, Canvas canvas) {
+    BufferedImage bufferedImage = new BufferedImage(canvas.getCanvasSize().width, canvas.getCanvasSize().height, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D imgGraphics = bufferedImage.createGraphics();
+    
+    Shape boundaryArea = canvas.getTransform().apply(this.boundaryArea);
+       
+    imgGraphics.setPaint(CanvasUtils.mixColors(Color.WHITE, Arrays.asList(Color.GREEN, Color.WHITE),
+            Arrays.asList(1.0, 1.0), false));
+    imgGraphics.fill(boundaryArea);
+    imgGraphics.setColor(Color.BLACK);
+    imgGraphics.draw(boundaryArea);
+
+    //CanvasUtils.drawImageWithAlpha(g, boundaryAreaImage, 75);
+    CanvasUtils.drawImageWithAlpha(g, bufferedImage, 75);
+    //boundaryAreaImage.flush();
+    bufferedImage.flush();
+}
+  
   private void initMaps() {
     
   }
@@ -63,6 +89,12 @@ public class Boundary<V extends Node,E> {
   protected void resetBoundaryBasedOnTotalArea(Polygon totalArea) {
     
   }
+  
+  protected void resetBoundary(ExplosionTracingGraphCanvas canvas) {
+    canvas.getLayoutableNodes();
+    
+  }
+  
   
   protected void resetBoundary(Dimension availableSize, Rectangle2D innerBoundary) {
     //boundaryArea = ExplosionCanvasUtils.getAreaRect(area)

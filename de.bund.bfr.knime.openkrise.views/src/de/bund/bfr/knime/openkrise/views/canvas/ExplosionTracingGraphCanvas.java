@@ -209,21 +209,24 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	    Set<GraphNode> nonBoundaryNodesForLayout = new HashSet<>(Sets.intersection(nodesForLayout, this.nonBoundaryNodes));
 	    Set<GraphNode> boundaryNodesForLayout = new HashSet<>(Sets.difference(nodesForLayout, this.nonBoundaryNodes));
 	    
-	    boolean resetBoundary = !Sets.difference(this.boundaryNodes, boundaryNodesForLayout).isEmpty();
-	    
-	    
-	    
 	    //if(resetBoundary) boundary.resetBounds(super.getLayoutBounds()); // todo: transfrom layoutbounds to boundary area
-	    if(resetBoundary) boundary.resetBounds(this.getViewer().getSize(),  getInnerBounds()); // todo: transfrom layoutbounds to boundary area
+	    //if(resetBoundary) boundary.resetBounds(this.getViewer().getSize(),  getInnerBounds()); // todo: transfrom layoutbounds to boundary area
 	    
 		//super.applyLayout(layoutType, nodesForLayout, showProgressDialog, false);
-	    super.applyLayout(layoutType, nonBoundaryNodesForLayout, showProgressDialog, false);
+	    if(!nonBoundaryNodesForLayout.isEmpty()) super.applyLayout(layoutType, nonBoundaryNodesForLayout, showProgressDialog, false);
+	    
+	    boolean resetBoundary = !nonBoundaryNodesForLayout.isEmpty() || !Sets.difference(this.boundaryNodes, boundaryNodesForLayout).isEmpty();
+	    
+	    if(resetBoundary) this.resetBoundary();
 		
 	    //  this.placeBoundaryNodes(false);
-	    if(boundaryNodesForLayout.isEmpty()) this.placeBoundaryNodes(boundaryNodesForLayout);
-		
-		
+	    if(!boundaryNodesForLayout.isEmpty()) this.placeBoundaryNodes(boundaryNodesForLayout);
+			
 		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
+	}
+	
+	private void resetBoundary() {
+	  
 	}
 	
 	private Rectangle2D getInnerBounds() {
@@ -336,20 +339,25 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	
 	@Override
 	public void initLayout() {
-	  if(this.boundaryNodes.isEmpty()) this.initBoundary();
+	  //if(this.boundaryNodes.isEmpty()) this.initBoundary();
 	  super.initLayout();  
+	  initBoundaryLayout();
 //      if (!this.getLayoutableNodes().isEmpty()) {
 //          applyLayout(LayoutType.ISOM_LAYOUT, this.getLayoutableNodes(), false);
 //      }
-	  this.initBoundaryNodePositions();
+	  //this.initBoundaryNodePositions();
   }
 	
-	private void initBoundary() {
-	  boundary = new Boundary(this.nonBoundaryNodes, this.boundaryNodes, this.edges, this.getViewer().getSize());
-	}
+//	private void initBoundary() {
+//	  boundary = new Boundary(this.nonBoundaryNodes, this.boundaryNodes, this.edges, this.getViewer().getSize());
+//	}
+//	
+//	private void initBoundaryNodePositions() {
+//	  //if(this.boundary!=null) boundary.initNodePositions(this.getNodePositions());
+//	}
 	
-	private void initBoundaryNodePositions() {
-	  if(this.boundary!=null) boundary.initNodePositions(this.getNodePositions());
+	private void initBoundaryLayout() {
+	  
 	}
 	
 	/*
@@ -469,11 +477,12 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	}
 	
 	private void paintGraph(Graphics2D g, boolean toSvg) {
-		
-		if (this.boundaryArea != null) {
-			ExplosionCanvasUtils.paintBoundaryArea(g, getCanvasSize().width, getCanvasSize().height,
-					transform.apply(this.boundaryArea));
-		}
+		if(boundary!=null) boundary.paint(g,  this);
+
+//		if (this.boundaryArea != null) {
+//			ExplosionCanvasUtils.paintBoundaryArea(g, getCanvasSize().width, getCanvasSize().height,
+//					transform.apply(this.boundaryArea));
+//		}
 
 	}
 	

@@ -235,10 +235,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	
 	protected Set<GraphNode> getLayoutableNodes() { return this.nodes; }
 	
-	//protected Rectangle2D getLayoutBounds() { return new Rectangle2D.Double(0.0, 0.0, viewer.getSize().getWidth(), viewer.getSize().getHeight()); }
-	protected Rectangle2D getLayoutBounds(Set<GraphNode> nodesForLayout) {
-	  
-	}
+	protected Rectangle2D getLayoutBounds() { return new Rectangle2D.Double(0.0, 0.0, viewer.getSize().getWidth(), viewer.getSize().getHeight()); }
+//	protected Rectangle2D getLayoutBounds(Set<GraphNode> nodesForLayout) {
+//	  
+//	}
 
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog, boolean signalLayoutProcessFinish) {
 		
@@ -246,7 +246,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Dimension s =  layoutBounds.getBounds().getSize();  //viewer.getSize();
 		
 		Layout<GraphNode, Edge<GraphNode>> layout = 
-				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != nodes)?
+				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != nodes)?   // ToDo: use !nodesForLayout.equals(this.getLayoutableNodes()) instead? 
 				new FRLayout<>(viewer.getGraphLayout().getGraph(), s,true):
 				layoutType.create(viewer.getGraphLayout().getGraph(),s));
 		
