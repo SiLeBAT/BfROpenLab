@@ -4,23 +4,28 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import com.vividsolutions.jts.geom.Polygon;
+import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
-public class Boundary<V extends Node,E> {
+public class Boundary {
   
   private static final double BOUNDARY_AREA_RELATIVE_MARGIN = LocationCanvasUtils.INVALID_AREA_RELATIVE_MARGIN; //    0.2;
   private static final double BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH = LocationCanvasUtils.INVALID_AREA_RELATIVE_BORDERWIDTH; // 0.02;
@@ -29,17 +34,23 @@ public class Boundary<V extends Node,E> {
   
   private Polygon boundaryArea;
   //private Shape boundaryArea;
-  private Rectangle2D rect;
+  private Rectangle2D boundaryRect;
+  private double boundaryWidth;
     
-  private Map<V, Set<V>> bNodeToNonBNodeSetMap;
-  private Map<Set<V>, V> nonBNodeSetToBNodeSetMap;
-  private Map<Set<V>, List<V>> nonBNodeSetToBNodeListMap;
+  private Map<GraphNode, Set<GraphNode>> bNodeToNonBNodeSetMap;
+  private Map<Set<GraphNode>, GraphNode> nonBNodeSetToBNodeSetMap;
+  private Map<Set<GraphNode>, List<GraphNode>> nonBNodeSetToBNodeListMap;
   private Map<String, Point2D> nodePositionMap;
   private Set<String> boundaryNodeIds;
   
   
-  Boundary(Set<V> nonBoundaryNodes, Set<V> boundaryNodes, Set<E> edges, Dimension availableAreaSize) {
-    resetBoundaryBasedOnTotalArea(availableAreaSize);
+//  Boundary(Set<V> nonBoundaryNodes, Set<V> boundaryNodes, Set<E> edges, Dimension availableAreaSize) {
+//    resetBoundaryBasedOnTotalArea(availableAreaSize);
+//    //this.initMaps();
+//  }
+  
+  Boundary() {
+    //resetBoundaryBasedOnTotalArea(availableAreaSize);
     //this.initMaps();
   }
   
@@ -48,19 +59,19 @@ public class Boundary<V extends Node,E> {
 //      this.initNodePositions(boundaryNodes);;
 //  }
   
-  private void initNodePositions(Map<String, Point2D> nodePositions) {
-    Random random = new Random();
-    double u = 2*(rect.getHeight() + rect.getWidth());
-    this.nodePositionMap = new HashMap<>();
-    for(String nodeId: boundaryNodeIds) this.nodePositionMap.put(nodeId, convertToTwoDimensionalPosition(random.nextDouble()*u, rect));
-  }
+//  private void initNodePositions(Map<String, Point2D> nodePositions) {
+//    Random random = new Random();
+//    double u = 2*(boundaryRect.getHeight() + boundaryRect.getWidth());
+//    this.nodePositionMap = new HashMap<>();
+//    for(String nodeId: boundaryNodeIds) this.nodePositionMap.put(nodeId, convertToTwoDimensionalPosition(random.nextDouble()*u, boundaryRect));
+//  }
   
-  Boundary(Set<V> nonBoundaryNodes, Set<V> boundaryNodes, Set<E> edges, Map<V, Point2D> boundaryNodePositions, Rectangle2D boundaryPosition) {
+  Boundary(Set<GraphNode> nonBoundaryNodes, Set<GraphNode> boundaryNodes, Set<Edge<GraphNode>> edges, Map<GraphNode, Point2D> boundaryNodePositions, Rectangle2D boundaryPosition) {
     this.initMaps();
      
   }
   
-  protected void paint(Graphics2D g, Canvas canvas) {
+  protected void paint(Graphics2D g, Canvas<GraphNode> canvas) {
     BufferedImage bufferedImage = new BufferedImage(canvas.getCanvasSize().width, canvas.getCanvasSize().height, BufferedImage.TYPE_INT_ARGB);
     Graphics2D imgGraphics = bufferedImage.createGraphics();
     
@@ -82,26 +93,83 @@ public class Boundary<V extends Node,E> {
     
   }
   
-  protected void resetBoundaryBasedOnInternalArea(Polygon internalArea) {
+//  protected void resetBoundaryBasedOnInternalArea(Polygon internalArea) {
+//    
+//  }
+//  
+//  protected void resetBoundaryBasedOnTotalArea(Polygon totalArea) {
+//    
+//  }
+  
+  protected void update(ExplosionTracingGraphCanvas canvas, Map<String, Point2D> nodePositions) {
+    //Rectangle rect =
+    Rectangle2D innerHull = getBounds(canvas, nodePositions);
+    //Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(canvas);
     
+    Rectangle2D oldBoundaryRect = this.boundaryRect;
+    boundaryArea = ExplosionCanvasUtils.createBoundaryArea(innerHull);
+    boundaryRect = ExplosionCanvasUtils.getAreaRect(boundaryArea);
+    
+    //double newBoundaryWidth = ExplosionCanvasUtils.getAreaBorderWidth(this.boundaryArea);
+    
+    if(oldBoundaryRect!=null) moveNodesToUpdatedBoundary(canvas, nodePositions, oldBoundaryRect);
   }
   
-  protected void resetBoundaryBasedOnTotalArea(Polygon totalArea) {
+  public static Rectangle2D getBounds(ExplosionTracingGraphCanvas canvas, Map<String, Point2D> nodePositions) {
+    Rectangle2D bounds = null;
     
+    for(GraphNode node : canvas.getLayoutableNodes()) {
+      Point2D point = nodePositions.get(node.getId());
+      if(bounds==null) bounds = new Rectangle2D.Double(point.getX(), point.getY(), 0, 0);
+      else bounds.add(point);
+    }
+
+    return bounds;
+}
+  
+  protected void moveNodesToUpdatedBoundary(ExplosionTracingGraphCanvas canvas, Map<String, Point2D> nodePositions, Rectangle2D oldBoundaryRect) {
+    AffineTransform at = new AffineTransform();
+    at.translate(boundaryRect.getX()-oldBoundaryRect.getX(), boundaryRect.getY()-oldBoundaryRect.getY());
+    at.scale(boundaryRect.getWidth()-oldBoundaryRect.getWidth(), boundaryRect.getHeight()-oldBoundaryRect.getHeight() );
+    for(GraphNode node : canvas.getBoundaryNodes()) {
+      Point2D oldPosition = nodePositions.get(node.getId());
+      if(oldPosition!=null) nodePositions.put(node.getId(), at.transform(oldPosition, null));
+    }
   }
   
-  protected Map<String, Point2D> resetBoundary(ExplosionTracingGraphCanvas canvas, Map<String, Point2D> nodePositions) {
-    Rectangle rect =
-    PointUtils.getBounds(positions.values());
-    
-    Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(canvas);
-    
-    canvas.getLayoutableNodes();
-    
+  protected void layout(ExplosionTracingGraphCanvas canvas, Map<String, Point2D> nodePositions, Set<GraphNode> nodesToLayout) {
+    for(GraphNode node: nodesToLayout) {
+      nodePositions.put(node.getId(), getRandomPointOnBoundary());
+    }
   }
   
-  private Rectangle2D getEnclosingHullFromLayoutableNodes(ExplosionTracingGraphCanvas canvas) {
-    Map<String, Point2D> positions = canvas.getNodePositions(canvas.getLayoutableNodes());
+  protected Point2D getRandomPointOnBoundary() {
+    Random rnd = new Random();
+    switch(rnd.nextInt(4)) {
+      case 0: 
+        // random point on left side
+        return new Point2D.Double(boundaryRect.getX() - boundaryWidth/2 + boundaryWidth * rnd.nextDouble(), 
+            boundaryRect.getY() + boundaryRect.getHeight()*rnd.nextDouble());
+      case 1:
+        // random point on top side 
+        return new Point2D.Double(boundaryRect.getX() + boundaryRect.getWidth() * rnd.nextDouble(), 
+            boundaryRect.getY() - boundaryWidth/2 + boundaryWidth * rnd.nextDouble() );
+      case 2:
+        // random point on right side
+        return new Point2D.Double(boundaryRect.getX() + boundaryRect.getWidth() - boundaryWidth/2 + boundaryWidth * rnd.nextDouble(), 
+            boundaryRect.getY() + boundaryRect.getHeight()*rnd.nextDouble());
+      case 3:
+        // random point on bottom side 
+        return new Point2D.Double(boundaryRect.getX() + boundaryRect.getWidth() * rnd.nextDouble(), 
+            boundaryRect.getY() + boundaryRect.getHeight() - boundaryWidth/2 + boundaryWidth * rnd.nextDouble() );
+      default:
+        // this is supposed to happen
+        return null;
+    }
+  }
+ 
+//  private Rectangle2D getEnclosingHullFromLayoutableNodes(ExplosionTracingGraphCanvas canvas) {
+//    Map<String, Point2D> positions = canvas.getNodePositions(canvas.getLayoutableNodes());
 //  
 //  // safety test
 //  if(positions == null) return;
@@ -120,7 +188,7 @@ public class Boundary<V extends Node,E> {
 //  
 //  
 //  Rectangle2D bounds = PointUtils.getBounds(positions.values());
-  }
+//  }
   
   
 //  protected void resetBoundary(Dimension availableSize, Rectangle2D innerBoundary) {
@@ -144,55 +212,55 @@ public class Boundary<V extends Node,E> {
   
   
   
-  protected void resetBoundaryBasedOnTotalArea(Dimension size) {
-    //boundaryArea = ExplosionCanvasUtils.getAreaRect(area)
-    //Dimension size = canvas.getViewer().getSize();
-    double maxSize = Math.max(size.getWidth(), size.getHeight());
-    
-    
-    double innerSize = maxSize / (1 + 2 * BOUNDARY_AREA_RELATIVE_MARGIN + BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH);
-    double margin = innerSize * BOUNDARY_AREA_RELATIVE_MARGIN;
-    double w = innerSize * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
-    
-    this.rect =  new Rectangle2D.Double(
-            0 + margin + w, 
-            0 + margin + w, 
-            size.getWidth() - 2 * margin - 2 * w, 
-            size.getHeight() - 2 * margin - 2 * w);
-  }
+//  protected void resetBoundaryBasedOnTotalArea(Dimension size) {
+//    //boundaryArea = ExplosionCanvasUtils.getAreaRect(area)
+//    //Dimension size = canvas.getViewer().getSize();
+//    double maxSize = Math.max(size.getWidth(), size.getHeight());
+//    
+//    
+//    double innerSize = maxSize / (1 + 2 * BOUNDARY_AREA_RELATIVE_MARGIN + BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH);
+//    double margin = innerSize * BOUNDARY_AREA_RELATIVE_MARGIN;
+//    double w = innerSize * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
+//    
+//    this.rect =  new Rectangle2D.Double(
+//            0 + margin + w, 
+//            0 + margin + w, 
+//            size.getWidth() - 2 * margin - 2 * w, 
+//            size.getHeight() - 2 * margin - 2 * w);
+//  }
   
   
   
   
-  protected void placeNodes(Set<V> boundaryNodes, Map<String, Point2D> innerNodePositions) {
-    List<Set<V>> groupList = new ArrayList<>();
-    for(V node : boundaryNodes) groupList.add(bNodeToNonBNodeSetMap.get(node));
-    
-  }
+//  protected void placeNodes(Set<V> boundaryNodes, Map<String, Point2D> innerNodePositions) {
+//    List<Set<V>> groupList = new ArrayList<>();
+//    for(V node : boundaryNodes) groupList.add(bNodeToNonBNodeSetMap.get(node));
+//    
+//  }
   
-  protected  Map<String, Point2D> getNodePositions() {
-    return nodePositionMap;
-  }
-  
-  private static Point2D convertToTwoDimensionalPosition(double p, Rectangle2D rect) {
-    double d = rect.getWidth() + rect.getHeight();
-    double u = 2 * d;
-    
-    while (p < 0) p+= u;
-    while (p > u) p-= u;
-    
-    if (p <= d) {
-        if (p <= rect.getWidth()) {
-            return new Point2D.Double(rect.getX() + p, rect.getY());
-        } else {
-            return new Point2D.Double(rect.getX() + rect.getWidth(), rect.getY() + p - rect.getWidth());
-        }
-    } else {
-        if (p <= d + rect.getWidth()) {
-            return new Point2D.Double(rect.getX() + rect.getWidth() - (p - d), rect.getY() + rect.getHeight());
-        } else {
-            return new Point2D.Double(rect.getX(), rect.getY() + rect.getHeight() - (p - d - rect.getWidth()));
-        }
-    }
-}
+//  protected  Map<String, Point2D> getNodePositions() {
+//    return nodePositionMap;
+//  }
+//  
+//  private static Point2D convertToTwoDimensionalPosition(double p, Rectangle2D rect) {
+//    double d = rect.getWidth() + rect.getHeight();
+//    double u = 2 * d;
+//
+//    while (p < 0) p+= u;
+//    while (p > u) p-= u;
+//
+//    if (p <= d) {
+//      if (p <= rect.getWidth()) {
+//        return new Point2D.Double(rect.getX() + p, rect.getY());
+//      } else {
+//        return new Point2D.Double(rect.getX() + rect.getWidth(), rect.getY() + p - rect.getWidth());
+//      }
+//    } else {
+//      if (p <= d + rect.getWidth()) {
+//        return new Point2D.Double(rect.getX() + rect.getWidth() - (p - d), rect.getY() + rect.getHeight());
+//      } else {
+//        return new Point2D.Double(rect.getX(), rect.getY() + rect.getHeight() - (p - d - rect.getWidth()));
+//      }
+//    }
+//  }
 }

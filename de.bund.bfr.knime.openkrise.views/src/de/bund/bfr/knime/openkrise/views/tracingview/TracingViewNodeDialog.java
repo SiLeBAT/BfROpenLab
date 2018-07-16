@@ -874,7 +874,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 			if(canvas instanceof ExplosionTracingGraphCanvas) {
 				// this is needed because an undo/redo operation might effect the node positions, but the operation 
 				// does not effect the prepaintables which are responsible for drawing the boundary area
-				((ExplosionTracingGraphCanvas) canvas).placeBoundaryNodes(true);
+			    // TODO:
+				//((ExplosionTracingGraphCanvas) canvas).placeBoundaryNodes(true);
 			}
 			
 			canvas.addCanvasListener(this);

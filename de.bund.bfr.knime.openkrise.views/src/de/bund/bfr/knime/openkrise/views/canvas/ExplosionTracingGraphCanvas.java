@@ -47,6 +47,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.common.Delivery;
+import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
@@ -205,6 +206,36 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		return this.nonBoundaryNodes; 
 	}
 	
+//	@Override
+//    public void layoutItemClicked(LayoutType layoutType) {
+//        Set<GraphNode> selectedNodes = getSelectedNodes();
+//        Set<GraphNode> nodesForLayout;
+//
+//        if (!selectedNodes.isEmpty()) {
+//            switch (Dialogs.showYesNoCancelDialog(this,
+//                    "Should the layout be applied on the selected " + naming.nodes() + " only?", "Confirm")) {
+//            case YES:
+//                nodesForLayout = selectedNodes;
+//                break;
+//            case NO:
+//                nodesForLayout = this.getLayoutableNodes();
+//                break;
+//            case CANCEL:
+//            default:
+//                return;
+//            }
+//        } else {
+//            nodesForLayout = this.getLayoutableNodes();
+//        }
+//
+//        if (nodesForLayout.size() < 2) {
+//            Dialogs.showErrorMessage(this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".");
+//            return;
+//        }
+//
+//        applyLayout(layoutType, nodesForLayout, true);
+//    }
+	
 	@Override
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
 	    Set<GraphNode> nonBoundaryNodesForLayout = new HashSet<>(Sets.intersection(nodesForLayout, this.nonBoundaryNodes));
@@ -216,23 +247,27 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		//super.applyLayout(layoutType, nodesForLayout, showProgressDialog, false);
 	    if(!nonBoundaryNodesForLayout.isEmpty()) super.applyLayout(layoutType, nonBoundaryNodesForLayout, showProgressDialog, false);
 	    
-	    boolean resetBoundary = !nonBoundaryNodesForLayout.isEmpty() || !Sets.difference(this.boundaryNodes, boundaryNodesForLayout).isEmpty();
+	    boolean updateBoundary = !nonBoundaryNodesForLayout.isEmpty() || !Sets.difference(this.boundaryNodes, boundaryNodesForLayout).isEmpty();
+	   
+	    if(boundary==null) this.boundary = new Boundary();
 	    
-	    if(resetBoundary) this.resetBoundary();
+	    Map<String, Point2D> nodePositions = this.getNodePositions(this.nodes);
+	    
+	    if(updateBoundary) {
+	      boundary.update(this, nodePositions);
+	    }
 		
 	    //  this.placeBoundaryNodes(false);
-	    if(!boundaryNodesForLayout.isEmpty()) this.placeBoundaryNodes(boundaryNodesForLayout);
+	    if(!boundaryNodesForLayout.isEmpty()) boundary.layout(this, nodePositions, boundaryNodesForLayout); //       this.placeBoundaryNodes(boundaryNodesForLayout);
 			
+	    this.setNodePositions(nodePositions);
+	    
 		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
 	}
 	
-	private void resetBoundary() {
-	  
-	}
-	
-	private Rectangle2D getInnerBounds() {
-	  return PointUtils.getBounds(this.getNodePositions(this.nonBoundaryNodes).values());
-	}
+//	private Rectangle2D getInnerBounds() {
+//	  return PointUtils.getBounds(this.getNodePositions(this.nonBoundaryNodes).values());
+//	}
 	
 	/*
 	 * The boundary area might need an update.
@@ -341,8 +376,11 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	@Override
 	public void initLayout() {
 	  //if(this.boundaryNodes.isEmpty()) this.initBoundary();
-	  super.initLayout();  
-	  initBoundaryLayout();
+	  //super.initLayout();
+	  if (!this.nodes.isEmpty()) {
+        applyLayout(LayoutType.ISOM_LAYOUT, this.nodes, false);
+      }
+	  //initBoundaryLayout();
 //      if (!this.getLayoutableNodes().isEmpty()) {
 //          applyLayout(LayoutType.ISOM_LAYOUT, this.getLayoutableNodes(), false);
 //      }
@@ -361,19 +399,19 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	  
 	}
 	
-	/*
-     * sets the boundary area and place the boundary nodes
-     */
-    public void placeBoundaryNodes(Set<GraphNode> nonBoundaryNodesToPlace) {
-        
-        if(this.isPerformTracing()) {
-        
-            if (!((nonBoundaryNodesToPlace == null) || nonBoundaryNodesToPlace.isEmpty())) {
-                
-                if(boundary!=null) {
-                  boundary.placeNodes(nonBoundaryNodesToPlace, this.getNodePositions(this.nonBoundaryNodes));
-                  this.setNodePositions(boundary.getNodePositions());
-                }
+//	/*
+//     * sets the boundary area and place the boundary nodes
+//     */
+//    public void placeBoundaryNodes(Set<GraphNode> nonBoundaryNodesToPlace) {
+//        
+//        if(this.isPerformTracing()) {
+//        
+//            if (!((nonBoundaryNodesToPlace == null) || nonBoundaryNodesToPlace.isEmpty())) {
+//                
+//                if(boundary!=null) {
+//                  boundary.placeNodes(nonBoundaryNodesToPlace, this.getNodePositions(this.nonBoundaryNodes));
+//                  this.setNodePositions(boundary.getNodePositions());
+//                }
                 // Step 1: get the bounds of the inner nodes
                 
                 
@@ -462,10 +500,10 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 //                }
 //                
 //                if(boundaryAreaChanged) this.flushImage();
-            }
-        }
-
-    }
+//            }
+//        }
+//
+//    }
 	
 	/*
 	 * deletes the buffered image
@@ -540,7 +578,7 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	@Override
 	public void setPerformTracing(boolean performTracing) {
 		super.setPerformTracing(performTracing);
-		this.placeBoundaryNodes(false);
+		//this.placeBoundaryNodes(false);
 	}
 
 	@Override
