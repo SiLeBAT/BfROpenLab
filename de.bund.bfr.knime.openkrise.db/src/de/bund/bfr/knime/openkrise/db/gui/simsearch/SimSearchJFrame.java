@@ -416,9 +416,9 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private void processNavigationRequest(JButton source) {
 		int index = -1;
 		if(source==this.navToFirst) index = this.simSearch.getIndexOfNextNotIgnoredSimSet(-1);
-		else if(source==this.navBack) index = this.simSearch.getIndexOfPreviousNotIgnoredSimSet(this.currentSimSetIndex); //this.startAsyncDataLoad(this.currentSimSetIndex-1);
-		else if(source==this.navForward) index = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex); //this.startAsyncDataLoad(this.currentSimSetIndex+1);
-		else if(source==this.navToLast) this.simSearch.getIndexOfPreviousNotIgnoredSimSet(-1); //this.startAsyncDataLoad(this.simSearch.getSimSetCount()-1);
+		else if(source==this.navBack) index = this.simSearch.getIndexOfPreviousNotIgnoredSimSet(this.currentSimSetIndex); 
+		else if(source==this.navForward) index = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex); 
+		else if(source==this.navToLast) index = this.simSearch.getIndexOfPreviousNotIgnoredSimSet(-1); 
 		else { 
 			// do nothing
 			return;
@@ -683,29 +683,6 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
       if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
       else this.clearTable();
     }
-    
-//    private void loadData(SimSearch.SimSet simSet) {
-//      //SimSearch.SimSet currentSet = null;
-//      int simSetIndex = this.simSearch.getSimSetIndex(simSet);
-//      if(simSetIndex>=0) {
-//        this.simSearch.isSimSetIgnored(simSetIndex))
-//      }
-//      
-//      int newSimSetIndex = this.simSearch.getSimSetIndex(simSet);
-//      int simSetIndex = this.currentSimSetIndex;
-//      if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
-//      if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
-//      else this.clearTable();
-//    }
-//    
-//    private void loadData(int simSetIndex) {
-//      //SimSearch.SimSet currentSet = null;
-//      int newSimSetIndex = this.simSearch.getSimSetIndex(simSet);
-//      int simSetIndex = this.currentSimSetIndex;
-//      if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
-//      if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
-//      else this.clearTable();
-//    }
 	
 	private boolean syncSave() {
 	  boolean result = false;
