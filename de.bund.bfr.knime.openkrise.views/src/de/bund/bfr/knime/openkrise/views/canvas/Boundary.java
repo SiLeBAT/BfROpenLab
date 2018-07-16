@@ -90,30 +90,57 @@ public class Boundary<V extends Node,E> {
     
   }
   
-  protected void resetBoundary(ExplosionTracingGraphCanvas canvas) {
+  protected Map<String, Point2D> resetBoundary(ExplosionTracingGraphCanvas canvas, Map<String, Point2D> nodePositions) {
+    Rectangle rect =
+    PointUtils.getBounds(positions.values());
+    
+    Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(canvas);
+    
     canvas.getLayoutableNodes();
     
   }
   
-  
-  protected void resetBoundary(Dimension availableSize, Rectangle2D innerBoundary) {
-    //boundaryArea = ExplosionCanvasUtils.getAreaRect(area)
-    //Dimension size = canvas.getViewer().getSize();
-    
-    
-    double maxSize = Math.max(size.getWidth(), size.getHeight());
-    
-    
-    double innerSize = maxSize / (1 + 2 * BOUNDARY_AREA_RELATIVE_MARGIN + BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH);
-    double margin = innerSize * BOUNDARY_AREA_RELATIVE_MARGIN;
-    double w = innerSize * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
-    
-    this.rect =  new Rectangle2D.Double(
-            0 + margin + w, 
-            0 + margin + w, 
-            size.getWidth() - 2 * margin - 2 * w, 
-            size.getHeight() - 2 * margin - 2 * w);
+  private Rectangle2D getEnclosingHullFromLayoutableNodes(ExplosionTracingGraphCanvas canvas) {
+    Map<String, Point2D> positions = canvas.getNodePositions(canvas.getLayoutableNodes());
+//  
+//  // safety test
+//  if(positions == null) return;
+//  
+//  /* the positions might not be available for all nodes because e.g. the date filter specified by the user 
+//   * might remove some inner nodes from the graph so the layout methods do not set their position
+//   * --> these empty position are set to the left upper corner of default bounds
+//   */
+//  
+//  
+//  Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(this);
+//  
+//  Set<String> nodesWithoutPosition = positions.entrySet().stream().filter(e -> Double.isNaN(e.getValue().getX()) || Double.isNaN(e.getValue().getY())).map(e -> e.getKey()).collect(Collectors.toSet());
+//  
+//  nodesWithoutPosition.forEach(nodeId -> positions.put(nodeId, new Point2D.Double(defaultBounds.getX(), defaultBounds.getY())));
+//  
+//  
+//  Rectangle2D bounds = PointUtils.getBounds(positions.values());
   }
+  
+  
+//  protected void resetBoundary(Dimension availableSize, Rectangle2D innerBoundary) {
+//    //boundaryArea = ExplosionCanvasUtils.getAreaRect(area)
+//    //Dimension size = canvas.getViewer().getSize();
+//    
+//    
+//    double maxSize = Math.max(size.getWidth(), size.getHeight());
+//    
+//    
+//    double innerSize = maxSize / (1 + 2 * BOUNDARY_AREA_RELATIVE_MARGIN + BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH);
+//    double margin = innerSize * BOUNDARY_AREA_RELATIVE_MARGIN;
+//    double w = innerSize * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
+//    
+//    this.rect =  new Rectangle2D.Double(
+//            0 + margin + w, 
+//            0 + margin + w, 
+//            size.getWidth() - 2 * margin - 2 * w, 
+//            size.getHeight() - 2 * margin - 2 * w);
+//  }
   
   
   
