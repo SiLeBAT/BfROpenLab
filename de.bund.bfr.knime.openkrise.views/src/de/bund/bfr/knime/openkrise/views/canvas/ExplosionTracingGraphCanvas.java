@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.vividsolutions.jts.geom.Polygon;
-
+import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
@@ -108,7 +108,19 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 						metaNodeId,
 						()-> Stream.of(getListeners(ExplosionListener.class)).forEach(l->l.closeExplosionViewRequested(this))));
 		
+		this.boundary.setNodes(this.boundaryNodes);
 	}
+	
+	@Override
+    public void applyChanges() {
+	  super.applyChanges();
+	  
+	  if(boundary!=null) {
+	    Map<String, Point2D> positions = this.getNodePositions();
+	    boundary.putNodesOnBoundary(this, positions);
+	    this.setNodePositions(positions);
+	  }
+    }
 	
 	/*
 	 * All boundary nodes have to be locked, so that they cannot be moved with the mouse
@@ -123,6 +135,16 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 		Set<GraphNode> allBoundaryNodes = CanvasUtils.getElementsById(this.nodeSaveMap,this.boundaryNodesToInnerNodesMap.keySet());
 		
 		allBoundaryNodes.forEach(n -> layout.lock(n, true));
+	}
+	
+	
+	protected BetterPickingGraphMousePlugin<GraphNode, Edge<GraphNode>> createPickingPlugin() {
+      return new BetterPickingGraphMousePlugin<>(getBoundary());
+    }
+	
+	private Boundary getBoundary() {
+	  if(this.boundary==null) this.boundary = new Boundary();
+	  return this.boundary;
 	}
 	
 	@Override
@@ -235,6 +257,12 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 //
 //        applyLayout(layoutType, nodesForLayout, true);
 //    }
+	
+	@Override
+	public void setNodePositions(Map<String, Point2D> nodePositions) {
+	  super.setNodePositions(nodePositions);
+	  if(boundary!=null) boundary.
+	}
 	
 	@Override
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
@@ -395,9 +423,6 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 //	  //if(this.boundary!=null) boundary.initNodePositions(this.getNodePositions());
 //	}
 	
-	private void initBoundaryLayout() {
-	  
-	}
 	
 //	/*
 //     * sets the boundary area and place the boundary nodes
@@ -514,6 +539,11 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 			image = null;
 		}
 	}
+	
+	@Override
+    protected void applyTransform() {
+	  this.flushImage();
+    }
 	
 	private void paintGraph(Graphics2D g, boolean toSvg) {
 		if(boundary!=null) boundary.paint(g,  this);

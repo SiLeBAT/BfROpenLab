@@ -26,6 +26,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -45,6 +47,8 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	protected E edge;
 
 	private boolean allowMovingNodes;
+	private MoveController moveController;
+	private Map<V, Point2D> beforeDragPositions;
 
 	private Rectangle2D rect = new Rectangle2D.Float();
 
@@ -57,6 +61,11 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 		this.allowMovingNodes = allowMovingNodes;
 		listeners = new EventListenerList();
 	}
+	
+	public BetterPickingGraphMousePlugin(MoveController moveController) {
+      this(true);
+      this.moveController = moveController;
+  }
 
 	public void addChangeListener(JungListener listener) {
 		listeners.add(JungListener.class, listener);
@@ -153,9 +162,33 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 					call(l -> l.edgePickingFinished());
 				}
 			}
+			
+			if(vertex!=null) initBeforeDragPositions(e);
 		}
 	}
 
+	private void initBeforeDragPositions(MouseEvent e) {
+	  //System.out.println("initBeforeDragPositions entered");
+	  @SuppressWarnings("unchecked")
+	  BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
+
+
+	  //              Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
+	  //              Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
+	  //              Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
+	  //              System.out.println("Move Nodes: " + move.toString());
+	  //              Layout<V, E> layout = vv.getGraphLayout();
+	  Layout<V, E> layout = vv.getGraphLayout();
+	  PickedState<V> ps = vv.getPickedVertexState();
+	  beforeDragPositions = new HashMap<>();
+	  for (V v : ps.getPicked()) {
+	    //System.out.println("Init " + v.hashCode() + " to " + layout.transform(v).toString());
+	    Point2D point =  layout.transform(v);
+	    beforeDragPositions.put(v, new Point2D.Double(point.getX(), point.getY()));
+	  }
+	  //System.out.println("initBeforeDragPositions leaving");
+	}
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public void mouseReleased(MouseEvent e) {
@@ -193,36 +226,50 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	@Override
 	@SuppressWarnings("unchecked")
 	public void mouseDragged(MouseEvent e) {
-		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
-        
-		if (vertex != null) {
-			if (allowMovingNodes && down != null) {
-				Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
-				Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
-				Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
-				Layout<V, E> layout = vv.getGraphLayout();
-				
-				PickedState<V> ps = vv.getPickedVertexState();
+	  BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
 
-				for (V v : ps.getPicked()) {
-					if(!layout.isLocked(v)) {
-						layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
-						nodesMoved = true;
-					}
-				}
+	  if (vertex != null) {
+	    if (allowMovingNodes && down != null) {
+	      Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
+	      Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
+	      //System.out.println("mouseDragged CP1: graphDown=" + graphDown.toString());
 
-				if(nodesMoved) vv.repaint();
-			}
+	      Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
+	      //System.out.println("mouseDragged CP2: Move Nodes: " + move.toString());
+	      Layout<V, E> layout = vv.getGraphLayout();
 
-			down = e.getPoint();
-		} else if (edge != null) {
-			down = e.getPoint();
-		} else if (down != null) {
-			rect.setFrameFromDiagonal(down, e.getPoint());
-			vv.drawRect(rect);
-		} else {
-			down = e.getPoint();
-		}
+	      PickedState<V> ps = vv.getPickedVertexState();
+
+	      for (V v : ps.getPicked()) {
+	        //System.out.println("mouseDragged CP3: Node " + v.hashCode() + " RefPoint: " + beforeDragPositions.get(v).toString());
+	        if(moveController!=null) {
+	          //layout.setLocation(v, moveController.move(v, layout.transform(v), move));
+	          layout.setLocation(v, moveController.move(v, beforeDragPositions.get(v), move));
+	          nodesMoved = true;
+	        } else if(!layout.isLocked(v)) {
+	          //layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+	          
+	          //Point2D newLocation = PointUtils.addPoints(beforeDragPositions.get(v), move);
+	          layout.setLocation(v, PointUtils.addPoints(beforeDragPositions.get(v), move));
+	         // Point2D afterMoveExpected =  newLocation; 
+	          //Point2D afterMoveIs =  layout.transform(v);
+	          //System.out.println("Exp: " + afterMoveExpected + ", Is: " + afterMoveIs);
+	          nodesMoved = true;
+	        }
+	      }
+
+	      if(nodesMoved) vv.repaint();
+	    }
+
+	    //down = e.getPoint();
+	  } else if (edge != null) {
+	    down = e.getPoint();
+	  } else if (down != null) {
+	    rect.setFrameFromDiagonal(down, e.getPoint());
+	    vv.drawRect(rect);
+	  } else {
+	    down = e.getPoint();
+	  }
 	}
 
 	@Override

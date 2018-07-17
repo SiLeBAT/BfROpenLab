@@ -248,6 +248,27 @@ public class ExplosionCanvasUtils {
 	}
 	 
 	/*
+     * returns a rectangular border frame based on the bounds which are supposed to contain the inner nodes
+     * ToDO:
+     * 
+     * @param innerBounds - rectangular border area
+     */
+    public static Polygon createBoundaryArea(Rectangle2D innerBounds, Canvas canvas) {
+        double size = Math.max(innerBounds.getWidth(), innerBounds.getHeight());
+        if(size == 0) size = Math.max(canvas.getCanvasSize().getWidth(), canvas.getCanvasSize().getHeight())/2;
+        if(size == 0) size = 1;
+        
+        double margin = size * BOUNDARY_AREA_RELATIVE_MARGIN;
+        double w = size * BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH;
+        
+        return GisUtils.createBorderPolygon(
+                new Rectangle2D.Double(
+                        innerBounds.getX() - margin - w/2, 
+                        innerBounds.getY() - margin - w/2,
+                        innerBounds.getWidth() + 2 * margin + w,
+                        innerBounds.getHeight() + 2 * margin + w), w);
+    }
+	/*
 	 * initializes the hidden nodes and the boundary nodes
 	 */
     public static <T extends Node> void initBoundaryAndHiddenNodes(
@@ -380,30 +401,71 @@ public class ExplosionCanvasUtils {
 		return boundaryNodesToInnerNodesMap;
 	}
 	
-	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
-		
-		if(!(pointInRect!=null && Double.isFinite(pointInRect.getX()) && Double.isFinite(pointInRect.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);
-		if(!(rect!=null && Double.isFinite(rect.getX()) && Double.isFinite(rect.getY()) && Double.isFinite(rect.getWidth()) && Double.isFinite(rect.getHeight()))) return new Point2D.Double(Double.NaN,Double.NaN);
-		
-		double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
-		double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
-		double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
-		double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
-		double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
-
-		if (dx1 == min) {
-			return new Point2D.Double(rect.getMinX(), pointInRect.getY());
-		} else if (dx2 == min) {
-			return new Point2D.Double(rect.getMaxX(), pointInRect.getY());
-		} else if (dy1 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMinY());
-		} else if (dy2 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMaxY());
-		}
-
-		throw new RuntimeException("This should not happen");
-	}
+//	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
+//		
+//		if(!(pointInRect!=null && Double.isFinite(pointInRect.getX()) && Double.isFinite(pointInRect.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);
+//		if(!(rect!=null && Double.isFinite(rect.getX()) && Double.isFinite(rect.getY()) && Double.isFinite(rect.getWidth()) && Double.isFinite(rect.getHeight()))) return new Point2D.Double(Double.NaN,Double.NaN);
+//		
+//		double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
+//		double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
+//		double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
+//		double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
+//		double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
+//
+//		if (dx1 == min) {
+//			return new Point2D.Double(rect.getMinX(), pointInRect.getY());
+//		} else if (dx2 == min) {
+//			return new Point2D.Double(rect.getMaxX(), pointInRect.getY());
+//		} else if (dy1 == min) {
+//			return new Point2D.Double(pointInRect.getX(), rect.getMinY());
+//		} else if (dy2 == min) {
+//			return new Point2D.Double(pointInRect.getX(), rect.getMaxY());
+//		}
+//
+//		throw new RuntimeException("This should not happen");
+//	}
 	
+	public static Point2D getClosestPointOnRect(Point2D point, Rectangle2D rect) {
+      
+      if(!(point!=null && Double.isFinite(point.getX()) && Double.isFinite(point.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);
+      if(!(rect!=null && Double.isFinite(rect.getX()) && Double.isFinite(rect.getY()) && Double.isFinite(rect.getWidth()) && Double.isFinite(rect.getHeight()))) return new Point2D.Double(Double.NaN,Double.NaN);
+      
+      double dxL = point.getX() - rect.getMinX();
+      double dxR = rect.getMaxX() - point.getX();
+      double dyT = point.getY() - rect.getMinY();
+      double dyB = rect.getMaxY() - point.getY();
+      
+      //System.out.println("dxL: " + dxL + ", dxR: " + dxR + ", dyT: " + dyT + ", dyB: " + dyB);
+      
+      if(dxL<0) {
+        if(dyT<0) return new Point2D.Double(rect.getMinX(),rect.getMinY());
+        else if(dyB<0) return new Point2D.Double(rect.getMinX(),rect.getMinY());
+        else return new Point2D.Double(rect.getMinX(), point.getY());
+      } else if(dxR<0) {
+        if(dyT<0) return new Point2D.Double(rect.getMaxX(),rect.getMinY());
+        else if(dyB<0) return new Point2D.Double(rect.getMaxX(),rect.getMinY());
+        else return new Point2D.Double(rect.getMaxX(), point.getY());
+      } else if(dyT<0) {
+        return new Point2D.Double(point.getX(), rect.getMinY());
+      } else if(dyB<0) {
+        return new Point2D.Double(point.getX(), rect.getMaxY());
+      }
+      
+      
+      // Point is within/or on rect  
+      double min = Collections.min(Arrays.asList(dxL, dxR, dyT, dyB));
+      if (dxL == min) {
+          return new Point2D.Double(rect.getMinX(), point.getY());
+      } else if (dxR == min) {
+          return new Point2D.Double(rect.getMaxX(), point.getY());
+      } else if (dyT == min) {
+          return new Point2D.Double(point.getX(), rect.getMinY());
+      } else if (dyB == min) {
+          return new Point2D.Double(point.getX(), rect.getMaxY());
+      }
+
+      throw new RuntimeException("This should not happen");
+  }
 	
 //	public static void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<String,Point2D> positions, Rectangle2D rect, Collection<? extends Edge<? extends Node>> edges, double distance, Set<? extends Node> boundaryNodes) {
 //				
