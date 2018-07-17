@@ -50,9 +50,12 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
+import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 import de.bund.bfr.knime.openkrise.db.gui.MainFrame;
+import de.bund.bfr.knime.openkrise.db.gui.MyList;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
+import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 
 
 public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListener {
@@ -85,6 +88,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private SimSearch.Settings simSearchSettings;
 
 	private int currentSimSetIndex;
+	private SimSearch.SimSet currentSimSet;
 	private boolean userIsWaiting;
 	private volatile boolean searchIsOn;
 	private boolean  blockActions;
@@ -412,9 +416,9 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private void processNavigationRequest(JButton source) {
 		int index = -1;
 		if(source==this.navToFirst) index = this.simSearch.getIndexOfNextNotIgnoredSimSet(-1);
-		else if(source==this.navBack) index = this.simSearch.getIndexOfPreviousNotIgnoredSimSet(this.currentSimSetIndex); //this.startAsyncDataLoad(this.currentSimSetIndex-1);
-		else if(source==this.navForward) index = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex); //this.startAsyncDataLoad(this.currentSimSetIndex+1);
-		else if(source==this.navToLast) this.simSearch.getIndexOfPreviousNotIgnoredSimSet(-1); //this.startAsyncDataLoad(this.simSearch.getSimSetCount()-1);
+		else if(source==this.navBack) index = this.simSearch.getIndexOfPreviousNotIgnoredSimSet(this.currentSimSetIndex); 
+		else if(source==this.navForward) index = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex); 
+		else if(source==this.navToLast) index = this.simSearch.getIndexOfPreviousNotIgnoredSimSet(-1); 
 		else { 
 			// do nothing
 			return;
@@ -463,6 +467,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 				this.navForward.setEnabled(simSetIndex<this.simSearch.getIndexOfNextNotIgnoredSimSet(simSetIndex));
 				this.navToLast.setEnabled(!this.searchIsOn &&this.navForward.isEnabled());
 				this.currentSimSetIndex=simSetIndex;
+				this.currentSimSet = this.simSearch.getSimSet(simSetIndex);
 				this.updateSimSetCountLabel();
 				
 				this.table.loadData(tableModel);
@@ -538,6 +543,9 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	  if(SwingUtilities.isEventDispatchThread()) {
 	    // 
 	    blockActions(false);
+	    
+	    refreshMainFrame();
+	    
 	    reloadData();
 
 	  } else {
@@ -548,6 +556,22 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	    });
 	  }
     }
+	
+	private void refreshMainFrame() {
+	  // call:
+	  // DBKernel.mainFrame.getMyList().getMyDBTable().setTable();
+	 
+	  MainFrame mainFrame = DBKernel.mainFrame;
+	  if(mainFrame==null) return;
+	  
+	  MyList myList = mainFrame.getMyList();
+	  if(myList==null) return;
+	  
+	  MyDBTable myDBTable = myList.getMyDBTable();
+	  if(myDBTable==null) return;
+	  
+	  myDBTable.setTable();
+	}
 	
 	private void processUserOkRequest() {
       if (this.simSearch==null) return;
@@ -562,6 +586,9 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
       if(SwingUtilities.isEventDispatchThread()) {
         //
         blockActions(false);
+        
+        refreshMainFrame();
+        
         if(saveSucceeded) this.dispose();
         else reloadData();
       } else {
@@ -646,10 +673,13 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
       }
 //      System.out.println(Thread.currentThread().getId() + (SwingUtilities.isEventDispatchThread()?"E":"") + "\tfinishUserCloseRequestProcessing leaving ...");
     }
-
+    
     private void reloadData() {
-      int simSetIndex = this.currentSimSetIndex;
-      if(this.currentSimSetIndex<0 || this.simSearch.isSimSetIgnored(this.currentSimSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(this.currentSimSetIndex);
+      
+      int simSetIndex = this.simSearch.getSimSetIndex(currentSimSet);    //
+      if(simSetIndex!=this.currentSimSetIndex) simSetIndex = -1;     // save or apply occured
+      if(simSetIndex>=simSearch.getSimSetCount()) simSetIndex = -1;
+      if(simSetIndex<0 || this.simSearch.isSimSetIgnored(simSetIndex)) simSetIndex = this.simSearch.getIndexOfNextNotIgnoredSimSet(simSetIndex);
       if(simSetIndex>=0) this.startAsyncDataLoad(simSetIndex);
       else this.clearTable();
     }
