@@ -6,14 +6,9 @@ public class DBInfo {
 		PRODUCT("Produktkatalog"),
 		LOT("Chargen"),
 		DELIVERY("Lieferungen"),
-//		IGNORESTATIONSIM("IgnorierteStationenAehnlichkeiten"),
-//		IGNOREPRODUCTSIM("IgnorierteProduktkatalogAehnlichkeiten"),
-//		IGNORELOTSIM("IgnorierteChargenAehnlichkeiten"),
-//		IGNOREDELIVERYSIM("IgnorierteLieferungenAehnlichkeiten"),
 		IGNORESIM("IgnorierteAehnlichkeiten"),
 		MATRIX("Matrices"),
 		AGENT("Agenzien"),
-		//STATION_AGENT("Station_Agenzien")
 		LOTLINK("ChargenVerbindungen"),
 		
 		; 
@@ -59,7 +54,7 @@ public class DBInfo {
 	  DELIVERY_ARRIVEDON_MONTH("ad_month", TABLE.DELIVERY),
 	  DELIVERY_ARRIVEDON_YEAR("ad_year", TABLE.DELIVERY),
 	  DELIVERY_DELIVEREDON_DAY("dd_day", TABLE.DELIVERY),
-      DELIVERY_DELIVEREDON_MONTH("ad_month", TABLE.DELIVERY),
+      DELIVERY_DELIVEREDON_MONTH("dd_month", TABLE.DELIVERY),
       DELIVERY_DELIVEREDON_YEAR("dd_year", TABLE.DELIVERY),
 	  DELIVERY_RECIPIENT("Empfänger", TABLE.DELIVERY),
 	  
@@ -76,19 +71,7 @@ public class DBInfo {
 	  LOTLINK_ID("id", TABLE.LOTLINK),
 	  LOTLINK_INGREDIENT("Zutat", TABLE.LOTLINK),
 	  LOTLINK_PRODUCT("Produkt", TABLE.LOTLINK),
-	  
-	  
-	  
-//	  IGNORESTATIONSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNORESTATIONSIM),
-//	  IGNORESTATIONSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNORESTATIONSIM),
-//	  IGNOREPRODUCTSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNOREPRODUCTSIM),
-//	  IGNOREPRODUCTSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNOREPRODUCTSIM),
-//	  IGNORELOTSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNORELOTSIM),
-//	  IGNORELOTSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNORELOTSIM),
-//	  IGNOREDELIVERYSIM_ID1(IGNORESIM_ID1.getName(), TABLE.IGNOREDELIVERYSIM),
-//	  IGNOREDELIVERYSIM_ID2(IGNORESIM_ID2.getName(), TABLE.IGNOREDELIVERYSIM),
-	  
-	  
+	 
 	  ;
 	  
 		
