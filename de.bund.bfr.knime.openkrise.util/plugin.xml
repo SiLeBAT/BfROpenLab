@@ -27,6 +27,13 @@
             name="Amount Converter"
             workflowDir="metanode_templates/Amount Converter/">
       </PersistedMetaNode>
+      <PersistedMetaNode
+            category-path="/foodchain/convert"     
+            icon="icons/FoodChainLab.png"
+            id="de.bund.bfr.knime.openkrise.util.Lot2Lot"       
+            name="Lot2Lot"
+            workflowDir="metanode_templates/Lot2Lot/">
+      </PersistedMetaNode>
    </extension>
 
 </plugin>
