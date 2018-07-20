@@ -14,8 +14,6 @@
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.json.ToJsonNodeFactory"/>
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.json.FromJsonNodeFactory"/>
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
-		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
-		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
 	</extension>
 	
 	<extension
