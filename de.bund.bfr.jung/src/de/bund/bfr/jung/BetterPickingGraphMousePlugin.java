@@ -239,22 +239,31 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	      Layout<V, E> layout = vv.getGraphLayout();
 
 	      PickedState<V> ps = vv.getPickedVertexState();
+	      
+	      if(moveController!=null) {
+	        Map<V, Point2D> newPositions = moveController.move(ps.getPicked(), beforeDragPositions, move, vertex);
+	        for(V node: newPositions.keySet()) layout.setLocation(node, newPositions.get(node));
+	        
+	        nodesMoved = true;
+	      } else {
 
-	      for (V v : ps.getPicked()) {
-	        //System.out.println("mouseDragged CP3: Node " + v.hashCode() + " RefPoint: " + beforeDragPositions.get(v).toString());
-	        if(moveController!=null) {
-	          //layout.setLocation(v, moveController.move(v, layout.transform(v), move));
-	          layout.setLocation(v, moveController.move(v, beforeDragPositions.get(v), move));
-	          nodesMoved = true;
-	        } else if(!layout.isLocked(v)) {
-	          //layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
-	          
-	          //Point2D newLocation = PointUtils.addPoints(beforeDragPositions.get(v), move);
-	          layout.setLocation(v, PointUtils.addPoints(beforeDragPositions.get(v), move));
-	         // Point2D afterMoveExpected =  newLocation; 
-	          //Point2D afterMoveIs =  layout.transform(v);
-	          //System.out.println("Exp: " + afterMoveExpected + ", Is: " + afterMoveIs);
-	          nodesMoved = true;
+	        for (V v : ps.getPicked()) {
+	          //System.out.println("mouseDragged CP3: Node " + v.hashCode() + " RefPoint: " + beforeDragPositions.get(v).toString());
+	          //	        if(moveController!=null) {
+	          //	          //layout.setLocation(v, moveController.move(v, layout.transform(v), move));
+	          //	          layout.setLocation(v, moveController.move(v, beforeDragPositions.get(v), move));
+	          //	          nodesMoved = true;
+	          //	        } else 
+	          if(!layout.isLocked(v)) {
+	            //layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+
+	            //Point2D newLocation = PointUtils.addPoints(beforeDragPositions.get(v), move);
+	            layout.setLocation(v, PointUtils.addPoints(beforeDragPositions.get(v), move));
+	            // Point2D afterMoveExpected =  newLocation; 
+	            //Point2D afterMoveIs =  layout.transform(v);
+	            //System.out.println("Exp: " + afterMoveExpected + ", Is: " + afterMoveIs);
+	            nodesMoved = true;
+	          }
 	        }
 	      }
 

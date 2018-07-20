@@ -260,8 +260,20 @@ public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements I
 	
 	@Override
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
+	  System.out.println("ExplosionTracingGraphCanvas.setNodePositions entered");
+	  Set<GraphNode> boundaryNodesToLayout = null;
+	  
+	  if(boundary!=null) {
+	    //Set<GraphNode> boundaryNodesToInit = new HashSet<>();
+	    //boundary.putNodesOnBoundary(this, nodePositions); 
+	    System.out.println("ExplosionTracingGraphCanvas.setNodePositions CP1: searching for unpositioned boundary nodes");
+	    boundaryNodesToLayout = new HashSet<>();
+	    for(GraphNode node: Sets.difference(this.nodes, this.nonBoundaryNodes)) if(!nodePositions.containsKey(node.getId())) boundaryNodesToLayout.add(node);
+	    System.out.println("ExplosionTracingGraphCanvas.setNodePositions CP2: " + boundaryNodesToLayout.size() + " unpositioned nodes found.");
+	  }
 	  super.setNodePositions(nodePositions);
-	  if(boundary!=null) boundary.
+	  if(boundaryNodesToLayout!=null && !boundaryNodesToLayout.isEmpty()) boundary.layout(this, nodePositions, boundaryNodesToLayout);
+	  System.out.println("ExplosionTracingGraphCanvas.setNodePositions leaving");
 	}
 	
 	@Override

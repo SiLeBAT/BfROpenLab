@@ -103,13 +103,24 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
-
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 public abstract class Canvas<V extends Node> extends JPanel
 		implements JungListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
-	private static Logger logger =  Logger.getLogger("de.bund.bfr");
+	private static Logger logger; // =  Logger.getLogger("de.bund.bfr");
+	
+	{
+	  logger = Logger.getLogger("de.bund.bfr.test");
+	  SimpleFormatter fmt = new SimpleFormatter();
+	  StreamHandler sh = new StreamHandler(System.out, fmt);
+	  sh.setLevel(Level.FINEST);
+	  logger.addHandler(sh);
+	  logger.setLevel(Level.FINEST);
+	}
 	
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";

@@ -11,12 +11,14 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.google.common.collect.Sets;
 import com.vividsolutions.jts.geom.Polygon;
 import de.bund.bfr.jung.MoveController;
 import de.bund.bfr.knime.PointUtils;
@@ -37,6 +39,7 @@ public class Boundary implements MoveController<GraphNode> {
   private Polygon boundaryArea;
   //private Shape boundaryArea;
   private Rectangle2D boundaryRect;
+  private Rectangle2D[] sideAreas; 
   private double boundaryWidth;
     
 //  private Map<GraphNode, Set<GraphNode>> bNodeToNonBNodeSetMap;
@@ -44,6 +47,9 @@ public class Boundary implements MoveController<GraphNode> {
 //  private Map<Set<GraphNode>, List<GraphNode>> nonBNodeSetToBNodeListMap;
 //  private Map<String, Point2D> nodePositionMap;
   private Set<String> boundaryNodeIds;
+  
+  private Point2D lastDragPosition;
+  private double rotationAngle;
   
   
 //  Boundary(Set<V> nonBoundaryNodes, Set<V> boundaryNodes, Set<E> edges, Dimension availableAreaSize) {
@@ -109,12 +115,25 @@ public class Boundary implements MoveController<GraphNode> {
     //Rectangle2D defaultBounds = ExplosionCanvasUtils.getInnerBoundaryRect(canvas);
     
     Rectangle2D oldBoundaryRect = this.boundaryRect;
-    boundaryArea = ExplosionCanvasUtils.createBoundaryArea(innerHull, canvas);
-    boundaryRect = ExplosionCanvasUtils.getAreaRect(boundaryArea);
+    //boundaryArea = ExplosionCanvasUtils.createBoundaryArea(innerHull, canvas);
+    this.setBoundaryArea(ExplosionCanvasUtils.createBoundaryArea(innerHull, canvas));
+    //boundaryRect = ExplosionCanvasUtils.getAreaRect(boundaryArea);
     
     //double newBoundaryWidth = ExplosionCanvasUtils.getAreaBorderWidth(this.boundaryArea);
     
     if(oldBoundaryRect!=null) moveNodesToUpdatedBoundary(canvas, nodePositions, oldBoundaryRect);
+  }
+  
+  private void setBoundaryArea(Polygon newBoundaryArea) {
+    boundaryArea = newBoundaryArea;
+    boundaryRect = ExplosionCanvasUtils.getAreaRect(boundaryArea);
+    boundaryWidth = ExplosionCanvasUtils.getAreaBorderWidth(boundaryArea);
+    this.sideAreas = new Rectangle2D[] {
+      new Rectangle2D.Double(boundaryRect.getX()-boundaryWidth/2,boundaryRect.getY()-boundaryWidth/2, boundaryRect.getWidth() + boundaryWidth, boundaryWidth), //top
+      new Rectangle2D.Double(boundaryRect.getMaxX()-boundaryWidth/2,boundaryRect.getY()-boundaryWidth/2, boundaryWidth, boundaryRect.getHeight() + boundaryWidth), //right
+      new Rectangle2D.Double(boundaryRect.getX()-boundaryWidth/2,boundaryRect.getMaxY()-boundaryWidth/2, boundaryRect.getWidth() + boundaryWidth, boundaryWidth), //bottom
+      new Rectangle2D.Double(boundaryRect.getX()-boundaryWidth/2,boundaryRect.getY()-boundaryWidth/2, boundaryWidth, boundaryRect.getHeight() + boundaryWidth) //left
+    };
   }
   
   public static Rectangle2D getBounds(ExplosionTracingGraphCanvas canvas, Map<String, Point2D> nodePositions) {
@@ -170,20 +189,27 @@ public class Boundary implements MoveController<GraphNode> {
   }
   
   protected void putNodesOnBoundary(ExplosionTracingGraphCanvas canvas, Map<String, Point2D> nodePositions) {
+    //ArrayList<GraphNode> nodesWithoutPosition = new ArrayList<>();
+    
     for(GraphNode node : canvas.getNodes()) {
       // this node should be visible 
       if(boundaryNodeIds.contains(node.getId())) {
         // this is a boundary node
         Point2D oldPosition = nodePositions.get(node.getId());
-        Point2D pointOnRect = ExplosionCanvasUtils.getClosestPointOnRect(oldPosition, boundaryRect);
-        Point2D diff = PointUtils.substractPoints(oldPosition, pointOnRect);
-        double maxDiff = Math.max(Math.abs(diff.getX()), Math.abs(diff.getY()));
-        if(maxDiff>boundaryWidth/2) {
-          // node is not on the boundary
-          nodePositions.put(node.getId(), pointOnRect);
-        }
+        
+          Point2D pointOnRect = ExplosionCanvasUtils.getClosestPointOnRect(oldPosition, boundaryRect);
+        
+          Point2D diff = PointUtils.substractPoints(oldPosition, pointOnRect);
+          double maxDiff = Math.max(Math.abs(diff.getX()), Math.abs(diff.getY()));
+          if(maxDiff>boundaryWidth/2) {
+            // node is not on the boundary
+            // this node
+            nodePositions.put(node.getId(), pointOnRect);
+          }
+        
       }
     }
+    //if(!nodesWithoutPosition.isEmpty()) this.layout(canvas,  nodePositions, nodesWithoutPosition);
   }
   
   protected Point2D getRandomPointOnBoundary() {
@@ -213,8 +239,22 @@ public class Boundary implements MoveController<GraphNode> {
 
   @Override
   public Point2D move(GraphNode node, Point2D fromPosition, Point2D movement) {
+    return move(node.getId(), fromPosition, movement);
+//    Point2D newPosition = PointUtils.addPoints(fromPosition, movement);
+//    if(boundaryNodeIds!=null && boundaryNodeIds.contains(node.getId())) {
+//      Point2D pointOnRect = ExplosionCanvasUtils.getClosestPointOnRect(newPosition, boundaryRect);
+//      Point2D diff = PointUtils.substractPoints(newPosition, pointOnRect);
+//      double maxDiff = Math.max(Math.abs(diff.getX()), Math.abs(diff.getY()));
+//      if(maxDiff<=boundaryWidth/2) {
+//        // newPosition is on boundary
+//        return newPosition;
+//      } return PointUtils.addPoints(pointOnRect, scaleMove(diff, boundaryWidth/2/maxDiff));
+//    } else return newPosition;
+  }
+  
+  public Point2D move(String nodeId, Point2D fromPosition, Point2D movement) {
     Point2D newPosition = PointUtils.addPoints(fromPosition, movement);
-    if(boundaryNodeIds!=null && boundaryNodeIds.contains(node.getId())) {
+    if(boundaryNodeIds!=null && boundaryNodeIds.contains(nodeId)) {
       Point2D pointOnRect = ExplosionCanvasUtils.getClosestPointOnRect(newPosition, boundaryRect);
       Point2D diff = PointUtils.substractPoints(newPosition, pointOnRect);
       double maxDiff = Math.max(Math.abs(diff.getX()), Math.abs(diff.getY()));
@@ -225,6 +265,7 @@ public class Boundary implements MoveController<GraphNode> {
     } else return newPosition;
   }
   
+  
   private static Point2D scaleMove(Point2D p, double scale) {
     return new Point2D.Double(p.getX()*scale, p.getY()*scale);
   }
@@ -232,6 +273,147 @@ public class Boundary implements MoveController<GraphNode> {
   protected void setNodes(Set<GraphNode> nodes) {
     this.boundaryNodeIds = nodes.stream().map(GraphNode::getId).collect(Collectors.toSet());
   }
+
+  @Override
+  public Map<GraphNode, Point2D>  move(Set<GraphNode> nodes, Map<GraphNode, Point2D> oldPositions, Point2D movement, GraphNode dragNode) {
+    Map<GraphNode, Point2D> newPositions = new HashMap<>(oldPositions);
+    
+//    //ArrayList<GraphNode> boundaryNodes = nodes.stream().filter(n -> this.boundaryNodeIds.contains(n.getId())).collect(Collectors.toList());
+    Map<GraphNode, Point2D> newBoundaryPositions = new HashMap<>();
+    
+    for(GraphNode node : nodes) {
+      if(boundaryNodeIds.contains(node.getId())) newBoundaryPositions.put(node, PointUtils.addPoints(oldPositions.get(node), movement));
+      else newPositions.put(node, PointUtils.addPoints(oldPositions.get(node), movement));
+    }
+    
+    boolean allPointsOnBoundary = true;
+    for(Point2D p : newBoundaryPositions.values()) if(!(allPointsOnBoundary=isPointOnBoundary(p))) break;
+    
+    if(allPointsOnBoundary) {
+      //
+      newPositions.putAll(newBoundaryPositions);
+      
+    } else {
+      
+      if(newBoundaryPositions.size()!=nodes.size()) {
+        // not only Boundary nodes
+        // use Projection
+        for(GraphNode node : newBoundaryPositions.keySet()) newPositions.put(node, move(node.getId(), oldPositions.get(node), movement));
+      } else {
+        // only boundary Nodes
+        Point2D dragPoint = PointUtils.addPoints(oldPositions.get(dragNode), movement);
+        if(isPointOnBoundary(dragPoint)) {
+          // dragPoint is on boundary
+          // perform compact move
+          newPositions.putAll(compactMove(oldPositions, dragNode, dragPoint));
+        } else {
+          // dragPoint is not on Boundary
+          // use Projection
+          for(GraphNode node : newBoundaryPositions.keySet()) newPositions.put(node, move(node.getId(), oldPositions.get(node), movement));
+        }
+      }
+    }
+    return newPositions;
+  }
+  
+  private boolean isPointOnBoundary(Point2D p) {
+    int i=-1;
+    for(Rectangle2D rect : sideAreas) if(rect.contains(p)) {
+      //i++;
+      //System.out.println("Point " + p.toString() + " is on Boundary(" + i + ") " + rectToString(boundaryRect) + ".");
+      return true;
+    }
+    //System.out.println("Point " + p.toString() + " is not on Boundary " + rectToString(boundaryRect) + ".");
+    return false;
+  }
+  
+  private static String rectToString(Rectangle2D rect) {
+    return "[" + rect.getX() + "," + rect.getY() + "," + rect.getMaxX() + "," + rect.getMaxY() + "]";
+  }
+  
+  private HashMap<GraphNode, Point2D> compactMove(Map<GraphNode, Point2D> oldBoundaryPositions, GraphNode dragNode, Point2D dragPoint) {
+    //HashMap<GraphNode, Point2D> oldBoundaryPositions = new HashMap<>(oldPositions.entrySet().stream().filter(e -> boundaryNodeIds.contains(e.getKey().getId())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    HashMap<GraphNode, Point2D> newPositions = new HashMap<>();
+    
+    double dragPoint1D = convertToOneDimensionalPosition(ExplosionCanvasUtils.getClosestPointOnRect(dragPoint, boundaryRect), boundaryRect);
+    double movement1D = dragPoint1D - convertToOneDimensionalPosition(ExplosionCanvasUtils.getClosestPointOnRect(oldBoundaryPositions.get(dragNode), boundaryRect), boundaryRect);
+    
+    //Set<String> nodeIds = Sets.intersection(boundaryNodeIds, oldPositions.keySet());
+    for(GraphNode node: oldBoundaryPositions.keySet()) {
+      Point2D oldPointOnRect2D = ExplosionCanvasUtils.getClosestPointOnRect(oldBoundaryPositions.get(node), boundaryRect);
+      Double oldPointOnRect1D = convertToOneDimensionalPosition(oldPointOnRect2D,  boundaryRect );
+      Double newPointOnRect1D = oldPointOnRect1D + movement1D;
+      
+      Point2D oldPointDistanceToRect2D = PointUtils.substractPoints(oldBoundaryPositions.get(node), oldPointOnRect2D);
+      double oldPointDistanceToRect1D = (boundaryRect.contains(oldBoundaryPositions.get(node))?-1:1) * Math.max(Math.abs(oldPointDistanceToRect2D.getX()), Math.abs(oldPointDistanceToRect2D.getY()));
+      
+      Point2D newPoint2D = convertToTwoDimensionalPosition(newPointOnRect1D, oldPointDistanceToRect1D, boundaryRect);
+      newPositions.put(node, newPoint2D);
+    }
+    return newPositions;
+  }
+  
+  private static double convertToOneDimensionalPosition(Point2D p, Rectangle2D rect) {
+    
+    if(p.getY()==rect.getY()) {
+      // p is on the top side
+      return p.getX()-rect.getX();
+    } else if(p.getY()==rect.getMaxY()) {
+      // p is on the bottom side
+      return rect.getMaxX()-p.getX()+rect.getWidth()+rect.getHeight();
+    } else if(p.getX()==rect.getX()) {
+      // p is on the left side
+      return rect.getMaxY()-p.getY()+2*rect.getWidth()+rect.getHeight();
+    } else {
+      // p is on the right side
+      return rect.getMaxY()-p.getY()+rect.getWidth();
+    }
+  }
+  
+  private static Point2D convertToTwoDimensionalPosition(Double p, Double dist, Rectangle2D rect) {
+    // normalize p if required
+    double circumference = 2*rect.getWidth() + 2*rect.getHeight();
+    if(p>=circumference) p = p%circumference;
+    if(p<0) p += circumference;
+    
+    double pathLength = 0.0;
+    if(p <= (pathLength += rect.getWidth())) {
+      // p is on the top side
+      return new Point2D.Double(rect.getX() + p, rect.getMinY()-dist);
+    } else if(p <= (pathLength += rect.getHeight())) {
+      // p is on the right side
+      return new Point2D.Double(rect.getMaxX()  + dist, rect.getY() + p - pathLength + rect.getHeight());
+    } else if(p <= (pathLength += rect.getWidth())) {
+      // p is on the bottom side
+      return new Point2D.Double(rect.getMinX() - (p - pathLength), rect.getMaxY() + dist);
+    } else {
+      // p is on the left side
+      return new Point2D.Double(rect.getX() - dist, rect.getMaxY() - (p - pathLength));
+    }
+  }
+
+//  @Override
+//  public Point2D move(GraphNode node, Point2D fromPosition, Point2D movement,
+//      Point2D dragPosition) {
+//    if(boundaryNodeIds==null || !boundaryNodeIds.contains(node.getId())) {
+//      return PointUtils.addPoints(fromPosition, movement);
+//    } else {
+//     if(lastDragPosition==null || !dragPosition.equals(lastDragPosition)) {
+//       lastDragPosition = dragPosition;
+//       rotationAngle = getRotationAngle(fromPoint, toPoint);
+//       
+//     }
+//    }
+//  }
+//  
+//  private double getRotationAngle(Point2D fromPoint, Point2D toPoint) {
+//    
+//    return Math.acos( 
+//  }
+//  
+//  private Point2D rotatePoint(Point2D point) {
+//    
+//  }
  
 //  private Rectangle2D getEnclosingHullFromLayoutableNodes(ExplosionTracingGraphCanvas canvas) {
 //    Map<String, Point2D> positions = canvas.getNodePositions(canvas.getLayoutableNodes());
