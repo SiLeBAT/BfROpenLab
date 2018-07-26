@@ -28,16 +28,18 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-
+import javax.swing.JTextPane;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -68,13 +70,17 @@ private String inhalt = "";
   }
   public InfoBox(JDialog owner, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal) {
 	    super(owner, "Info", modal);	  
-	    init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal);
+	    init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal, false);
   }
   public InfoBox(Frame owner, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal) {
     super(owner, "Info", modal);
-    init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal);
+    init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal, false);
   }
-  private void init(Point loc, Dimension siz, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal) {
+  public InfoBox(JDialog owner, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal, boolean isHtml) {
+    super(owner, "Info", modal);
+    init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal, isHtml);
+  }
+  private void init(Point loc, Dimension siz, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal, boolean isHtml) {
 	    try {
 	        this.inhalt = inhalt;
 	        this.setResizable(false);
@@ -83,6 +89,10 @@ private String inhalt = "";
 	        initComponents();
 	        if (font != null) {
 	        	infoTextArea.setFont(font);
+	        }
+	        if(isHtml) {
+	          infoTextArea.setContentType("text/html");
+	          infoTextArea.setText(this.inhalt);
 	        }
 	        infoTextArea.setEditable(false);
 	        if (keyDispose) {
@@ -119,7 +129,7 @@ private String inhalt = "";
           dialogPane = new JPanel();
           contentPane = new JPanel();
           scroller = new JScrollPane();
-          infoTextArea = new JTextArea();
+          infoTextArea = new JTextPane();
           buttonBar = new JPanel();
           okButton = new JButton();
           CellConstraints cc = new CellConstraints();
@@ -180,7 +190,8 @@ private String inhalt = "";
   private JPanel dialogPane;
   private JPanel contentPane;
   private JScrollPane scroller;
-  private JTextArea infoTextArea;
+  //private JTextArea infoTextArea;
+  private JTextPane infoTextArea;
   private JPanel buttonBar;
   private JButton okButton;
   // JFormDesigner - End of variables declaration  //GEN-END:variables

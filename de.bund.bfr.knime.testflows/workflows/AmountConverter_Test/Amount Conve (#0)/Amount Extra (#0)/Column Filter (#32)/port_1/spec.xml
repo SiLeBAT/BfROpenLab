@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="spec.xml">
+<entry key="spec_name" type="xstring" value="default"/>
+<entry key="number_columns" type="xint" value="1"/>
+<config key="column_spec_0">
+<entry key="column_name" type="xstring" value="UnitWithRank"/>
+<config key="element_names">
+<entry key="array-size" type="xint" value="0"/>
+</config>
+<config key="column_type">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.StringCell"/>
+</config>
+<config key="column_domain">
+<config key="possible_values">
+<entry key="array-size" type="xint" value="1"/>
+<config key="0">
+<entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
+<config key="org.knime.core.data.def.StringCell">
+<entry key="StringCell" type="xstring" value="g:1|kg:1|t:1|ml:1|l:1|palette:3|palettes:3|box:3|boxes:3|carton:3|cartons:3|case:3|cases:3|packet:3|packets:3|boxing:3|bag:3|bags:3|pouch:3|pouches:3|sachet:3|sachets:3|punnet:3|punnets:3|egg:2|eggs:2|karton:3|kartons:3|schachtel:3|schachteln:3|paletten:3|beutel:3|packung:3|packungen:3|ei:2|eier:2|piece:2|pieces:2|Schale:3|Schalen:3|päckchen:3|tüte:3|tüten:3|tütchen:3|körbchen:3|stück:3"/>
+</config>
+</config>
+</config>
+</config>
+<config key="column_properties"/>
+</config>
+</config>

@@ -361,13 +361,24 @@ Erinnerung an die alten Template inhaber senden?
 		if (rs.getObject("Station.ID") != null) {
 			String template;
 			if (hasTOB) {				
-				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_de.xlsx";
-				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_en.xlsx";
-				if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_en.xlsx";
+				if (lang.equals("de")) {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_de.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_de.xlsx";
+				}
+				else {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_en.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_en.xlsx";
+				}
 			}
 			else {
-				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_de.xlsx";
-				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_en.xlsx";
+				if (lang.equals("de")) {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_de.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_de.xlsx";
+				}
+				else {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_en.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_en.xlsx";
+				}
 			}
 			InputStream myxls = this.getClass().getResourceAsStream(template);
 			File file = getResourceAsFile(myxls);
@@ -406,6 +417,7 @@ Erinnerung an die alten Template inhaber senden?
 				if (greyStyle == null) {
 					row = sheetTracing.getRow(0);
 					greyStyle = row.getCell(5).getCellStyle();
+					//greyStyle.setWrapText(true);
 				}
 			}
 			else {
@@ -418,7 +430,10 @@ Erinnerung an die alten Template inhaber senden?
 						copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
 						row = sheetTracing.getRow(rowIndex);								
 						fillRowSimple(sheetTracing, rs, row, true, false);
-						if (greyStyle == null) greyStyle = row.getCell(0).getCellStyle();
+						if (greyStyle == null) {
+							greyStyle = row.getCell(0).getCellStyle();
+							//greyStyle.setWrapText(true);
+						}
 						rowIndex++;
 						if (generateAllData) {
 							Integer key = rs.getInt("ChargenVerbindungen.Produkt");
@@ -432,7 +447,7 @@ Erinnerung an die alten Template inhaber senden?
 				
 				row = sheetTracing.getRow(rowIndex+4);
 				cell = row.getCell(0);	
-				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+11) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the product information in columns B to M.");
+				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the requested information into columns B onwards");
 				else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
 			}
 			
@@ -449,7 +464,7 @@ Erinnerung an die alten Template inhaber senden?
 						" ORDER BY " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
 				ResultSet rs2 = DBKernel.getResultSet(sql, false);
 				if (rs2 != null && rs2.first()) {
-					rowIndex += lang.equals("en") ? 10 : 12;
+					rowIndex += startTracing && lang.equals("en") ? 11 : 12;
 					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
 					do {
 						//System.err.println(rs2.getString("Station.Name"));
@@ -886,13 +901,24 @@ Erinnerung an die alten Template inhaber senden?
 		if (rs.getObject("Station.ID") != null) {
 			String template;
 			if (hasTOB) {				
-				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_tob_de.xlsx";
-				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_tob_en.xlsx";
-				if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_en.xlsx";
+				if (lang.equals("de")) {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_de.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_tob_de.xlsx";
+				}
+				else {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_en.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_tob_en.xlsx";
+				}
 			}
 			else {
-				if (lang.equals("de")) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_de.xlsx";
-				else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_en.xlsx";
+				if (lang.equals("de")) {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_de.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_de.xlsx";
+				}
+				else {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_en.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_en.xlsx";
+				}
 			}
 			InputStream myxls = this.getClass().getResourceAsStream(template);
 			File file = getResourceAsFile(myxls);
@@ -930,6 +956,7 @@ Erinnerung an die alten Template inhaber senden?
 				if (greyStyle == null) {
 					row = sheetTracing.getRow(0);
 					greyStyle = row.getCell(5).getCellStyle();
+					//greyStyle.setWrapText(true);
 				}
 			}
 			else {
@@ -943,7 +970,10 @@ Erinnerung an die alten Template inhaber senden?
 						copyRow(workbook, sheetTracing, rowIndex, rowIndex+1);
 						row = sheetTracing.getRow(rowIndex);	
 						fillRowSimple(sheetTracing, rs, row, false, false);
-						if (greyStyle == null) greyStyle = row.getCell(0).getCellStyle();
+						if (greyStyle == null) {
+							greyStyle = row.getCell(0).getCellStyle();
+							//greyStyle.setWrapText(true);
+						}
 						rowIndex++;
 					}
 					if (generateAllData) {
@@ -959,7 +989,7 @@ Erinnerung an die alten Template inhaber senden?
 				
 				row = sheetTracing.getRow(rowIndex+4);
 				cell = row.getCell(0);
-				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+11) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the ingredient information in columns B to M.");
+				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the requested information into columns B onwards");
 				else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
@@ -977,7 +1007,7 @@ Erinnerung an die alten Template inhaber senden?
 						" ORDER BY " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
 				ResultSet rs2 = DBKernel.getResultSet(sql, false);
 				if (rs2 != null && rs2.first()) {
-					rowIndex += lang.equals("en") ? 10 : 12;
+					rowIndex += startTracing ? 11 : 12; //lang.equals("en")
 					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
 					do {
 						//System.err.println(rs2.getString("Station.Name"));
@@ -1634,7 +1664,8 @@ Erinnerung an die alten Template inhaber senden?
 		if (startTracing) commentCol--;
 		cell = row.getCell(commentCol);
 		if (rs.getObject("Lieferungen.Kommentar") != null) cell.setCellValue(rs.getString("Lieferungen.Kommentar"));
-		else cell.setCellValue("");		
+		else cell.setCellValue("");	
+		row.setHeight((short)-1);
 	}
 	private void fillStationSimple(XSSFCell cellName, XSSFCell cellAddress, XSSFCell countryAddress, XSSFCell cellTOB, Object stationID) throws SQLException {
 		cellName.setCellValue("");

@@ -1,0 +1,899 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="settings.xml">
+<entry key="node_file" type="xstring" value="settings.xml"/>
+<config key="flow_stack"/>
+<config key="internal_node_subsettings">
+<entry key="memory_policy" type="xstring" value="CacheSmallInMemory"/>
+</config>
+<config key="model">
+<config key="rowIndices">
+<entry key="array-size" type="xint" value="257"/>
+<entry key="0" type="xint" value="0"/>
+<entry key="1" type="xint" value="0"/>
+<entry key="2" type="xint" value="0"/>
+<entry key="3" type="xint" value="1"/>
+<entry key="4" type="xint" value="1"/>
+<entry key="5" type="xint" value="1"/>
+<entry key="6" type="xint" value="1"/>
+<entry key="7" type="xint" value="2"/>
+<entry key="8" type="xint" value="2"/>
+<entry key="9" type="xint" value="2"/>
+<entry key="10" type="xint" value="2"/>
+<entry key="11" type="xint" value="3"/>
+<entry key="12" type="xint" value="3"/>
+<entry key="13" type="xint" value="3"/>
+<entry key="14" type="xint" value="3"/>
+<entry key="15" type="xint" value="4"/>
+<entry key="16" type="xint" value="4"/>
+<entry key="17" type="xint" value="4"/>
+<entry key="18" type="xint" value="4"/>
+<entry key="19" type="xint" value="5"/>
+<entry key="20" type="xint" value="5"/>
+<entry key="21" type="xint" value="5"/>
+<entry key="22" type="xint" value="5"/>
+<entry key="23" type="xint" value="6"/>
+<entry key="24" type="xint" value="6"/>
+<entry key="25" type="xint" value="6"/>
+<entry key="26" type="xint" value="6"/>
+<entry key="27" type="xint" value="7"/>
+<entry key="28" type="xint" value="7"/>
+<entry key="29" type="xint" value="7"/>
+<entry key="30" type="xint" value="7"/>
+<entry key="31" type="xint" value="8"/>
+<entry key="32" type="xint" value="8"/>
+<entry key="33" type="xint" value="8"/>
+<entry key="34" type="xint" value="8"/>
+<entry key="35" type="xint" value="9"/>
+<entry key="36" type="xint" value="9"/>
+<entry key="37" type="xint" value="9"/>
+<entry key="38" type="xint" value="9"/>
+<entry key="39" type="xint" value="10"/>
+<entry key="40" type="xint" value="10"/>
+<entry key="41" type="xint" value="10"/>
+<entry key="42" type="xint" value="10"/>
+<entry key="43" type="xint" value="11"/>
+<entry key="44" type="xint" value="11"/>
+<entry key="45" type="xint" value="11"/>
+<entry key="46" type="xint" value="11"/>
+<entry key="47" type="xint" value="12"/>
+<entry key="48" type="xint" value="12"/>
+<entry key="49" type="xint" value="12"/>
+<entry key="50" type="xint" value="12"/>
+<entry key="51" type="xint" value="13"/>
+<entry key="52" type="xint" value="13"/>
+<entry key="53" type="xint" value="13"/>
+<entry key="54" type="xint" value="13"/>
+<entry key="55" type="xint" value="14"/>
+<entry key="56" type="xint" value="14"/>
+<entry key="57" type="xint" value="14"/>
+<entry key="58" type="xint" value="14"/>
+<entry key="59" type="xint" value="15"/>
+<entry key="60" type="xint" value="15"/>
+<entry key="61" type="xint" value="15"/>
+<entry key="62" type="xint" value="15"/>
+<entry key="63" type="xint" value="16"/>
+<entry key="64" type="xint" value="16"/>
+<entry key="65" type="xint" value="16"/>
+<entry key="66" type="xint" value="16"/>
+<entry key="67" type="xint" value="17"/>
+<entry key="68" type="xint" value="17"/>
+<entry key="69" type="xint" value="17"/>
+<entry key="70" type="xint" value="17"/>
+<entry key="71" type="xint" value="18"/>
+<entry key="72" type="xint" value="18"/>
+<entry key="73" type="xint" value="18"/>
+<entry key="74" type="xint" value="18"/>
+<entry key="75" type="xint" value="19"/>
+<entry key="76" type="xint" value="19"/>
+<entry key="77" type="xint" value="19"/>
+<entry key="78" type="xint" value="19"/>
+<entry key="79" type="xint" value="20"/>
+<entry key="80" type="xint" value="20"/>
+<entry key="81" type="xint" value="20"/>
+<entry key="82" type="xint" value="20"/>
+<entry key="83" type="xint" value="21"/>
+<entry key="84" type="xint" value="21"/>
+<entry key="85" type="xint" value="21"/>
+<entry key="86" type="xint" value="21"/>
+<entry key="87" type="xint" value="21"/>
+<entry key="88" type="xint" value="22"/>
+<entry key="89" type="xint" value="22"/>
+<entry key="90" type="xint" value="22"/>
+<entry key="91" type="xint" value="22"/>
+<entry key="92" type="xint" value="22"/>
+<entry key="93" type="xint" value="23"/>
+<entry key="94" type="xint" value="23"/>
+<entry key="95" type="xint" value="23"/>
+<entry key="96" type="xint" value="23"/>
+<entry key="97" type="xint" value="24"/>
+<entry key="98" type="xint" value="24"/>
+<entry key="99" type="xint" value="24"/>
+<entry key="100" type="xint" value="24"/>
+<entry key="101" type="xint" value="25"/>
+<entry key="102" type="xint" value="25"/>
+<entry key="103" type="xint" value="25"/>
+<entry key="104" type="xint" value="25"/>
+<entry key="105" type="xint" value="26"/>
+<entry key="106" type="xint" value="26"/>
+<entry key="107" type="xint" value="26"/>
+<entry key="108" type="xint" value="26"/>
+<entry key="109" type="xint" value="27"/>
+<entry key="110" type="xint" value="27"/>
+<entry key="111" type="xint" value="27"/>
+<entry key="112" type="xint" value="27"/>
+<entry key="113" type="xint" value="28"/>
+<entry key="114" type="xint" value="28"/>
+<entry key="115" type="xint" value="28"/>
+<entry key="116" type="xint" value="28"/>
+<entry key="117" type="xint" value="29"/>
+<entry key="118" type="xint" value="29"/>
+<entry key="119" type="xint" value="29"/>
+<entry key="120" type="xint" value="29"/>
+<entry key="121" type="xint" value="30"/>
+<entry key="122" type="xint" value="30"/>
+<entry key="123" type="xint" value="30"/>
+<entry key="124" type="xint" value="30"/>
+<entry key="125" type="xint" value="31"/>
+<entry key="126" type="xint" value="31"/>
+<entry key="127" type="xint" value="31"/>
+<entry key="128" type="xint" value="31"/>
+<entry key="129" type="xint" value="32"/>
+<entry key="130" type="xint" value="32"/>
+<entry key="131" type="xint" value="32"/>
+<entry key="132" type="xint" value="32"/>
+<entry key="133" type="xint" value="33"/>
+<entry key="134" type="xint" value="33"/>
+<entry key="135" type="xint" value="33"/>
+<entry key="136" type="xint" value="33"/>
+<entry key="137" type="xint" value="34"/>
+<entry key="138" type="xint" value="34"/>
+<entry key="139" type="xint" value="34"/>
+<entry key="140" type="xint" value="34"/>
+<entry key="141" type="xint" value="35"/>
+<entry key="142" type="xint" value="35"/>
+<entry key="143" type="xint" value="36"/>
+<entry key="144" type="xint" value="36"/>
+<entry key="145" type="xint" value="36"/>
+<entry key="146" type="xint" value="36"/>
+<entry key="147" type="xint" value="37"/>
+<entry key="148" type="xint" value="37"/>
+<entry key="149" type="xint" value="37"/>
+<entry key="150" type="xint" value="37"/>
+<entry key="151" type="xint" value="38"/>
+<entry key="152" type="xint" value="38"/>
+<entry key="153" type="xint" value="38"/>
+<entry key="154" type="xint" value="38"/>
+<entry key="155" type="xint" value="39"/>
+<entry key="156" type="xint" value="39"/>
+<entry key="157" type="xint" value="39"/>
+<entry key="158" type="xint" value="39"/>
+<entry key="159" type="xint" value="40"/>
+<entry key="160" type="xint" value="40"/>
+<entry key="161" type="xint" value="40"/>
+<entry key="162" type="xint" value="40"/>
+<entry key="163" type="xint" value="41"/>
+<entry key="164" type="xint" value="41"/>
+<entry key="165" type="xint" value="42"/>
+<entry key="166" type="xint" value="42"/>
+<entry key="167" type="xint" value="42"/>
+<entry key="168" type="xint" value="42"/>
+<entry key="169" type="xint" value="43"/>
+<entry key="170" type="xint" value="43"/>
+<entry key="171" type="xint" value="43"/>
+<entry key="172" type="xint" value="43"/>
+<entry key="173" type="xint" value="44"/>
+<entry key="174" type="xint" value="44"/>
+<entry key="175" type="xint" value="44"/>
+<entry key="176" type="xint" value="44"/>
+<entry key="177" type="xint" value="44"/>
+<entry key="178" type="xint" value="45"/>
+<entry key="179" type="xint" value="45"/>
+<entry key="180" type="xint" value="45"/>
+<entry key="181" type="xint" value="45"/>
+<entry key="182" type="xint" value="46"/>
+<entry key="183" type="xint" value="46"/>
+<entry key="184" type="xint" value="46"/>
+<entry key="185" type="xint" value="46"/>
+<entry key="186" type="xint" value="47"/>
+<entry key="187" type="xint" value="47"/>
+<entry key="188" type="xint" value="47"/>
+<entry key="189" type="xint" value="47"/>
+<entry key="190" type="xint" value="48"/>
+<entry key="191" type="xint" value="48"/>
+<entry key="192" type="xint" value="48"/>
+<entry key="193" type="xint" value="48"/>
+<entry key="194" type="xint" value="48"/>
+<entry key="195" type="xint" value="49"/>
+<entry key="196" type="xint" value="49"/>
+<entry key="197" type="xint" value="49"/>
+<entry key="198" type="xint" value="49"/>
+<entry key="199" type="xint" value="49"/>
+<entry key="200" type="xint" value="50"/>
+<entry key="201" type="xint" value="50"/>
+<entry key="202" type="xint" value="50"/>
+<entry key="203" type="xint" value="50"/>
+<entry key="204" type="xint" value="50"/>
+<entry key="205" type="xint" value="51"/>
+<entry key="206" type="xint" value="51"/>
+<entry key="207" type="xint" value="52"/>
+<entry key="208" type="xint" value="52"/>
+<entry key="209" type="xint" value="53"/>
+<entry key="210" type="xint" value="53"/>
+<entry key="211" type="xint" value="54"/>
+<entry key="212" type="xint" value="54"/>
+<entry key="213" type="xint" value="55"/>
+<entry key="214" type="xint" value="55"/>
+<entry key="215" type="xint" value="56"/>
+<entry key="216" type="xint" value="56"/>
+<entry key="217" type="xint" value="57"/>
+<entry key="218" type="xint" value="57"/>
+<entry key="219" type="xint" value="58"/>
+<entry key="220" type="xint" value="58"/>
+<entry key="221" type="xint" value="58"/>
+<entry key="222" type="xint" value="58"/>
+<entry key="223" type="xint" value="59"/>
+<entry key="224" type="xint" value="59"/>
+<entry key="225" type="xint" value="59"/>
+<entry key="226" type="xint" value="59"/>
+<entry key="227" type="xint" value="59"/>
+<entry key="228" type="xint" value="60"/>
+<entry key="229" type="xint" value="60"/>
+<entry key="230" type="xint" value="61"/>
+<entry key="231" type="xint" value="61"/>
+<entry key="232" type="xint" value="61"/>
+<entry key="233" type="xint" value="61"/>
+<entry key="234" type="xint" value="62"/>
+<entry key="235" type="xint" value="62"/>
+<entry key="236" type="xint" value="62"/>
+<entry key="237" type="xint" value="62"/>
+<entry key="238" type="xint" value="63"/>
+<entry key="239" type="xint" value="63"/>
+<entry key="240" type="xint" value="63"/>
+<entry key="241" type="xint" value="63"/>
+<entry key="242" type="xint" value="64"/>
+<entry key="243" type="xint" value="64"/>
+<entry key="244" type="xint" value="64"/>
+<entry key="245" type="xint" value="64"/>
+<entry key="246" type="xint" value="64"/>
+<entry key="247" type="xint" value="65"/>
+<entry key="248" type="xint" value="65"/>
+<entry key="249" type="xint" value="65"/>
+<entry key="250" type="xint" value="65"/>
+<entry key="251" type="xint" value="65"/>
+<entry key="252" type="xint" value="66"/>
+<entry key="253" type="xint" value="66"/>
+<entry key="254" type="xint" value="66"/>
+<entry key="255" type="xint" value="66"/>
+<entry key="256" type="xint" value="66"/>
+</config>
+<config key="columnIndices">
+<entry key="array-size" type="xint" value="257"/>
+<entry key="0" type="xint" value="0"/>
+<entry key="1" type="xint" value="1"/>
+<entry key="2" type="xint" value="2"/>
+<entry key="3" type="xint" value="0"/>
+<entry key="4" type="xint" value="1"/>
+<entry key="5" type="xint" value="2"/>
+<entry key="6" type="xint" value="3"/>
+<entry key="7" type="xint" value="0"/>
+<entry key="8" type="xint" value="1"/>
+<entry key="9" type="xint" value="2"/>
+<entry key="10" type="xint" value="3"/>
+<entry key="11" type="xint" value="0"/>
+<entry key="12" type="xint" value="1"/>
+<entry key="13" type="xint" value="2"/>
+<entry key="14" type="xint" value="3"/>
+<entry key="15" type="xint" value="0"/>
+<entry key="16" type="xint" value="1"/>
+<entry key="17" type="xint" value="2"/>
+<entry key="18" type="xint" value="3"/>
+<entry key="19" type="xint" value="0"/>
+<entry key="20" type="xint" value="1"/>
+<entry key="21" type="xint" value="2"/>
+<entry key="22" type="xint" value="3"/>
+<entry key="23" type="xint" value="0"/>
+<entry key="24" type="xint" value="1"/>
+<entry key="25" type="xint" value="2"/>
+<entry key="26" type="xint" value="3"/>
+<entry key="27" type="xint" value="0"/>
+<entry key="28" type="xint" value="1"/>
+<entry key="29" type="xint" value="2"/>
+<entry key="30" type="xint" value="3"/>
+<entry key="31" type="xint" value="0"/>
+<entry key="32" type="xint" value="1"/>
+<entry key="33" type="xint" value="2"/>
+<entry key="34" type="xint" value="3"/>
+<entry key="35" type="xint" value="0"/>
+<entry key="36" type="xint" value="1"/>
+<entry key="37" type="xint" value="2"/>
+<entry key="38" type="xint" value="3"/>
+<entry key="39" type="xint" value="0"/>
+<entry key="40" type="xint" value="1"/>
+<entry key="41" type="xint" value="2"/>
+<entry key="42" type="xint" value="3"/>
+<entry key="43" type="xint" value="0"/>
+<entry key="44" type="xint" value="1"/>
+<entry key="45" type="xint" value="2"/>
+<entry key="46" type="xint" value="3"/>
+<entry key="47" type="xint" value="0"/>
+<entry key="48" type="xint" value="1"/>
+<entry key="49" type="xint" value="2"/>
+<entry key="50" type="xint" value="3"/>
+<entry key="51" type="xint" value="0"/>
+<entry key="52" type="xint" value="1"/>
+<entry key="53" type="xint" value="2"/>
+<entry key="54" type="xint" value="3"/>
+<entry key="55" type="xint" value="0"/>
+<entry key="56" type="xint" value="1"/>
+<entry key="57" type="xint" value="2"/>
+<entry key="58" type="xint" value="3"/>
+<entry key="59" type="xint" value="0"/>
+<entry key="60" type="xint" value="1"/>
+<entry key="61" type="xint" value="2"/>
+<entry key="62" type="xint" value="3"/>
+<entry key="63" type="xint" value="0"/>
+<entry key="64" type="xint" value="1"/>
+<entry key="65" type="xint" value="2"/>
+<entry key="66" type="xint" value="3"/>
+<entry key="67" type="xint" value="0"/>
+<entry key="68" type="xint" value="1"/>
+<entry key="69" type="xint" value="2"/>
+<entry key="70" type="xint" value="3"/>
+<entry key="71" type="xint" value="0"/>
+<entry key="72" type="xint" value="1"/>
+<entry key="73" type="xint" value="2"/>
+<entry key="74" type="xint" value="3"/>
+<entry key="75" type="xint" value="0"/>
+<entry key="76" type="xint" value="1"/>
+<entry key="77" type="xint" value="2"/>
+<entry key="78" type="xint" value="3"/>
+<entry key="79" type="xint" value="0"/>
+<entry key="80" type="xint" value="1"/>
+<entry key="81" type="xint" value="2"/>
+<entry key="82" type="xint" value="3"/>
+<entry key="83" type="xint" value="0"/>
+<entry key="84" type="xint" value="1"/>
+<entry key="85" type="xint" value="2"/>
+<entry key="86" type="xint" value="3"/>
+<entry key="87" type="xint" value="4"/>
+<entry key="88" type="xint" value="0"/>
+<entry key="89" type="xint" value="1"/>
+<entry key="90" type="xint" value="2"/>
+<entry key="91" type="xint" value="3"/>
+<entry key="92" type="xint" value="4"/>
+<entry key="93" type="xint" value="0"/>
+<entry key="94" type="xint" value="1"/>
+<entry key="95" type="xint" value="2"/>
+<entry key="96" type="xint" value="3"/>
+<entry key="97" type="xint" value="0"/>
+<entry key="98" type="xint" value="1"/>
+<entry key="99" type="xint" value="2"/>
+<entry key="100" type="xint" value="3"/>
+<entry key="101" type="xint" value="0"/>
+<entry key="102" type="xint" value="1"/>
+<entry key="103" type="xint" value="2"/>
+<entry key="104" type="xint" value="3"/>
+<entry key="105" type="xint" value="0"/>
+<entry key="106" type="xint" value="1"/>
+<entry key="107" type="xint" value="2"/>
+<entry key="108" type="xint" value="3"/>
+<entry key="109" type="xint" value="0"/>
+<entry key="110" type="xint" value="1"/>
+<entry key="111" type="xint" value="2"/>
+<entry key="112" type="xint" value="3"/>
+<entry key="113" type="xint" value="0"/>
+<entry key="114" type="xint" value="1"/>
+<entry key="115" type="xint" value="2"/>
+<entry key="116" type="xint" value="3"/>
+<entry key="117" type="xint" value="0"/>
+<entry key="118" type="xint" value="1"/>
+<entry key="119" type="xint" value="2"/>
+<entry key="120" type="xint" value="3"/>
+<entry key="121" type="xint" value="0"/>
+<entry key="122" type="xint" value="1"/>
+<entry key="123" type="xint" value="2"/>
+<entry key="124" type="xint" value="3"/>
+<entry key="125" type="xint" value="0"/>
+<entry key="126" type="xint" value="1"/>
+<entry key="127" type="xint" value="2"/>
+<entry key="128" type="xint" value="3"/>
+<entry key="129" type="xint" value="0"/>
+<entry key="130" type="xint" value="1"/>
+<entry key="131" type="xint" value="2"/>
+<entry key="132" type="xint" value="3"/>
+<entry key="133" type="xint" value="0"/>
+<entry key="134" type="xint" value="1"/>
+<entry key="135" type="xint" value="2"/>
+<entry key="136" type="xint" value="3"/>
+<entry key="137" type="xint" value="0"/>
+<entry key="138" type="xint" value="1"/>
+<entry key="139" type="xint" value="2"/>
+<entry key="140" type="xint" value="3"/>
+<entry key="141" type="xint" value="0"/>
+<entry key="142" type="xint" value="1"/>
+<entry key="143" type="xint" value="0"/>
+<entry key="144" type="xint" value="1"/>
+<entry key="145" type="xint" value="2"/>
+<entry key="146" type="xint" value="3"/>
+<entry key="147" type="xint" value="0"/>
+<entry key="148" type="xint" value="1"/>
+<entry key="149" type="xint" value="2"/>
+<entry key="150" type="xint" value="3"/>
+<entry key="151" type="xint" value="0"/>
+<entry key="152" type="xint" value="1"/>
+<entry key="153" type="xint" value="2"/>
+<entry key="154" type="xint" value="3"/>
+<entry key="155" type="xint" value="0"/>
+<entry key="156" type="xint" value="1"/>
+<entry key="157" type="xint" value="2"/>
+<entry key="158" type="xint" value="3"/>
+<entry key="159" type="xint" value="0"/>
+<entry key="160" type="xint" value="1"/>
+<entry key="161" type="xint" value="2"/>
+<entry key="162" type="xint" value="3"/>
+<entry key="163" type="xint" value="0"/>
+<entry key="164" type="xint" value="1"/>
+<entry key="165" type="xint" value="0"/>
+<entry key="166" type="xint" value="1"/>
+<entry key="167" type="xint" value="2"/>
+<entry key="168" type="xint" value="3"/>
+<entry key="169" type="xint" value="0"/>
+<entry key="170" type="xint" value="1"/>
+<entry key="171" type="xint" value="2"/>
+<entry key="172" type="xint" value="3"/>
+<entry key="173" type="xint" value="0"/>
+<entry key="174" type="xint" value="1"/>
+<entry key="175" type="xint" value="2"/>
+<entry key="176" type="xint" value="3"/>
+<entry key="177" type="xint" value="4"/>
+<entry key="178" type="xint" value="0"/>
+<entry key="179" type="xint" value="1"/>
+<entry key="180" type="xint" value="2"/>
+<entry key="181" type="xint" value="3"/>
+<entry key="182" type="xint" value="0"/>
+<entry key="183" type="xint" value="1"/>
+<entry key="184" type="xint" value="2"/>
+<entry key="185" type="xint" value="3"/>
+<entry key="186" type="xint" value="0"/>
+<entry key="187" type="xint" value="1"/>
+<entry key="188" type="xint" value="2"/>
+<entry key="189" type="xint" value="3"/>
+<entry key="190" type="xint" value="0"/>
+<entry key="191" type="xint" value="1"/>
+<entry key="192" type="xint" value="2"/>
+<entry key="193" type="xint" value="3"/>
+<entry key="194" type="xint" value="4"/>
+<entry key="195" type="xint" value="0"/>
+<entry key="196" type="xint" value="1"/>
+<entry key="197" type="xint" value="2"/>
+<entry key="198" type="xint" value="3"/>
+<entry key="199" type="xint" value="4"/>
+<entry key="200" type="xint" value="0"/>
+<entry key="201" type="xint" value="1"/>
+<entry key="202" type="xint" value="2"/>
+<entry key="203" type="xint" value="3"/>
+<entry key="204" type="xint" value="4"/>
+<entry key="205" type="xint" value="0"/>
+<entry key="206" type="xint" value="1"/>
+<entry key="207" type="xint" value="0"/>
+<entry key="208" type="xint" value="1"/>
+<entry key="209" type="xint" value="0"/>
+<entry key="210" type="xint" value="1"/>
+<entry key="211" type="xint" value="0"/>
+<entry key="212" type="xint" value="1"/>
+<entry key="213" type="xint" value="0"/>
+<entry key="214" type="xint" value="1"/>
+<entry key="215" type="xint" value="0"/>
+<entry key="216" type="xint" value="1"/>
+<entry key="217" type="xint" value="0"/>
+<entry key="218" type="xint" value="1"/>
+<entry key="219" type="xint" value="0"/>
+<entry key="220" type="xint" value="1"/>
+<entry key="221" type="xint" value="2"/>
+<entry key="222" type="xint" value="3"/>
+<entry key="223" type="xint" value="0"/>
+<entry key="224" type="xint" value="1"/>
+<entry key="225" type="xint" value="2"/>
+<entry key="226" type="xint" value="3"/>
+<entry key="227" type="xint" value="4"/>
+<entry key="228" type="xint" value="0"/>
+<entry key="229" type="xint" value="1"/>
+<entry key="230" type="xint" value="0"/>
+<entry key="231" type="xint" value="1"/>
+<entry key="232" type="xint" value="2"/>
+<entry key="233" type="xint" value="3"/>
+<entry key="234" type="xint" value="0"/>
+<entry key="235" type="xint" value="1"/>
+<entry key="236" type="xint" value="2"/>
+<entry key="237" type="xint" value="3"/>
+<entry key="238" type="xint" value="0"/>
+<entry key="239" type="xint" value="1"/>
+<entry key="240" type="xint" value="2"/>
+<entry key="241" type="xint" value="3"/>
+<entry key="242" type="xint" value="0"/>
+<entry key="243" type="xint" value="1"/>
+<entry key="244" type="xint" value="2"/>
+<entry key="245" type="xint" value="3"/>
+<entry key="246" type="xint" value="4"/>
+<entry key="247" type="xint" value="0"/>
+<entry key="248" type="xint" value="1"/>
+<entry key="249" type="xint" value="2"/>
+<entry key="250" type="xint" value="3"/>
+<entry key="251" type="xint" value="4"/>
+<entry key="252" type="xint" value="0"/>
+<entry key="253" type="xint" value="1"/>
+<entry key="254" type="xint" value="2"/>
+<entry key="255" type="xint" value="3"/>
+<entry key="256" type="xint" value="4"/>
+</config>
+<config key="values">
+<entry key="array-size" type="xint" value="257"/>
+<entry key="0" type="xstring" value="250"/>
+<entry key="1" type="xstring" value="true"/>
+<entry key="2" type="xstring" value="250.0"/>
+<entry key="3" type="xstring" value="100g Bag"/>
+<entry key="4" type="xstring" value="true"/>
+<entry key="5" type="xstring" value="100.0"/>
+<entry key="6" type="xstring" value="g"/>
+<entry key="7" type="xstring" value="125 g Bag"/>
+<entry key="8" type="xstring" value="true"/>
+<entry key="9" type="xstring" value="125.0"/>
+<entry key="10" type="xstring" value="g"/>
+<entry key="11" type="xstring" value="500g Packets"/>
+<entry key="12" type="xstring" value="true"/>
+<entry key="13" type="xstring" value="500.0"/>
+<entry key="14" type="xstring" value="g"/>
+<entry key="15" type="xstring" value="125 g Packets"/>
+<entry key="16" type="xstring" value="true"/>
+<entry key="17" type="xstring" value="125.0"/>
+<entry key="18" type="xstring" value="g"/>
+<entry key="19" type="xstring" value="125g Punnet"/>
+<entry key="20" type="xstring" value="true"/>
+<entry key="21" type="xstring" value="125.0"/>
+<entry key="22" type="xstring" value="g"/>
+<entry key="23" type="xstring" value="100 g Punnet"/>
+<entry key="24" type="xstring" value="true"/>
+<entry key="25" type="xstring" value="100.0"/>
+<entry key="26" type="xstring" value="g"/>
+<entry key="27" type="xstring" value="100kg Bag"/>
+<entry key="28" type="xstring" value="true"/>
+<entry key="29" type="xstring" value="100.0"/>
+<entry key="30" type="xstring" value="kg"/>
+<entry key="31" type="xstring" value="5t Bag"/>
+<entry key="32" type="xstring" value="true"/>
+<entry key="33" type="xstring" value="5.0"/>
+<entry key="34" type="xstring" value="t"/>
+<entry key="35" type="xstring" value="95000.0 kg"/>
+<entry key="36" type="xstring" value="true"/>
+<entry key="37" type="xstring" value="95000.0"/>
+<entry key="38" type="xstring" value="kg"/>
+<entry key="39" type="xstring" value="95000.3kg"/>
+<entry key="40" type="xstring" value="true"/>
+<entry key="41" type="xstring" value="95000.3"/>
+<entry key="42" type="xstring" value="kg"/>
+<entry key="43" type="xstring" value="95000.0 Kg"/>
+<entry key="44" type="xstring" value="true"/>
+<entry key="45" type="xstring" value="95000.0"/>
+<entry key="46" type="xstring" value="Kg"/>
+<entry key="47" type="xstring" value="95000.3 t"/>
+<entry key="48" type="xstring" value="true"/>
+<entry key="49" type="xstring" value="95000.3"/>
+<entry key="50" type="xstring" value="t"/>
+<entry key="51" type="xstring" value="100 x 50ml Sachet"/>
+<entry key="52" type="xstring" value="true"/>
+<entry key="53" type="xstring" value="5000"/>
+<entry key="54" type="xstring" value="ml"/>
+<entry key="55" type="xstring" value="15x5L Can"/>
+<entry key="56" type="xstring" value="true"/>
+<entry key="57" type="xstring" value="75.0"/>
+<entry key="58" type="xstring" value="L"/>
+<entry key="59" type="xstring" value="15x5 L Can"/>
+<entry key="60" type="xstring" value="true"/>
+<entry key="61" type="xstring" value="75.0"/>
+<entry key="62" type="xstring" value="L"/>
+<entry key="63" type="xstring" value="15 x 5 L Can"/>
+<entry key="64" type="xstring" value="true"/>
+<entry key="65" type="xstring" value="75.0"/>
+<entry key="66" type="xstring" value="L"/>
+<entry key="67" type="xstring" value="100 Eier"/>
+<entry key="68" type="xstring" value="true"/>
+<entry key="69" type="xstring" value="100.0"/>
+<entry key="70" type="xstring" value="Eier"/>
+<entry key="71" type="xstring" value="5 Tütchen"/>
+<entry key="72" type="xstring" value="true"/>
+<entry key="73" type="xstring" value="5.0"/>
+<entry key="74" type="xstring" value="Tütchen"/>
+<entry key="75" type="xstring" value="10 bags"/>
+<entry key="76" type="xstring" value="true"/>
+<entry key="77" type="xstring" value="10.0"/>
+<entry key="78" type="xstring" value="bags"/>
+<entry key="79" type="xstring" value="46 Kartons"/>
+<entry key="80" type="xstring" value="true"/>
+<entry key="81" type="xstring" value="46.0"/>
+<entry key="82" type="xstring" value="Kartons"/>
+<entry key="83" type="xstring" value="15 Erdbeeren"/>
+<entry key="84" type="xstring" value="true"/>
+<entry key="85" type="xstring" value="15.0"/>
+<entry key="86" type="xstring" value="Erdbeeren"/>
+<entry key="87" type="xstring" value="true"/>
+<entry key="88" type="xstring" value="26 Kartonse"/>
+<entry key="89" type="xstring" value="true"/>
+<entry key="90" type="xstring" value="26.0"/>
+<entry key="91" type="xstring" value="Kartonse"/>
+<entry key="92" type="xstring" value="true"/>
+<entry key="93" type="xstring" value="24 a 100g Beutel"/>
+<entry key="94" type="xstring" value="true"/>
+<entry key="95" type="xstring" value="2400.0"/>
+<entry key="96" type="xstring" value="g"/>
+<entry key="97" type="xstring" value="24 á 100g Beutel"/>
+<entry key="98" type="xstring" value="true"/>
+<entry key="99" type="xstring" value="2400.0"/>
+<entry key="100" type="xstring" value="g"/>
+<entry key="101" type="xstring" value="24 à 100g Beutel"/>
+<entry key="102" type="xstring" value="true"/>
+<entry key="103" type="xstring" value="2400.0"/>
+<entry key="104" type="xstring" value="g"/>
+<entry key="105" type="xstring" value="24 * 100g Beutel"/>
+<entry key="106" type="xstring" value="true"/>
+<entry key="107" type="xstring" value="2400.0"/>
+<entry key="108" type="xstring" value="g"/>
+<entry key="109" type="xstring" value="24 x 100g Beutel"/>
+<entry key="110" type="xstring" value="true"/>
+<entry key="111" type="xstring" value="2400.0"/>
+<entry key="112" type="xstring" value="g"/>
+<entry key="113" type="xstring" value="10 Schalen a 125g"/>
+<entry key="114" type="xstring" value="true"/>
+<entry key="115" type="xstring" value="1250.0"/>
+<entry key="116" type="xstring" value="g"/>
+<entry key="117" type="xstring" value="10 Schalen á 125g"/>
+<entry key="118" type="xstring" value="true"/>
+<entry key="119" type="xstring" value="1250.0"/>
+<entry key="120" type="xstring" value="g"/>
+<entry key="121" type="xstring" value="10 Schalen à 125g"/>
+<entry key="122" type="xstring" value="true"/>
+<entry key="123" type="xstring" value="1250.0"/>
+<entry key="124" type="xstring" value="g"/>
+<entry key="125" type="xstring" value="10 Schalen À 125g"/>
+<entry key="126" type="xstring" value="true"/>
+<entry key="127" type="xstring" value="1250.0"/>
+<entry key="128" type="xstring" value="g"/>
+<entry key="129" type="xstring" value="10 Schalen x 125g"/>
+<entry key="130" type="xstring" value="true"/>
+<entry key="131" type="xstring" value="1250.0"/>
+<entry key="132" type="xstring" value="g"/>
+<entry key="133" type="xstring" value="10 Schalen X 125g"/>
+<entry key="134" type="xstring" value="true"/>
+<entry key="135" type="xstring" value="1250.0"/>
+<entry key="136" type="xstring" value="g"/>
+<entry key="137" type="xstring" value="10 Schalen * 125g"/>
+<entry key="138" type="xstring" value="true"/>
+<entry key="139" type="xstring" value="1250.0"/>
+<entry key="140" type="xstring" value="g"/>
+<entry key="141" type="xstring" value="10 Schalen 125g Heidelbeeren"/>
+<entry key="142" type="xstring" value="false"/>
+<entry key="143" type="xstring" value="10 Schalen a 125g Heidelbeeren"/>
+<entry key="144" type="xstring" value="true"/>
+<entry key="145" type="xstring" value="1250.0"/>
+<entry key="146" type="xstring" value="g"/>
+<entry key="147" type="xstring" value="10 Schalen á 125g Heidelbeeren"/>
+<entry key="148" type="xstring" value="true"/>
+<entry key="149" type="xstring" value="1250.0"/>
+<entry key="150" type="xstring" value="g"/>
+<entry key="151" type="xstring" value="10 Schalen à 125g Heidelbeeren"/>
+<entry key="152" type="xstring" value="true"/>
+<entry key="153" type="xstring" value="1250.0"/>
+<entry key="154" type="xstring" value="g"/>
+<entry key="155" type="xstring" value="10 Schalen x 125g Heidelbeeren"/>
+<entry key="156" type="xstring" value="true"/>
+<entry key="157" type="xstring" value="1250.0"/>
+<entry key="158" type="xstring" value="g"/>
+<entry key="159" type="xstring" value="10 Schalen * 125g Heidelbeeren"/>
+<entry key="160" type="xstring" value="true"/>
+<entry key="161" type="xstring" value="1250.0"/>
+<entry key="162" type="xstring" value="g"/>
+<entry key="163" type="xstring" value="Heidelbeeren: 10 Schalen à 250 g"/>
+<entry key="164" type="xstring" value="false"/>
+<entry key="165" type="xstring" value="10 Schalen Heidelbeeren a 125g"/>
+<entry key="166" type="xstring" value="true"/>
+<entry key="167" type="xstring" value="1250.0"/>
+<entry key="168" type="xstring" value="g"/>
+<entry key="169" type="xstring" value="95000,3 t"/>
+<entry key="170" type="xstring" value="true"/>
+<entry key="171" type="xstring" value="95000.3"/>
+<entry key="172" type="xstring" value="t"/>
+<entry key="173" type="xstring" value="1,375 g"/>
+<entry key="174" type="xstring" value="true"/>
+<entry key="175" type="xstring" value="1.375"/>
+<entry key="176" type="xstring" value="g"/>
+<entry key="177" type="xstring" value="true"/>
+<entry key="178" type="xstring" value="10 Eier x 5 Packungen"/>
+<entry key="179" type="xstring" value="true"/>
+<entry key="180" type="xstring" value="50.0"/>
+<entry key="181" type="xstring" value="Eier"/>
+<entry key="182" type="xstring" value="5 Packungen x 10 Eier"/>
+<entry key="183" type="xstring" value="true"/>
+<entry key="184" type="xstring" value="50.0"/>
+<entry key="185" type="xstring" value="Eier"/>
+<entry key="186" type="xstring" value="10 Eier à 60 g"/>
+<entry key="187" type="xstring" value="true"/>
+<entry key="188" type="xstring" value="600.0"/>
+<entry key="189" type="xstring" value="g"/>
+<entry key="190" type="xstring" value="10 gekühlte handgesammelte Eier"/>
+<entry key="191" type="xstring" value="true"/>
+<entry key="192" type="xstring" value="10"/>
+<entry key="193" type="xstring" value="gekühlte"/>
+<entry key="194" type="xstring" value="true"/>
+<entry key="195" type="xstring" value="100 Gramm Schalen"/>
+<entry key="196" type="xstring" value="true"/>
+<entry key="197" type="xstring" value="100"/>
+<entry key="198" type="xstring" value="Gramm"/>
+<entry key="199" type="xstring" value="true"/>
+<entry key="200" type="xstring" value="100 kt Eier"/>
+<entry key="201" type="xstring" value="true"/>
+<entry key="202" type="xstring" value="100"/>
+<entry key="203" type="xstring" value="kt"/>
+<entry key="204" type="xstring" value="true"/>
+<entry key="205" type="xstring" value="Kg"/>
+<entry key="206" type="xstring" value="false"/>
+<entry key="207" type="xstring" value="g"/>
+<entry key="208" type="xstring" value="false"/>
+<entry key="209" type="xstring" value="bag"/>
+<entry key="210" type="xstring" value="false"/>
+<entry key="211" type="xstring" value="X10g Packets"/>
+<entry key="212" type="xstring" value="false"/>
+<entry key="213" type="xstring" value="Each"/>
+<entry key="214" type="xstring" value="false"/>
+<entry key="215" type="xstring" value="NULL"/>
+<entry key="216" type="xstring" value="false"/>
+<entry key="217" type="xstring" value="24 100 g Beutel"/>
+<entry key="218" type="xstring" value="false"/>
+<entry key="219" type="xstring" value="10.568.786 * 0,1kg"/>
+<entry key="220" type="xstring" value="true"/>
+<entry key="221" type="xstring" value="1056878.6"/>
+<entry key="222" type="xstring" value="kg"/>
+<entry key="223" type="xstring" value="10.000 * 1kg"/>
+<entry key="224" type="xstring" value="true"/>
+<entry key="225" type="xstring" value="10000"/>
+<entry key="226" type="xstring" value="kg"/>
+<entry key="227" type="xstring" value="true"/>
+<entry key="228" type="xstring" value="0.800,4 g"/>
+<entry key="229" type="xstring" value="false"/>
+<entry key="230" type="xstring" value="8.345,6 * 1kg"/>
+<entry key="231" type="xstring" value="true"/>
+<entry key="232" type="xstring" value="8345.6"/>
+<entry key="233" type="xstring" value="kg"/>
+<entry key="234" type="xstring" value="0,599kg *10"/>
+<entry key="235" type="xstring" value="true"/>
+<entry key="236" type="xstring" value="5.99"/>
+<entry key="237" type="xstring" value="kg"/>
+<entry key="238" type="xstring" value="1.000,5 * 0,001t"/>
+<entry key="239" type="xstring" value="true"/>
+<entry key="240" type="xstring" value="1.0005"/>
+<entry key="241" type="xstring" value="t"/>
+<entry key="242" type="xstring" value="1.000 * 1,000kg"/>
+<entry key="243" type="xstring" value="true"/>
+<entry key="244" type="xstring" value="1000"/>
+<entry key="245" type="xstring" value="kg"/>
+<entry key="246" type="xstring" value="true"/>
+<entry key="247" type="xstring" value="5.800t *2"/>
+<entry key="248" type="xstring" value="true"/>
+<entry key="249" type="xstring" value="11600"/>
+<entry key="250" type="xstring" value="t"/>
+<entry key="251" type="xstring" value="true"/>
+<entry key="252" type="xstring" value="10.000kg"/>
+<entry key="253" type="xstring" value="true"/>
+<entry key="254" type="xstring" value="10000"/>
+<entry key="255" type="xstring" value="kg"/>
+<entry key="256" type="xstring" value="true"/>
+</config>
+<entry key="rowIdPrefix" type="xstring" value="Row"/>
+<entry key="rowIdSuffix" type="xstring" value=""/>
+<entry key="rowIdStartValue" type="xint" value="0"/>
+<entry key="highlightOutputTable" type="xboolean" value="false"/>
+<config key="columnProperties">
+<config key="0">
+<entry key="UserSetValues" type="xboolean" value="true"/>
+<entry key="MissValuePattern" type="xstring" value=""/>
+<entry key="FormatParameter" type="xstring" isnull="true" value=""/>
+<entry key="ReadPossValsFromFile" type="xboolean" value="false"/>
+<entry key="SkipThisColumn" type="xboolean" value="false"/>
+<entry key="ColumnName" type="xstring" value="Amount"/>
+<config key="ColumnClass">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.StringCell"/>
+<entry key="is_null" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="1">
+<entry key="UserSetValues" type="xboolean" value="true"/>
+<entry key="MissValuePattern" type="xstring" value=""/>
+<entry key="FormatParameter" type="xstring" isnull="true" value=""/>
+<entry key="ReadPossValsFromFile" type="xboolean" value="false"/>
+<entry key="SkipThisColumn" type="xboolean" value="false"/>
+<entry key="ColumnName" type="xstring" value="ShouldBeRecognised"/>
+<config key="ColumnClass">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.BooleanCell"/>
+<entry key="is_null" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="2">
+<entry key="UserSetValues" type="xboolean" value="true"/>
+<entry key="MissValuePattern" type="xstring" value=""/>
+<entry key="FormatParameter" type="xstring" isnull="true" value=""/>
+<entry key="ReadPossValsFromFile" type="xboolean" value="false"/>
+<entry key="SkipThisColumn" type="xboolean" value="false"/>
+<entry key="ColumnName" type="xstring" value="ExpectedAmount"/>
+<config key="ColumnClass">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.DoubleCell"/>
+<entry key="is_null" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="3">
+<entry key="UserSetValues" type="xboolean" value="true"/>
+<entry key="MissValuePattern" type="xstring" value=""/>
+<entry key="FormatParameter" type="xstring" isnull="true" value=""/>
+<entry key="ReadPossValsFromFile" type="xboolean" value="false"/>
+<entry key="SkipThisColumn" type="xboolean" value="false"/>
+<entry key="ColumnName" type="xstring" value="ExpectedUnit"/>
+<config key="ColumnClass">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.StringCell"/>
+<entry key="is_null" type="xboolean" value="false"/>
+</config>
+</config>
+<config key="4">
+<entry key="UserSetValues" type="xboolean" value="true"/>
+<entry key="MissValuePattern" type="xstring" value=""/>
+<entry key="FormatParameter" type="xstring" isnull="true" value=""/>
+<entry key="ReadPossValsFromFile" type="xboolean" value="false"/>
+<entry key="SkipThisColumn" type="xboolean" value="false"/>
+<entry key="ColumnName" type="xstring" value="IsComment"/>
+<config key="ColumnClass">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.BooleanCell"/>
+<entry key="is_null" type="xboolean" value="false"/>
+</config>
+</config>
+</config>
+</config>
+<config key="nodeAnnotation">
+<entry key="text" type="xstring" value="Define test amounts"/>
+<entry key="bgcolor" type="xint" value="16777215"/>
+<entry key="x-coordinate" type="xint" value="265"/>
+<entry key="y-coordinate" type="xint" value="339"/>
+<entry key="width" type="xint" value="111"/>
+<entry key="height" type="xint" value="15"/>
+<entry key="alignment" type="xstring" value="CENTER"/>
+<entry key="borderSize" type="xint" value="0"/>
+<entry key="borderColor" type="xint" value="16777215"/>
+<entry key="defFontSize" type="xint" value="9"/>
+<entry key="annotation-version" type="xint" value="20151123"/>
+<config key="styles"/>
+</config>
+<entry key="customDescription" type="xstring" isnull="true" value=""/>
+<entry key="state" type="xstring" value="EXECUTED"/>
+<entry key="factory" type="xstring" value="org.knime.base.node.io.tablecreator.TableCreator2NodeFactory"/>
+<entry key="node-name" type="xstring" value="Table Creator"/>
+<entry key="node-bundle-name" type="xstring" value="KNIME Base Nodes"/>
+<entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.base"/>
+<entry key="node-bundle-vendor" type="xstring" value="KNIME AG, Zurich, Switzerland"/>
+<entry key="node-bundle-version" type="xstring" value="3.5.3.v201804041546"/>
+<entry key="node-feature-name" type="xstring" value="KNIME Core"/>
+<entry key="node-feature-symbolic-name" type="xstring" value="org.knime.features.base.feature.group"/>
+<entry key="node-feature-vendor" type="xstring" value="KNIME AG, Zurich, Switzerland"/>
+<entry key="node-feature-version" type="xstring" value="3.5.3.v201804041546"/>
+<config key="factory_settings"/>
+<entry key="name" type="xstring" value="Table Creator"/>
+<entry key="hasContent" type="xboolean" value="true"/>
+<entry key="isInactive" type="xboolean" value="false"/>
+<config key="ports">
+<config key="port_1">
+<entry key="index" type="xint" value="1"/>
+<entry key="port_spec_class" type="xstring" value="org.knime.core.data.DataTableSpec"/>
+<entry key="port_object_class" type="xstring" value="org.knime.core.node.BufferedDataTable"/>
+<entry key="port_object_summary" type="xstring" value="Rows: 67, Cols: 5"/>
+<entry key="port_dir_location" type="xstring" value="port_1"/>
+</config>
+</config>
+<config key="filestores">
+<entry key="file_store_location" type="xstring" isnull="true" value=""/>
+<entry key="file_store_id" type="xstring" value="f40f09fc-2f27-4c8e-8917-40d496f34aa2"/>
+</config>
+</config>

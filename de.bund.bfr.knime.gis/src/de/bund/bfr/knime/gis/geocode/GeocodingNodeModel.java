@@ -111,7 +111,7 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	private static final String PATTERN_CODE_COUNTRY = "<COUNTRY>";
 	
 	private static final String URL_PATTERN_MAPQUEST = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS;
-	private static final String URL_PATTERN_MAPQUEST_WITH_COUNTRY = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY;
+	//private static final String URL_PATTERN_MAPQUEST_WITH_COUNTRY = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY;
 	private static final String URL_PATTERN_MAPQUEST5BOX = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&street=" + PATTERN_CODE_STREET + "&city=" + PATTERN_CODE_CITY + "&postalCode=" + PATTERN_CODE_ZIP + "&country=" + PATTERN_CODE_COUNTRY;
 	private static final String URL_PATTERN_BKG = "https://sg.geodatenzentrum.de/gdz_geokodierung__" + PATTERN_CODE_KEY + "/geosearch?query=" + PATTERN_CODE_ADDRESS;
 	private static final String URL_PATTERN_GISGRAPHY = PATTERN_CODE_SERVER + "?address=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY + "&format=json";
@@ -302,17 +302,16 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 		}
 
 		String url, urlWithoutKey = null;
-		if (street != null || city != null || zip != null) {// || country != null) {
-		//if (street != null || city != null || zip != null || country != null) {
+		
+		if (address != null) { 
+		  // use single address field
+		  url = createMapQuestUrl(address, mapQuestKey);
+          urlWithoutKey = createMapQuestUrl(address, NO_KEY);
+          
+		} else {
+		  
 			url = createMapQuest5BoxUrl(street, city, zip, country, mapQuestKey);
 			urlWithoutKey = createMapQuest5BoxUrl(street, city, zip, country, NO_KEY);
-		}
-		else {
-		    //if(!Strings.isNullOrEmpty(country)) url = createMapQuestUrl(address, country, mapQuestKey);
-		    //else 
-		      url = createMapQuestUrl(address, mapQuestKey);
-			
-			urlWithoutKey = createMapQuestUrl(address, NO_KEY);
 		}
 
 		try (BufferedReader buffer = new BufferedReader(
