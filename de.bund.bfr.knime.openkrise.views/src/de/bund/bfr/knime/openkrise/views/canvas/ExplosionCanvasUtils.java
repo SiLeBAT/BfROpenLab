@@ -429,39 +429,41 @@ public class ExplosionCanvasUtils {
       
       if(!(point!=null && Double.isFinite(point.getX()) && Double.isFinite(point.getY()))) return new Point2D.Double(Double.NaN,Double.NaN);
       if(!(rect!=null && Double.isFinite(rect.getX()) && Double.isFinite(rect.getY()) && Double.isFinite(rect.getWidth()) && Double.isFinite(rect.getHeight()))) return new Point2D.Double(Double.NaN,Double.NaN);
+      double rectx2 = rect.getX() + rect.getWidth();
+      double recty2 = rect.getY() + rect.getHeight();
       
-      double dxL = point.getX() - rect.getMinX();
-      double dxR = rect.getMaxX() - point.getX();
-      double dyT = point.getY() - rect.getMinY();
-      double dyB = rect.getMaxY() - point.getY();
+      double dxL = point.getX() - rect.getX();
+      double dxR = rectx2 - point.getX();
+      double dyT = point.getY() - rect.getY();
+      double dyB = recty2 - point.getY();
       
       //System.out.println("dxL: " + dxL + ", dxR: " + dxR + ", dyT: " + dyT + ", dyB: " + dyB);
       
       if(dxL<0) {
-        if(dyT<0) return new Point2D.Double(rect.getMinX(),rect.getMinY());
-        else if(dyB<0) return new Point2D.Double(rect.getMinX(),rect.getMinY());
-        else return new Point2D.Double(rect.getMinX(), point.getY());
+        if(dyT<0) return new Point2D.Double(rect.getX(),rect.getY());
+        else if(dyB<0) return new Point2D.Double(rect.getX(),recty2);
+        else return new Point2D.Double(rect.getX(), point.getY());
       } else if(dxR<0) {
-        if(dyT<0) return new Point2D.Double(rect.getMaxX(),rect.getMinY());
-        else if(dyB<0) return new Point2D.Double(rect.getMaxX(),rect.getMinY());
-        else return new Point2D.Double(rect.getMaxX(), point.getY());
+        if(dyT<0) return new Point2D.Double(rectx2,rect.getY());
+        else if(dyB<0) return new Point2D.Double(rectx2,recty2);
+        else return new Point2D.Double(rectx2, point.getY());
       } else if(dyT<0) {
-        return new Point2D.Double(point.getX(), rect.getMinY());
+        return new Point2D.Double(point.getX(), rect.getY());
       } else if(dyB<0) {
-        return new Point2D.Double(point.getX(), rect.getMaxY());
+        return new Point2D.Double(point.getX(), recty2);
       }
       
       
       // Point is within/or on rect  
       double min = Collections.min(Arrays.asList(dxL, dxR, dyT, dyB));
       if (dxL == min) {
-          return new Point2D.Double(rect.getMinX(), point.getY());
+          return new Point2D.Double(rect.getX(), point.getY());
       } else if (dxR == min) {
-          return new Point2D.Double(rect.getMaxX(), point.getY());
+          return new Point2D.Double(rectx2, point.getY());
       } else if (dyT == min) {
-          return new Point2D.Double(point.getX(), rect.getMinY());
+          return new Point2D.Double(point.getX(), rect.getY());
       } else if (dyB == min) {
-          return new Point2D.Double(point.getX(), rect.getMaxY());
+          return new Point2D.Double(point.getX(), recty2);
       }
 
       throw new RuntimeException("This should not happen");
@@ -527,6 +529,35 @@ public class ExplosionCanvasUtils {
 		}
 	}
 	
+//	/*
+//     * updates the positions such that all boundary nodes have a minimum distance from each other (if possible)
+//     */
+//    public static <N extends Node> void updateBoundaryNodePositionsByRemovingVisualConflicts(Map<N, Point2D> positions, Rectangle2D rect, Map<N, Set<N>> boundaryNodeToInnerNodesMap, double distance) { 
+//            
+//        if(!boundaryNodeToInnerNodesMap.isEmpty()) {
+//            // idea: map the nodes on the rectangle to a line, sort them on the line, move them on the 
+//            // line to satisfy the minimum distance
+//            
+//            List<BoundaryNode> sortableBoundaryNodeList = new ArrayList<>();
+//            
+//            // map them to the line
+//            boundaryNodeToInnerNodesMap.entrySet().forEach(e -> {
+//                sortableBoundaryNodeList.add(new BoundaryNode(convertToOneDimensionalPosition(positions.get(e.getKey()), rect),e.getKey(), e.getValue()));
+//            });
+//            
+//            // sort them on the line
+//            Collections.sort(sortableBoundaryNodeList);
+//            
+//            // move them on the line
+//            List<Point2D> res = getPositionsWithoutConflict(
+//                    sortableBoundaryNodeList.stream().mapToDouble(e -> e.getPoint()).boxed().collect(Collectors.toList()), 
+//                    distance, rect).stream()
+//                    .map(e -> convertToTwoDimensionalPosition(e, rect)).collect(Collectors.toList());
+//            
+//            for(int i = 0; i < sortableBoundaryNodeList.size(); i++) positions.put(sortableBoundaryNodeList.get(i).getId(), res.get(i));
+//        }
+//    }
+	
 	/*
 	 * The class is needed to sort positions of boundary nodes attached with additional information
 	 */
@@ -557,10 +588,40 @@ public class ExplosionCanvasUtils {
 		public Set<String> getInnerNeighbourNodesIds() { return this.innerNeighbourNodesIds; }
 	}
 	
+//	/*
+//     * The class is needed to sort positions of boundary nodes attached with additional information
+//     */
+//    private static class BoundaryNode implements Comparable<BoundaryNode> {
+//        private double point;
+//        private String id;
+//        private Set<String> innerNeighbourNodesIds;
+//        
+//        BoundaryNode(double point, String id, Set<String> innerNeighbourNodesIds) {
+//            this.point = point;
+//            this.id = id;
+//            this.innerNeighbourNodesIds = innerNeighbourNodesIds;
+//        }
+//        
+//        @Override
+//        public int compareTo(BoundaryNode arg0) {
+//            int res = Double.compare(this.point,arg0.getPoint());
+//            if(res!=0) return res;
+//            
+//            res = Integer.compare(this.innerNeighbourNodesIds.hashCode(),arg0.getInnerNeighbourNodesIds().hashCode());
+//            if(res != 0) return res;
+//            
+//            return this.id.compareTo(arg0.getId());
+//        }
+//        
+//        public double getPoint() { return this.point; }
+//        public String getId() { return this.id; }
+//        public Set<String> getInnerNeighbourNodesIds() { return this.innerNeighbourNodesIds; }
+//    }
+	
 	/*
 	 * returns the updated point list such that the minimum distance is satisfied
 	 */
-	private static List<Double> getPositionsWithoutConflict(List<Double> pointList, double nodeDistance, Rectangle2D rect) {
+	protected static List<Double> getPositionsWithoutConflict(List<Double> pointList, double nodeDistance, Rectangle2D rect) {
 		// Idea: Each point is put into a bucket. Each bucket has a position (center) and a width. 
 		// The width is depending on number of points in the bucket. In the beginning there is one point in each bucket.
 		// These buckets are merged until no intersection occur between neighbouring buckets. 

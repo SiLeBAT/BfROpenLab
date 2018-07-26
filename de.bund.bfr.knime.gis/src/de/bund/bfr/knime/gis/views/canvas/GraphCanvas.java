@@ -24,8 +24,10 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -68,6 +70,17 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 	private static final boolean USE_FR_LAYOUT_TO_PLACE_NEW_NODES = true;
+	
+	private static class MyLogger {
+	    private void finest(String msg) {
+	      SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+	      String strDate = sdfDate.format(new Date());
+	      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//	      System.out.println("Finest" + "\t" + strDate + "\t" + stackTrace[3].getClassName() + "." + stackTrace[3].getMethodName() + "\t" + msg);
+	    }
+	  }
+//	  private static MyLogger logger = new MyLogger(); // =  Logger.getLogger("de.bund.bfr");
+	  
 
 	public GraphCanvas(boolean allowCollapse, Naming naming) {
 		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(), naming,
@@ -183,14 +196,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				nodesForLayout = selectedNodes;
 				break;
 			case NO:
-				nodesForLayout = this.getLayoutableNodes();
+				nodesForLayout = this.nodes;//this.getLayoutableNodes();
 				break;
 			case CANCEL:
 			default:
 				return;
 			}
 		} else {
-			nodesForLayout = this.getLayoutableNodes();
+			nodesForLayout = this.nodes; //this.getLayoutableNodes();
 		}
 
 		if (nodesForLayout.size() < 2) {
@@ -240,8 +253,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 //	  
 //	}
 
+	
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog, boolean signalLayoutProcessFinish) {
-		
+//	    logger.finest("entered");
 		Rectangle2D layoutBounds = this.getLayoutBounds();
 		Dimension s =  layoutBounds.getBounds().getSize();  //viewer.getSize();
 		
@@ -275,11 +289,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			layoutDialog.pack();
 			layoutDialog.setResizable(false);
 			layoutDialog.setLocationRelativeTo(this);
-
+//			logger.finest("before Thread start");
 			new Thread(() -> {
+//			    logger.finest("enter Thread");
 				while (!layoutDialog.isVisible()) {
 					try {
-						Thread.sleep(50);
+						Thread.sleep(500);
 					} catch (InterruptedException e) {
 					}
 				}
@@ -287,8 +302,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				layoutResult.putAll(layout.getNodePositions(initialPositions,
 						p -> SwingUtilities.invokeLater(() -> progressBar.setValue((int) Math.round(p * 100)))));
 				SwingUtilities.invokeLater(() -> layoutDialog.setVisible(false));
+//				logger.finest("leave Thread");
 			}).start();
-
+//			logger.finest("after Thread start");
 			layoutDialog.setVisible(true);
 		} else {
 			layoutResult.putAll(layout.getNodePositions(initialPositions, null));
@@ -328,7 +344,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if(signalLayoutProcessFinish) Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
-	
+//		logger.finest("leave");
 	}
 	
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
