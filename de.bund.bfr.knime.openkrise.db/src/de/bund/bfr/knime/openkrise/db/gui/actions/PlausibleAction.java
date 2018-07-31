@@ -19,31 +19,14 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.gui.actions;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-
-import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
-import de.bund.bfr.knime.openkrise.db.MyLogger;
-import de.bund.bfr.knime.openkrise.db.MyTable;
-import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
-import de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren.MyIDFilter;
 import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchJFrame;
 
 /**
