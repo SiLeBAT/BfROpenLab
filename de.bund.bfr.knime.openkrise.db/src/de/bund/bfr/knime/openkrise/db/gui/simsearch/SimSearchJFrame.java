@@ -308,7 +308,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				SimSearchJFrame.this.processEditSettingsRequest();
+				SimSearchJFrame.this.processEditSettingsRequest(true);
 			}
 
 		});
@@ -406,7 +406,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 			this.navToLast.setEnabled((this.simSearch.getSimSetCount()>Math.max(0,this.currentSimSetIndex+1)));
 			if(this.simSearch.getSimSetCount()==0 && searchCompleted) {
 			  JOptionPane.showMessageDialog(null, "No similarities found.", "Similarity search result", 1);
-			  processEditSettingsRequest();
+			  processEditSettingsRequest(false);
 			}
 		} else {
 			SwingUtilities.invokeLater(new Runnable() {
@@ -825,15 +825,22 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
       //System.out.println(Thread.currentThread().getId() + "\tstopSearchAndWait leaving");
     }
 	
-	private void processEditSettingsRequest() {
-	  //System.out.println("processOpenSettingsRequest entered ...");
+	private void processEditSettingsRequest(boolean isUserRequest) {
+	 
 	  SimSearch.Settings newSettings = SimSearchSettingsDialog.editSettings(this, this.simSearchSettings, (h) -> prepareSettingsChange(h));
 	  
-	  if(newSettings!=null && !newSettings.equals(this.simSearchSettings)) {
-	    // settings changed, start new search
-	    this.restartSearch(newSettings);
+	  if(newSettings!=null) {
+	    if(!newSettings.equals(this.simSearchSettings)) {
+	      // settings changed, start new search
+	      this.restartSearch(newSettings);
+	    } 
+	  } else {
+	    // Settings dialog was canceled
+	    if(!isUserRequest) {
+	      // If the SettingsDialog was automatically opened and canceled by the user the complete Search window shall close 
+	      processUserCloseRequest();
+	    }
 	  }
-	  //System.out.println("processOpenSettingsRequest leaving ...");
 	}
 	
 	private void prepareSettingsChange(Consumer<Boolean> continueEditSettings) {
