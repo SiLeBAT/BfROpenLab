@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -233,7 +234,9 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		navPanel.setEnabled(false);
 
 		this.simSetCountLabel = new JLabel();
-		this.simSetCountLabel.setForeground(Color.BLUE);
+		this.simSetCountLabel.setForeground(Color.RED);
+		Font font = this.simSetCountLabel.getFont();
+		this.simSetCountLabel.setFont(font.deriveFont(Font.BOLD, font.getSize()+1));
 		bottomPanel.add(this.simSetCountLabel, BorderLayout.CENTER);
 
 		JPanel controlPanel = new JPanel();
