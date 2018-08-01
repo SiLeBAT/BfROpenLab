@@ -490,7 +490,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	
 	private boolean preprocessUserSaveOrApplyRequest(boolean applyOnly) {
 	  if(!applyOnly && simSearch.isDecisionNeeded()) {
-	    switch(JOptionPane.showConfirmDialog(this, "There are still open decisions left. Proceed?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+	    switch(JOptionPane.showConfirmDialog(this, "There are still open decisions left, which will be discarded. Proceed?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
           case JOptionPane.NO_OPTION:
             return false;
           case JOptionPane.YES_OPTION:
@@ -877,7 +877,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	  
 	  if(this.simSearch!=null && this.simSearch.isDecisionNeeded()) {
           // ask whether to discard undecided questions
-	      String question = "There are still open questions left, which will be discarded. Change settings nevertheless?";
+	      String question = "There are still open decisions left, which will be discarded. Change settings nevertheless?";
 	      if(isFirstQuestion) question = "A new search will be started. " + question; 
           switch(JOptionPane.showConfirmDialog(this, question, null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
             case JOptionPane.YES_OPTION:
