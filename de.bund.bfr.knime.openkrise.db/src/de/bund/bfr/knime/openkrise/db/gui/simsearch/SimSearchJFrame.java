@@ -86,6 +86,8 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private JButton navForward;
 
 	private JLabel simSetCountLabel;
+	private final Color COLOR_INDEX_DECISION_IS_NEEDED = Color.RED;
+	private final Color COLOR_INDEX_DECISION_IS_NOT_NEEDED = new Color(0,150,0);
 
 	private SimSearch simSearch;
 	private SimSearch.Settings simSearchSettings;
@@ -490,7 +492,16 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 		}
 	}
 	
-	private boolean preprocessUserSaveOrApplyRequest() {
+	private boolean preprocessUserSaveOrApplyRequest(boolean applyOnly) {
+	  if(!applyOnly && simSearch.isDecisionNeeded()) {
+	    switch(JOptionPane.showConfirmDialog(this, "There are still open decisions left. Proceed?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+          case JOptionPane.NO_OPTION:
+            return false;
+          case JOptionPane.YES_OPTION:
+            break;
+          default:
+        }
+	  }
 	  if(this.simSearch.existDataManipulations() && searchIsOn) {
         switch(JOptionPane.showConfirmDialog(this, "Before the data can be saved the search will be stopped. Proceed?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
           case JOptionPane.NO_OPTION:
@@ -538,7 +549,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	  if (this.simSearch==null) return;
 	  if(areActionsBlocked()) return; 
 	  
-	  if(!this.preprocessUserSaveOrApplyRequest()) return;
+	  if(!this.preprocessUserSaveOrApplyRequest(true)) return;
 	  blockActions(true);
 	  
 	  asyncSave(b -> finishUserApplyRequestProcessing(b));
@@ -581,7 +592,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private void processUserOkRequest() {
       if (this.simSearch==null) return;
       if(areActionsBlocked()) return; 
-      if(!this.preprocessUserSaveOrApplyRequest()) return;
+      if(!this.preprocessUserSaveOrApplyRequest(false)) return;
       blockActions(true);
       
       asyncSave(b -> finishUserOkRequestProcessing(b));
@@ -764,11 +775,22 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	}
 
 	private void updateSimSetCountLabel() {
-	    if(this.simSearch==null) this.simSetCountLabel.setText("");
-	    else if(this.searchIsOn) {
+	    if(this.simSearch==null) {
+	      this.simSetCountLabel.setText("");
+	      this.simSetCountLabel.setToolTipText("");
+	    } else if(this.searchIsOn) {
 			this.simSetCountLabel.setText(this.simSearch.getNotIgnoredSimSetIndex(currentSimSetIndex)+1 + " / ?(" + (this.simSearch.getNotIgnoredSimSetIndex(this.simSearch.getSimSetCount()-1)+1) + ")");
+			this.simSetCountLabel.setForeground(COLOR_INDEX_DECISION_IS_NEEDED);
+			this.simSetCountLabel.setToolTipText("The search is not finished yet.");
 		} else {
 			this.simSetCountLabel.setText(this.simSearch.getNotIgnoredSimSetIndex(currentSimSetIndex)+1 + " / " + (this.simSearch.getNotIgnoredSimSetIndex(this.simSearch.getSimSetCount()-1)+1));
+			if(simSearch.isDecisionNeeded()) {
+			  this.simSetCountLabel.setForeground(COLOR_INDEX_DECISION_IS_NEEDED);
+			  this.simSetCountLabel.setToolTipText("Open decisions left.");
+			} else {
+			  this.simSetCountLabel.setForeground(COLOR_INDEX_DECISION_IS_NOT_NEEDED);
+			  this.simSetCountLabel.setToolTipText("No open decisions left.");
+			}
 		}
 	}
 
@@ -833,7 +855,10 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	    if(!newSettings.equals(this.simSearchSettings)) {
 	      // settings changed, start new search
 	      this.restartSearch(newSettings);
-	    } 
+	    } else if(this.simSearch.getSimSetCount()==0 && !searchIsOn) {
+	      // settings didn't change, but last search yielded zero count so restart
+	      this.restartSearch(newSettings);
+	    }
 	  } else {
 	    // Settings dialog was canceled
 	    if(!isUserRequest) {
@@ -846,6 +871,7 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
 	private void prepareSettingsChange(Consumer<Boolean> continueEditSettings) {
 	  //System.out.println("prepareSettingsChange entered ...");
 	  boolean saveChanges = false;
+	  boolean isFirstQuestion = true;
 	  
 	  if(this.simSearch!=null && this.simSearch.existDataManipulations()) {
 	    // ask whether to apply changes
@@ -860,6 +886,23 @@ public class SimSearchJFrame extends JDialog implements SimSearch.SimSearchListe
     	      // just continue
     	      break;
     	  }
+    	  isFirstQuestion = false;
+      }
+	  
+	  if(this.simSearch!=null && this.simSearch.isDecisionNeeded()) {
+          // ask whether to discard undecided questions
+	      String question = "There are still open questions left, which will be discarded. Change settings nevertheless?";
+	      if(isFirstQuestion) question = "A new search will be started. " + question; 
+          switch(JOptionPane.showConfirmDialog(this, question, null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+            case JOptionPane.YES_OPTION:
+              // just continue
+              break;
+            case JOptionPane.NO_OPTION:
+              // abort
+              continueEditSettings.accept(false);
+              return;
+          }
+          isFirstQuestion = false;
       }
 	  
 	  if(this.searchIsOn) {

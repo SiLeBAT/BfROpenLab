@@ -218,13 +218,15 @@ public class SimSearchDataManipulationHandler {
   private Stack<ManipulationState> undoStack;
   private Stack<ManipulationState> redoStack;
   private List<ManipulationStateListener> manipulationStateListeners;
-  private Map<SimSearch.SimSet, Boolean> cachedIgnoreStatus; 
+  private Map<SimSearch.SimSet, Boolean> cachedIgnoreStatus;
+  private Map<SimSearch.SimSet, Boolean> cachedDecisionNeededStatus;
     
   protected SimSearchDataManipulationHandler() {
     this.undoStack = new Stack<>();
     this.redoStack = new Stack<>();
     this.manipulationStateListeners = new ArrayList<>();
     this.cachedIgnoreStatus = new HashMap<>();
+    this.cachedDecisionNeededStatus = new HashMap<>();
   }
   
   public void merge(SimSearch.SimSet.Type simSetType, List<Integer> idsToMerge, Integer idToMergeInto) throws MergeMap.MergeException {
@@ -275,6 +277,7 @@ public class SimSearchDataManipulationHandler {
   
   public void fireManipulationStateChangedEvent(boolean reloadRequired) { 
     this.cachedIgnoreStatus = new HashMap<>();
+    this.cachedDecisionNeededStatus = new HashMap<>();
     for(ManipulationStateListener listener: this.manipulationStateListeners) listener.manipulationStateChanged(reloadRequired); 
   }
 
@@ -441,6 +444,36 @@ public class SimSearchDataManipulationHandler {
     }
     this.cachedIgnoreStatus.put(simSet,  result);
     return result;
+  }
+  
+  public boolean isDecisionNeededForSimSet(SimSearch.SimSet simSet) {
+   if(this.cachedDecisionNeededStatus.containsKey(simSet)) return this.cachedDecisionNeededStatus.get(simSet);
+   
+   boolean result = true;
+   
+   if(isSimSetIgnored(simSet)) {
+     // the simset is already ignored
+     result = false;
+   } else if(this.undoStack.isEmpty()) {
+     // only one entry left in the list or the reference id is not anymore in the list
+     result = !(simSet.getIdList().size()==1 || !simSet.getIdList().contains(simSet.getReferenceId()));
+   } else {
+     MergeMap mergeMap = this.undoStack.peek().mergeMaps.get(simSet.getType());
+     
+     if(mergeMap.isMerged(simSet.getReferenceId())) {
+       // reference was already merged
+       result = false;
+     } else {
+       IgnoreMap ignoreMap = this.undoStack.peek().ignoreMaps.get(simSet.getType());
+       Set<Integer> mergedIds = mergeMap.mergesFromAssignment.get(simSet.getReferenceId());
+       if(mergedIds==null) mergedIds = new HashSet<>();
+       Set<Integer> ignoredIds = ignoreMap.getIgnoredIds(simSet.getReferenceId());
+       if(ignoredIds==null) ignoredIds = new HashSet<>();
+       result = Sets.difference(new HashSet<>(simSet.getIdList()), Sets.union(mergedIds, ignoredIds)).size()>1; //>1 because the reference id itself is in the set
+     }
+   }
+   this.cachedDecisionNeededStatus.put(simSet,  result);
+   return result;
   }
   
   public boolean isSimSetIgnoreAvailable(SimSearch.SimSet simSet) {
