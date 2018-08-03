@@ -19,16 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.json.JsonObject;
 import javax.json.JsonValue;
+import org.knime.base.data.xml.SvgCell;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -38,10 +35,11 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.image.png.PNGImageCell;
+import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.data.json.JSONCell;
 import org.knime.core.data.json.JSONCellFactory;
 import org.knime.core.data.json.JSONValue;
-import org.knime.core.data.json.JacksonConversions;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -53,23 +51,20 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
+import org.knime.core.node.port.image.ImagePortObjectSpec;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jackson.JacksonUtils;
 import com.google.common.collect.Iterables;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
-import de.bund.bfr.knime.openkrise.common.Delivery;
 import de.bund.bfr.knime.openkrise.util.json.JsonConstants;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
@@ -95,7 +90,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
 				BufferedDataTable.TYPE_OPTIONAL, BufferedDataTable.TYPE_OPTIONAL },
 				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, ImagePortObject.TYPE,
-						ImagePortObject.TYPE, ImagePortObject.TYPE, BufferedDataTable.TYPE });
+						ImagePortObject.TYPE, ImagePortObject.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE });
 		set = new TracingViewSettings();
 	}
 
@@ -175,9 +170,38 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 				createNodeOutSpec(nodeInTable.getSpec()), exec);
 		BufferedDataTable edgeOutTable = createTable(graphCanvas.getEdges(), graphCanvas.getEdgeSchema().getMap(),
 				createEdgeOutSpec(edgeInTable.getSpec()), exec);
+		
 		BufferedDataTable configurationOutTable = createConfigurationTable(exec);
 		
-		return new PortObject[] { nodeOutTable, edgeOutTable, graphImage, gisImage, combinedImage, configurationOutTable };
+		DataCell configurationJsonCell = createConfigurationJSONCell();
+		
+		BufferedDataTable aggDataOutTable = createAggregatedDataTable(exec, graphImage, gisImage, combinedImage, configurationJsonCell);
+		
+		return new PortObject[] { nodeOutTable, edgeOutTable, graphImage, gisImage, combinedImage, configurationOutTable, aggDataOutTable};
+	}
+	
+	private BufferedDataTable createAggregatedDataTable(ExecutionContext exec, ImagePortObject graphImage, ImagePortObject gisImage, ImagePortObject combinedImage, DataCell configurationJsonCell ) {
+	  
+//	  List<DataColumnSpec> newNodeSpec = new ArrayList<>();
+           
+      DataCell graphImageCell = graphImage.toDataCell();
+      DataCell gisImageCell = gisImage.toDataCell();
+      DataCell combinedImageCell = combinedImage.toDataCell();
+      
+//      newNodeSpec.add(new DataColumnSpecCreator("Graph Image", graphImageCell.getType()).createSpec());
+//      newNodeSpec.add(new DataColumnSpecCreator("GIS Image", gisImageCell.getType()).createSpec());
+//      newNodeSpec.add(new DataColumnSpecCreator("Combined Image", combinedImageCell.getType()).createSpec());
+//      newNodeSpec.add(new DataColumnSpecCreator("Configuration", configurationJsonCell.getType()).createSpec());
+      
+      DataTableSpec spec = createAggDataTableOutSpec(); //new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
+      
+      BufferedDataContainer nodeContainer = exec.createDataContainer(spec);
+     
+      nodeContainer.addRowToTable(new DefaultRow("0", new DataCell[] {graphImageCell, gisImageCell, combinedImageCell, configurationJsonCell}));
+     
+      nodeContainer.close();
+
+      return nodeContainer.getTable();
 	}
 
 	/**
@@ -191,7 +215,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec), createEdgeOutSpec(edgeSpec),  
 				CanvasUtils.getImageSpec(set.isExportAsSvg()), CanvasUtils.getImageSpec(set.isExportAsSvg()),
 				CanvasUtils.getImageSpec(set.isExportAsSvg()), 
-				createConfigurationOutSpec() };
+				createConfigurationOutSpec(), createAggDataTableOutSpec() };
 	}
 
 	/**
@@ -262,6 +286,18 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		return nodeContainer.getTable();
 	}
 	
+	private DataTableSpec createAggDataTableOutSpec() {
+	  
+	  DataType imageType = set.isExportAsSvg()?SvgCell.TYPE:PNGImageContent.TYPE;
+	  
+	  return new DataTableSpec(new DataColumnSpec[] {
+	      new DataColumnSpecCreator("Graph Image", imageType).createSpec(),
+	      new DataColumnSpecCreator("GIS Image", imageType).createSpec(),
+	      new DataColumnSpecCreator("Combined Image", imageType).createSpec(),
+	      new DataColumnSpecCreator("Configuration", JSONCell.TYPE).createSpec()
+	  });
+	}
+	
     private BufferedDataTable createConfigurationTable(ExecutionContext exec) throws InvalidSettingsException {
       
       BufferedDataContainer container = exec.createDataContainer(createConfigurationOutSpec());
@@ -277,6 +313,15 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
       container.close();
 
       return container.getTable();
+    }
+    
+    private DataCell createConfigurationJSONCell() {
+      //JsonNodeFactory nodeFactory = JacksonUtils.nodeFactory();
+      //ObjectNode rootNode = nodeFactory.objectNode();
+      
+      JsonValue json = set.toJson();    
+      
+      return JSONCellFactory.create(json);
     }
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) throws InvalidSettingsException {

@@ -28,6 +28,7 @@ import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
+import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.JsonFormat;
 
 public class GisSettings extends NodeSettings {
 
@@ -77,6 +78,14 @@ public class GisSettings extends NodeSettings {
 	public void saveSettings(NodeSettingsWO settings) {
 		this.saveSettings(settings, "");
 	}
+	
+	public void saveSettings(JsonFormat.View.GisViewProps settings) {
+      settings.transformation = new JsonFormat.View.Transformation(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY());
+      settings.edgeProps = new JsonFormat.View.EdgeProps(this.edgeThickness, this.edgeMaxThickness);
+      settings.textProps = new JsonFormat.View.TextProps(this.fontSize, this.fontBold);
+      settings.nodeProps = new JsonFormat.View.NodeProps(this.nodeThickness, this.nodeMaxThickness);
+    }
+
 
 	public void setFromCanvas(IGisCanvas<?> canvas) {
 		transform = canvas.getTransform();

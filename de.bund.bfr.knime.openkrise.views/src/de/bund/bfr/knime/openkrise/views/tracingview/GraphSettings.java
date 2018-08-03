@@ -129,6 +129,14 @@ public class GraphSettings extends NodeSettings {
 	public void saveSettings(NodeSettingsWO settings) {
 		this.saveSettings(settings, "");
 	}
+	
+	public void saveSettings(JsonFormat.View.GraphViewProps settings) {
+      settings.transformation = new JsonFormat.View.Transformation(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY());
+      settings.edgeProps = new JsonFormat.View.EdgeProps(this.edgeThickness, this.edgeMaxThickness);
+      settings.textProps = new JsonFormat.View.TextProps(this.fontSize, this.fontBold);
+      settings.nodeProps = new JsonFormat.View.GraphViewProps.NodeProps(this.nodeSize, this.nodeMaxSize); 
+      settings.nodeProps.positions = JsonFormat.View.Position.convertPositions(nodePositions);
+    }
 
 	public void setFromCanvas(GraphCanvas canvas) {
 		transform = canvas.getTransform();
