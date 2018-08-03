@@ -25,30 +25,18 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.StreamHandler;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
-import com.vividsolutions.jts.geom.Polygon;
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.layout.LayoutType;
-import de.bund.bfr.knime.PointUtils;
-import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -56,7 +44,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.common.Delivery;
-import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
@@ -66,14 +53,14 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
  */
 public class ExplosionTracingGraphCanvas extends TracingGraphCanvas implements IExplosionCanvas<GraphNode> {
 
-  private static class MyLogger {
-    private void finest(String msg) {
-      SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-      String strDate = sdfDate.format(new Date());
-      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-//      System.out.println("Finest" + "\t" + strDate + "\t" + stackTrace[3].getClassName() + "." + stackTrace[3].getMethodName() + "\t" + msg);
-    }
-  }
+//  private static class MyLogger {
+//    private void finest(String msg) {
+//      SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+//      String strDate = sdfDate.format(new Date());
+//      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+////      System.out.println("Finest" + "\t" + strDate + "\t" + stackTrace[3].getClassName() + "." + stackTrace[3].getMethodName() + "\t" + msg);
+//    }
+//  }
 //  private static MyLogger logger = new MyLogger(); // =  Logger.getLogger("de.bund.bfr");
   
 //	//private static Logger logger =  Logger.getLogger("de.bund.bfr");

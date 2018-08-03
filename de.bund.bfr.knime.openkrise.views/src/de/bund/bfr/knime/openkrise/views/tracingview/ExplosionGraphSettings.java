@@ -1,13 +1,9 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.Map;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 
 public class ExplosionGraphSettings extends GraphSettings {
@@ -28,7 +24,6 @@ public class ExplosionGraphSettings extends GraphSettings {
    * loads graph settings 
    * (prefix is non empty for explosion graph settings)
    */
-  @SuppressWarnings("unchecked")
   protected void loadSettings(NodeSettingsRO settings, String prefix) {
       try {
           boundaryParams = settings.getDoubleArray(prefix + CFG_BOUNDARY_PARAMS);

@@ -34,7 +34,6 @@ import java.util.Set;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
-import com.vividsolutions.jts.algorithm.BoundaryNodeRule;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.GisType;

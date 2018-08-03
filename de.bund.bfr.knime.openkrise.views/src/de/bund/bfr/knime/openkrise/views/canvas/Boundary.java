@@ -7,11 +7,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +27,6 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 
 public class Boundary implements MoveController<GraphNode> {
@@ -38,14 +35,14 @@ public class Boundary implements MoveController<GraphNode> {
 //  private static final double BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH = LocationCanvasUtils.INVALID_AREA_RELATIVE_BORDERWIDTH; // 0.02;
 //  private static final double BOUNDARY_WIDTH = 5; // 10
 //  private static final double STATION_DISTANCE = 10;
-  private static class MyLogger {
-    private void finest(String msg) {
-      SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-      String strDate = sdfDate.format(new Date());
-      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-//      System.out.println("Finest" + "\t" + strDate + "\t" + stackTrace[3].getClassName() + "." + stackTrace[3].getMethodName() + "\t" + msg);
-    }
-  }
+//  private static class MyLogger {
+//    private void finest(String msg) {
+//      SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+//      String strDate = sdfDate.format(new Date());
+//      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+////      System.out.println("Finest" + "\t" + strDate + "\t" + stackTrace[3].getClassName() + "." + stackTrace[3].getMethodName() + "\t" + msg);
+//    }
+//  }
   
 //  private static MyLogger logger = new MyLogger(); // =  Logger.getLogger("de.bund.bfr");
   
@@ -425,7 +422,7 @@ public class Boundary implements MoveController<GraphNode> {
       }
     }
     
-    Map<GraphNode, Point2D> newPositionsBackup = new HashMap<>(newPositions);
+//    Map<GraphNode, Point2D> newPositionsBackup = new HashMap<>(newPositions);
     
     //for(Point2D p : newPositions.values()) System.out.println(p.toString());
  // if an inner node has connections to several boundary nodes
@@ -706,10 +703,10 @@ private static class BoundaryNode<N extends Node> implements Comparable<Boundary
     return false;
   }
   
-  private static String rectToString(Rectangle2D rect) {
-    if(rect==null) return "null";
-    else return "[" + rect.getX() + "," + rect.getY() + "," + rect.getMaxX() + "," + rect.getMaxY() + "]";
-  }
+//  private static String rectToString(Rectangle2D rect) {
+//    if(rect==null) return "null";
+//    else return "[" + rect.getX() + "," + rect.getY() + "," + rect.getMaxX() + "," + rect.getMaxY() + "]";
+//  }
   
   private HashMap<GraphNode, Point2D> compactMove(Map<GraphNode, Point2D> oldBoundaryPositions, GraphNode dragNode, Point2D dragPoint) {
 //    System.out.println("compactMove entered");
