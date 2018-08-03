@@ -14,8 +14,6 @@
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.json.ToJsonNodeFactory"/>
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.json.FromJsonNodeFactory"/>
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
-		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
-		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
 	</extension>
 	
 	<extension
@@ -26,6 +24,13 @@
             id="de.bund.bfr.knime.openkrise.util.AmountConverter"       
             name="Amount Converter"
             workflowDir="metanode_templates/Amount Converter/">
+      </PersistedMetaNode>
+      <PersistedMetaNode
+            category-path="/foodchain/convert"     
+            icon="icons/FoodChainLab.png"
+            id="de.bund.bfr.knime.openkrise.util.Lot2Lot"       
+            name="Lot2Lot"
+            workflowDir="metanode_templates/Lot2Lot/">
       </PersistedMetaNode>
    </extension>
 

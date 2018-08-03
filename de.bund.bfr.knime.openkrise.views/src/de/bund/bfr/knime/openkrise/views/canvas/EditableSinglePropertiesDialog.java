@@ -197,7 +197,7 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 	    this.caseZero = new JRadioButton("0");
 	    this.caseOne = new JRadioButton("1");
 	    this.caseOther = new JRadioButton("Other");
-	    this.textField = new JTextField();
+	    this.textField = new JTextField(7);
 	    this.textField.setText(((Double) weight).toString());
 	    ActionListener actionListener = new ActionListener() {
 

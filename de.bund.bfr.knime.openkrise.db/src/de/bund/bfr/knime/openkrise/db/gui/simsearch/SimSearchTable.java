@@ -278,9 +278,9 @@ public class SimSearchTable extends JScrollPane{
     if(columnModelIndex>0) {
       JMenuItem menuItem = new JMenuItem();
       if(this.frozenColumns.contains(columnModelIndex))
-        menuItem.setText("unfreeze");
+        menuItem.setText("Unfreeze");
       else {
-        menuItem.setText("freeze");
+        menuItem.setText("Freeze");
         menuItem.setEnabled(this.frozenColumns.isEmpty());
       }
       menuItem.addActionListener(new ActionListener() {
@@ -579,11 +579,13 @@ public class SimSearchTable extends JScrollPane{
 	    	  if(SwingUtilities.isLeftMouseButton(e)) {
 	    		  // this might be the start of an drag operation
 	    		  JTableHeader header = (JTableHeader) e.getComponent();
-		            int columnIndex = header.columnAtPoint(e.getPoint());
-		            this.tableColumn = header.getColumnModel().getColumn(columnIndex);
+	    		  this.tableColumn = header.getResizingColumn();
+
+	    		  if(tableColumn!=null) {
 		            this.tableWidthAtMouseDragStart = SimSearchTable.this.rowHeaderColumnTable.getWidth();
 		            this.columnWidthAtMouseDragStart = this.tableColumn.getWidth();
 		            this.mouseDragStartX = e.getX();
+	    		  }
 	    	  }
 	        
 	      }

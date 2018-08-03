@@ -314,6 +314,12 @@ public final class SimSearch {
   
   public SimSet getSimSet(int index) { return (this.simSetList==null || this.simSetList.size()<=index?null:this.simSetList.get(index)); }
   
+  public boolean isDecisionNeeded() {
+    int n = this.simSetList.size();
+    for(int i=0; i<n; ++i) if(dataManipulationHandler.isDecisionNeededForSimSet(this.simSetList.get(i))) return true;
+    return false;
+  }
+  
   public SimSearchTableModel loadData(int simSetIndex) throws Exception {
     SimSet simSet = this.simSetList.get(simSetIndex);
     if(simSet==null) throw(new Exception("Simset was not found"));
