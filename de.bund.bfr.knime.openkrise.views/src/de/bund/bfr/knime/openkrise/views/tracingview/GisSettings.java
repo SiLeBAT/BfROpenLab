@@ -67,6 +67,18 @@ public class GisSettings extends NodeSettings {
 		borderAlpha = 255;
 		avoidOverlay = false;
 	}
+	
+	public GisSettings(GisSettings set) {
+      transform = Transform.INVALID_TRANSFORM;
+      nodeSize = set.nodeSize;
+      nodeMaxSize = set.nodeMaxSize;
+      edgeThickness = set.edgeThickness;
+      edgeMaxThickness = set.edgeMaxThickness;
+      fontSize = set.fontSize;
+      fontBold = set.fontBold;
+      borderAlpha = set.borderAlpha;
+      avoidOverlay = set.avoidOverlay;
+  }
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
