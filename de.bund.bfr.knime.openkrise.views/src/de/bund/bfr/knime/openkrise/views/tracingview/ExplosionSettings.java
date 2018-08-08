@@ -93,7 +93,7 @@ public class ExplosionSettings {
       this.gisSettings.saveSettings(jsonBuilder, index);
     }
 	
-	public void loadSettings(TracingViewSettingsJson.View.ExplosionSettings settings) {
+	public void loadSettings(JsonFormat.TracingViewSettings.View.ExplosionSettings settings) {
       metaNodeId = settings.id;
       this.graphSettings.loadSettings(settings.graphSettings);
       this.gisSettings.loadSettings(settings.gisSettings);

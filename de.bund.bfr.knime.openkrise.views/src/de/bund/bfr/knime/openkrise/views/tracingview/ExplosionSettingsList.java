@@ -90,7 +90,7 @@ public class ExplosionSettingsList extends NodeSettings {
       }
     }
 	
-	public void loadSettings(TracingViewSettingsJson.View settings) {
+	public void loadSettings(JsonFormat.TracingViewSettings.View settings) {
       int n = settings.explosions.length;
       for(int i=0; i<n; ++i) {
         ExplosionSettings eS = new ExplosionSettings();

@@ -188,9 +188,9 @@ public class GraphSettings extends NodeSettings {
 		settings.addBoolean(prefix + CFG_FONT_BOLD, fontBold);
 	}
 	
-	public void loadSettings(TracingViewSettingsJson.View.GraphSettings graphView) {
+	public void loadSettings(JsonFormat.TracingViewSettings.View.GraphSettings graphView) {
 	  this.nodePositions = new HashMap<>();
-	  for(TracingViewSettingsJson.View.NodePosition nodePosition: graphView.node.positions) 
+	  for(JsonFormat.TracingViewSettings.View.NodePosition nodePosition: graphView.node.positions) 
 	    this.nodePositions.put(nodePosition.id, new Point2D.Double(nodePosition.position.x,nodePosition.position.y));
 	  
 	  this.transform = new Transform(

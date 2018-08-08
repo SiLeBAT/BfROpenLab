@@ -21,37 +21,40 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.LogicalCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.SharedViewSettings.EdgeSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.SharedViewSettings.NodeSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.SharedViewSettings.TextSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.ValueCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.GlobalEdgeSettings.EdgeHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.GlobalEdgeSettings.Filter;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.GlobalEdgeSettings.Filter.DeliveryToDateFilter;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.GlobalNodeSettings.NodeHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.GisSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.GraphSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.ExplosionSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.ExplosionSettings.ExplosionGraphSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.Transformation;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.XYPair;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.View.NodePosition;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.Date;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettingsJson.Tracing.TraceableUnit;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.Tracing;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.MetaNode;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.LogicalCondition;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.SharedViewSettings.EdgeSettings;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.SharedViewSettings.NodeSettings;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.SharedViewSettings.TextSettings;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.ValueCondition;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.EdgeHighlightCondition;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.Filter;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.Filter.DeliveryToDateFilter;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GlobalNodeSettings.NodeHighlightCondition;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GisSettings;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GraphSettings;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.ExplosionSettings;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.ExplosionSettings.ExplosionGraphSettings;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.Transformation;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.XYPair;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.NodePosition;
+import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.Date;
 
 public class JsonConverter {
   public static class JsonBuilder {
-    private TracingViewSettingsJson.TVSettings settings;
+    private JsonFormat.TracingViewSettings settings;
     
     public JsonBuilder() {
-      settings = new TracingViewSettingsJson.TVSettings();
+      settings = new JsonFormat.TracingViewSettings();
     }
     
     
-    private static TraceableUnit createTraceableUnit(String id, Double weight, Boolean crossContamination, Boolean killContamination,
+    private static Tracing.TraceableUnit createTraceableUnit(String id, Double weight, Boolean crossContamination, Boolean killContamination,
         Boolean observed) { 
-      TraceableUnit unit = new TraceableUnit();
+      Tracing.TraceableUnit unit = new Tracing.TraceableUnit();
       unit.id = id;
       unit.crossContamination = crossContamination;
       unit.killContamination = killContamination;
@@ -62,15 +65,15 @@ public class JsonConverter {
     public JsonBuilder setTracing(boolean enforceTemporalOrder, 
         Map<String,Double> edgeWeights, Map<String, Boolean> edgeCrossContaminations, Map<String, Boolean> edgeKillContaminations, Map<String, Boolean> observedEdges, 
         Map<String,Double> nodeWeights, Map<String, Boolean> nodeCrossContaminations, Map<String, Boolean> nodeKillContaminations, Map<String, Boolean> observedNodes) {
-      settings.tracing = new TracingViewSettingsJson.Tracing();
+      settings.tracing = new Tracing();
       settings.tracing.enforceTemporalOrder = enforceTemporalOrder;
-      List<TraceableUnit> tracingList = new ArrayList<>();
+      List<Tracing.TraceableUnit> tracingList = new ArrayList<>();
 
       for(String id: edgeCrossContaminations.keySet()) 
         tracingList.add(
             createTraceableUnit(id, edgeWeights.get(id), edgeCrossContaminations.get(id), edgeKillContaminations.get(id), observedEdges.get(id)));
 
-      settings.tracing.deliveries = tracingList.toArray(new TraceableUnit[0]);
+      settings.tracing.deliveries = tracingList.toArray(new Tracing.TraceableUnit[0]);
 
       tracingList = new ArrayList<>();
 
@@ -78,12 +81,12 @@ public class JsonConverter {
         tracingList.add(
             createTraceableUnit(id, nodeWeights.get(id), nodeCrossContaminations.get(id), nodeKillContaminations.get(id), observedNodes.get(id)));
 
-      settings.tracing.nodes = tracingList.toArray(tracingList.toArray(new TraceableUnit[0]));
+      settings.tracing.nodes = tracingList.toArray(tracingList.toArray(new Tracing.TraceableUnit[0]));
       return this;
     }
     
-    private static TracingViewSettingsJson.MetaNode createMetaNode(String id, String type, String[] members) {
-      TracingViewSettingsJson.MetaNode metaNode= new TracingViewSettingsJson.MetaNode();
+    private static MetaNode createMetaNode(String id, String type, String[] members) {
+      MetaNode metaNode= new MetaNode();
       metaNode.id = id;
       metaNode.type = type;
       metaNode.members = members;
@@ -91,17 +94,17 @@ public class JsonConverter {
       
     }
     public JsonBuilder setMetaNodes(Map<String, Map<String, Point2D>> collapsedNodes) {
-      List<TracingViewSettingsJson.MetaNode> metaNodeList = new ArrayList<>();
+      List<MetaNode> metaNodeList = new ArrayList<>();
     
       for(Map.Entry<String, Map<String, Point2D>> entry: collapsedNodes.entrySet()) {
         metaNodeList.add(createMetaNode(entry.getKey(), (entry.getKey().startsWith("SC:")?"SimpleChain":null), entry.getValue().keySet().toArray(new String[0])));
       }
-      settings.metaNodes = metaNodeList.toArray(new TracingViewSettingsJson.MetaNode[0]);
+      settings.metaNodes = metaNodeList.toArray(new MetaNode[0]);
       return this;
     }
     
     public JsonBuilder setGlobalViewSettings(boolean showLegend, boolean exportAsSvg, boolean showGis, GisType gisType, String label) {
-      if(settings.view==null) settings.view = new TracingViewSettingsJson.View();
+      if(settings.view==null) settings.view = new View();
       settings.view.showLegend = showLegend;
       settings.view.exportAsSvg = exportAsSvg;
       settings.view.showGis = showGis;
@@ -163,7 +166,7 @@ public class JsonConverter {
       return null;
     }
     
-    private void initHighlightCondition(TracingViewSettingsJson.View.HighlightCondition condition, String name, Boolean showInLegend, int[] color, Boolean invisible, Boolean adjustThickness, String label, ValueCondition valueCondition, LogicalCondition[][] logicalConditions) {
+    private void initHighlightCondition(View.HighlightCondition condition, String name, Boolean showInLegend, int[] color, Boolean invisible, Boolean adjustThickness, String label, ValueCondition valueCondition, LogicalCondition[][] logicalConditions) {
       condition.name = name;
       condition.showInLegend = showInLegend;
       condition.color = color;
@@ -230,8 +233,8 @@ public class JsonConverter {
     
     public JsonBuilder setGlobalNodeViewSettings(boolean skipEdgelessNodes, LabelPosition nodeLabelPosition, String[] selectedNodes, HighlightConditionList nodeHighlightConditions) {
       
-      if(settings.view==null) settings.view = new TracingViewSettingsJson.View();
-      if(settings.view.node==null) settings.view.node = new TracingViewSettingsJson.View.GlobalNodeSettings();
+      if(settings.view==null) settings.view = new View();
+      if(settings.view.node==null) settings.view.node = new View.GlobalNodeSettings();
       settings.view.node.skipEdgelessNodes = skipEdgelessNodes;
       settings.view.node.labelPosition = nodeLabelPosition.toString();
       settings.view.node.selectedNodes = selectedNodes;
@@ -244,8 +247,8 @@ public class JsonConverter {
         boolean showEdgesInMetaNode, boolean showCrossContaminatedDeliveries, String[] selectedEdges,
         HighlightConditionList edgeHighlightConditions) {
       
-      if(settings.view==null) settings.view = new TracingViewSettingsJson.View();
-      if(settings.view.edge==null) settings.view.edge = new TracingViewSettingsJson.View.GlobalEdgeSettings();
+      if(settings.view==null) settings.view = new View();
+      if(settings.view.edge==null) settings.view.edge = new View.GlobalEdgeSettings();
       settings.view.edge.arrowHeadInMiddle = arrowHeadInMiddle;
       settings.view.edge.hideArrowHead = hideArrowHead;
       settings.view.edge.joinEdges = joinEdges;
@@ -308,8 +311,8 @@ public class JsonConverter {
     public JsonBuilder setGisSettings(double scaleX, double scaleY, double translationX, double translationY,
         int minEdgeThickness, Integer maxEdgeThickness, int fontSize, boolean fontBold, int minNodeSize, Integer maxNodeSize, boolean avoidOverlay, int borderAlpha) {
       
-      if(settings.view==null) settings.view = new TracingViewSettingsJson.View();
-      settings.view.gis = new TracingViewSettingsJson.View.GisSettings();
+      if(settings.view==null) settings.view = new View();
+      settings.view.gis = new View.GisSettings();
       initGisSettings(settings.view.gis, scaleX,  scaleY,  translationX,  translationY,
            minEdgeThickness,  maxEdgeThickness,  fontSize,  fontBold,  minNodeSize,  maxNodeSize,  avoidOverlay,  borderAlpha);
       return this;
@@ -336,8 +339,8 @@ public class JsonConverter {
     public JsonBuilder setGraphSettings(double scaleX, double scaleY, double translationX, double translationY,
         int minEdgeThickness, Integer maxEdgeThickness, int fontSize, boolean fontBold, int minNodeSize, Integer maxNodeSize, Map<String, Point2D> nodePositions) {
       
-      if(settings.view==null) settings.view = new TracingViewSettingsJson.View();
-      settings.view.graph = new TracingViewSettingsJson.View.GraphSettings();
+      if(settings.view==null) settings.view = new View();
+      settings.view.graph = new View.GraphSettings();
       
       initGraphSettings(settings.view.graph, scaleX,  scaleY,  translationX,  translationY,
           minEdgeThickness,  maxEdgeThickness,  fontSize,  fontBold,  minNodeSize,  maxNodeSize, nodePositions);

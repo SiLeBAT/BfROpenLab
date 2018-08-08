@@ -798,9 +798,9 @@ public class TracingViewSettings extends NodeSettings {
   	    ObjectMapper mapper = new ObjectMapper();
   	  
   	    JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
-  	    TracingViewSettingsJson obj = mapper.treeToValue(rootNode, TracingViewSettingsJson.class);
+  	    JsonFormat obj = mapper.treeToValue(rootNode, JsonFormat.class);
   
-  	    TracingViewSettingsJson.TVSettings settings = obj.settings;
+  	    JsonFormat.TracingViewSettings settings = obj.settings;
         this.showLegend = settings.view.showLegend;
         
         // general settings

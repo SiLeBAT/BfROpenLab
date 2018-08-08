@@ -164,7 +164,7 @@ public class GisSettings extends NodeSettings {
 		}
 	}
 	
-	public void loadSettings(TracingViewSettingsJson.View.GisSettings gisView) {
+	public void loadSettings(JsonFormat.TracingViewSettings.View.GisSettings gisView) {
             
       this.transform = new Transform(
           gisView.transformation.scale.x, gisView.transformation.scale.y,
