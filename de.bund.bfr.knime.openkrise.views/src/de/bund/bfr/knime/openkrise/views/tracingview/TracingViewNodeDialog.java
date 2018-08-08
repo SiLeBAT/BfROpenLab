@@ -232,9 +232,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		this.set.loadSettings(settings);
 		
 		try {
-          this.set.fromJson(Utils.extractJsonValueFromBufferedDataTable(configurationTable));
-        } catch (JsonProcessingException e1) {
-          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e1.getMessage())));
+          this.set.loadSettings(Utils.extractJsonValueFromBufferedDataTable(configurationTable));
+        } catch (JsonProcessingException e) {
+          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
+        } catch (InvalidSettingsException e) {
+          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
         }
 		
 		this.undoButton.setEnabled(false);

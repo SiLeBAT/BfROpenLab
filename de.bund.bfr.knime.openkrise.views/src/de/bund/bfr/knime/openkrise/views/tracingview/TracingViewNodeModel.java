@@ -121,7 +121,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 	        //JsonObject json = (JsonObject) ((JSONValue) cell).getJsonValue();
 	        
 	      //ToDo validate configuration
-	      set.fromJson(((JSONValue) cell).getJsonValue());
+	      set.loadSettings(((JSONValue) cell).getJsonValue());
 		  
 		}
 		

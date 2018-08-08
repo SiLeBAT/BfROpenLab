@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.geom.Point2D;
+import java.util.HashMap;
 import java.util.Map;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -30,7 +31,6 @@ import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.JsonFormat;
 
 public class GraphSettings extends NodeSettings {
 
@@ -130,12 +130,21 @@ public class GraphSettings extends NodeSettings {
 		this.saveSettings(settings, "");
 	}
 	
-	public void saveSettings(JsonFormat.View.GraphViewProps settings) {
-      settings.transformation = new JsonFormat.View.Transformation(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY());
-      settings.edgeProps = new JsonFormat.View.EdgeProps(this.edgeThickness, this.edgeMaxThickness);
-      settings.textProps = new JsonFormat.View.TextProps(this.fontSize, this.fontBold);
-      settings.nodeProps = new JsonFormat.View.GraphViewProps.NodeProps(this.nodeSize, this.nodeMaxSize); 
-      settings.nodeProps.positions = JsonFormat.View.Position.convertPositions(nodePositions);
+	public void saveSettings(SettingsJson.View.GraphSettings settings) {
+      settings.setTransformation(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY());
+      settings.setEdgeSettings(this.edgeThickness, this.edgeMaxThickness);
+      settings.setTextSettings(this.fontSize, this.fontBold);
+      settings.setNodeSettings(this.nodeSize, this.nodeMaxSize, this.nodePositions);
+    }
+	
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
+      jsonBuilder.setGraphSettings(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY(),
+          this.edgeThickness, this.edgeMaxThickness, this.fontSize, this.fontBold, this.nodeSize, this.nodeMaxSize, this.nodePositions);
+    }
+	
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder, int index) {
+      jsonBuilder.setExplosionGraphSettings(index, transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY(),
+          this.edgeThickness, this.edgeMaxThickness, this.fontSize, this.fontBold, this.nodeSize, this.nodeMaxSize, this.nodePositions);
     }
 
 	public void setFromCanvas(GraphCanvas canvas) {
@@ -186,11 +195,20 @@ public class GraphSettings extends NodeSettings {
 		settings.addBoolean(prefix + CFG_FONT_BOLD, fontBold);
 	}
 	
-	public void saveSettings(JsonFormat.GraphView graphView) {
-	  graphView.nodePositions = this.nodePositions.entrySet().stream().map(entry -> new JsonFormat.NodePosition(entry.getKey(), entry.getValue())).toArray(JsonFormat.NodePosition[]::new);
-	  graphView.transformation.scale.x = transform.getScaleX();
-	  graphView.transformation.scale.y = transform.getScaleY();
-	  graphView.transformation.translation.x = transform.getTranslationX();
-	  graphView.transformation.translation.y = transform.getTranslationY();
+	public void loadSettings(SettingsJson.View.GraphSettings graphView) {
+	  this.nodePositions = new HashMap<>();
+	  for(SettingsJson.View.NodePosition nodePosition: graphView.node.positions) 
+	    this.nodePositions.put(nodePosition.id, new Point2D.Double(nodePosition.position.x,nodePosition.position.y));
+	  
+	  this.transform = new Transform(
+	      graphView.transformation.scale.x, graphView.transformation.scale.y,
+	      graphView.transformation.translation.x, graphView.transformation.translation.y);
+	  
+	  this.edgeThickness = graphView.edge.minWidth;
+	  this.edgeMaxThickness = graphView.edge.maxWidth;
+	  this.fontSize = graphView.text.fontSize;
+	  this.fontBold = graphView.text.fontBold;
+	  this.nodeSize = graphView.node.minSize;
+	  this.nodeMaxSize = graphView.node.maxSize;
 	}
 }

@@ -28,7 +28,6 @@ import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.JsonFormat;
 
 public class GisSettings extends NodeSettings {
 
@@ -79,13 +78,24 @@ public class GisSettings extends NodeSettings {
 		this.saveSettings(settings, "");
 	}
 	
-	public void saveSettings(JsonFormat.View.GisViewProps settings) {
-      settings.transformation = new JsonFormat.View.Transformation(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY());
-      settings.edgeProps = new JsonFormat.View.EdgeProps(this.edgeThickness, this.edgeMaxThickness);
-      settings.textProps = new JsonFormat.View.TextProps(this.fontSize, this.fontBold);
-      settings.nodeProps = new JsonFormat.View.NodeProps(this.nodeThickness, this.nodeMaxThickness);
+	public void saveSettings(SettingsJson.View.GisSettings settings) {
+      settings.setTransformation(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY());
+      settings.setEdgeSettings(this.edgeThickness, this.edgeMaxThickness);
+      settings.setTextSettings(this.fontSize, this.fontBold);
+      settings.setNodeSettings(this.nodeSize, this.nodeMaxSize);
+      settings.avoidOverlay = this.avoidOverlay;
+      settings.borderAlpha = this.borderAlpha;
+    }
+	
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
+	  jsonBuilder.setGisSettings(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY(),
+	      this.edgeThickness, this.edgeMaxThickness, this.fontSize, this.fontBold, this.nodeSize, this.nodeMaxSize, this.avoidOverlay, this.borderAlpha);
     }
 
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder, int index) {
+      jsonBuilder.setExplosionGisSettings(index, transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY(),
+          this.edgeThickness, this.edgeMaxThickness, this.fontSize, this.fontBold, this.nodeSize, this.nodeMaxSize, this.avoidOverlay, this.borderAlpha);
+    }
 
 	public void setFromCanvas(IGisCanvas<?> canvas) {
 		transform = canvas.getTransform();
@@ -162,6 +172,22 @@ public class GisSettings extends NodeSettings {
 		} catch (InvalidSettingsException e) {
 		}
 	}
+	
+	public void loadSettings(SettingsJson.View.GisSettings gisView) {
+            
+      this.transform = new Transform(
+          gisView.transformation.scale.x, gisView.transformation.scale.y,
+          gisView.transformation.translation.x, gisView.transformation.translation.y);
+      
+      this.edgeThickness = gisView.edge.minWidth;
+      this.edgeMaxThickness = gisView.edge.maxWidth;
+      this.fontSize = gisView.text.fontSize;
+      this.fontBold = gisView.text.fontBold;
+      this.nodeSize = gisView.node.minSize;
+      this.nodeMaxSize = gisView.node.maxSize;
+      this.avoidOverlay = gisView.avoidOverlay;
+      this.borderAlpha = gisView.borderAlpha;
+    }
 
 	public void saveSettings(NodeSettingsWO settings, String prefix) {
 		// TODO Auto-generated method stub

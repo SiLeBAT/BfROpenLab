@@ -81,6 +81,34 @@ public class ExplosionSettingsList extends NodeSettings {
 		}
 	}
 
+	public void saveSettings(SettingsJson.View settings) {
+	  int n = this.explosionSettingsList.size();
+	  settings.explosions = new SettingsJson.View.ExplosionSettings[n];
+      for(int i=0; i<n; ++i) {
+          settings.explosions[i] = new SettingsJson.View.ExplosionSettings();
+          this.explosionSettingsList.get(i).saveSettings(settings.explosions[i]);
+      }
+    }
+	
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
+      int n = this.explosionSettingsList.size();
+      jsonBuilder.setExplosionCount(n);
+      for(int i=0; i<n; ++i) {
+          //settings.explosions[i] = new SettingsJson.View.ExplosionSettings();
+          this.explosionSettingsList.get(i).saveSettings(jsonBuilder, i);
+      }
+    }
+	
+	public void loadSettings(SettingsJson.View settings) {
+      int n = settings.explosions.length;
+      for(int i=0; i<n; ++i) {
+        ExplosionSettings eS = new ExplosionSettings();
+        eS.loadSettings(settings.explosions[i]);
+        this.explosionSettingsList.add(eS);
+      }
+    }
+	
+	
 	/*
 	 * returns an explosion setting with the specified key if it exists otherwise null
 	 */
