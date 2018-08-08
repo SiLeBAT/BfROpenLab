@@ -80,15 +80,6 @@ public class ExplosionSettingsList extends NodeSettings {
 			this.explosionSettingsList.get(i).saveSettings(settings, ExplosionSettingsList.getElementPrefix(i+1));
 		}
 	}
-
-	public void saveSettings(SettingsJson.View settings) {
-	  int n = this.explosionSettingsList.size();
-	  settings.explosions = new SettingsJson.View.ExplosionSettings[n];
-      for(int i=0; i<n; ++i) {
-          settings.explosions[i] = new SettingsJson.View.ExplosionSettings();
-          this.explosionSettingsList.get(i).saveSettings(settings.explosions[i]);
-      }
-    }
 	
 	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
       int n = this.explosionSettingsList.size();
@@ -99,7 +90,7 @@ public class ExplosionSettingsList extends NodeSettings {
       }
     }
 	
-	public void loadSettings(SettingsJson.View settings) {
+	public void loadSettings(TracingViewSettingsJson.View settings) {
       int n = settings.explosions.length;
       for(int i=0; i<n; ++i) {
         ExplosionSettings eS = new ExplosionSettings();
