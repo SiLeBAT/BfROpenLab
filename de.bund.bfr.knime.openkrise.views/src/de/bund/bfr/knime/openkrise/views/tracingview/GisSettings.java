@@ -78,15 +78,6 @@ public class GisSettings extends NodeSettings {
 		this.saveSettings(settings, "");
 	}
 	
-	public void saveSettings(SettingsJson.View.GisSettings settings) {
-      settings.setTransformation(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY());
-      settings.setEdgeSettings(this.edgeThickness, this.edgeMaxThickness);
-      settings.setTextSettings(this.fontSize, this.fontBold);
-      settings.setNodeSettings(this.nodeSize, this.nodeMaxSize);
-      settings.avoidOverlay = this.avoidOverlay;
-      settings.borderAlpha = this.borderAlpha;
-    }
-	
 	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
 	  jsonBuilder.setGisSettings(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY(),
 	      this.edgeThickness, this.edgeMaxThickness, this.fontSize, this.fontBold, this.nodeSize, this.nodeMaxSize, this.avoidOverlay, this.borderAlpha);
@@ -173,7 +164,7 @@ public class GisSettings extends NodeSettings {
 		}
 	}
 	
-	public void loadSettings(SettingsJson.View.GisSettings gisView) {
+	public void loadSettings(TracingViewSettingsJson.View.GisSettings gisView) {
             
       this.transform = new Transform(
           gisView.transformation.scale.x, gisView.transformation.scale.y,
@@ -185,7 +176,7 @@ public class GisSettings extends NodeSettings {
       this.fontBold = gisView.text.fontBold;
       this.nodeSize = gisView.node.minSize;
       this.nodeMaxSize = gisView.node.maxSize;
-      this.avoidOverlay = gisView.avoidOverlay;
+      this.avoidOverlay = gisView.node.avoidOverlay;
       this.borderAlpha = gisView.borderAlpha;
     }
 

@@ -620,68 +620,6 @@ public class TracingViewSettings extends NodeSettings {
 //      return JacksonConversions.getInstance().toJSR353(rootNode);
 	}
 	
-	private void saveSettings(SettingsJson obj) {
-//	  obj.settings.collapsedNodes = this.collapsedNodes.entrySet().stream().map(entry -> new JsonFormat.Global.MetaNode(entry.getKey(), entry.getValue().keySet().stream().toArray(String[]::new))).toArray(JsonFormat.Global.MetaNode[]::new);
-//	  obj.settings.view
-	  SettingsJson.TVSettings settings = new SettingsJson.TVSettings(); //   obj.settings;
-	  obj.settings = settings;
-	 
-      // general settings
-	  settings.view = new SettingsJson.View();
-	  settings.view.showLegend = this.showLegend;
-      settings.view.exportAsSvg = this.exportAsSvg;
-      settings.view.showGis = this.showGis;
-      settings.view.label = this.label;
-      List<SettingsJson.MetaNode> metaNodeList = new ArrayList<>();
-      
-      for(Map.Entry<String, Map<String, Point2D>> entry: this.collapsedNodes.entrySet()) {
-        metaNodeList.add(new SettingsJson.MetaNode(entry.getKey(), (entry.getKey().startsWith("SC:")?"SimpleChain":null), entry.getValue().keySet().toArray(new String[0])));
-      }
-      settings.metaNodes = metaNodeList.toArray(new SettingsJson.MetaNode[0]);
-      //this.collapsedNodes = null;
-      
-      // tracing related settings
-      settings.tracing = new SettingsJson.Tracing(enforceTemporalOrder, 
-          edgeWeights, edgeCrossContaminations, edgeKillContaminations, observedEdges, 
-          nodeWeights, nodeCrossContaminations, nodeKillContaminations, observedNodes);
-      
-      //this.saveTracingSettings(settings);
-      settings.view.node = new SettingsJson.View.GlobalNodeSettings();
-      settings.view.node.setHighlighting(this.nodeHighlightConditions.getConditions());
-      settings.view.edge = new SettingsJson.View.GlobalEdgeSettings();
-      settings.view.edge.setHighlighting(this.edgeHighlightConditions.getConditions());
-      
-//      this.saveHighlightingSettings(settings);
-      
-      // edge related general settings
-      settings.view.edge.arrowInMiddle = this.arrowHeadInMiddle;
-      settings.view.edge.hideArrowHead = this.hideArrowHead;
-      settings.view.edge.joinEdges = this.joinEdges;
-      settings.view.edge.setDeliveryFilter(TracingColumns.DELIVERY_ARRIVAL, this.showToDate, this.showDeliveriesWithoutDate);
-    
-      settings.view.edge.showEdgesInMetanode = this.showEdgesInMetaNode;
-      settings.view.edge.showCrossContaminatedDeliveries = this.showForward;
-      settings.view.edge.selectedEdges = this.selectedEdges.toArray(new String[0]);
-      
-      // node related general settings
-      settings.view.node.skipEdgelessNodes = this.skipEdgelessNodes;
-      settings.view.node.labelPosition = this.nodeLabelPosition.toString();
-      settings.view.node.selectedNodes = this.selectedNodes.toArray(new String[0]);
-      
-      // gisView related Settings
-      settings.view.gis = new SettingsJson.View.GisSettings();
-      settings.view.gis.type = this.gisType.toString();
-      this.gisSettings.saveSettings(settings.view.gis);
-	  
-      // graphView related Settings
-      settings.view.graph = new SettingsJson.View.GraphSettings();
-      this.graphSettings.saveSettings(settings.view.graph);
-      settings.view.graph.node.setCollapsedPositions(this.collapsedNodes.values());
-      
-      // explosion view related settings
-      this.gobjExplosionSettingsList.saveSettings(obj.settings.view);
-	}
-	
 	private void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
 //    obj.settings.collapsedNodes = this.collapsedNodes.entrySet().stream().map(entry -> new JsonFormat.Global.MetaNode(entry.getKey(), entry.getValue().keySet().stream().toArray(String[]::new))).toArray(JsonFormat.Global.MetaNode[]::new);
 //    obj.settings.view
@@ -860,9 +798,9 @@ public class TracingViewSettings extends NodeSettings {
   	    ObjectMapper mapper = new ObjectMapper();
   	  
   	    JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
-  	    SettingsJson obj = mapper.treeToValue(rootNode, SettingsJson.class);
+  	    TracingViewSettingsJson obj = mapper.treeToValue(rootNode, TracingViewSettingsJson.class);
   
-  	    SettingsJson.TVSettings settings = obj.settings;
+  	    TracingViewSettingsJson.TVSettings settings = obj.settings;
         this.showLegend = settings.view.showLegend;
         
         // general settings
@@ -883,7 +821,7 @@ public class TracingViewSettings extends NodeSettings {
         this.nodeWeights = null;
         
         // edge related general settings
-        this.arrowHeadInMiddle = settings.view.edge.arrowInMiddle;
+        this.arrowHeadInMiddle = settings.view.edge.arrowHeadInMiddle;
         this.hideArrowHead = settings.view.edge.hideArrowHead;
         this.joinEdges = settings.view.edge.joinEdges;
         this.showDeliveriesWithoutDate = settings.view.edge.filter.dateFilter.showDeliveriesWithoutDate;
@@ -901,7 +839,7 @@ public class TracingViewSettings extends NodeSettings {
         this.selectedNodes = null;
         
         // gisView related Settings
-        this.gisType = GisType.valueOf(settings.view.gis.type);
+        this.gisType = GisType.valueOf(settings.view.gisType);
         this.gisSettings.loadSettings(settings.view.gis);
 	  }
 	}

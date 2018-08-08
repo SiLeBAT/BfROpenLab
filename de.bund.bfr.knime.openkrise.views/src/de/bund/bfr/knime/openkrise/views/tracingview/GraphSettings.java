@@ -130,13 +130,6 @@ public class GraphSettings extends NodeSettings {
 		this.saveSettings(settings, "");
 	}
 	
-	public void saveSettings(SettingsJson.View.GraphSettings settings) {
-      settings.setTransformation(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY());
-      settings.setEdgeSettings(this.edgeThickness, this.edgeMaxThickness);
-      settings.setTextSettings(this.fontSize, this.fontBold);
-      settings.setNodeSettings(this.nodeSize, this.nodeMaxSize, this.nodePositions);
-    }
-	
 	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
       jsonBuilder.setGraphSettings(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY(),
           this.edgeThickness, this.edgeMaxThickness, this.fontSize, this.fontBold, this.nodeSize, this.nodeMaxSize, this.nodePositions);
@@ -195,9 +188,9 @@ public class GraphSettings extends NodeSettings {
 		settings.addBoolean(prefix + CFG_FONT_BOLD, fontBold);
 	}
 	
-	public void loadSettings(SettingsJson.View.GraphSettings graphView) {
+	public void loadSettings(TracingViewSettingsJson.View.GraphSettings graphView) {
 	  this.nodePositions = new HashMap<>();
-	  for(SettingsJson.View.NodePosition nodePosition: graphView.node.positions) 
+	  for(TracingViewSettingsJson.View.NodePosition nodePosition: graphView.node.positions) 
 	    this.nodePositions.put(nodePosition.id, new Point2D.Double(nodePosition.position.x,nodePosition.position.y));
 	  
 	  this.transform = new Transform(
