@@ -30,6 +30,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 
 /*
  * class contains the settings for all explosion views
@@ -90,7 +91,7 @@ public class ExplosionSettingsList extends NodeSettings {
       }
     }
 	
-	public void loadSettings(JsonFormat.TracingViewSettings.View settings) {
+	public void loadSettings(View settings) {
       int n = settings.explosions.length;
       for(int i=0; i<n; ++i) {
         ExplosionSettings eS = new ExplosionSettings();

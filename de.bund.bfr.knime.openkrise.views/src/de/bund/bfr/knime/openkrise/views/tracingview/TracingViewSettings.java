@@ -19,22 +19,15 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.json.JsonValue;
-import org.jooq.conf.SettingsTools;
 import org.knime.core.data.json.JacksonConversions;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -42,21 +35,16 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Ordering;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.GisType;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
 import de.bund.bfr.knime.openkrise.views.Activator;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
@@ -543,7 +531,7 @@ public class TracingViewSettings extends NodeSettings {
 		observedEdges.clear();
 	}
 	
-	public JsonValue toJson() {
+	public JsonValue toJson() throws JsonProcessingException {
 //	  ObjectMapper mapper = new ObjectMapper();
 //      SettingsJson obj = new SettingsJson();
       JsonConverter.JsonBuilder jsonBuilder = new JsonConverter.JsonBuilder();
@@ -798,9 +786,11 @@ public class TracingViewSettings extends NodeSettings {
   	    ObjectMapper mapper = new ObjectMapper();
   	  
   	    JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
-  	    JsonFormat obj = mapper.treeToValue(rootNode, JsonFormat.class);
+  	    JsonFormat jsonFormat = mapper.treeToValue(rootNode, JsonFormat.class);
+  	    JsonFormat.TracingViewSettings settings = jsonFormat.settings;
+  	    JsonFormat.Tracing tracing = jsonFormat.tracing;
   
-  	    JsonFormat.TracingViewSettings settings = obj.settings;
+  	    //JsonFormat.TracingViewSettings settings = obj.settings;
         this.showLegend = settings.view.showLegend;
         
         // general settings
@@ -810,7 +800,7 @@ public class TracingViewSettings extends NodeSettings {
         this.collapsedNodes = null;
         
         // tracing related settings
-        this.enforceTemporalOrder = settings.tracing.enforceTemporalOrder;
+        this.enforceTemporalOrder = tracing.enforceTemporalOrder;
         this.edgeCrossContaminations = null;
         this.edgeHighlightConditions = null;
         this.edgeKillContaminations = null;

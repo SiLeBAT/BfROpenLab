@@ -30,7 +30,10 @@ import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
+//import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 import de.bund.bfr.knime.openkrise.views.Activator;
+
 
 public class GraphSettings extends NodeSettings {
 
@@ -188,9 +191,9 @@ public class GraphSettings extends NodeSettings {
 		settings.addBoolean(prefix + CFG_FONT_BOLD, fontBold);
 	}
 	
-	public void loadSettings(JsonFormat.TracingViewSettings.View.GraphSettings graphView) {
+	public void loadSettings(View.GraphSettings graphView) {
 	  this.nodePositions = new HashMap<>();
-	  for(JsonFormat.TracingViewSettings.View.NodePosition nodePosition: graphView.node.positions) 
+	  for(View.NodePosition nodePosition: graphView.node.positions) 
 	    this.nodePositions.put(nodePosition.id, new Point2D.Double(nodePosition.position.x,nodePosition.position.y));
 	  
 	  this.transform = new Transform(

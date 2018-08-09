@@ -27,6 +27,7 @@ import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 import de.bund.bfr.knime.openkrise.views.Activator;
 
 public class GisSettings extends NodeSettings {
@@ -164,7 +165,7 @@ public class GisSettings extends NodeSettings {
 		}
 	}
 	
-	public void loadSettings(JsonFormat.TracingViewSettings.View.GisSettings gisView) {
+	public void loadSettings(View.GisSettings gisView) {
             
       this.transform = new Transform(
           gisView.transformation.scale.x, gisView.transformation.scale.y,

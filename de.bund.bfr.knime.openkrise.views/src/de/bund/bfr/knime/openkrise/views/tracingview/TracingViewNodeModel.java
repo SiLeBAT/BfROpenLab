@@ -35,7 +35,6 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.data.image.png.PNGImageCell;
 import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.data.json.JSONCell;
 import org.knime.core.data.json.JSONCellFactory;
@@ -51,12 +50,8 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
-import org.knime.core.node.port.image.ImagePortObjectSpec;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.jackson.JacksonUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Iterables;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.gis.GisType;
@@ -301,23 +296,24 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
     private BufferedDataTable createConfigurationTable(ExecutionContext exec) throws InvalidSettingsException {
       
       BufferedDataContainer container = exec.createDataContainer(createConfigurationOutSpec());
-      JsonNodeFactory nodeFactory = JacksonUtils.nodeFactory();
-      ObjectNode rootNode = nodeFactory.objectNode();
+            
+      //JsonValue json = set.toJson();    
       
-      JsonValue json = set.toJson();    
-      
-      container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
-          JSONCellFactory.create(json)));
 //      container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
-//              JSONCellFactory.create(JacksonConversions.getInstance().toJSR353(rootNode))));
+//          JSONCellFactory.create(json)));
+
+      try {
+        container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
+            createConfigurationJSONCell()));
+      } catch (JsonProcessingException e) {
+        throw(new InvalidSettingsException(e));
+      }
       container.close();
 
       return container.getTable();
     }
     
-    private DataCell createConfigurationJSONCell() {
-      //JsonNodeFactory nodeFactory = JacksonUtils.nodeFactory();
-      //ObjectNode rootNode = nodeFactory.objectNode();
+    private DataCell createConfigurationJSONCell() throws JsonProcessingException {
       
       JsonValue json = set.toJson();    
       

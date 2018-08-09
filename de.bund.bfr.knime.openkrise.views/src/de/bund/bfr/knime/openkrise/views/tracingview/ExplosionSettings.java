@@ -26,6 +26,7 @@ import java.util.Set;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 
 /*
  * Setting object for an explosion view
@@ -93,7 +94,7 @@ public class ExplosionSettings {
       this.gisSettings.saveSettings(jsonBuilder, index);
     }
 	
-	public void loadSettings(JsonFormat.TracingViewSettings.View.ExplosionSettings settings) {
+	public void loadSettings(View.ExplosionSettings settings) {
       metaNodeId = settings.id;
       this.graphSettings.loadSettings(settings.graphSettings);
       this.gisSettings.loadSettings(settings.gisSettings);

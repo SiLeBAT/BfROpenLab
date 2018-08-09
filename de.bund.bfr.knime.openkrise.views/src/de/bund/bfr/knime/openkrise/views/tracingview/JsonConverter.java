@@ -9,9 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.json.JsonValue;
-import org.knime.core.data.json.JacksonConversions;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.jung.NamedShape;
 import de.bund.bfr.knime.gis.GisType;
@@ -21,34 +19,37 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.Tracing;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.MetaNode;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.LogicalCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.SharedViewSettings.EdgeSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.SharedViewSettings.NodeSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.SharedViewSettings.TextSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.ValueCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.EdgeHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.Filter;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.Filter.DeliveryToDateFilter;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GlobalNodeSettings.NodeHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GisSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.GraphSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.ExplosionSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.ExplosionSettings.ExplosionGraphSettings;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.Transformation;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.XYPair;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.TracingViewSettings.View.NodePosition;
-import de.bund.bfr.knime.openkrise.views.tracingview.JsonFormat.Date;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.Tracing;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.MetaNode;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.LogicalCondition;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.SharedViewSettings.EdgeSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.SharedViewSettings.NodeSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.SharedViewSettings.TextSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.ValueCondition;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.EdgeHighlightCondition;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.Filter;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.Filter.DeliveryToDateFilter;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalNodeSettings.NodeHighlightCondition;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GisSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GraphSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.ExplosionSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.ExplosionSettings.ExplosionGraphSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.Transformation;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.XYPair;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.NodePosition;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.Date;
 
 public class JsonConverter {
   public static class JsonBuilder {
+    private JsonFormat json;
     private JsonFormat.TracingViewSettings settings;
     
     public JsonBuilder() {
-      settings = new JsonFormat.TracingViewSettings();
+      json = new JsonFormat();
+      json.settings = new JsonFormat.TracingViewSettings();
+      settings = json.settings;
     }
     
     
@@ -65,15 +66,15 @@ public class JsonConverter {
     public JsonBuilder setTracing(boolean enforceTemporalOrder, 
         Map<String,Double> edgeWeights, Map<String, Boolean> edgeCrossContaminations, Map<String, Boolean> edgeKillContaminations, Map<String, Boolean> observedEdges, 
         Map<String,Double> nodeWeights, Map<String, Boolean> nodeCrossContaminations, Map<String, Boolean> nodeKillContaminations, Map<String, Boolean> observedNodes) {
-      settings.tracing = new Tracing();
-      settings.tracing.enforceTemporalOrder = enforceTemporalOrder;
+      json.tracing = new Tracing();
+      json.tracing.enforceTemporalOrder = enforceTemporalOrder;
       List<Tracing.TraceableUnit> tracingList = new ArrayList<>();
 
       for(String id: edgeCrossContaminations.keySet()) 
         tracingList.add(
             createTraceableUnit(id, edgeWeights.get(id), edgeCrossContaminations.get(id), edgeKillContaminations.get(id), observedEdges.get(id)));
 
-      settings.tracing.deliveries = tracingList.toArray(new Tracing.TraceableUnit[0]);
+      json.tracing.deliveries = tracingList.toArray(new Tracing.TraceableUnit[0]);
 
       tracingList = new ArrayList<>();
 
@@ -81,7 +82,7 @@ public class JsonConverter {
         tracingList.add(
             createTraceableUnit(id, nodeWeights.get(id), nodeCrossContaminations.get(id), nodeKillContaminations.get(id), observedNodes.get(id)));
 
-      settings.tracing.nodes = tracingList.toArray(tracingList.toArray(new Tracing.TraceableUnit[0]));
+      json.tracing.nodes = tracingList.toArray(tracingList.toArray(new Tracing.TraceableUnit[0]));
       return this;
     }
     
@@ -410,15 +411,16 @@ public class JsonConverter {
       return this;
     }
     
-    public JsonValue build() {
-      ObjectMapper mapper = new ObjectMapper();
-      //SettingsJson obj = new SettingsJson();
-     
-      ObjectNode rootNode = mapper.valueToTree(settings);
-      
-     
-      //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-      return JacksonConversions.getInstance().toJSR353(rootNode);
+    public JsonValue build() throws JsonProcessingException {
+//      ObjectMapper mapper = new ObjectMapper();
+//      //SettingsJson obj = new SettingsJson();
+//     
+//      ObjectNode rootNode = mapper.valueToTree(json);
+//      
+//     
+//      //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//      return JacksonConversions.getInstance().toJSR353(rootNode);
+      return de.bund.bfr.knime.openkrise.util.json.JsonConverter.convertToJson(this.json);
     }
     
   }
