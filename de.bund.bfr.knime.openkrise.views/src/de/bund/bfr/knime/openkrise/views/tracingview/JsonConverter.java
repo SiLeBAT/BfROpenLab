@@ -33,6 +33,7 @@ import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.Filter.DeliveryToDateFilter;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalNodeSettings.NodeHighlightCondition;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GisSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GraphSettings;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.ExplosionSettings;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.ExplosionSettings.ExplosionGraphSettings;
@@ -173,7 +174,7 @@ public class JsonConverter {
       condition.color = color;
       condition.invisible = invisible;
       condition.adjustThickness = adjustThickness;
-      condition.label = label;
+      condition.labelProperty = label;
       condition.valueCondition = valueCondition;
       condition.logicalConditions = logicalConditions;
     }
@@ -207,7 +208,12 @@ public class JsonConverter {
     private NodeHighlightCondition createNodeHighlightCondition(String name, Boolean showInLegend, int[] color, Boolean invisible, Boolean adjustThickness, String label, ValueCondition valueCondition, LogicalCondition[][] logicalConditions, NamedShape shape) {
       
       NodeHighlightCondition condition = new NodeHighlightCondition();
+      // ToDo: remove try
+      try {
       initHighlightCondition(condition, name, showInLegend, color, invisible, adjustThickness, label, valueCondition, logicalConditions);
+      } catch(Exception e) {
+        e.printStackTrace();
+      }
       condition.shape = shape==null?null:shape.toString();
       return condition;
     }
@@ -412,16 +418,56 @@ public class JsonConverter {
     }
     
     public JsonValue build() throws JsonProcessingException {
-//      ObjectMapper mapper = new ObjectMapper();
-//      //SettingsJson obj = new SettingsJson();
-//     
-//      ObjectNode rootNode = mapper.valueToTree(json);
-//      
-//     
-//      //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-//      return JacksonConversions.getInstance().toJSR353(rootNode);
-      return de.bund.bfr.knime.openkrise.util.json.JsonConverter.convertToJson(this.json);
+      return de.bund.bfr.knime.openkrise.util.json.JsonConverter.convertToJsonValue(this.json);
     }
+  }
+  
+ 
+  private static NamedShape getShape(View.HighlightCondition source) {
+    if(source instanceof View.GlobalNodeSettings.NodeHighlightCondition) return NamedShape.valueOf(((View.GlobalNodeSettings.NodeHighlightCondition) source).shape);
+    return null;
+  }
+  
+  private static AndOrHighlightCondition createLogicalCondition(View.HighlightCondition source) {
+    List<List<LogicalHighlightCondition>> conditionList = new ArrayList<>();
+    List<LogicalHighlightCondition> andList = null; //new ArrayList<>();
+    for(View.LogicalCondition[] andConditions : source.logicalConditions) {
+      andList = new ArrayList<>();
+      for(View.LogicalCondition andCondition : andConditions) 
+        andList.add(new LogicalHighlightCondition(andCondition.propertyName, LogicalHighlightCondition.Type.valueOf(andCondition.operationType),andCondition.value));
+      conditionList.add(andList);
+    }
+    return new AndOrHighlightCondition(conditionList, source.name, source.showInLegend, getColor(source.color), source.invisible, source.adjustThickness,
+        source.labelProperty, getShape(source));
+  }
+  
+  private static Color getColor(int[] rgb) {
+    if(rgb==null) return null;
+    return new Color(rgb[0], rgb[1], rgb[2]);
+  }
+  
+  private static ValueHighlightCondition createValueCondition(View.HighlightCondition source) {
+    return new ValueHighlightCondition(source.valueCondition.propertyName,
+        ValueHighlightCondition.Type.valueOf(source.valueCondition.valueType), source.valueCondition.useZeroAsMinimum, source.name,
+        source.showInLegend, getColor(source.color), source.invisible, source.adjustThickness, source.labelProperty, getShape(source));
+  }
+  
+  private static HighlightCondition createLogicalValueHighlightCondition(View.HighlightCondition source) {
+    return new LogicalValueHighlightCondition(
+        createValueCondition(source),
+        createLogicalCondition(source));
+  }
+  
+  protected static <T extends View.HighlightCondition> void setHighlighting(HighlightConditionList target, T[] sources) {
+    target.getConditions().clear();
+    for(T source: sources) 
+      target.getConditions().add(source.valueCondition==null ? createLogicalCondition(source) : (source.logicalConditions==null? createValueCondition(source) : createLogicalValueHighlightCondition(source)));
+      //hLCondition.
+//      if(source.valueCondition==null && source.logicalConditions==null) {
+//        hLCondition = new 
+//      }
+//      HighlightCondition hLCondition = new HighlightCondition();
+//      target.getConditions().add(new HighlightCondition())
     
   }
 }

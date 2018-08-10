@@ -46,10 +46,10 @@ public class JsonFormat {
     }
 
     public static class View{
-      public boolean showGis;
+      public Boolean showGis;
       public String gisType;
-      public boolean showLegend;
-      public boolean exportAsSvg;
+      public Boolean showLegend;
+      public Boolean exportAsSvg;
       public String label;
       public GlobalEdgeSettings edge;
       public GlobalNodeSettings node;
@@ -90,20 +90,20 @@ public class JsonFormat {
         public int[] color;
         public Boolean invisible;
         public Boolean adjustThickness;
-        public String label;
+        public String labelProperty;
         public ValueCondition valueCondition;
         public LogicalCondition[][] logicalConditions;
       }
 
       public static class GlobalEdgeSettings{
-        public boolean joinEdges;
-        public boolean showEdgesInMetanode;
-        public boolean hideArrowHead;
-        public boolean arrowHeadInMiddle;
+        public Boolean joinEdges;
+        public Boolean showEdgesInMetanode;
+        public Boolean hideArrowHead;
+        public Boolean arrowHeadInMiddle;
         public String[] selectedEdges;
         public String[] invisibleEdges;
         public EdgeHighlightCondition[] highlightConditions;
-        public boolean showCrossContaminatedDeliveries;
+        public Boolean showCrossContaminatedDeliveries;
         public Filter filter; 
 
         public static class Filter {
@@ -124,7 +124,7 @@ public class JsonFormat {
 
 
       public static class GlobalNodeSettings{
-        public boolean skipEdgelessNodes;
+        public Boolean skipEdgelessNodes;
         public String labelPosition;
         public String[] selectedNodes;
         public String[] invisibleNodes;
@@ -199,17 +199,15 @@ public class JsonFormat {
 
     public String version = CURRENT_VERSION;
 
-    public ColumnSpec[] stationColumns;
-    public Property[][] stations;
-    public ColumnSpec[] deliveryColumns;
-    public Property[][] deliveries;
-    public DeliveryRelation[] deliveryRelations;
-
-    public static class ColumnSpec {
-      public String id;
-      public String type;
-    }
-
+//    public ColumnSpec[] stationColumns;
+//    public Property[][] stations;
+//    public ColumnSpec[] deliveryColumns;
+//    public Property[][] deliveries;
+//    public DeliveryRelation[] deliveryRelations;
+    public Table stations;
+    public Table deliveries;
+    public Table deliveryRelations;
+   
     //    public static class Station {
     //      public String id;
     //      public Property[] properties;
@@ -220,15 +218,30 @@ public class JsonFormat {
     //      public Property[] properties;
     //    }
 
-    public static class Property {
-      public String id;
-      public Object value;
-    }
+//    public static class Property {
+//      public String id;
+//      public Object value;
+//    }
     
     public static class DeliveryRelation {
       public String fromId;
       public String toId;
     }
+    
+    public static class Table {
+      public ColumnProperty[] columnProperties;
+      public ItemProperty[][] data;
+      
+      public static class ItemProperty {
+        public String id;
+        public Object value;
+      }
+      
+      public static class ColumnProperty {
+        public String id;
+        public String type;
+      }
 
+    }
   }
 }

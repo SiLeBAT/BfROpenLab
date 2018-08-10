@@ -78,33 +78,36 @@ public class ToJsonNodeModel extends NoInternalsNodeModel {
 		BufferedDataTable deliveryRelationTable = inData[2];
 		BufferedDataTable settingsTable = inData[3];
 		
-		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(nodeTable.getSpec()),
-				TracingColumns.ID);
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(TracingUtils.getTableColumns(edgeTable.getSpec()),
-				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
-		Map<RowKey, String> skippedDeliveryRows = new LinkedHashMap<>();
-		Map<RowKey, String> skippedDeliveryRelationsRows = new LinkedHashMap<>();
-
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
-		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(deliveryRelationTable, edges,
-				skippedDeliveryRelationsRows);
-
-		skippedDeliveryRows.forEach((key,
-				value) -> setWarningMessage("Deliveries Table: Row " + key.getString() + " skipped (" + value + ")"));
-		skippedDeliveryRelationsRows.forEach((key, value) -> setWarningMessage(
-				"Deliveries Relations Table: Row " + key.getString() + " skipped (" + value + ")"));
+//		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(nodeTable.getSpec()),
+//				TracingColumns.ID);
+//		EdgePropertySchema edgeSchema = new EdgePropertySchema(TracingUtils.getTableColumns(edgeTable.getSpec()),
+//				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+//		Map<RowKey, String> skippedDeliveryRows = new LinkedHashMap<>();
+//		Map<RowKey, String> skippedDeliveryRelationsRows = new LinkedHashMap<>();
+//
+//		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
+//		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
+//		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(deliveryRelationTable, edges,
+//				skippedDeliveryRelationsRows);
+//
+//		skippedDeliveryRows.forEach((key,
+//				value) -> setWarningMessage("Deliveries Table: Row " + key.getString() + " skipped (" + value + ")"));
+//		skippedDeliveryRelationsRows.forEach((key, value) -> setWarningMessage(
+//				"Deliveries Relations Table: Row " + key.getString() + " skipped (" + value + ")"));
  
 		JsonValue json = null;
-		if(settingsTable!=null) json = Utils.extractJsonValueFromBufferedDataTable(settingsTable, JsonConstants.SETTINGS);
+		if(settingsTable!=null) json = Utils.extractJsonValueFromBufferedDataTable(settingsTable, JsonConstants.JSON_COLUMN_SETTINGS);
 		
-		BufferedDataContainer container = exec.createDataContainer(configure(null)[0]);
+		//BufferedDataContainer container = exec.createDataContainer(configure(null)[0]);
 		
 		JsonConverter.JsonBuilder jsonBuilder = new JsonConverter.JsonBuilder();
 		
-		jsonBuilder.setData(nodeSchema, edgeSchema, nodes, edges, deliveries);
-		jsonBuilder.setTracing(nodes, edges);
+//		jsonBuilder.setData(nodeSchema, edgeSchema, nodes, edges, deliveries);
+//		jsonBuilder.setTracing(nodes, edges);
 		
+		jsonBuilder.setData(nodeTable, edgeTable, deliveryRelationTable); //, edgeSchema, nodes, edges, deliveries);
+		jsonBuilder.setTracing(nodeTable, edgeTable);
+        
 		if(json!=null) jsonBuilder.merge(JsonConverter.convertFromJson(json));
 		
 		
@@ -182,17 +185,19 @@ public class ToJsonNodeModel extends NoInternalsNodeModel {
 		
 //		container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
 //				JSONCellFactory.create(JacksonConversions.getInstance().toJSR353(rootNode))));
-		container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
-          JSONCellFactory.create(jsonBuilder.build())));
-		container.close();
-
-		return new BufferedDataTable[] { container.getTable() };
+//		container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
+//          JSONCellFactory.create(jsonBuilder.build())));
+//		container.close();
+//
+//		return new BufferedDataTable[] { container.getTable() };
+		return new BufferedDataTable[] { Utils.convertJsonValueToTable(jsonBuilder.build(), exec) };
 	}
 
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		return new DataTableSpec[] {
-				new DataTableSpec(new DataColumnSpecCreator(JsonConstants.JSON_COLUMN, JSONCell.TYPE).createSpec()) };
+//		return new DataTableSpec[] {
+//				new DataTableSpec(new DataColumnSpecCreator(JsonConstants.JSON_COLUMN, JSONCell.TYPE).createSpec()) };
+	  return new DataTableSpec[] {Utils.createJSONTableSpec()};
 	}
 
 	@Override

@@ -26,5 +26,8 @@
 		<outPort index="2" name="Delivery Relations">
 			Table with Delivery Relations data.
 		</outPort>
+		<outPort index="3" name="JSON">
+			Optional Table with JSON that contains settings.
+		</outPort>
 	</ports>
 </knimeNode>

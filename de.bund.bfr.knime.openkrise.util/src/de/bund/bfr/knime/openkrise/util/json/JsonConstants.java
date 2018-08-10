@@ -22,7 +22,7 @@ package de.bund.bfr.knime.openkrise.util.json;
 public class JsonConstants {
   
 	public static final String JSON_COLUMN = "json";
-	public static final String JSON_COLUMN_TV = "settings";
+	public static final String JSON_COLUMN_SETTINGS = "json";
 
 	// ToDo: remove these two constants
 	public static final String STATION_ID_PREFIX = ""; //S";

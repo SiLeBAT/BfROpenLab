@@ -406,8 +406,8 @@
 		<outPort index="5" name="Configuration">
 			Table with TracingView configuration settings in JSON-format.
 		</outPort>
-		<outPort index="6" name="Images+Configuration">
-			Tables with images and configuration.
+		<outPort index="6" name="Images+JSON">
+			Tables with images and JSON.
 		</outPort>
 	</ports>
 </knimeNode>

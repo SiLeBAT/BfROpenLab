@@ -22,6 +22,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -41,10 +42,13 @@ import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.GisType;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.Tracing;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings;
 import de.bund.bfr.knime.openkrise.views.Activator;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
@@ -781,6 +785,28 @@ public class TracingViewSettings extends NodeSettings {
 //      return new SettingsJson.View.LogicalCondition(logicalCondition.getProperty(), logicalCondition.getType().toString(), logicalCondition.getValue());
 //    }
 	
+	private static void setTracing(Tracing.TraceableUnit[] traceableUnits, Map<String, Double> weights, Map<String, Boolean> crossContaminations, Map<String, Boolean> killContaminations, Map<String, Boolean> observed) {
+	  for(Tracing.TraceableUnit traceableUnit: traceableUnits) {
+	    setTracingInfo(traceableUnit.id,traceableUnit.weight,weights);
+	    setTracingInfo(traceableUnit.id,traceableUnit.crossContamination,crossContaminations);
+	    setTracingInfo(traceableUnit.id,traceableUnit.killContamination,killContaminations);
+	    setTracingInfo(traceableUnit.id,traceableUnit.observed,observed);
+      }
+	}
+	
+	private static <T> void setTracingInfo(String id, T value, Map<String, T> map) {
+	  if(value!=null) map.put(id, value);
+	}
+	
+//	private static void setEdgeHighlighting(HighlightConditionList target, GlobalEdgeSettings.EdgeHighlightCondition[] sources) {
+//	  for(GlobalEdgeSettings.EdgeHighlightCondition source: sources) {
+//	    HighlightCondition hLCondition 
+//	    if(source.)
+//	    HighlightCondition hLCondition = new HighlightCondition();
+//	    target.getConditions().add(new HighlightCondition())
+//	  }
+//	}
+	
 	public void loadSettings(JsonValue json) throws JsonProcessingException, InvalidSettingsException {
 	  if(json != null) {
   	    ObjectMapper mapper = new ObjectMapper();
@@ -790,47 +816,73 @@ public class TracingViewSettings extends NodeSettings {
   	    JsonFormat.TracingViewSettings settings = jsonFormat.settings;
   	    JsonFormat.Tracing tracing = jsonFormat.tracing;
   
-  	    //JsonFormat.TracingViewSettings settings = obj.settings;
-        this.showLegend = settings.view.showLegend;
-        
+  	    // ToDo: check nulls
+  	    // metanode Settings
+//  	    if(settings.metaNodes!=null) {
+//  	      this.collapsedNodes = new LinkedHashMap<>();
+//  	      for(JsonFormat.TracingViewSettings.MetaNode metaNode : settings.metaNodes) {
+//  	        Map<String, Point2D> map = new LinkedHashMap<>();
+//  	        for(String memberId : metaNode.members) {
+//  	          if(this.)
+//  	        }
+//  	      }
+//  	    }
         // general settings
-        this.exportAsSvg = settings.view.exportAsSvg;
-        this.showGis = settings.view.showGis;
-        this.label = settings.view.label;
-        this.collapsedNodes = null;
+//  	    if(settings.view!=null) {
+//  	      if(settings.view.showLegend!=null) this.showLegend = settings.view.showLegend;
+//  	      if(settings.view.exportAsSvg!=null) this.exportAsSvg = settings.view.exportAsSvg;
+//          if(settings.view.showGis!=null)  this.showGis = settings.view.showGis;
+//          this.label = settings.view.label;
+//          //this.collapsedNodes = null;
         
         // tracing related settings
-        this.enforceTemporalOrder = tracing.enforceTemporalOrder;
-        this.edgeCrossContaminations = null;
-        this.edgeHighlightConditions = null;
-        this.edgeKillContaminations = null;
-        this.edgeWeights = null;
-        this.nodeCrossContaminations = null;
+  	    if(tracing!=null) {
+  	      
+  	      if(tracing.enforceTemporalOrder!=null) this.enforceTemporalOrder = tracing.enforceTemporalOrder;
+  	      this.edgeCrossContaminations = new LinkedHashMap<>();
+          this.edgeKillContaminations = new LinkedHashMap<>();
+          this.edgeWeights = new LinkedHashMap<>();
+          this.observedEdges = new LinkedHashMap<>();
+          this.nodeCrossContaminations = new LinkedHashMap<>();
+          this.nodeKillContaminations = new LinkedHashMap<>();
+          this.nodeWeights = new LinkedHashMap<>();
+          this.observedNodes = new LinkedHashMap<>();
+        
+          setTracing(tracing.nodes, nodeWeights, nodeCrossContaminations, nodeKillContaminations, observedNodes);
+          setTracing(tracing.deliveries, edgeWeights, edgeCrossContaminations, edgeKillContaminations, observedEdges);
+  	    }
+        //settings.view.edge.highlightConditions
+        //this.edgeHighlightConditions = new HighlightConditionList();
+        JsonConverter.setHighlighting(this.edgeHighlightConditions, settings.view.edge.highlightConditions);
+        JsonConverter.setHighlighting(this.nodeHighlightConditions, settings.view.node.highlightConditions);
+        
         this.nodeHighlightConditions = null;
-        this.nodeKillContaminations = null;
-        this.nodeWeights = null;
         
         // edge related general settings
-        this.arrowHeadInMiddle = settings.view.edge.arrowHeadInMiddle;
-        this.hideArrowHead = settings.view.edge.hideArrowHead;
-        this.joinEdges = settings.view.edge.joinEdges;
-        this.showDeliveriesWithoutDate = settings.view.edge.filter.dateFilter.showDeliveriesWithoutDate;
-        this.showToDate = new GregorianCalendar(settings.view.edge.filter.dateFilter.toDate.year, settings.view.edge.filter.dateFilter.toDate.month, settings.view.edge.filter.dateFilter.toDate.day) ;
-        this.showEdgesInMetaNode = settings.view.edge.showEdgesInMetanode;
-        this.showForward = settings.view.edge.showCrossContaminatedDeliveries;
-        this.selectedEdges = null;
+        if(settings.view.edge.arrowHeadInMiddle!=null) this.arrowHeadInMiddle = settings.view.edge.arrowHeadInMiddle;
+        if(settings.view.edge.hideArrowHead!=null) this.hideArrowHead = settings.view.edge.hideArrowHead;
+        if(settings.view.edge.joinEdges!=null) this.joinEdges = settings.view.edge.joinEdges;
+        if(settings.view.edge.filter!=null && settings.view.edge.filter.dateFilter!=null) {
+          // ToDO: consider date id
+          if(settings.view.edge.filter.dateFilter.showDeliveriesWithoutDate!=null) this.showDeliveriesWithoutDate = settings.view.edge.filter.dateFilter.showDeliveriesWithoutDate;
+          if(settings.view.edge.filter.dateFilter.toDate!=null) 
+            this.showToDate = new GregorianCalendar(settings.view.edge.filter.dateFilter.toDate.year, settings.view.edge.filter.dateFilter.toDate.month, settings.view.edge.filter.dateFilter.toDate.day) ;
+        }
+        if(settings.view.edge.showEdgesInMetanode!=null) this.showEdgesInMetaNode = settings.view.edge.showEdgesInMetanode;
+        if(settings.view.edge.showCrossContaminatedDeliveries!=null) this.showForward = settings.view.edge.showCrossContaminatedDeliveries;
+        this.selectedEdges = new ArrayList<>(Arrays.asList(settings.view.edge.selectedEdges));
         
         // node related general settings
-        this.skipEdgelessNodes = settings.view.node.skipEdgelessNodes;
-        this.nodeLabelPosition = LabelPosition.valueOf(settings.view.node.labelPosition);
-        if(this.nodeLabelPosition==null) {
-          throw(new InvalidSettingsException("labelPosition is unkown."));
-        }
-        this.selectedNodes = null;
+        if(settings.view.node.skipEdgelessNodes!=null) this.skipEdgelessNodes = settings.view.node.skipEdgelessNodes;
+        if(settings.view.node.labelPosition!=null) this.nodeLabelPosition = LabelPosition.valueOf(settings.view.node.labelPosition);
+        
+        this.selectedNodes = new ArrayList<>(Arrays.asList(settings.view.node.selectedNodes));
         
         // gisView related Settings
-        this.gisType = GisType.valueOf(settings.view.gisType);
+        if(settings.view.gisType!=null) this.gisType = GisType.valueOf(settings.view.gisType);
         this.gisSettings.loadSettings(settings.view.gis);
+        this.graphSettings.loadSettings(settings.view.graph);
+        this.gobjExplosionSettingsList.loadSettings(settings.view);
 	  }
 	}
 	  

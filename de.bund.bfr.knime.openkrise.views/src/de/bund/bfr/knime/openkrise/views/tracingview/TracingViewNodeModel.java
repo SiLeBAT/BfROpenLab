@@ -289,7 +289,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 	      new DataColumnSpecCreator("Graph Image", imageType).createSpec(),
 	      new DataColumnSpecCreator("GIS Image", imageType).createSpec(),
 	      new DataColumnSpecCreator("Combined Image", imageType).createSpec(),
-	      new DataColumnSpecCreator("Configuration", JSONCell.TYPE).createSpec()
+	      new DataColumnSpecCreator(de.bund.bfr.knime.openkrise.util.json.JsonConstants.JSON_COLUMN_SETTINGS, JSONCell.TYPE).createSpec()
 	  });
 	}
 	
