@@ -167,18 +167,29 @@ public class GisSettings extends NodeSettings {
 	
 	public void loadSettings(View.GisSettings gisView) {
             
-      this.transform = new Transform(
-          gisView.transformation.scale.x, gisView.transformation.scale.y,
-          gisView.transformation.translation.x, gisView.transformation.translation.y);
+	  if(gisView==null) return;
       
-      this.edgeThickness = gisView.edge.minWidth;
-      this.edgeMaxThickness = gisView.edge.maxWidth;
-      this.fontSize = gisView.text.fontSize;
-      this.fontBold = gisView.text.fontBold;
-      this.nodeSize = gisView.node.minSize;
-      this.nodeMaxSize = gisView.node.maxSize;
-      this.avoidOverlay = gisView.node.avoidOverlay;
-      this.borderAlpha = gisView.borderAlpha;
+      if(gisView.transformation!=null)       
+        this.transform = new Transform(
+            gisView.transformation.scale.x, gisView.transformation.scale.y,
+            gisView.transformation.translation.x, gisView.transformation.translation.y);
+      
+      if(gisView.edge!=null) {
+        this.edgeThickness = gisView.edge.minWidth;
+        this.edgeMaxThickness = gisView.edge.maxWidth;
+      } 
+      
+      if(gisView.text!=null) {
+        this.fontSize = gisView.text.fontSize;
+        this.fontBold = gisView.text.fontBold;
+      }
+      
+      if(gisView.node!=null) {
+        this.nodeSize = gisView.node.minSize;
+        this.nodeMaxSize = gisView.node.maxSize;
+        this.avoidOverlay = gisView.node.avoidOverlay;
+        this.borderAlpha = gisView.borderAlpha;
+      }
     }
 
 	public void saveSettings(NodeSettingsWO settings, String prefix) {

@@ -20,10 +20,17 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.Deque;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -31,15 +38,21 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import javax.json.Json;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-
+import javax.swing.filechooser.FileFilter;
+import org.knime.core.data.json.JacksonConversions;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -48,6 +61,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
@@ -60,7 +75,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
-import de.bund.bfr.knime.openkrise.util.json.Utils;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionListener;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.IExplosionCanvas;
@@ -75,6 +90,7 @@ import de.bund.bfr.knime.ui.Dialogs;
  */
 public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements ExplosionListener, CanvasListener, TracingListener {
 
+    private final static String JSON_TAB_LABEL = "JSON";
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
 
@@ -179,48 +195,128 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		panel = UI.createNorthPanel(northScrollPane);
 
 		this.addTab("Options", panel, false);
+		
+
+		addImportExportButtons();
 	}
 	
-//	private void initializeFileLogging() {
-//		// File Handler erzeugen
-//		try {
-//			FileHandler file_handler = new FileHandler("C:\\Temp\\FCL.log");
-//			// Formatter erzeugen
-//			// SimpleFormatter klartext = new SimpleFormatter();
-//			MyFormatter klartext = new MyFormatter();
-//			file_handler.setFormatter(klartext);
-//			logger.addHandler(file_handler);
-//			logger.setLevel(Level.ALL);
-//		} catch (SecurityException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}	finally
-//		{}
-//	}
-	
-//	private class MyFormatter extends Formatter {
-//
-//		@Override
-//		public String format(LogRecord arg0) {
-//			// TODO Auto-generated method stub
-//			Calendar cal = Calendar.getInstance();
-//			cal.setTimeInMillis(arg0.getMillis());
-//			Date date = cal.getTime();
-//			
-//			return arg0.getLevel().getName() + "\t" + 
-//			      String.format("%04d%02d%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)) + 
-//			      String.format("%02d%02d%02d.%03d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND)) + 
-//			      "\t" + 
-//			      arg0.getSourceClassName() + "\t" +
-//			      arg0.getSourceMethodName() + "\t" + 
-//			      arg0.getMessage() + "\r\n";
-//		}
-//		
-//	}
+	private void addImportExportButtons() {
+	  JPanel newPanel= new JPanel();
+	  JButton importButton = new JButton("Import Settings");
+	  importButton.addActionListener(new ActionListener() {
 
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        importJson((Component) e.getSource());
+      }
+	    
+	  });
+      JButton exportButton = new JButton("Export Settings");
+      exportButton.addActionListener(new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          exportJson((Component) e.getSource());
+        }
+          
+        });
+      newPanel.add(importButton);
+      newPanel.add(exportButton);
+      
+      this.addTab(JSON_TAB_LABEL, newPanel);
+	}
+	
+	private void importJson(Component comp) {
+	  JFileChooser fc = new JFileChooser();
+
+	  FileFilter ff = new FileFilter() {
+
+	    @Override
+	    public boolean accept(File arg0) {
+	      return arg0.getName().toLowerCase().endsWith(".json");
+	    }
+
+	    @Override
+	    public String getDescription() {
+	      return "*.json";
+	    }
+
+	  };
+	  
+	  fc.setFileFilter(ff);
+	  
+	  int returnVal = fc.showOpenDialog(comp);
+
+      if (returnVal == JFileChooser.APPROVE_OPTION) {
+          File file = fc.getSelectedFile();
+          importJson(file.getAbsolutePath());   
+      }
+	}
+	
+	private void importJson(String filePath) {
+	  try {
+	    FileInputStream fis = new FileInputStream(filePath); 
+	    InputStreamReader in = new InputStreamReader(fis, "UTF-8");
+	    JsonReader jsonReader = Json.createReader(in);
+	    JsonValue jsonValue = jsonReader.readObject();
+	    
+	    this.loadSettings(jsonValue);
+	    
+	  } catch(Exception e) {
+	    JOptionPane.showMessageDialog(null, e.getMessage(), "Import Problem", JOptionPane.ERROR_MESSAGE); 
+	  }
+	}
+	
+    private void exportJson(Component comp) {
+      JFileChooser fc = new JFileChooser();
+      
+      JCheckBox cbAddData = new JCheckBox("add Data",true);
+      fc.setAccessory(cbAddData);
+      
+      FileFilter ff = new FileFilter() {
+
+        @Override
+        public boolean accept(File arg0) {
+          return arg0.getName().toLowerCase().endsWith(".json");
+
+        }
+
+        @Override
+        public String getDescription() {
+          return "*.json";
+        }
+
+      };
+      
+      fc.setFileFilter(ff);
+      int returnVal = fc.showSaveDialog(comp);
+
+      if (returnVal == JFileChooser.APPROVE_OPTION) {
+          File file = fc.getSelectedFile();
+          String filePath = file.getAbsolutePath();
+          if(!filePath.toLowerCase().endsWith(".json")) filePath += ".json";
+          exportJson(filePath, cbAddData.isSelected());  
+      } 
+    }
+    
+    private void exportJson(String filePath, boolean addData) {
+      JsonConverter.JsonBuilder jsonBuilder = new JsonConverter.JsonBuilder();
+      this.updateSettings();
+      set.saveSettings(jsonBuilder);
+      if(addData) jsonBuilder.setData(this.nodeTable, this.edgeTable, this.tracingTable);
+      PrintWriter printWriter = null;
+      try {
+        JsonValue jsonValue = jsonBuilder.build();
+        printWriter = new PrintWriter(filePath);
+        printWriter.println(jsonValue.toString());
+        
+      } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, e.getMessage(), "Export Problem", JOptionPane.ERROR_MESSAGE);
+      } finally {
+        if(printWriter!=null) printWriter.close();
+      }
+    }
+	
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		
@@ -228,68 +324,98 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		this.edgeTable = (BufferedDataTable) input[1];
 		this.tracingTable = (BufferedDataTable) input[2];
 		this.shapeTable = (BufferedDataTable) input[3];
-		BufferedDataTable configurationTable = (BufferedDataTable) input[4];
+		//BufferedDataTable configurationTable = (BufferedDataTable) input[4];
 		this.set.loadSettings(settings);
 		
-		try {
-          this.set.loadSettings(Utils.extractJsonValueFromBufferedDataTable(configurationTable));
-        } catch (JsonProcessingException e) {
-          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
-        } catch (InvalidSettingsException e) {
-          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
+//		try {
+//          this.set.loadSettings(Utils.extractJsonValueFromBufferedDataTable(configurationTable));
+//        } catch (JsonProcessingException e) {
+//          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
+//        } catch (InvalidSettingsException e) {
+//          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
+//        }
+		
+		// Settings might not fit to data
+		this.fixSettings();
+		
+		// visualize settings
+		this.loadSettings();
+	}
+	
+	public void loadSettings(JsonValue json) throws JsonProcessingException, InvalidSettingsException, NotConfigurableException {
+	  if(json != null) {
+        ObjectMapper mapper = new ObjectMapper();
+      
+        JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
+        JsonFormat jsonFormat = mapper.treeToValue(rootNode, JsonFormat.class);
+        
+        if(jsonFormat.data!=null) {
+          this.set.loadSettings(jsonFormat);
+          //Settings might not fit to data
+          this.fixSettings();
+          this.loadSettings();
         }
-		
-		this.undoButton.setEnabled(false);
-		this.redoButton.setEnabled(false);
-		this.undoStack.clear();
-		this.redoStack.clear();
-		
-		this.gisBox.removeItemListener(this.gisBoxListener);
-		this.gisBox.removeAllItems();
+	  }
+	}
+	
+	
+	
+	private void loadSettings() throws NotConfigurableException {
+	  this.undoButton.setEnabled(false);
+      this.redoButton.setEnabled(false);
+      this.undoStack.clear();
+      this.redoStack.clear();
+      
+      this.gisBox.removeItemListener(this.gisBoxListener);
+      this.gisBox.removeAllItems();
 
-		for (GisType type : GisType.values()) {
-			if (this.shapeTable != null || type != GisType.SHAPEFILE) {
-				this.gisBox.addItem(type);
-			}
-		}
+      for (GisType type : GisType.values()) {
+          if (this.shapeTable != null || type != GisType.SHAPEFILE) {
+              this.gisBox.addItem(type);
+          }
+      }
 
-		if (this.shapeTable == null && this.set.getGisType() == GisType.SHAPEFILE) {
-			this.set.setGisType(GisType.MAPNIK);
-		}
+      if (this.shapeTable == null && this.set.getGisType() == GisType.SHAPEFILE) {
+          this.set.setGisType(GisType.MAPNIK);
+      }
 
-		this.gisBox.setSelectedItem(set.getGisType());
-		this.gisBox.addItemListener(gisBoxListener);
-		this.gisBox.setEnabled(set.isShowGis());
-		this.exportAsSvgBox.setSelected(set.isExportAsSvg());
-		this.resized = false;
-		this.panel.addComponentListener(new ComponentAdapter() {
+      this.gisBox.setSelectedItem(set.getGisType());
+      this.gisBox.addItemListener(gisBoxListener);
+      this.gisBox.setEnabled(set.isShowGis());
+      this.exportAsSvgBox.setSelected(set.isExportAsSvg());
+      this.resized = false;
+      this.panel.addComponentListener(new ComponentAdapter() {
 
-			@Override
-			public void componentResized(ComponentEvent e) {
-				if (SwingUtilities.getWindowAncestor(e.getComponent()).isActive()) {
-					TracingViewNodeDialog.this.resized = true;
-				}
+          @Override
+          public void componentResized(ComponentEvent e) {
+              if (SwingUtilities.getWindowAncestor(e.getComponent()).isActive()) {
+                  TracingViewNodeDialog.this.resized = true;
+              }
 
-				if (TracingViewNodeDialog.this.northScrollPane.getSize().width < TracingViewNodeDialog.this.northScrollPane.getPreferredSize().width) {
-					if (TracingViewNodeDialog.this.northScrollPane
-							.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
-						TracingViewNodeDialog.this.northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-						TracingViewNodeDialog.this.northScrollPane.getParent().revalidate();
-					}
-				} else {
-					if (TracingViewNodeDialog.this.northScrollPane
-							.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
-						TracingViewNodeDialog.this.northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-						TracingViewNodeDialog.this.northScrollPane.getParent().revalidate();
-					}
-				}
-			}
-		});
+              if (TracingViewNodeDialog.this.northScrollPane.getSize().width < TracingViewNodeDialog.this.northScrollPane.getPreferredSize().width) {
+                  if (TracingViewNodeDialog.this.northScrollPane
+                          .getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
+                      TracingViewNodeDialog.this.northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+                      TracingViewNodeDialog.this.northScrollPane.getParent().revalidate();
+                  }
+              } else {
+                  if (TracingViewNodeDialog.this.northScrollPane
+                          .getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
+                      TracingViewNodeDialog.this.northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                      TracingViewNodeDialog.this.northScrollPane.getParent().revalidate();
+                  }
+              }
+          }
+      });
 
-		this.createCanvas(false);
-		this.updateStatusVariables();
+      this.createCanvas(false);
+      this.updateStatusVariables();
 	}
 
+	private void fixSettings() {
+	  // ToDo: adapt Settings to data 
+	}
+	
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		this.updateSettings();

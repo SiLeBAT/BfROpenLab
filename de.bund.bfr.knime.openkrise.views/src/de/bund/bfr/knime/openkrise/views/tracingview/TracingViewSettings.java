@@ -29,26 +29,21 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import javax.json.JsonValue;
-import org.knime.core.data.json.JacksonConversions;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Ordering;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.GisType;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.Tracing;
-import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings;
 import de.bund.bfr.knime.openkrise.views.Activator;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
@@ -213,6 +208,7 @@ public class TracingViewSettings extends NodeSettings {
 
 		try {
 			showLegend = settings.getBoolean(CFG_SHOW_LEGEND);
+			System.out.println("Legend was loaded.");
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -612,7 +608,7 @@ public class TracingViewSettings extends NodeSettings {
 //      return JacksonConversions.getInstance().toJSR353(rootNode);
 	}
 	
-	private void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
+	protected void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
 //    obj.settings.collapsedNodes = this.collapsedNodes.entrySet().stream().map(entry -> new JsonFormat.Global.MetaNode(entry.getKey(), entry.getValue().keySet().stream().toArray(String[]::new))).toArray(JsonFormat.Global.MetaNode[]::new);
 //    obj.settings.view
       //SettingsJson.TVSettings settings = new SettingsJson.TVSettings(); //   obj.settings;
@@ -807,12 +803,12 @@ public class TracingViewSettings extends NodeSettings {
 //	  }
 //	}
 	
-	public void loadSettings(JsonValue json) throws JsonProcessingException, InvalidSettingsException {
-	  if(json != null) {
-  	    ObjectMapper mapper = new ObjectMapper();
-  	  
-  	    JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
-  	    JsonFormat jsonFormat = mapper.treeToValue(rootNode, JsonFormat.class);
+	public void loadSettings(JsonFormat jsonFormat) throws JsonProcessingException, InvalidSettingsException {
+//	  if(json != null) {
+//  	    ObjectMapper mapper = new ObjectMapper();
+//  	  
+//  	    JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
+//  	    JsonFormat jsonFormat = mapper.treeToValue(rootNode, JsonFormat.class);
   	    JsonFormat.TracingViewSettings settings = jsonFormat.settings;
   	    JsonFormat.Tracing tracing = jsonFormat.tracing;
   
@@ -828,12 +824,13 @@ public class TracingViewSettings extends NodeSettings {
 //  	      }
 //  	    }
         // general settings
-//  	    if(settings.view!=null) {
-//  	      if(settings.view.showLegend!=null) this.showLegend = settings.view.showLegend;
-//  	      if(settings.view.exportAsSvg!=null) this.exportAsSvg = settings.view.exportAsSvg;
-//          if(settings.view.showGis!=null)  this.showGis = settings.view.showGis;
-//          this.label = settings.view.label;
-//          //this.collapsedNodes = null;
+  	    if(settings.view!=null) {
+  	      if(settings.view.showLegend!=null) this.showLegend = settings.view.showLegend;
+  	      if(settings.view.exportAsSvg!=null) this.exportAsSvg = settings.view.exportAsSvg;
+          if(settings.view.showGis!=null)  this.showGis = settings.view.showGis;
+          this.label = settings.view.label;
+  	    }
+          //this.collapsedNodes = null;
         
         // tracing related settings
   	    if(tracing!=null) {
@@ -856,7 +853,7 @@ public class TracingViewSettings extends NodeSettings {
         JsonConverter.setHighlighting(this.edgeHighlightConditions, settings.view.edge.highlightConditions);
         JsonConverter.setHighlighting(this.nodeHighlightConditions, settings.view.node.highlightConditions);
         
-        this.nodeHighlightConditions = null;
+        //this.nodeHighlightConditions = null;
         
         // edge related general settings
         if(settings.view.edge.arrowHeadInMiddle!=null) this.arrowHeadInMiddle = settings.view.edge.arrowHeadInMiddle;
@@ -874,17 +871,30 @@ public class TracingViewSettings extends NodeSettings {
         
         // node related general settings
         if(settings.view.node.skipEdgelessNodes!=null) this.skipEdgelessNodes = settings.view.node.skipEdgelessNodes;
-        if(settings.view.node.labelPosition!=null) this.nodeLabelPosition = LabelPosition.valueOf(settings.view.node.labelPosition);
+        if(settings.view.node.labelPosition!=null) this.nodeLabelPosition = JsonConverter.getLabelPosition(settings.view.node.labelPosition);
         
         this.selectedNodes = new ArrayList<>(Arrays.asList(settings.view.node.selectedNodes));
         
         // gisView related Settings
-        if(settings.view.gisType!=null) this.gisType = GisType.valueOf(settings.view.gisType);
-        this.gisSettings.loadSettings(settings.view.gis);
-        this.graphSettings.loadSettings(settings.view.graph);
-        this.gobjExplosionSettingsList.loadSettings(settings.view);
-	  }
+        if(settings.view.gisType!=null) this.gisType = JsonConverter.getGisType(settings.view.gisType);
+        
+        if(settings.view.gis!=null) this.gisSettings.loadSettings(settings.view.gis);
+        if(settings.view.graph!=null) this.graphSettings.loadSettings(settings.view.graph);
+   
+        if(settings.view.explosions!=null) this.gobjExplosionSettingsList.loadSettings(settings.view);
+        
+        // meta nodes
+        if(settings.metaNodes!=null) {
+          
+          this.collapsedNodes = new LinkedHashMap<>();
+          Map<String, Point2D> globalMap = JsonConverter.getPositions(settings.view.graph.node.collapsedPositions);
+          for(JsonFormat.TracingViewSettings.MetaNode metaNode : settings.metaNodes) {
+            Map<String, Point2D> groupMap = new LinkedHashMap<>();
+            for(String memberId : metaNode.members) groupMap.put(memberId, globalMap.get(memberId));
+            this.collapsedNodes.put(metaNode.id, groupMap);
+          }
+        }
+//	  }
 	}
-	  
 	
 }

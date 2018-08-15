@@ -182,6 +182,10 @@ public class JsonConverter {
       json = new JsonFormat();
     }
     
+    protected JsonFormat getJson() {
+      return json;
+    }
+    
 //    private static JsonFormat.Data.Table.ColumnProperty createColumnSpec(String id, String type) {
 //      JsonFormat.Data.Table.ColumnProperty columnSpec = new JsonFormat.Data.Table.ColumnProperty();
 //      columnSpec.id = id;

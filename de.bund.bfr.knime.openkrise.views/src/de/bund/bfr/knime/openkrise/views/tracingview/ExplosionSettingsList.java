@@ -54,6 +54,7 @@ public class ExplosionSettingsList extends NodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		// determine the indices of setting objects by checking for a certain prefix structure
+	    explosionSettingsList.clear();
 		Pattern pattern = Pattern.compile("^" + CFG_PREFIX +  "_([0-9]+)_");
 		Set<Integer> indices = settings.keySet().stream().mapToInt(s -> getIndex(pattern, s)).filter(i -> (i>=0)).boxed().collect(Collectors.toSet());
 		

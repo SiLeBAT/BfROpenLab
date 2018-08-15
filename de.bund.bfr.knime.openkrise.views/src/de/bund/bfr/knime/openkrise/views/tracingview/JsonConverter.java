@@ -5,10 +5,12 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.json.JsonValue;
+import org.knime.core.node.InvalidSettingsException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.jung.NamedShape;
@@ -33,7 +35,6 @@ import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings.Filter.DeliveryToDateFilter;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalNodeSettings.NodeHighlightCondition;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GisSettings;
-import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GlobalEdgeSettings;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.GraphSettings;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.ExplosionSettings;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.ExplosionSettings.ExplosionGraphSettings;
@@ -43,12 +44,13 @@ import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.Date;
 
 public class JsonConverter {
-  public static class JsonBuilder {
+  public static class JsonBuilder extends de.bund.bfr.knime.openkrise.util.json.JsonConverter.JsonBuilder {
     private JsonFormat json;
     private JsonFormat.TracingViewSettings settings;
     
     public JsonBuilder() {
-      json = new JsonFormat();
+      super();
+      json = this.getJson();
       json.settings = new JsonFormat.TracingViewSettings();
       settings = json.settings;
     }
@@ -110,7 +112,7 @@ public class JsonConverter {
       settings.view.showLegend = showLegend;
       settings.view.exportAsSvg = exportAsSvg;
       settings.view.showGis = showGis;
-      settings.view.gisType = gisType.toString();
+      settings.view.gisType = gisType==null?null:gisType.name();
       settings.view.label = label;
       return this;
     }
@@ -126,7 +128,7 @@ public class JsonConverter {
       if(valueHighlightCondition!=null) {
         ValueCondition valueCondition = new ValueCondition();
         valueCondition.propertyName = valueHighlightCondition.getProperty();
-        valueCondition.valueType = valueHighlightCondition.getType().toString();
+        valueCondition.valueType = valueHighlightCondition.getType().name();
         valueCondition.useZeroAsMinimum = valueHighlightCondition.isZeroAsMinimum();
         return valueCondition;
         //return new ValueCondition(valueHighlightCondition.getProperty(), valueHighlightCondition.getType().toString(), valueHighlightCondition.isZeroAsMinimum());
@@ -137,7 +139,7 @@ public class JsonConverter {
     private static LogicalCondition getLogicalCondition(LogicalHighlightCondition logicalHighlightCondition) {
       LogicalCondition logicalCondition = new LogicalCondition();
       logicalCondition.propertyName = logicalHighlightCondition.getProperty();
-      logicalCondition.operationType = logicalHighlightCondition.getType().toString();
+      logicalCondition.operationType = logicalHighlightCondition.getType().name(); //   .toString();
       logicalCondition.value = logicalHighlightCondition.getValue();
       return logicalCondition;
     }
@@ -214,7 +216,7 @@ public class JsonConverter {
       } catch(Exception e) {
         e.printStackTrace();
       }
-      condition.shape = shape==null?null:shape.toString();
+      condition.shape = shape==null?null:shape.name();
       return condition;
     }
     
@@ -243,7 +245,7 @@ public class JsonConverter {
       if(settings.view==null) settings.view = new View();
       if(settings.view.node==null) settings.view.node = new View.GlobalNodeSettings();
       settings.view.node.skipEdgelessNodes = skipEdgelessNodes;
-      settings.view.node.labelPosition = nodeLabelPosition.toString();
+      settings.view.node.labelPosition = nodeLabelPosition.name();
       settings.view.node.selectedNodes = selectedNodes;
       settings.view.node.highlightConditions = createNodeHighlightings(nodeHighlightConditions); 
       return this;
@@ -423,18 +425,37 @@ public class JsonConverter {
   }
   
  
-  private static NamedShape getShape(View.HighlightCondition source) {
-    if(source instanceof View.GlobalNodeSettings.NodeHighlightCondition) return NamedShape.valueOf(((View.GlobalNodeSettings.NodeHighlightCondition) source).shape);
+  private static NamedShape getShape(View.HighlightCondition source) throws InvalidSettingsException {
+    if(source instanceof View.GlobalNodeSettings.NodeHighlightCondition) { // && ((View.GlobalNodeSettings.NodeHighlightCondition) source).shape!=null) {
+      String shape = ((View.GlobalNodeSettings.NodeHighlightCondition) source).shape;
+      if (shape!=null) {
+        try {
+          return NamedShape.valueOf(shape);
+        } catch(IllegalArgumentException e) {
+          throw(new InvalidSettingsException("The shape '" + shape + "' of a highlighting condition in JSON data is unkown."));
+        }
+      }
+    }
     return null;
   }
   
-  private static AndOrHighlightCondition createLogicalCondition(View.HighlightCondition source) {
+  private static LogicalHighlightCondition.Type getTypeOfLogicalCondition(String type) throws InvalidSettingsException {
+    if(type==null) throw(new InvalidSettingsException("The type of a logical condition in JSON data is missing."));
+    try {
+      return LogicalHighlightCondition.Type.valueOf(type);
+    } catch(IllegalArgumentException e) {
+      throw(new InvalidSettingsException("The logical condition type '" + type +"' in JSON data is unkown."));
+      //throw(new InvalidSettingsException(e.getMessage()));
+    }
+  }
+  
+  private static AndOrHighlightCondition createLogicalCondition(View.HighlightCondition source) throws InvalidSettingsException {
     List<List<LogicalHighlightCondition>> conditionList = new ArrayList<>();
     List<LogicalHighlightCondition> andList = null; //new ArrayList<>();
     for(View.LogicalCondition[] andConditions : source.logicalConditions) {
       andList = new ArrayList<>();
       for(View.LogicalCondition andCondition : andConditions) 
-        andList.add(new LogicalHighlightCondition(andCondition.propertyName, LogicalHighlightCondition.Type.valueOf(andCondition.operationType),andCondition.value));
+        andList.add(new LogicalHighlightCondition(andCondition.propertyName, getTypeOfLogicalCondition(andCondition.operationType),andCondition.value));
       conditionList.add(andList);
     }
     return new AndOrHighlightCondition(conditionList, source.name, source.showInLegend, getColor(source.color), source.invisible, source.adjustThickness,
@@ -446,19 +467,64 @@ public class JsonConverter {
     return new Color(rgb[0], rgb[1], rgb[2]);
   }
   
-  private static ValueHighlightCondition createValueCondition(View.HighlightCondition source) {
+  private static ValueHighlightCondition.Type getTypeOfValueCondition(String type) throws InvalidSettingsException {
+    if(type==null) throw(new InvalidSettingsException("The type of a value condition in JSON data is missing."));
+    try {
+      return ValueHighlightCondition.Type.valueOf(type);
+    } catch(IllegalArgumentException e) {
+      throw(new InvalidSettingsException("The value condition type '" + type +"' in JSON data is unkown."));
+      //ValueHighlightCondition.Type.values()
+      //throw(new InvalidSettingsException(e.getMessage()));
+    }
+  }
+  
+  protected static LabelPosition getLabelPosition(String labelPosition) throws InvalidSettingsException {
+    if(labelPosition==null) throw(new InvalidSettingsException("The labelPosition in JSON data is missing."));
+    try {
+      return LabelPosition.valueOf(labelPosition);
+    } catch(IllegalArgumentException e) {
+      throw(new InvalidSettingsException("The labelPosition '" + labelPosition +"' in JSON data is unkown."));
+      //ValueHighlightCondition.Type.values()
+      //throw(new InvalidSettingsException(e.getMessage()));
+    }
+  }
+  
+  protected static GisType getGisType(String gisType) throws InvalidSettingsException {
+    if(gisType==null) throw(new InvalidSettingsException("The gisType in JSON data is missing."));
+    try {
+      return GisType.valueOf(gisType);
+    } catch(IllegalArgumentException e) {
+      throw(new InvalidSettingsException("The gisType '" + gisType +"' in JSON data is unkown."));
+      //ValueHighlightCondition.Type.values()
+      //throw(new InvalidSettingsException(e.getMessage()));
+    }
+  }
+  
+  private static ValueHighlightCondition createValueCondition(View.HighlightCondition source) throws InvalidSettingsException {
     return new ValueHighlightCondition(source.valueCondition.propertyName,
-        ValueHighlightCondition.Type.valueOf(source.valueCondition.valueType), source.valueCondition.useZeroAsMinimum, source.name,
+        getTypeOfValueCondition(source.valueCondition.valueType), source.valueCondition.useZeroAsMinimum, source.name,
         source.showInLegend, getColor(source.color), source.invisible, source.adjustThickness, source.labelProperty, getShape(source));
   }
   
-  private static HighlightCondition createLogicalValueHighlightCondition(View.HighlightCondition source) {
+  private static HighlightCondition createLogicalValueHighlightCondition(View.HighlightCondition source) throws InvalidSettingsException {
     return new LogicalValueHighlightCondition(
         createValueCondition(source),
         createLogicalCondition(source));
   }
   
-  protected static <T extends View.HighlightCondition> void setHighlighting(HighlightConditionList target, T[] sources) {
+  private static Point2D createPoint2D(XYPair position) {
+    if(position==null) return null;
+    if(position.x==null || position.y ==null) return null;
+    return new Point2D.Double(position.x, position.y);
+  }
+  
+  protected static Map<String, Point2D> getPositions(NodePosition[] nodePositions) {
+    Map<String, Point2D> result = new LinkedHashMap<>();
+    for(NodePosition nodePosition: nodePositions) result.put(nodePosition.id, createPoint2D(nodePosition.position));
+    return result;
+  }
+  
+  protected static <T extends View.HighlightCondition> void setHighlighting(HighlightConditionList target, T[] sources) throws InvalidSettingsException {
     target.getConditions().clear();
     for(T source: sources) 
       target.getConditions().add(source.valueCondition==null ? createLogicalCondition(source) : (source.logicalConditions==null? createValueCondition(source) : createLogicalValueHighlightCondition(source)));

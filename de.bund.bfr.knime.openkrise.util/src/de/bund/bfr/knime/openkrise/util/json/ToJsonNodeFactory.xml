@@ -26,8 +26,8 @@
 			Table with Delivery Relations data. Is provided by third out port of
 			Supply Chain Reader.
 		</inPort>
-		<inPort index="3" name="Configuration">
-			JSON format of TracingView configuration.
+		<inPort index="3" name="Tracing View Settings">
+			Table with json column that contains the Tracing View Settings in JSON format.
 		</inPort>
 		<outPort index="0" name="JSON">
 			JSON format of FoodChain-Lab Web App.
