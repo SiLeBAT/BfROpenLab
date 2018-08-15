@@ -34,7 +34,6 @@ import java.util.Set;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
-
 import de.bund.bfr.jung.LabelPosition;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.GisType;
@@ -43,6 +42,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
+import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
 public class TracingChange implements Serializable {
@@ -105,6 +105,7 @@ public class TracingChange implements Serializable {
 
 		private Pair<Integer, Integer> borderAlphaDiff;
 		private boolean avoidOverlayChanged;
+		private Pair<double[],double[]> boundaryParamsDiff;
 		
 
 		public static TracingChange createViewChange(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore,
@@ -161,6 +162,8 @@ public class TracingChange implements Serializable {
 
 			borderAlphaDiff = null;
 			avoidOverlayChanged = false;
+			
+			boundaryParamsDiff = null;
 		}
 
 		public Builder transform(Transform transformBefore, Transform transformAfter) {
@@ -331,6 +334,12 @@ public class TracingChange implements Serializable {
 		public Builder avoidOverlay(boolean avoidOverlayBefore, boolean avoidOverlayAfter) {
 			avoidOverlayChanged = avoidOverlayBefore != avoidOverlayAfter;
 			return this;
+		}
+		
+		public Builder boundaryParams(double[] boundaryParamsBefore, double boundaryParamsAfter[]) {
+		  boundaryParamsDiff = createDiff(boundaryParamsBefore, boundaryParamsAfter);
+		  
+		  return this;
 		}
 
 		public TracingChange build() {
@@ -512,6 +521,10 @@ public class TracingChange implements Serializable {
 		if (builder.avoidOverlayChanged) {
 			canvas.getOptionsPanel().setAvoidOverlay(!canvas.getOptionsPanel().isAvoidOverlay());
 		}
+		
+		if (builder.boundaryParamsDiff!=null) {
+		  ((ExplosionTracingGraphCanvas) canvas).setBoundaryParams(applyDiff(builder.boundaryParamsDiff, undo));
+		}
 	}
 
 	public boolean isIdentity() {
@@ -531,7 +544,7 @@ public class TracingChange implements Serializable {
 				&& builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
 				&& builder.edgeMaxThicknessDiff == null && builder.nodeLabelPositionDiff == null
 				&& builder.fontSizeDiff == null && !builder.fontBoldChanged && builder.labelDiff == null
-				&& builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
+				&& builder.borderAlphaDiff == null && !builder.avoidOverlayChanged && builder.boundaryParamsDiff==null;
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {

@@ -41,17 +41,24 @@ public class ExplosionSettings {
 	private List<String> selectedNodes;
 	private List<String> selectedEdges;
 	private GisSettings gisSettings;
-	private GraphSettings graphSettings;
+	private ExplosionGraphSettings graphSettings;
 	
 	public ExplosionSettings() {
 		this.gisSettings = new GisSettings();
-		this.graphSettings = new GraphSettings();
+		this.graphSettings = new ExplosionGraphSettings();
 		this.selectedNodes = new ArrayList<>();
 		this.selectedEdges = new ArrayList<>();
 	}
 	
-	public ExplosionSettings(String metaNodeId, Set<String> containedNodesIds) {
-		this();
+	public ExplosionSettings(TracingViewSettings set) {
+      this.gisSettings = new GisSettings(set.getGisSettings());
+      this.graphSettings = new ExplosionGraphSettings(set.getGraphSettings());
+      this.selectedNodes = new ArrayList<>();
+      this.selectedEdges = new ArrayList<>();
+  }
+	
+	public ExplosionSettings(String metaNodeId, Set<String> containedNodesIds, TracingViewSettings set) {
+		this(set);
 		this.metaNodeId = metaNodeId;
 		this.containedNodesIds = containedNodesIds;
 	}

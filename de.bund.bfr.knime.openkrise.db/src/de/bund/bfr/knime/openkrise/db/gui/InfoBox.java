@@ -34,6 +34,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -76,9 +77,18 @@ private String inhalt = "";
     super(owner, "Info", modal);
     init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal, false);
   }
+//  public InfoBox(JDialog owner, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal, boolean isHtml) {
+//    super(owner, "Info", modal);
+//    init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal, isHtml);
+//  }
+  
   public InfoBox(JDialog owner, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal, boolean isHtml) {
     super(owner, "Info", modal);
-    init(owner.getLocation(), owner.getSize(), inhalt, keyDispose, dim, font, modal, isHtml);
+    Container container = owner; //source.getRootPane().getParent();
+    Point loc = new Point();
+    loc.setLocation(container.getLocation().getX()+container.getWidth()/2-dim.getWidth()/2, container.getLocation().getY()+container.getHeight()/2-dim.getHeight()/2);
+    init(loc, dim, inhalt, keyDispose, dim, font, modal, isHtml);
+    infoTextArea.setCaretPosition(0);
   }
   private void init(Point loc, Dimension siz, String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal, boolean isHtml) {
 	    try {

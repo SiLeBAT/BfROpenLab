@@ -143,11 +143,11 @@ public class ExplosionSettingsList extends NodeSettings {
 		return true;
 	}
 
-	public ExplosionSettings setActiveExplosionSettings(String key, Set<String> containedNodesIds) {
+	public ExplosionSettings setActiveExplosionSettings(String key, Set<String> containedNodesIds, TracingViewSettings set) {
 		ExplosionSettings objES = this.getExplosionSettings(key, containedNodesIds);
 		
 		if(objES==null) {
-			objES=new ExplosionSettings(key, containedNodesIds);
+			objES=new ExplosionSettings(key, containedNodesIds, set);
 			this.explosionSettingsList.add(objES);
 		}
 		

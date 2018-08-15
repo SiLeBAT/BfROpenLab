@@ -120,6 +120,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	private Map<String, Boolean> edgeKillContaminations;
 	private Map<String, Boolean> observedNodes;
 	private Map<String, Boolean> observedEdges;
+	private double[] boundaryParams;
 
 	private boolean joinEdges;
 	private boolean skipEdgelessNodes;
@@ -495,11 +496,25 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	public void layoutProcessFinished(ICanvas<?> source) {
 		Map<String, Point2D> newPositions = ((GraphCanvas) this.canvas).getNodePositions();
 		Transform newTransform = this.canvas.getTransform();
+		
+		if(source instanceof ExplosionTracingGraphCanvas) {
+		  
+		  double[] newBoundaryParams = ((ExplosionTracingGraphCanvas) source).getBoundaryParams();
+		      
+		  if (this.changeOccured(new TracingChange.Builder().nodePositions(this.nodePositions, newPositions)
+              .transform(this.transform, newTransform).boundaryParams(boundaryParams, newBoundaryParams).build())) {
+            this.nodePositions = new LinkedHashMap<>(newPositions);
+            this.transform = newTransform;
+            this.boundaryParams = newBoundaryParams;
+          }
+		  
+		} else {
 
-		if (this.changeOccured(new TracingChange.Builder().nodePositions(this.nodePositions, newPositions)
-				.transform(this.transform, newTransform).build())) {
-			this.nodePositions = new LinkedHashMap<>(newPositions);
-			this.transform = newTransform;
+		  if (this.changeOccured(new TracingChange.Builder().nodePositions(this.nodePositions, newPositions)
+		      .transform(this.transform, newTransform).build())) {
+		    this.nodePositions = new LinkedHashMap<>(newPositions);
+		    this.transform = newTransform;
+		  }
 		}
 	}
 
@@ -891,7 +906,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		set.setFromCanvas(canvas, resized);
 		
 		if (canvas instanceof GraphCanvas) {
-			set.getGraphSettings().setFromCanvas((GraphCanvas) canvas);
+		  if (canvas instanceof ExplosionTracingGraphCanvas) {
+		    set.getGraphSettings().setFromCanvas((ExplosionTracingGraphCanvas) canvas);
+		  }  else {
+		    set.getGraphSettings().setFromCanvas((GraphCanvas) canvas);
+		  }
 		} else if (canvas instanceof IGisCanvas) {
 			set.getGisSettings().setFromCanvas((IGisCanvas<?>) canvas);
 		}
@@ -939,6 +958,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 		if (canvas instanceof GraphCanvas) {
 			nodePositions = new LinkedHashMap<>(((GraphCanvas) canvas).getNodePositions());
+			if (canvas instanceof ExplosionTracingGraphCanvas) {
+			  boundaryParams = ((ExplosionTracingGraphCanvas) canvas).getBoundaryParams();
+			}
 		}
 
 		nodeWeights = new LinkedHashMap<>(canvas.getNodeWeights());
@@ -1010,7 +1032,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 			if(canvas instanceof ExplosionTracingGraphCanvas) {
 				// this is needed because an undo/redo operation might effect the node positions, but the operation 
 				// does not effect the prepaintables which are responsible for drawing the boundary area
-				((ExplosionTracingGraphCanvas) canvas).placeBoundaryNodes(true);
+			    // TODO:
+				//((ExplosionTracingGraphCanvas) canvas).placeBoundaryNodes(true);
 			}
 			
 			canvas.addCanvasListener(this);
@@ -1076,7 +1099,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		
         ExplosionSettings objFromES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
 
-		ExplosionSettings objToES = this.set.getExplosionSettingsList().setActiveExplosionSettings(strKey, this.collapsedNodes.get(strKey)); //, containedNodes);
+		ExplosionSettings objToES = this.set.getExplosionSettingsList().setActiveExplosionSettings(strKey, this.collapsedNodes.get(strKey), set); //, containedNodes);
 		
 		this.changeOccured(TracingChange.Builder.createViewChange(
 				this.set.isShowGis(), this.set.isShowGis(), this.set.getGisType(),

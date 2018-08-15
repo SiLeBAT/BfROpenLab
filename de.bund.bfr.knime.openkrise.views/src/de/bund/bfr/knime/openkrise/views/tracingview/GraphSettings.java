@@ -73,6 +73,17 @@ public class GraphSettings extends NodeSettings {
 		fontBold = false;
 	}
 
+public GraphSettings(GraphSettings set) {
+      this.transform = set.transform; //   transform = Transform.INVALID_TRANSFORM;
+      this.nodePositions = null;
+      this.nodeSize = set.nodeSize;
+      this.nodeMaxSize = set.nodeMaxSize;
+      this.edgeThickness = set.edgeThickness;
+      this.edgeMaxThickness = set.edgeMaxThickness;
+      this.fontSize = set.fontSize;
+      this.fontBold = set.fontBold;
+  }
+  
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		this.loadSettings(settings, "");

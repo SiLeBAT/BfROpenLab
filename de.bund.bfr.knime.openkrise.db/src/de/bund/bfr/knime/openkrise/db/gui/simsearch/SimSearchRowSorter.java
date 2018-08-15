@@ -286,7 +286,9 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
 		List<Integer> filterRows = new ArrayList<>();
 
 		if(this.rowFilterText!=null || this.rowFilterPattern!=null) {
-
+		    
+		    final String lowerCaseRowFilterText = this.rowFilterText==null ? null : this.rowFilterText.toLowerCase();
+		    
 			Set<Integer> keepRows = new HashSet<>();
 
 			for(Integer modelRow : this.viewToModel) {
@@ -298,8 +300,8 @@ public class SimSearchRowSorter extends RowSorter<SimSearchTableModel>{
 							if(o!=null) {
 								String s = o.toString(); 
 								if((s!=null) &&
-										(this.rowFilterText!=null?
-												s.contains(this.rowFilterText):
+										(lowerCaseRowFilterText!=null?
+												s.toLowerCase().contains(lowerCaseRowFilterText):
 													this.rowFilterPattern.matcher(s).matches())) {
 									// match
 									bolFilter = false;
