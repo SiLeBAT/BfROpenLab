@@ -45,6 +45,9 @@ import de.bund.bfr.knime.openkrise.util.json.JsonFormat.Date;
 
 public class JsonConverter {
   public static class JsonBuilder extends de.bund.bfr.knime.openkrise.util.json.JsonConverter.JsonBuilder {
+    
+    private static final String CURRENT_VERSION = "1.0.0";
+    
     private JsonFormat json;
     private JsonFormat.TracingViewSettings settings;
     
@@ -52,6 +55,8 @@ public class JsonConverter {
       super();
       json = this.getJson();
       json.settings = new JsonFormat.TracingViewSettings();
+      json.settings.version = CURRENT_VERSION;
+      
       settings = json.settings;
     }
     
@@ -69,7 +74,10 @@ public class JsonConverter {
     public JsonBuilder setTracing(boolean enforceTemporalOrder, 
         Map<String,Double> edgeWeights, Map<String, Boolean> edgeCrossContaminations, Map<String, Boolean> edgeKillContaminations, Map<String, Boolean> observedEdges, 
         Map<String,Double> nodeWeights, Map<String, Boolean> nodeCrossContaminations, Map<String, Boolean> nodeKillContaminations, Map<String, Boolean> observedNodes) {
+      
       json.tracing = new Tracing();
+      json.tracing.version = CURRENT_VERSION;
+      
       json.tracing.enforceTemporalOrder = enforceTemporalOrder;
       List<Tracing.TraceableUnit> tracingList = new ArrayList<>();
 
@@ -109,6 +117,7 @@ public class JsonConverter {
     
     public JsonBuilder setGlobalViewSettings(boolean showLegend, boolean exportAsSvg, boolean showGis, GisType gisType, String label) {
       if(settings.view==null) settings.view = new View();
+      
       settings.view.showLegend = showLegend;
       settings.view.exportAsSvg = exportAsSvg;
       settings.view.showGis = showGis;
@@ -404,17 +413,22 @@ public class JsonConverter {
     public JsonBuilder setExplosionGraphSettings(int index, double scaleX, double scaleY, double translationX, double translationY,
         int minEdgeThickness, Integer maxEdgeThickness, int fontSize, boolean fontBold, int minNodeSize, Integer maxNodeSize, Map<String, Point2D> nodePositions) {
       
-      settings.view.explosions[index].graphSettings = new ExplosionGraphSettings();
-      initGraphSettings(settings.view.explosions[index].graphSettings, scaleX,  scaleY,  translationX,  translationY,
+      settings.view.explosions[index].graph = new ExplosionGraphSettings();
+      initGraphSettings(settings.view.explosions[index].graph, scaleX,  scaleY,  translationX,  translationY,
          minEdgeThickness,  maxEdgeThickness,  fontSize,  fontBold,  minNodeSize,  maxNodeSize, nodePositions);
+      return this;
+    }
+    
+    public JsonBuilder setExplosionGraphBoundary(int index, double[] boundaryParams) {
+      settings.view.explosions[index].graph.boundaryParams = boundaryParams;
       return this;
     }
     
     public JsonBuilder setExplosionGisSettings(int index, double scaleX, double scaleY, double translationX, double translationY,
         int minEdgeThickness, Integer maxEdgeThickness, int fontSize, boolean fontBold, int minNodeSize, Integer maxNodeSize, boolean avoidOverlay, int borderAlpha) {
       
-      settings.view.explosions[index].gisSettings = new GisSettings();
-      initGisSettings(settings.view.explosions[index].gisSettings, scaleX,  scaleY,  translationX,  translationY,
+      settings.view.explosions[index].gis = new GisSettings();
+      initGisSettings(settings.view.explosions[index].gis, scaleX,  scaleY,  translationX,  translationY,
          minEdgeThickness,  maxEdgeThickness,  fontSize,  fontBold,  minNodeSize,  maxNodeSize, avoidOverlay, borderAlpha);
       return this;
     }

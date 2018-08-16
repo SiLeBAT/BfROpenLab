@@ -89,12 +89,6 @@ public class ExplosionSettings {
 	  this.graphSettings.saveSettings(settings, prefix);
 	}
 	
-//	public void saveSettings(SettingsJson.View.ExplosionSettings settings) {
-//	  settings.id = metaNodeId;
-//	  this.graphSettings.saveSettings(settings.graphSettings);
-//	  this.gisSettings.saveSettings(settings.gisSettings);
-//    }
-	
 	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder, int index) {
       jsonBuilder.setExplosionId(index, metaNodeId);
       this.graphSettings.saveSettings(jsonBuilder, index);
@@ -103,8 +97,8 @@ public class ExplosionSettings {
 	
 	public void loadSettings(View.ExplosionSettings settings) {
       metaNodeId = settings.id;
-      this.graphSettings.loadSettings(settings.graphSettings);
-      this.gisSettings.loadSettings(settings.gisSettings);
+      this.graphSettings.loadSettings(settings.graph);
+      this.gisSettings.loadSettings(settings.gis);
     }
 	
 	protected List<String> getSelectedNodes() { return this.selectedNodes; }

@@ -208,7 +208,6 @@ public class TracingViewSettings extends NodeSettings {
 
 		try {
 			showLegend = settings.getBoolean(CFG_SHOW_LEGEND);
-			System.out.println("Legend was loaded.");
 		} catch (InvalidSettingsException e) {
 		}
 

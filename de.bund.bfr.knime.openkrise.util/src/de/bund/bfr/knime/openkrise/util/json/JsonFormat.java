@@ -2,9 +2,9 @@ package de.bund.bfr.knime.openkrise.util.json;
 
 public class JsonFormat {
 
-  private static String CURRENT_VERSION = "1.0.0";
+  //private static String CURRENT_VERSION = "1.0.0";
 
-  public String version = CURRENT_VERSION;
+  public String version; // = CURRENT_VERSION;
 
   public Data data;
 
@@ -13,9 +13,9 @@ public class JsonFormat {
   public TracingViewSettings settings;
 
   public static class Tracing{
-    private static String CURRENT_VERSION = "1.0.0";
+    //private static String CURRENT_VERSION = "1.0.0";
 
-    public String version = CURRENT_VERSION;
+    public String version; // = CURRENT_VERSION;
     
     public Boolean enforceTemporalOrder;
     public TraceableUnit[] nodes;
@@ -31,9 +31,9 @@ public class JsonFormat {
   }
 
   public static class TracingViewSettings {
-    private static String CURRENT_VERSION = "1.0.0";
+    //private static String CURRENT_VERSION = "1.0.0";
 
-    public String version = CURRENT_VERSION;
+    public String version; // = CURRENT_VERSION;
 
     public MetaNode[] metaNodes;
 
@@ -177,8 +177,8 @@ public class JsonFormat {
 
       public static class ExplosionSettings{
         public String id;
-        public ExplosionGraphSettings graphSettings;
-        public GisSettings gisSettings;
+        public ExplosionGraphSettings graph;
+        public GisSettings gis;
 
         public static class ExplosionGraphSettings extends GraphSettings{
           public double[] boundaryParams;
@@ -195,9 +195,9 @@ public class JsonFormat {
   }
 
   public static class Data {
-    private static final String CURRENT_VERSION = "1.0.0";
+    //private static final String CURRENT_VERSION = "1.0.0";
 
-    public String version = CURRENT_VERSION;
+    public String version; // = CURRENT_VERSION;
 
 //    public ColumnSpec[] stationColumns;
 //    public Property[][] stations;

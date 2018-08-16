@@ -29,7 +29,10 @@ import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Deque;
 import java.util.GregorianCalendar;
@@ -306,15 +309,31 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
       set.saveSettings(jsonBuilder);
       if(addData) jsonBuilder.setData(this.nodeTable, this.edgeTable, this.tracingTable);
       PrintWriter printWriter = null;
+      OutputStreamWriter outputStreamWriter = null;
       try {
         JsonValue jsonValue = jsonBuilder.build();
-        printWriter = new PrintWriter(filePath);
-        printWriter.println(jsonValue.toString());
+        
+//        JsonReader jsonReader = Json.createReader(in);
+//        JsonValue jsonValue = jsonReader.readObject();
+        
+        FileOutputStream fos = new FileOutputStream(filePath);
+        outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
+        outputStreamWriter.write(jsonValue.toString());
+        //outputStreamWriter.close();
+        
+//        printWriter = new PrintWriter(filePath);
+//        printWriter.println(jsonValue.toString());
         
       } catch (Exception e) {
         JOptionPane.showMessageDialog(null, e.getMessage(), "Export Problem", JOptionPane.ERROR_MESSAGE);
       } finally {
         if(printWriter!=null) printWriter.close();
+        if(outputStreamWriter!=null)
+          try {
+            outputStreamWriter.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
       }
     }
 	
@@ -351,11 +370,17 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
         JsonFormat jsonFormat = mapper.treeToValue(rootNode, JsonFormat.class);
         
         if(jsonFormat.data!=null) {
-          this.set.loadSettings(jsonFormat);
-          //Settings might not fit to data
-          this.fixSettings();
-          this.loadSettings();
+          if(de.bund.bfr.knime.openkrise.util.json.JsonConverter.hasDataChanged(jsonFormat.data, nodeTable, edgeTable, tracingTable)) {
+            if(JOptionPane.showConfirmDialog(null, "The data in the specified file is different to the data in the inports. Proceed with import?", "Import Settings", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)==JOptionPane.NO_OPTION) return;
+          }
+          jsonFormat.data = null;
         }
+        
+        this.set.loadSettings(jsonFormat);
+        //Settings might not fit to data
+        this.fixSettings();
+        this.loadSettings();
+        
 	  }
 	}
 	

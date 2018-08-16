@@ -2,10 +2,13 @@ package de.bund.bfr.knime.openkrise.util.json;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.json.JsonValue;
@@ -15,7 +18,6 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
-import org.knime.core.data.DataTypeRegistry;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.*;
 import org.knime.core.data.def.BooleanCell.BooleanCellFactory;
@@ -23,10 +25,12 @@ import org.knime.core.data.json.JacksonConversions;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -34,16 +38,6 @@ import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.Tracing;
 
 public class JsonConverter {
-//  private static final ImmutableMap<String, DataType> NAME_TO_DATATYPE_MAP = new ImmutableMap.Builder<String, DataType>()
-//      .put(StringCell.TYPE.getName(), StringCell.TYPE)
-//      .put(LongCell.TYPE.getName(), LongCell.TYPE)
-//      .put(IntCell.TYPE.getName(), IntCell.TYPE)
-//      .put(BooleanCell.TYPE.getName(), BooleanCell.TYPE)
-//      .put(LongCell.TYPE.getName(), LongCell.TYPE)
-//      .put(LongCell.TYPE.getName(), LongCell.TYPE)
-//      .put(LongCell.TYPE.getName(), LongCell.TYPE)
-//      .put(LongCell.TYPE.getName(), LongCell.TYPE)
-//      .build();
   
   private static final ImmutableMap<Class<? extends DataCell>, Function<Object,DataCell>> DATACELLCLASS_TO_CREATEDATACELL_FUN_MAP = new ImmutableMap.Builder<Class<? extends DataCell>, Function<Object,DataCell>>()
       .put(BooleanCell.class, (value) -> (BooleanCell) BooleanCellFactory.create((boolean) value))
@@ -60,73 +54,47 @@ public class JsonConverter {
       .put(StringCell.class, (cell) -> ((StringCell) cell).getStringValue())
       .build();
   
+  private static final ImmutableMap<String, Function<Object, Object>> TYPESTRING_TO_VALUECONVERTER_FUN_MAP = new ImmutableMap.Builder<String, Function<Object,Object>>()
+      .put("string", (value) -> (String) value)
+      .put("boolean", (value) -> (Boolean) value)
+      .put("int", (value) -> ((Number) value).intValue())
+      .put("long", (value) ->((Number) value).longValue())
+      .put("double", (value) ->((Number) value).doubleValue())
+      .build();
   
-//  private static IntCell createIntCell(Object value) {
-//    int castedValue = 0;
-//    try {
-//      castedValue = ((Number) value).intValue();
-//    } catch(Exception e) {
-//      e.printStackTrace();
-//    }
-//    return new IntCell(castedValue);
-//  }
-//  
-//  private static boolean getBooleanValue(DataCell cell) {
-//    boolean result=false;
-//    try {
-//      result = ((BooleanCell) cell).getBooleanValue();
-//    } catch(Exception e) {
-//      e.printStackTrace();
-//    }
-//    return result;
-//  }
-//  
-//  private static int getIntValue(DataCell cell) {
-//    int result = 0;
-//    try {
-//      result = ((IntCell) cell).getIntValue();
-//    } catch(Exception e) {
-//      e.printStackTrace();
-//    }
-//    return result;
-//  }
-//  
-//  private static long getLongValue(DataCell cell) {
-//    long result = 0;
-//    try {
-//      result = ((LongCell) cell).getLongValue();
-//    } catch(Exception e) {
-//      e.printStackTrace();
-//    }
-//    return result;
-//  }
-//  {
-//    Map<Class<? extends DataCell>, Function<Object,DataCell>> dataCellFunMap = new ImmutableMap.Builder<Class<? extends DataCell>, Function<Object,DataCell>>()
-//        .put(BooleanCell.class, (obj) -> (BooleanCell) BooleanCellFactory.create((boolean) obj))
-//        .put(DoubleCell.class, (obj) -> new DoubleCell((Double) obj))
-//        .put(IntCell.class, (obj) -> new IntCell((Integer) obj))
-//        .put(LongCell.class, (obj) -> new LongCell((Long) obj))
-//        .put(StringCell.class, (obj) -> new StringCell((String) obj))
-//        .build();
-//    
-//    Optional<Class<? extends DataCell>> tmp = DataTypeRegistry.getInstance().getCellClass("ldkf");
-//  }
+  private static final ImmutableMap<String, Class<? extends DataCell>> TYPESTRING_TO_CELLCLASS_MAP = new ImmutableMap.Builder<String, Class<? extends DataCell>>()
+      .put("string", StringCell.class)
+      .put("boolean", BooleanCell.class)
+      .put("double", DoubleCell.class)
+      .put("int", IntCell.class)
+      .put("long", LongCell.class)
+      .build();
   
-  //private static final ImmutableMap<String, DataType> NAME_TO_DATACELL_FUN_MAP = new ImmutableMap.Builder<String, DataType>().put(StringCell.TYPE.getName(), StringCell.TYPE).build();
-//  private static final ImmutableMap<DataType, DataCell> DATATYPE_TO_DATACELL = new ImmutableMap.Builder<DataType, DataCell>().build();
+  // create a reverse map of TYPESTRING_TO_CELLCLASS_MAP
+  private static final ImmutableMap<Class<? extends DataCell>, String> CELLCLASS_TO_TYPESTRING_MAP = ImmutableMap.copyOf(TYPESTRING_TO_CELLCLASS_MAP.entrySet().stream()
+      .collect(Collectors.toMap(Entry::getValue, c -> c.getKey()))); 
   
-  public static DataType convertToDataType(String type) {
-    Optional<Class<? extends DataCell>> optionalDataCellClass = DataTypeRegistry.getInstance().getCellClass(type);
-    if(optionalDataCellClass.isPresent()) return DataType.getType(optionalDataCellClass.get());
-    return null;
+  private static DataCell convertValueToDataCell(Object value, Class<? extends DataCell> cellClass) {
+    Function<Object, DataCell> fun = DATACELLCLASS_TO_CREATEDATACELL_FUN_MAP.get(cellClass);
+    return fun.apply(value);
   }
   
-//  public static Class<? extends DataCell> convertToDataCellClass(String type) {
-//    Optional<Class<? extends DataCell>> optionalDataCellClass = DataTypeRegistry.getInstance().getCellClass(type);
-//    if(optionalDataCellClass.isPresent()) return optionalDataCellClass.get();
-//    return null;
-//  }
-  
+  private static Object convertDataCellToValue(DataCell cell) {
+    Function<DataCell,Object> fun = DATACELLCLASS_TO_GETVALUE_FUN_MAP.get(cell.getClass());
+    if(fun!=null) return fun.apply(cell);
+    // DataCell is not supported, switch to string
+    return cell.toString();
+  }
+
+  public static DataType convertTypeStringToDataType(String typeString) throws InvalidSettingsException {
+    if(Strings.isNullOrEmpty(typeString)) throw(new InvalidSettingsException("Column type is missing."));
+   
+    Class<? extends DataCell> cellClass = TYPESTRING_TO_CELLCLASS_MAP.get(typeString);
+    if(cellClass==null) throw(new InvalidSettingsException("Column type '" + typeString + "' is unkown."));
+    
+    return DataType.getType(cellClass);
+  }
+    
   public static DataCell createDataCell(Object value, Class<? extends DataCell> dataCellClass) {
     Function<Object, DataCell> fun = DATACELLCLASS_TO_CREATEDATACELL_FUN_MAP.get(dataCellClass);
     try {
@@ -145,10 +113,12 @@ public class JsonConverter {
     return new DataTableSpec(columnSpecs.toArray(new DataColumnSpec[0]));
   }
   
-  public static BufferedDataTable createDataTable(JsonFormat.Data.Table dataTable, ExecutionContext exec) {
+  public static BufferedDataTable createDataTable(JsonFormat.Data.Table dataTable, ExecutionContext exec) throws InvalidSettingsException {
     Map<String, DataType> dataColumns = new LinkedHashMap<>();
     
-    for(JsonFormat.Data.Table.ColumnProperty columnProperty : dataTable.columnProperties) dataColumns.put(columnProperty.id, JsonConverter.convertToDataType(columnProperty.type));
+    for(JsonFormat.Data.Table.ColumnProperty columnProperty : dataTable.columnProperties) 
+      dataColumns.put(columnProperty.id, JsonConverter.convertTypeStringToDataType(columnProperty.type));
+    
     DataTableSpec tableSpec = toTableSpec(dataColumns);
     BufferedDataContainer dataContainer = exec.createDataContainer(tableSpec);
     
@@ -161,7 +131,7 @@ public class JsonConverter {
       for(JsonFormat.Data.Table.ItemProperty property : properties) {
         int columnIndex = tableSpec.findColumnIndex(property.id);
         
-        if(property.value!=null) cells[columnIndex] = JsonConverter.createDataCell(property.value, tableSpec.getColumnSpec(columnIndex).getType().getCellClass());
+        if(property.value!=null) cells[columnIndex] = convertValueToDataCell(property.value, tableSpec.getColumnSpec(columnIndex).getType().getCellClass()) ;
       }
       
       dataContainer.addRowToTable(new DefaultRow( RowKey.createRowKey(rowIndex++),cells));
@@ -171,86 +141,35 @@ public class JsonConverter {
     return dataContainer.getTable();
   }
   
-//  public static DataCell convertToDataCell(Object value, DataType type) {
-//    
-//  }
+  private static String convertCellClassToTypeString(Class<? extends DataCell> cellClass) {
+    String typeString = CELLCLASS_TO_TYPESTRING_MAP.get(cellClass);
+    if(typeString!=null) return typeString;
+    return "string";
+  }
   
   public static class JsonBuilder {
     private JsonFormat json;
+    private final static String CURRENT_VERSION = "1.0.0";
     
     public JsonBuilder() {
       json = new JsonFormat();
+      json.version = CURRENT_VERSION;
     }
     
     protected JsonFormat getJson() {
       return json;
     }
     
-//    private static JsonFormat.Data.Table.ColumnProperty createColumnSpec(String id, String type) {
-//      JsonFormat.Data.Table.ColumnProperty columnSpec = new JsonFormat.Data.Table.ColumnProperty();
-//      columnSpec.id = id;
-//      columnSpec.type = type;
-//      return columnSpec;
-//    }
-//    
-//    private static JsonFormat.Data.Property createProperty(String id, Object value) {
-//      JsonFormat.Data.Property property = new JsonFormat.Data.Property();
-//      property.id = id;
-//      property.value = value;
-//      return property;
-//    }
-//    
-//    private static JsonFormat.Data.DeliveryRelation createDeliveryRelation(String fromId, String toId) {
-//      JsonFormat.Data.DeliveryRelation deliveryRelation = new JsonFormat.Data.DeliveryRelation();
-//      deliveryRelation.fromId = fromId;
-//      deliveryRelation.toId = toId;
-//      return deliveryRelation;
-//    }
-    
-//    public void setData(NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, 
-//        Map<String, GraphNode> nodes, List<Edge<GraphNode>> edges, Map<String, Delivery> deliveries) {
-//      json.data = new JsonFormat.Data();
-//      //json.data.deliveryColumns = new JsonFormat.Data.ColumnSpec[edgeSchema.getMap().size()];
-//      json.data.deliveryColumns = edgeSchema.getMap().entrySet().stream().map(entry -> createColumnSpec(entry.getKey(),entry.getValue().getName())).collect(Collectors.toList()).toArray(new JsonFormat.Data.ColumnSpec[0]);
-//      json.data.stationColumns = nodeSchema.getMap().entrySet().stream().map(entry -> createColumnSpec(entry.getKey(),entry.getValue().getName())).collect(Collectors.toList()).toArray(new JsonFormat.Data.ColumnSpec[0]);
-//      json.data.stations = new JsonFormat.Data.Property[nodes.size()][];
-//      
-//      List<JsonFormat.Data.DeliveryRelation> deliveryRelationList = new ArrayList<>();
-//      
-//      int i = 0;
-//      for(GraphNode node : nodes.values()) {
-//        
-//        List<JsonFormat.Data.Property> propertyList = new ArrayList<>();
-//        
-//        propertyList.add(createProperty(TracingColumns.ID,node.getId()));
-//        for(Map.Entry<String, Object> entry : node.getProperties().entrySet()) if(entry.getValue()!=null) propertyList.add(createProperty(entry.getKey(),entry.getValue()));
-//        json.data.stations[i++] = propertyList.toArray(new JsonFormat.Data.Property[0]);
-//      }
-//      
-//      i = 0;
-//      for(Edge<GraphNode> edge : edges) {
-//        
-//        List<JsonFormat.Data.Property> propertyList = new ArrayList<>();
-//        
-//        propertyList.add(createProperty(TracingColumns.ID,edge.getId()));
-//        for(Map.Entry<String, Object> entry : edge.getProperties().entrySet()) if(entry.getValue()!=null) propertyList.add(createProperty(entry.getKey(),entry.getValue()));
-//        json.data.deliveries[i++] = propertyList.toArray(new JsonFormat.Data.Property[0]);
-//        
-//        for (String next : deliveries.get(edge.getId()).getAllNextIds()) deliveryRelationList.add(createDeliveryRelation(edge.getId(), next));
-//          
-//      }
-//      json.data.deliveryRelations = deliveryRelationList.toArray(new JsonFormat.Data.DeliveryRelation[0]);
-//    }
-    
+    // knime to json
     private static JsonFormat.Data.Table.ColumnProperty[] convertFromDataTableSpecs(DataTableSpec tableSpec) {
       
       JsonFormat.Data.Table.ColumnProperty[] columnSpecs = new JsonFormat.Data.Table.ColumnProperty[tableSpec.getNumColumns()];
-      //int[] tmp = IntStream.iterate(0, i -> i + 1).limit(table.getSpec().getNumColumns()).mapToObj(i -> table.getSpec().getColumnSpec(i)).map(spec -> );
+      
       for(int i=0; i<columnSpecs.length; ++i) {
         DataColumnSpec columnSpec = tableSpec.getColumnSpec(i);
         columnSpecs[i] = new JsonFormat.Data.Table.ColumnProperty();
         columnSpecs[i].id = columnSpec.getName();
-        columnSpecs[i].type = columnSpec.getType().getCellClass().getName();
+        columnSpecs[i].type = convertCellClassToTypeString(columnSpec.getType().getCellClass());
       }
       return columnSpecs;
     }
@@ -262,6 +181,7 @@ public class JsonConverter {
       return property;
     }
     
+    // Knime to json
     private static JsonFormat.Data.Table.ItemProperty[][] convertToProperties(BufferedDataTable table) {
       
       JsonFormat.Data.Table.ItemProperty[][] properties = new JsonFormat.Data.Table.ItemProperty[(int) table.size()][];
@@ -274,11 +194,11 @@ public class JsonConverter {
         int iCol = 0;
         
         for(DataCell cell : row) {
-          if(!cell.isMissing() && DATACELLCLASS_TO_GETVALUE_FUN_MAP.containsKey(cell.getClass())) {
+          if(!cell.isMissing()) { 
 
             propertyList.add(createItemProperty(
                 spec.getColumnSpec(iCol).getName(),
-                DATACELLCLASS_TO_GETVALUE_FUN_MAP.get(cell.getClass()).apply(cell)));
+                convertDataCellToValue(cell))); 
           }
           ++iCol;
         }
@@ -297,19 +217,12 @@ public class JsonConverter {
     
     public void setData(BufferedDataTable stationTable, BufferedDataTable deliveryTable, BufferedDataTable deliveryRelationTable) {
       json.data = new JsonFormat.Data();
-      //json.data.deliveryColumns = new JsonFormat.Data.ColumnSpec[edgeSchema.getMap().size()];
-//      json.data.stationColumns = convertToColumnSpecs(stationTable);
-//      json.data.deliveryColumns = convertToColumnSpecs(deliveryTable);
+      json.data.version = CURRENT_VERSION;
+      
       json.data.stations = convertToTable(stationTable);
       json.data.deliveries = convertToTable(deliveryTable);
       json.data.deliveryRelations = convertToTable(deliveryRelationTable);
       
-//      json.data.stations = convertDataTableToProperties(stationTable);
-//      json.data.deliveries = convertDataTableToProperties(stationTable);
-      
-//      List<JsonFormat.Data.DeliveryRelation> deliveryRelationList = new ArrayList<>();
-//      for(DataRow row: deliveryRelationTable) deliveryRelationList.add(createDeliveryRelation(row.getCell(0).toString(), row.getCell(1).toString()));
-//      json.data.deliveryRelations = deliveryRelationList.toArray(new JsonFormat.Data.DeliveryRelation[0]);
     }
     
     private static Tracing.TraceableUnit createTraceableUnit(String id, Double weight, Boolean crossContamination, Boolean killContamination,
@@ -324,6 +237,7 @@ public class JsonConverter {
     
     protected void setTracing(Map<String, GraphNode> nodes, List<Edge<GraphNode>> edges) {
       json.tracing = new JsonFormat.Tracing();
+      json.tracing.version = CURRENT_VERSION;
       
       json.tracing.nodes = nodes.values().stream().map(node -> createTraceableUnit(
           node.getId(), 
@@ -395,13 +309,59 @@ public class JsonConverter {
   }
   
   public static JsonValue convertToJsonValue(JsonFormat json) throws JsonProcessingException {
+    
     ObjectMapper mapper = new ObjectMapper();
-    //SettingsJson obj = new SettingsJson();
-   
     ObjectNode rootNode = mapper.valueToTree(json);
     
-   
-    //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
     return JacksonConversions.getInstance().toJSR353(rootNode);
   }
+  
+  public static boolean hasDataChanged(JsonFormat.Data data, BufferedDataTable stationTable, BufferedDataTable deliveryTable, BufferedDataTable deliveryRelationTable) throws InvalidSettingsException {
+    JsonBuilder jsonBuilder = new JsonBuilder();
+    jsonBuilder.setData(stationTable, deliveryTable, deliveryRelationTable);
+    return         
+        !(areTablesEqual(data.stations, jsonBuilder.json.data.stations) &&
+        areTablesEqual(data.deliveries, jsonBuilder.json.data.deliveries) && 
+        areTablesEqual(data.deliveryRelations, jsonBuilder.json.data.deliveryRelations));
+  }
+  
+  private static boolean areTablesEqual(JsonFormat.Data.Table table1, JsonFormat.Data.Table table2) throws InvalidSettingsException {
+    Map<String, String> colMap1 = convertTableColumnsToMap(table1.columnProperties);
+    Map<String, String> colMap2 = convertTableColumnsToMap(table2.columnProperties);
+    if(!colMap1.equals(colMap2)) return false;
+    Set<Map<String, Object>> dataSet1 = convertTableDataToSet(table1, colMap1);
+    Set<Map<String, Object>> dataSet2 = convertTableDataToSet(table2, colMap1);
+    return dataSet1.equals(dataSet2);
+    
+  }
+  
+  private static Set<Map<String, Object>> convertTableDataToSet(JsonFormat.Data.Table table, Map<String, String> columnTypeMap) throws InvalidSettingsException {
+    Set<Map<String,Object>> result = new HashSet<>();
+    for(JsonFormat.Data.Table.ItemProperty[] properties : table.data) {
+      Map<String,Object> map = new HashMap<>();
+      for(JsonFormat.Data.Table.ItemProperty property : properties) map.put(property.id, convertValue(property.value, columnTypeMap.get(property.id)));
+      result.add(map);
+    }
+    return result;
+  }
+  
+  private static Object convertValue(Object value, String toType) throws InvalidSettingsException {
+    if(Strings.isNullOrEmpty(toType)) throw(new InvalidSettingsException("A datatype is missing."));
+    
+    Function<Object,Object> converterFun = TYPESTRING_TO_VALUECONVERTER_FUN_MAP.get(toType);
+    if(converterFun==null) throw(new InvalidSettingsException("The datatype '" + toType + "' is unknown."));
+    
+    try {
+      return converterFun.apply(value);
+    } catch(Exception ex) {
+      throw(new InvalidSettingsException("A value could not be converted to type '" + toType + "' (" + ex.getMessage() + ")."));
+    }
+  }
+  
+  private static Map<String, String> convertTableColumnsToMap(JsonFormat.Data.Table.ColumnProperty[] columnProperties) {
+    Map<String,String> result = new HashMap<>();
+    for(JsonFormat.Data.Table.ColumnProperty property : columnProperties) { result.put(property.id, property.type); }
+    return result;
+  }
+  
 }
