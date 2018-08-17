@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -104,10 +103,6 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
-import java.util.logging.Formatter;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import java.util.logging.StreamHandler;
 
 public abstract class Canvas<V extends Node> extends JPanel
 		implements JungListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
