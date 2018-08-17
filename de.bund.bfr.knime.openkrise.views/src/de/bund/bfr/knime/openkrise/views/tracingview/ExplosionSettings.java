@@ -26,6 +26,7 @@ import java.util.Set;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 
 /*
  * Setting object for an explosion view
@@ -69,24 +70,36 @@ public class ExplosionSettings {
 	
 	@SuppressWarnings("unchecked")
 	public void loadSettings(NodeSettingsRO settings, String prefix) {
-		try {
-			this.metaNodeId = settings.getString(prefix + CFG_KEY);
-		} catch (InvalidSettingsException e) {
-		}
-		try {
-			this.containedNodesIds = (Set<String>) GraphSettings.SERIALIZER.fromXml(settings.getString(prefix + CFG_NODE_SUBSET));
-		} catch (InvalidSettingsException e) {
-		}
-		this.gisSettings.loadSettings(settings, prefix);
-		this.graphSettings.loadSettings(settings, prefix);
+	  try {
+	    this.metaNodeId = settings.getString(prefix + CFG_KEY);
+	  } catch (InvalidSettingsException e) {
+	  }
+	  try {
+	    this.containedNodesIds = (Set<String>) GraphSettings.SERIALIZER.fromXml(settings.getString(prefix + CFG_NODE_SUBSET));
+	  } catch (InvalidSettingsException e) {
+	  }
+	  this.gisSettings.loadSettings(settings, prefix);
+	  this.graphSettings.loadSettings(settings, prefix);
 	}
 
 	public void saveSettings(NodeSettingsWO settings, String prefix) {
-		settings.addString(prefix + CFG_KEY, this.metaNodeId);
-		settings.addString(prefix + CFG_NODE_SUBSET, GraphSettings.SERIALIZER.toXml(this.containedNodesIds));
-		this.gisSettings.saveSettings(settings, prefix);
-		this.graphSettings.saveSettings(settings, prefix);
+	  settings.addString(prefix + CFG_KEY, this.metaNodeId);
+	  settings.addString(prefix + CFG_NODE_SUBSET, GraphSettings.SERIALIZER.toXml(this.containedNodesIds));
+	  this.gisSettings.saveSettings(settings, prefix);
+	  this.graphSettings.saveSettings(settings, prefix);
 	}
+	
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder, int index) {
+      jsonBuilder.setExplosionId(index, metaNodeId);
+      this.graphSettings.saveSettings(jsonBuilder, index);
+      this.gisSettings.saveSettings(jsonBuilder, index);
+    }
+	
+	public void loadSettings(View.ExplosionSettings settings) {
+      metaNodeId = settings.id;
+      this.graphSettings.loadSettings(settings.graph);
+      this.gisSettings.loadSettings(settings.gis);
+    }
 	
 	protected List<String> getSelectedNodes() { return this.selectedNodes; }
 	

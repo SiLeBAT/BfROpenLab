@@ -26,5 +26,8 @@
 		<outPort index="2" name="Delivery Relations">
 			Table with Delivery Relations data.
 		</outPort>
+		<outPort index="3" name="Tracing View Settings">
+			Table with json column that contains the Tracing View Settings in JSON format.
+		</outPort>
 	</ports>
 </knimeNode>

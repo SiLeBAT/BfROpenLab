@@ -30,6 +30,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 
 /*
  * class contains the settings for all explosion views
@@ -53,6 +54,7 @@ public class ExplosionSettingsList extends NodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		// determine the indices of setting objects by checking for a certain prefix structure
+	    explosionSettingsList.clear();
 		Pattern pattern = Pattern.compile("^" + CFG_PREFIX +  "_([0-9]+)_");
 		Set<Integer> indices = settings.keySet().stream().mapToInt(s -> getIndex(pattern, s)).filter(i -> (i>=0)).boxed().collect(Collectors.toSet());
 		
@@ -80,7 +82,26 @@ public class ExplosionSettingsList extends NodeSettings {
 			this.explosionSettingsList.get(i).saveSettings(settings, ExplosionSettingsList.getElementPrefix(i+1));
 		}
 	}
-
+	
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
+      int n = this.explosionSettingsList.size();
+      jsonBuilder.setExplosionCount(n);
+      for(int i=0; i<n; ++i) {
+          //settings.explosions[i] = new SettingsJson.View.ExplosionSettings();
+          this.explosionSettingsList.get(i).saveSettings(jsonBuilder, i);
+      }
+    }
+	
+	public void loadSettings(View settings) {
+      int n = settings.explosions.length;
+      for(int i=0; i<n; ++i) {
+        ExplosionSettings eS = new ExplosionSettings();
+        eS.loadSettings(settings.explosions[i]);
+        this.explosionSettingsList.add(eS);
+      }
+    }
+	
+	
 	/*
 	 * returns an explosion setting with the specified key if it exists otherwise null
 	 */

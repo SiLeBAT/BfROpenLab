@@ -6,7 +6,14 @@ Bundle-Version: 1.1.35.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.openkrise.views.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
-Require-Bundle: de.bund.bfr.knime.openkrise
+Require-Bundle: de.bund.bfr.knime.openkrise,
+ de.bund.bfr.knime.openkrise.util,
+ com.github.fge.jackson-coreutils,
+ com.fasterxml.jackson.core.jackson-core,
+ com.fasterxml.jackson.core.jackson-databind,
+ org.knime.json,
+ de.bund.bfr.knime.gis
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.knime.base.data.xml
 

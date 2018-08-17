@@ -4,6 +4,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 
 public class ExplosionGraphSettings extends GraphSettings {
@@ -49,5 +50,15 @@ public class ExplosionGraphSettings extends GraphSettings {
   public void saveSettings(NodeSettingsWO settings, String prefix) {
     super.saveSettings(settings, prefix);
     settings.addDoubleArray(prefix + CFG_BOUNDARY_PARAMS, boundaryParams);
+  }
+  
+  public void saveSettings(JsonConverter.JsonBuilder jsonBuilder, int index) {
+    super.saveSettings(jsonBuilder, index);
+    jsonBuilder.setExplosionGraphBoundary(index, this.boundaryParams);
+  }
+  
+  public void loadSettings(View.ExplosionSettings.ExplosionGraphSettings graphView) {
+    super.loadSettings(graphView);
+    this.boundaryParams = graphView.boundaryParams;
   }
 }

@@ -27,6 +27,7 @@ import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 import de.bund.bfr.knime.openkrise.views.Activator;
 
 public class GisSettings extends NodeSettings {
@@ -89,6 +90,16 @@ public class GisSettings extends NodeSettings {
 	public void saveSettings(NodeSettingsWO settings) {
 		this.saveSettings(settings, "");
 	}
+	
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {
+	  jsonBuilder.setGisSettings(transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY(),
+	      this.edgeThickness, this.edgeMaxThickness, this.fontSize, this.fontBold, this.nodeSize, this.nodeMaxSize, this.avoidOverlay, this.borderAlpha);
+    }
+
+	public void saveSettings(JsonConverter.JsonBuilder jsonBuilder, int index) {
+      jsonBuilder.setExplosionGisSettings(index, transform.getScaleX(), transform.getScaleY(), transform.getTranslationX(), transform.getTranslationY(),
+          this.edgeThickness, this.edgeMaxThickness, this.fontSize, this.fontBold, this.nodeSize, this.nodeMaxSize, this.avoidOverlay, this.borderAlpha);
+    }
 
 	public void setFromCanvas(IGisCanvas<?> canvas) {
 		transform = canvas.getTransform();
@@ -165,6 +176,33 @@ public class GisSettings extends NodeSettings {
 		} catch (InvalidSettingsException e) {
 		}
 	}
+	
+	public void loadSettings(View.GisSettings gisView) {
+            
+	  if(gisView==null) return;
+      
+      if(gisView.transformation!=null)       
+        this.transform = new Transform(
+            gisView.transformation.scale.x, gisView.transformation.scale.y,
+            gisView.transformation.translation.x, gisView.transformation.translation.y);
+      
+      if(gisView.edge!=null) {
+        this.edgeThickness = gisView.edge.minWidth;
+        this.edgeMaxThickness = gisView.edge.maxWidth;
+      } 
+      
+      if(gisView.text!=null) {
+        this.fontSize = gisView.text.fontSize;
+        this.fontBold = gisView.text.fontBold;
+      }
+      
+      if(gisView.node!=null) {
+        this.nodeSize = gisView.node.minSize;
+        this.nodeMaxSize = gisView.node.maxSize;
+        this.avoidOverlay = gisView.node.avoidOverlay;
+        this.borderAlpha = gisView.borderAlpha;
+      }
+    }
 
 	public void saveSettings(NodeSettingsWO settings, String prefix) {
 		// TODO Auto-generated method stub

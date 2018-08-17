@@ -16,4 +16,5 @@ Require-Bundle: de.bund.bfr.knime.openkrise,
  com.github.fge.jackson-coreutils
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: de.bund.bfr.knime.openkrise.util.json
 
