@@ -31,49 +31,61 @@ public class XlsDelivery {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Lieferung";
 		else if (lang.equals("en")) return "Delivery";
+		else if (lang.equals("es")) return "Envío";
 		else return null;
 	}
-	public static String DELIVERY_DATE(String lang) {
+	private static String DELIVERY_DATE(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Lieferdatum";
 		else if (lang.equals("en")) return "DeliveryDate";
+		else if (lang.equals("es")) return "Fechaderecepción";
 		else return null;
 	}
-	public static String DAY(String lang) {
+	private static String DELIVERY_DATE_alt(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("es")) return "Fechadeenvío";
+		else return DELIVERY_DATE(lang);
+	}
+	private static String DAY(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Tag";
 		else if (lang.equals("en")) return "Day";
+		else if (lang.equals("es")) return "Día";
 		else return null;
 	}
-	public static String MONTH(String lang) {
+	private static String MONTH(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Monat";
 		else if (lang.equals("en")) return "Month";
+		else if (lang.equals("es")) return "Mes";
 		else return null;
 	}
-	public static String YEAR(String lang) {
+	private static String YEAR(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Jahr";
 		else if (lang.equals("en")) return "Year";
+		else if (lang.equals("es")) return "Año";
 		else return null;
 	}
-	public static String AMOUNT(String lang) {
+	private static String AMOUNT(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "abgegebeneMenge";
 		else if (lang.equals("en")) return "Amount";
+		else if (lang.equals("es")) return "Cantidad";
 		else return null;
 	}
 	public static String COMMENT(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Kommentar";
 		else if (lang.equals("en")) return "Comments";
+		else if (lang.equals("es")) return "Comentarios";
 		else return null;
 	}
 
 	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equalsIgnoreCase(DELIVERY_DATE(lang))) {
+			if (s.equalsIgnoreCase(DELIVERY_DATE(lang)) || s.equalsIgnoreCase(DELIVERY_DATE_alt(lang))) {
 				dayCol = index;
 				monthCol = index+1;
 				yearCol = index+2;
