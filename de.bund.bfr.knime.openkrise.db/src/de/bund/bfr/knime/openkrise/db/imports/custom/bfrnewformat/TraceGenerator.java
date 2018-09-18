@@ -448,7 +448,7 @@ Erinnerung an die alten Template inhaber senden?
 				row = sheetTracing.getRow(rowIndex+4);
 				cell = row.getCell(0);	
 				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the requested information into columns B onwards.");
-				else if  (lang.equals("es")) cell.setCellValue("En la columna A introduzca a partir de la línea " + (rowIndex+11) + " el número de linea de la mercancía de entrada a la que esta asociada la mercancía de salida y rellene los campos desde la columna B en adelante con la información del ingrediente.");
+				else if  (lang.equals("es")) cell.setCellValue("En la columna A introduzca a partir de la línea " + (rowIndex+11) + " el número de linea de la mercancía de entrada a la que esta asociada la mercancía de salida y rellene los campos desde la columna B en adelante con la información de entrada.");
 				else if  (lang.equals("de")) cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen.");
 			}
 			
