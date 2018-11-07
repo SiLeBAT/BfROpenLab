@@ -1,0 +1,11 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>de.bund.bfr.knime</groupId>
+        <artifactId>de.bund.bfr.knime.root</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>de.bund.bfr.knime.update.p2</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>eclipse-repository</packaging>
+</project>

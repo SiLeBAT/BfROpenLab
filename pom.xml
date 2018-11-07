@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.bund.bfr.knime</groupId>
+	<artifactId>de.bund.bfr.knime.root</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho.version>1.0.0</tycho.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<eclipse-repo.url>http://download.eclipse.org/releases/oxygen</eclipse-repo.url>
+		<tycho.testArgLine></tycho.testArgLine>
+		<jacoco-version>0.7.8</jacoco-version>
+	</properties>
+
+
+	<modules>
+		<!-- Plugins -->
+		<module>de.bund.bfr.knime.openkrise</module>
+		<module>de.bund.bfr.knime.openkrise.views</module>
+		<module>de.bund.bfr.knime.gis</module>
+		<module>de.bund.bfr.knime</module>
+		<module>org.geotools</module>
+		<module>edu.uci.ics.jung</module>
+		<module>com.jgoodies</module>
+		<module>com.thoughtworks.xstream</module>
+		<module>de.bund.bfr.knime.openkrise.util</module>
+		<module>quick.dbtable</module>
+		<module>de.bund.bfr.knime.openkrise.db</module>
+		<module>org.openstreetmap.josm</module>
+		<module>org.apache.poi</module>
+		<module>org.jooq</module>
+		<module>de.bund.bfr.knime.openkrise.common</module>
+		<module>de.bund.bfr.knime.openkrise.db.generated</module>
+		<module>edu.umd.cs.findbugs.annotations</module>
+		<module>de.bund.bfr.jung</module>
+
+		<!-- Test plugins 
+		<module>de.bund.bfr.knime.fsklab.metadata.model.test</module>
+		<module>de.bund.bfr.knime.fsklab.nodes.test</module>
+		<module>de.bund.bfr.knime.pmm.common.test</module>
+-->
+		<!-- Test report 
+		<module>de.bund.bfr.knime.testreport</module>
+		-->
+		<!-- Others -->
+		<module>de.bund.bfr.knime.openkrise.feature</module>
+		<module>de.bund.bfr.knime.update.p2</module>
+		
+	</modules>
+
+
+<repositories>
+  
+  <repository>
+   <id>eclipse</id>
+   <url>${eclipse-repo.url}</url>
+   <layout>p2</layout>
+  </repository>
+  
+  <repository>
+   <id>knime</id>
+   <url>http://update.knime.org/analytics-platform/3.6/</url>
+   <layout>p2</layout>
+  </repository>
+ 
+ </repositories>
+
+ <build>
+  <plugins>
+   <plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-maven-plugin</artifactId>
+    <version>${tycho.version}</version>
+    <extensions>true</extensions>
+   </plugin>
+   <!--Enable the replacement of the SNAPSHOT version in the final product configuration-->
+   <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+            <artifactId>tycho-packaging-plugin</artifactId>
+             <executions>
+              <execution>
+                <phase>package</phase>
+                <id>package-feature</id>
+                    <configuration>
+                        <finalName>${project.artifactId}_${unqualifiedVersion}.${buildQualifier}</finalName>
+                    </configuration>
+            </execution>
+        </executions>
+    </plugin>
+    <plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>target-platform-configuration</artifactId>
+    <version>${tycho.version}</version>
+    <configuration>
+     <environments>
+      <environment>
+       <os>linux</os>
+       <ws>gtk</ws>
+       <arch>x86</arch>
+      </environment>
+      <environment>
+       <os>linux</os>
+       <ws>gtk</ws>
+       <arch>x86_64</arch>
+      </environment>
+      <environment>
+       <os>win32</os>
+       <ws>win32</ws>
+       <arch>x86</arch>
+      </environment>
+      <environment>
+       <os>win32</os>
+       <ws>win32</ws>
+       <arch>x86_64</arch>
+      </environment>
+      <environment>
+       <os>macosx</os>
+       <ws>cocoa</ws>
+       <arch>x86_64</arch>
+      </environment>
+     </environments>
+    </configuration>
+   </plugin>
+  </plugins>
+ </build>
+</project>
