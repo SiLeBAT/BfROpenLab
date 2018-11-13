@@ -756,7 +756,9 @@ public class MainFrame extends JFrame {
 
 	private void languageActionPerformed(final ActionEvent e) {
 		if (language.getText().equals("en")) language.setText("de");
-		else if (language.getText().equals("de")) language.setText("en");
+		else if (language.getText().equals("de")) language.setText("es");
+		else if (language.getText().equals("es")) language.setText("hu");
+		else if (language.getText().equals("hu")) language.setText("en");
 	}
 	private void button11ActionPerformed(final ActionEvent e) {
 		

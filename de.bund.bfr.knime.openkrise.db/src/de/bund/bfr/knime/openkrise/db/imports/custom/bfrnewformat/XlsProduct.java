@@ -31,24 +31,28 @@ public class XlsProduct {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Produkt";
 		else if (lang.equals("en")) return "Product";
+		else if (lang.equals("es")) return "Producto";
 		else return null;
 	}
 	public static String BLOCK_INGREDIENT(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Zutat";
 		else if (lang.equals("en")) return "Ingredient";
+		else if (lang.equals("es")) return "Ingrediente";
 		else return null;
 	}
 	public static String ITEM(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Bezeichnung";
 		else if (lang.equals("en")) return "Name";
+		else if (lang.equals("es")) return "Nombre"; //???
 		else return null;
 	}
 	public static String EAN(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "EAN";
 		else if (lang.equals("en")) return "EAN";
+		else if (lang.equals("es")) return "EAN";
 		else return null;
 	}
 	

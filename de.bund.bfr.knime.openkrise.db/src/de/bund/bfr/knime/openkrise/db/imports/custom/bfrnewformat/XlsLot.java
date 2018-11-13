@@ -31,18 +31,21 @@ public class XlsLot {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Lotinformation";
 		else if (lang.equals("en")) return "Lot Information";
+		else if (lang.equals("es")) return "Información del lote";
 		else return null;
 	}
 	public static String NUMBER(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Chargennummer";
 		else if (lang.equals("en")) return "LotNumber";
+		else if (lang.equals("es")) return "Númerodelote";
 		else return null;
 	}
 	public static String MHD(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "MHD";
 		else if (lang.equals("en")) return "BestBefore";
+		else if (lang.equals("es")) return "Fechadeconsumo";
 		else return null;
 	}
 

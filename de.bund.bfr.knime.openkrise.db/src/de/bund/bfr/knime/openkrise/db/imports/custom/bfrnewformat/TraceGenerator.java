@@ -19,13 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -45,29 +43,23 @@ import org.apache.poi.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.util.Nullable;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataValidationConstraint.OperatorType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFDataValidation;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
-import com.sun.org.apache.bcel.internal.util.ClassLoader;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
@@ -359,15 +351,19 @@ Erinnerung an die alten Template inhaber senden?
 	private int getSimpleFwdStationRequests(String outputFolder, ResultSet rs, boolean startTracing) throws SQLException, IOException, InvalidFormatException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
-			String template;
+			String template = null;
 			if (hasTOB) {				
 				if (lang.equals("de")) {
 					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_de.xlsx";
 					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_de.xlsx";
-				}
-				else {
+				} 
+				else if (lang.equals("en")) {
 					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_en.xlsx";
 					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_en.xlsx";
+				}
+				else if (lang.equals("es")) {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_es.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_es.xlsx";
 				}
 			}
 			else {
@@ -375,9 +371,13 @@ Erinnerung an die alten Template inhaber senden?
 					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_de.xlsx";
 					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_de.xlsx";
 				}
-				else {
+				else if (lang.equals("en")) {
 					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_en.xlsx";
 					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_en.xlsx";
+				}
+				else if (lang.equals("es")) {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Start_tob_es.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Uptrace_Prod_tob_es.xlsx";
 				}
 			}
 			InputStream myxls = this.getClass().getResourceAsStream(template);
@@ -447,8 +447,9 @@ Erinnerung an die alten Template inhaber senden?
 				
 				row = sheetTracing.getRow(rowIndex+4);
 				cell = row.getCell(0);	
-				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the requested information into columns B onwards");
-				else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen");
+				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the incoming good being the ingredient of this product. Afterwards, enter the requested information into columns B onwards.");
+				else if  (lang.equals("es")) cell.setCellValue("En la columna A introduzca a partir de la línea " + (rowIndex+11) + " el número de linea de la mercancía de entrada a la que esta asociada la mercancía de salida y rellene los campos desde la columna B en adelante con la información de entrada.");
+				else if  (lang.equals("de")) cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Wareneingang eintragen und ab Spalte B ein zugehöriges Produkt und die weiteren erfragten Angaben eintragen.");
 			}
 			
 			//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
@@ -464,7 +465,7 @@ Erinnerung an die alten Template inhaber senden?
 						" ORDER BY " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
 				ResultSet rs2 = DBKernel.getResultSet(sql, false);
 				if (rs2 != null && rs2.first()) {
-					rowIndex += startTracing && lang.equals("en") ? 11 : 12;
+					rowIndex += startTracing && (lang.equals("en") || lang.equals("es")) ? 11 : 12;
 					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
 					do {
 						//System.err.println(rs2.getString("Station.Name"));
@@ -493,10 +494,15 @@ Erinnerung an die alten Template inhaber senden?
 						rowIndex++;
 					} while (rs2.next());
 				}
-			}
+			}						
+					
 			String fn = "StationFwdtrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
 			if (lang.equals("de")) fn = "Vorwaertsverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
-			if (startTracing) fn = "Start_Tracing_Fwd_" + sif + ".xlsx";
+			else if (lang.equals("es")) fn = "TrazabilidadAdelante_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			if (startTracing) {
+				fn = "Start_Tracing_Fwd_" + sif + ".xlsx";
+				if (lang.equals("es")) fn = "Inicio_TrazabilidadAdelante_" + sif + ".xlsx";
+			}
 			if (save(workbook, outputFolder + File.separator + fn)) {
 				result++;
 			}
@@ -899,15 +905,19 @@ Erinnerung an die alten Template inhaber senden?
 	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs, boolean startTracing) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
-			String template;
+			String template = null;
 			if (hasTOB) {				
 				if (lang.equals("de")) {
 					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_de.xlsx";
 					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_tob_de.xlsx";
 				}
-				else {
+				else if (lang.equals("en")) {
 					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_en.xlsx";
 					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_tob_en.xlsx";
+				}
+				else if (lang.equals("es")) {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_es.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_tob_es.xlsx";
 				}
 			}
 			else {
@@ -915,9 +925,13 @@ Erinnerung an die alten Template inhaber senden?
 					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_de.xlsx";
 					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_de.xlsx";
 				}
-				else {
+				else if (lang.equals("en")) {
 					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_en.xlsx";
 					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_en.xlsx";
+				}
+				else if (lang.equals("es")) {
+					if (startTracing) template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Start_tob_es.xlsx";
+					else template = "/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/FCL_Backtrace_Prod_tob_es.xlsx";
 				}
 			}
 			InputStream myxls = this.getClass().getResourceAsStream(template);
@@ -989,8 +1003,9 @@ Erinnerung an die alten Template inhaber senden?
 				
 				row = sheetTracing.getRow(rowIndex+4);
 				cell = row.getCell(0);
-				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the requested information into columns B onwards");
-				else cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen");
+				if  (lang.equals("en")) cell.setCellValue("In Column A starting with Line Number " + (rowIndex+13) + " please enter the line number of the outgoing good being the product of this ingredient. Afterwards, enter the requested information into columns B onwards.");
+				else if  (lang.equals("es")) cell.setCellValue("En la columna A introduzca a partir de la línea " + (rowIndex+11) + " el número de linea de la mercancía de salida a la que esta asociado el ingrediente o su número de lote y rellene los campos desde la columna B en adelante con la información del ingrediente.");
+				else if  (lang.equals("de")) cell.setCellValue("In Spalte A ab Zeile " + (rowIndex+13) + " die Zeilennummer aus dem Warenausgang eintragen und ab Spalte B eine zugehörige Zutat (ggf. Tier) und die weiteren erfragten Angaben eintragen.");
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 			}
@@ -1039,7 +1054,11 @@ Erinnerung an die alten Template inhaber senden?
 			}
 			String fn = "StationBacktrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
 			if (lang.equals("de")) fn = "Rueckverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
-			if (startTracing) fn = "Start_Tracing_" + sif + ".xlsx";
+			else if (lang.equals("es")) fn = "TrazabilidadAtras_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			if (startTracing) {
+				fn = "Start_Tracing_" + sif + ".xlsx";
+				if (lang.equals("es")) fn = "Inicio_TrazabilidadAtras_" + sif + ".xlsx";
+			}
 			if (save(workbook, outputFolder + File.separator + fn)) {
 				result++;
 			}

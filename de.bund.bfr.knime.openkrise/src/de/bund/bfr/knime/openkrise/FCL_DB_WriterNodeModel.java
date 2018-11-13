@@ -78,11 +78,11 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
 		BufferedDataTable nodeTable = inData[0]; // Stations		
-		int idIndex = nodeTable.getSpec().findColumnIndex("ID");
-		int nameIndex = nodeTable.getSpec().findColumnIndex("Name");
-		int addressIndex = nodeTable.getSpec().findColumnIndex("Address");
-		int countryIndex = nodeTable.getSpec().findColumnIndex("Country");
-		int tobIndex = nodeTable.getSpec().findColumnIndex("type of business");
+		int idIndex = nodeTable.getSpec().findColumnIndex(set.getDbSId()); // "ID"
+		int nameIndex = nodeTable.getSpec().findColumnIndex(set.getDbSName()); // "Name"
+		int addressIndex = nodeTable.getSpec().findColumnIndex(set.getDbSAddress()); // "Address"
+		int countryIndex = nodeTable.getSpec().findColumnIndex(set.getDbSCountry()); // "Country"
+		int tobIndex = nodeTable.getSpec().findColumnIndex(set.getDbSTOB()); // "type of business"
 		HashMap<String, Station> stationMap = new HashMap<>();
 		for (DataRow row : nodeTable) {
 			String id = IO.getCleanString(row.getCell(idIndex));
@@ -105,20 +105,20 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 		}
 		
 		BufferedDataTable edgeTable = inData[1]; // Deliveries
-		idIndex = edgeTable.getSpec().findColumnIndex("ID");
-		int fromIndex = edgeTable.getSpec().findColumnIndex("from");
-		int toIndex = edgeTable.getSpec().findColumnIndex("to");
-		nameIndex = edgeTable.getSpec().findColumnIndex("Name");
-		int eanIndex = edgeTable.getSpec().findColumnIndex("EAN");
-		int lotIndex = edgeTable.getSpec().findColumnIndex("Lot Number");
+		idIndex = edgeTable.getSpec().findColumnIndex(set.getDbDId()); // "ID"
+		int fromIndex = edgeTable.getSpec().findColumnIndex(set.getDbDFrom()); // "from"
+		int toIndex = edgeTable.getSpec().findColumnIndex(set.getDbDTo()); // "to"
+		nameIndex = edgeTable.getSpec().findColumnIndex(set.getDbDName()); // "Name"
+		int eanIndex = edgeTable.getSpec().findColumnIndex(set.getDbDEAN()); // "EAN"
+		int lotIndex = edgeTable.getSpec().findColumnIndex(set.getDbDLot()); // "Lot Number"
 		int mhdIndex = edgeTable.getSpec().findColumnIndex("BBD"); // MHD
-		int mhdIndex2 = edgeTable.getSpec().findColumnIndex("BestBefore"); // MHD
-		int ddIndex = edgeTable.getSpec().findColumnIndex("Date Delivery - Day");
-		int dmIndex = edgeTable.getSpec().findColumnIndex("Date Delivery - Month");
-		int dyIndex = edgeTable.getSpec().findColumnIndex("Date Delivery - Year");
+		int mhdIndex2 = edgeTable.getSpec().findColumnIndex(set.getDbDBestBefore()); // "BestBefore"
+		int ddIndex = edgeTable.getSpec().findColumnIndex(set.getDbDDDD()); // "Date Delivery - Day"
+		int dmIndex = edgeTable.getSpec().findColumnIndex(set.getDbDDDM()); // "Date Delivery - Month"
+		int dyIndex = edgeTable.getSpec().findColumnIndex(set.getDbDDDY()); // "Date Delivery - Year"
 		int ddaIndex = edgeTable.getSpec().findColumnIndex("Date Delivery Arrival"); // Date Delivery Arrival as String
-		int amountIndex = edgeTable.getSpec().findColumnIndex("Amount");
-		int commentIndex = edgeTable.getSpec().findColumnIndex("Comment");
+		int amountIndex = edgeTable.getSpec().findColumnIndex(set.getDbDAmount()); // "Amount"
+		int commentIndex = edgeTable.getSpec().findColumnIndex(set.getDbDComment()); // "Comment"
 		HashMap<String, Delivery> deliveryMap = new HashMap<>();
 		for (DataRow row : edgeTable) {
 			String id = IO.getCleanString(row.getCell(idIndex));
@@ -221,8 +221,8 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 		}
 
 		BufferedDataTable d2dTable = inData[2]; // Relations
-		fromIndex = d2dTable.getSpec().findColumnIndex("from");
-		toIndex = d2dTable.getSpec().findColumnIndex("to");
+		fromIndex = d2dTable.getSpec().findColumnIndex(set.getDbTFrom()); // "from"
+		toIndex = d2dTable.getSpec().findColumnIndex(set.getDbTTo()); // "to"
 		for (DataRow row : d2dTable) {
 			String from = IO.getCleanString(row.getCell(fromIndex));
 			String to = IO.getCleanString(row.getCell(toIndex));

@@ -31,36 +31,42 @@ public class XlsStation {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Empfänger";
 		else if (lang.equals("en")) return "Recipient";
+		else if (lang.equals("es")) return "Receptor";
 		else return null;
 	}
 	public static String BLOCK_SUPPLIER(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Lieferant";
 		else if (lang.equals("en")) return "Supplier";
+		else if (lang.equals("es")) return "Proveedor";
 		else return null;
 	}
 	public static String NAME(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Name";
 		else if (lang.equals("en")) return "Name";
+		else if (lang.equals("es")) return "Nombre";
 		else return null;
 	}
 	public static String ADDRESS(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Adresse";
 		else if (lang.equals("en")) return "Address";
+		else if (lang.equals("es")) return "Dirección";
 		else return null;
 	}
 	public static String COUNTRY(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Land";
 		else if (lang.equals("en")) return "Country";
+		else if (lang.equals("es")) return "País";
 		else return null;
 	}
 	public static String TOB(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Betriebsart";
 		else if (lang.equals("en")) return "TypeofBusiness";
+		else if (lang.equals("es")) return "Tipodenegocio";
 		else return null;
 	}
 	

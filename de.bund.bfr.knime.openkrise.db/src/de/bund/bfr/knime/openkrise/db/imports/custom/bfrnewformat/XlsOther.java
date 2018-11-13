@@ -31,12 +31,14 @@ public class XlsOther {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Sonstiges";
 		else if (lang.equals("en")) return "Other";
+		else if (lang.equals("es")) return "Otro";
 		else return null;
 	}
 	public static String COMMENT(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Kommentar";
 		else if (lang.equals("en")) return "Comment";
+		else if (lang.equals("es")) return "Comentarios";
 		else return null;
 	}
 
