@@ -127,7 +127,7 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 				String from = IO.getCleanString(row.getCell(fromIndex));
 				String to = IO.getCleanString(row.getCell(toIndex));
 				if (stationMap.containsKey(from) && stationMap.containsKey(to)) {
-					String f2 = IO.getCleanString(row.getCell(nameIndex));
+					String f2 = nameIndex < 0 ? null : IO.getCleanString(row.getCell(nameIndex));
 					String f3 = eanIndex < 0 ? null : IO.getCleanString(row.getCell(eanIndex));
 					Product p = new Product();
 					p.setStation(stationMap.get(from));
@@ -136,7 +136,7 @@ public class FCL_DB_WriterNodeModel extends NodeModel {
 					int pID = genDbId(""+(stationMap.get(from).getId() + f2 + f3));
 					p.setId(pID);
 					// Lot
-					f2 = IO.getCleanString(row.getCell(lotIndex));
+					f2 = lotIndex < 0 ? null : IO.getCleanString(row.getCell(lotIndex));
 					f3 = mhdIndex < 0 ? (mhdIndex2 < 0 ? null : IO.getCleanString(row.getCell(mhdIndex2))) : IO.getCleanString(row.getCell(mhdIndex));
 					Integer f4 = ddIndex < 0 ? null : IO.getInt(row.getCell(ddIndex));
 					Integer f5 = dmIndex < 0 ? null : IO.getInt(row.getCell(dmIndex));
