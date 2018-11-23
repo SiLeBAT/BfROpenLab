@@ -3,7 +3,7 @@ Eclipse-ExtensibleAPI: true
 Bundle-ManifestVersion: 2
 Bundle-Name: Network Utils
 Bundle-SymbolicName: de.bund.bfr.knime.network;singleton:=true
-Bundle-Version: 1.1.35.qualifier
+Bundle-Version: 1.1.36.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.network.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
