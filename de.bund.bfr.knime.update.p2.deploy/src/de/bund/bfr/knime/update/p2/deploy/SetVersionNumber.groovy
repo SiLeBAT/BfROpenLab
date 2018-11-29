@@ -36,7 +36,8 @@ class SetVersionNumber {
 				def manifest = new File("${d.absolutePath}/META-INF/MANIFEST.MF")
 				def feature = new File("${d.absolutePath}/feature.xml")
 				def site = new File("${d.absolutePath}/site.xml")
-
+				def category = new File("${d.absolutePath}/category.xml")
+				
 				if (manifest.exists()) {
 					manifest.text = manifest.text
 							.replaceFirst(/Bundle-Version: [\d\.]+\.qualifier/, "Bundle-Version: ${version}.qualifier")
@@ -52,6 +53,11 @@ class SetVersionNumber {
 							.replaceAll(/_[\d\.]+\.qualifier\.jar/, "_${version}.qualifier.jar")
 							.replaceAll(/version="[\d\.]+\.\d\d+"/, "version=\"${version}.qualifier\"")
 							.replaceAll(/_[\d\.]+\.\d\d+\.jar/, "_${version}.qualifier.jar")
+							
+				if (category.exists())
+					category.text = category.text
+							.replaceAll(/version="[\d\.]+\.qualifier"/, "version=\"${version}.qualifier\"")
+							.replaceAll(/_[\d\.]+\.qualifier\.jar/, "_${version}.qualifier.jar")
 			}
 	}
 }
