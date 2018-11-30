@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JUNG
 Bundle-SymbolicName: edu.uci.ics.jung
-Bundle-Version: 2.0.1.20150409
+Bundle-Version: 2.0.1.qualifier
 Require-Bundle: org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,

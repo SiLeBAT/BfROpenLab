@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JSBML
 Bundle-SymbolicName: org.sbml.jsbml
-Bundle-Version: 1.1.0
+Bundle-Version: 1.1.0.qualifier
 Bundle-ClassPath: lib/jsbml-1.1-with-dependencies.jar
 Export-Package: org.sbml.jsbml,
  org.sbml.jsbml.ext,

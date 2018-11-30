@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Nonlinear Regression Nodes
 Bundle-SymbolicName: de.bund.bfr.knime.nls;singleton:=true
-Bundle-Version: 1.1.36.qualifier
+Bundle-Version: 1.1.37.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.nls.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
