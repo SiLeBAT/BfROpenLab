@@ -115,7 +115,12 @@ public class DeliveryUtils {
 
 	public static Double getAmountInKg(Double value, String unit) {
 		if (value == null && unit != null) {
-			return Double.parseDouble(unit.substring(0, unit.indexOf(" ")));
+			int did = unit.trim().indexOf(" ");
+			try {
+				return did > 0 ? Double.parseDouble(unit.trim().substring(0, did)) : null;
+			} catch (NumberFormatException e) {
+				return null;
+			}
 		}
 		if (value == null || unit == null) {
 			return null;
