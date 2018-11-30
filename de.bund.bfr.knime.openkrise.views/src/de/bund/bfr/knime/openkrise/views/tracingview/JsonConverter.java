@@ -65,6 +65,7 @@ public class JsonConverter {
         Boolean observed) { 
       Tracing.TraceableUnit unit = new Tracing.TraceableUnit();
       unit.id = id;
+      unit.weight = weight;
       unit.crossContamination = crossContamination;
       unit.killContamination = killContamination;
       unit.observed = observed;
