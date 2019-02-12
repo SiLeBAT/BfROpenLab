@@ -36,6 +36,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1540,9 +1541,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					//System.out.println(result + "\t" + sql);
 				}
 			} catch (Exception e) {
-				if (sql.startsWith("UPDATE") && e.getMessage().startsWith("data exception: string data, right truncation"))
+				if (sql.startsWith("UPDATE") && e instanceof SQLException && ((SQLException) e).getSQLState().equals("22001")) // && e.getMessage().startsWith("data exception: string data, right truncation"))
 				;
-				else if (sql.startsWith("INSERT INTO") && e.getMessage().startsWith("integrity constraint violation: unique constraint or index violation")) {
+				else if (sql.startsWith("INSERT INTO") && e instanceof SQLException && ((SQLException) e).getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation: unique constraint or index violation")) {
 					System.err.println(sql);
 					logMessages += "SQLException, getID(), INSERT failed: " + sql + "\n";
 				}

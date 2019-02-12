@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -55,7 +56,8 @@ public class MyLogger {
 	}
 
 	static void handleException(Exception e, boolean forceMessage) {
-		if (isKNIME && e.getMessage() != null && (e.getMessage().equals("The table data is read only") || e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
+		if (isKNIME && e != null && (e instanceof SQLException && Math.abs(((SQLException)e).getErrorCode()) == 451 && Math.abs(((SQLException)e).getErrorCode()) == 3706)) {
+		//if (isKNIME && e.getMessage() != null && (e.getMessage().equals("The table data is read only") || e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
 			;
 		} else {
 			Calendar c1 = Calendar.getInstance();

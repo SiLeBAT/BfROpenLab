@@ -293,9 +293,9 @@ public abstract class MyDBI {
 			//connStr += ";hsqldb.write_delay=false;";
 			conn = DriverManager.getConnection(connStr, dbUsername, dbPassword);
 			conn.setReadOnly(ro);
-		} catch (Exception e) {
-			passFalse = e.getMessage().startsWith("invalid authorization specification");
-			if (e.getMessage().startsWith("Database lock acquisition failure:")) {
+		} catch (SQLException e) {
+			passFalse = e.getSQLState().startsWith("28");//e.getMessage().startsWith("invalid authorization specification");
+			if (Math.abs(e.getErrorCode()) == 451) { //e.getMessage().startsWith("Database lock acquisition failure:")) {
 				Frame[] fs = Frame.getFrames();
 				if (fs != null && fs.length > 0) {
 					//InfoBox ib = new InfoBox(fs[0], "Die Datenbank wird zur Zeit von\neinem anderen Benutzer verwendet!", true, new Dimension(300, 150), null, true);
@@ -304,6 +304,8 @@ public abstract class MyDBI {
 			} else {
 				if (!suppressWarnings) MyLogger.handleException(e);
 			}
+		} catch (Exception e) {
+			if (!suppressWarnings) MyLogger.handleException(e);
 		}
 	}
 
@@ -351,7 +353,8 @@ public abstract class MyDBI {
 				result = true;
 			} catch (Exception e) {
 				if (!suppressWarnings) {
-					if ((!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
+					//if ((!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
+					if ((e instanceof SQLException && Math.abs(((SQLException)e).getErrorCode()) != 451 && Math.abs(((SQLException)e).getErrorCode()) != 3706)) {
 						MyLogger.handleMessage(sql);
 					}
 					MyLogger.handleException(e);

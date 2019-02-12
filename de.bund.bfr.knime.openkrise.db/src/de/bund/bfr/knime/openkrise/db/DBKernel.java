@@ -706,8 +706,17 @@ public class DBKernel {
 		try {
 			result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
 			result.setReadOnly(DBKernel.isReadOnly());
-		} catch (Exception e) {
-			passFalse = e.getMessage().startsWith("invalid authorization specification");
+		} catch (SQLException e) {
+			/*
+# invalid authorization specification
+4000=28000 invalid authorization specification
+
+# HSQLDB invalid authorization specification
+4001=28501 invalid authorization specification - not found
+4002=28502 invalid authorization specification - system identifier
+4003=28503 invalid authorization specification - already exists
+			 */
+			passFalse = e.getSQLState().startsWith("28");//e.getMessage().startsWith("invalid authorization specification");
 			if (!suppressWarnings) MyLogger.handleException(e);
 		}
 		return result;
@@ -745,10 +754,10 @@ public class DBKernel {
 		try {
 			result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
 			result.setReadOnly(DBKernel.isReadOnly());
-		} catch (Exception e) {
-			passFalse = e.getMessage().startsWith("invalid authorization specification");
+		} catch (SQLException e) {
+			passFalse = e.getSQLState().startsWith("28");//e.getMessage().startsWith("invalid authorization specification");
 			// MyLogger.handleMessage(e.getMessage());
-			if (e.getMessage().startsWith("Database lock acquisition failure:")) {
+			if (Math.abs(e.getErrorCode()) == 451) { //e.getMessage().startsWith("Database lock acquisition failure:")) {
 				Frame[] fs = Frame.getFrames();
 				if (fs != null && fs.length > 0) {
 					InfoBox ib = new InfoBox(fs[0], "Die Datenbank wird zur Zeit von\neinem anderen Benutzer verwendet!", true, new Dimension(300, 150), null, true);
@@ -1192,7 +1201,8 @@ public class DBKernel {
 			result = true;
 		} catch (Exception e) {
 			if (!suppressWarnings) {
-				if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+				//if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+				if (!DBKernel.isKNIME || (e instanceof SQLException && Math.abs(((SQLException)e).getErrorCode()) != 451 && Math.abs(((SQLException)e).getErrorCode()) != 3706)) MyLogger.handleMessage(sql);
 				MyLogger.handleException(e);
 			}
 		}
@@ -1220,7 +1230,8 @@ public class DBKernel {
 			result = anfrage.executeUpdate(sql);
 		} catch (Exception e) {
 			if (!suppressWarnings) {
-				if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+				//if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+				if (!DBKernel.isKNIME || (e instanceof SQLException && Math.abs(((SQLException)e).getErrorCode()) != 451 && Math.abs(((SQLException)e).getErrorCode()) != 3706)) MyLogger.handleMessage(sql);
 				MyLogger.handleException(e);
 			}
 		}

@@ -207,7 +207,9 @@ public class Lot {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) result = dbId; // Format_2017;//throw new Exception("Station ID is already assigned"); //  " + intId + "
+				if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
+					result = dbId; // Format_2017;//throw new Exception("Station ID is already assigned"); //  " + intId + "
+				}
 				else throw e;
 			}
 		}
@@ -231,6 +233,25 @@ public class Lot {
 				iv += ",?";
 			//}
 		}
+		/*
+		 * e.getMessage()	violación del restricción de integridad: violación de índice o clave única; SYS_PK_10149 table: "Station	
+		 * "e.getMessage()"	integrity constraint violation: unique constraint or index violation; SYS_PK_10149 table: "Station"	
+# integrity constraint violation
+3500=23000 integrity constraint violation
+3501=23001 integrity constraint violation: restrict violation
+0010=23502 integrity constraint violation: NOT NULL check constraint
+0177=23503 integrity constraint violation: foreign key no parent
+0008=23504 integrity constraint violation: foreign key no action
+0104=23505 integrity constraint violation: unique constraint or index violation
+0157=23513 integrity constraint violation: check constraint
+3500=23000 violaci�n del restricci�n de integridad
+3501=23001 violaci�n del restricci�n de integridad: violaci�n de la restricii�n
+0010=23502 violaci�n del restricci�n de integridad: restricci�n ('check') NOT NULL
+0177=23503 violaci�n del restricci�n de integridad: no ha registro padre en clave for�nea
+0008=23504 violaci�n del restricci�n de integridad: sin acci�n para la clave for�nea
+0104=23505 violaci�n del restricci�n de integridad: violaci�n de �ndice o clave �nica
+0157=23513 violaci�n del restricci�n de integridad: restricci�n ('check') no se cumple
+		 */
 		String sql = "INSERT INTO " + MyDBI.delimitL("Chargen") + " (" + in + ") VALUES (" + iv + ")";
 		@SuppressWarnings("resource")
 		Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
@@ -245,7 +266,7 @@ public class Lot {
 			}
 		}
 		catch (SQLException e) {
-			if (e.getMessage().startsWith("integrity constraint violation")) {
+			if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
 				dbId = id;
 				//throw new Exception("Station ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
 			}

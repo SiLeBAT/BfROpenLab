@@ -135,7 +135,9 @@ public class Product {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) result = dbId; // Format_2017;//throw new Exception("Station ID is already assigned"); //  " + intId + "
+				if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
+					result = dbId; // Format_2017;//throw new Exception("Station ID is already assigned"); //  " + intId + "
+				}
 				else throw e;
 			}
 		}
@@ -193,7 +195,7 @@ public class Product {
 			}
 		}
 		catch (SQLException e) {
-			if (e.getMessage().startsWith("integrity constraint violation")) {
+			if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
 				dbId = id;
 			}//throw new Exception("Station ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
 			else throw e;

@@ -395,7 +395,9 @@ public class Delivery {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) result = dbId; // Format_2017;//throw new Exception("Delivery ID is already assigned\n" + e.toString() + "\n" + sql); //  " + intId + "
+				if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
+					result = dbId; // Format_2017;//throw new Exception("Delivery ID is already assigned\n" + e.toString() + "\n" + sql); //  " + intId + "
+				}
 				else throw e;
 			}
 		}
@@ -451,7 +453,7 @@ public class Delivery {
 	              }
 	      }
 	      catch (SQLException e) {
-              if (e.getMessage().startsWith("integrity constraint violation")) {
+              if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
                       dbId = Integer.parseInt(id);
                       //throw new Exception("Delivery ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
               }
@@ -481,7 +483,7 @@ public class Delivery {
 			}
 		}
 		catch (SQLException e) {
-			//if (e.getMessage().startsWith("integrity constraint violation")) {
+			//if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
 				//throw new Exception("Delivery ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
 			//}
 			//else 
