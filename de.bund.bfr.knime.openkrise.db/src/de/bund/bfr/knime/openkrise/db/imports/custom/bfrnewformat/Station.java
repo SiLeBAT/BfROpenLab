@@ -210,10 +210,10 @@ public class Station {
 		String serialWhere = "";
 		for (int i=0;i<feldnames.length;i++) {
 			if (feldVals[i] != null) {
-				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
+				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].replace("'", "''").toUpperCase() + "'";
 				in += "," + MyDBI.delimitL(feldnames[i]);
-				iv += ",'" + feldVals[i] + "'";
-				if (feldnames[i].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
+				iv += ",'" + feldVals[i].replace("'", "''") + "'";
+				if (feldnames[i].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].replace("'", "''").toUpperCase() + "'";
 			}
 		}
 		/*
@@ -268,7 +268,10 @@ public class Station {
 				if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
 					result = dbId; // Format_2017;//throw new Exception("Station ID is already assigned"); //  " + intId + "
 				}
-				else throw e;
+				else {
+					System.err.println(sql);
+					throw e;
+				}
 			}
 		}
 
