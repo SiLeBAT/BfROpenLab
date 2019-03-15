@@ -310,7 +310,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 			else {
 				// Predefine DB IDs for Format_2017
-				predefineIDs(deliveries.values());
+				try {
+					predefineIDs(deliveries.values());
+				}
+				catch (Exception e) {}
 
 				for (Delivery d : deliveries.values()) {
 					try {
@@ -505,20 +508,23 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : deliveries) {
 			Lot l = d.getLot();
 			Product p = l.getProduct();
-			Station s=p.getStation();			
-			s.setAddress(generateAddress(s));
-			if (s.getDbId() == null) s.setDbId(genDbId(""+s.getName()+s.getAddress()));	
-			if (p.getDbId() == null) p.setDbId(genDbId(""+s.getDbId()+p.getName()+p.getFlexible(XlsProduct.EAN("en"))));	
-			String dd = d.getDepartureDay() == null || d.getDepartureMonth() == null || d.getDepartureYear() == null ? d.getId() : "" + d.getDepartureDay()+d.getDepartureMonth()+d.getDepartureYear();
-			String ln = l.getNumber() == null && l.getFlexible(XlsLot.MHD("en")) == null ? dd : l.getNumber()+l.getFlexible(XlsLot.MHD("en"));
-			if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + ln));
-			if (d.getUnitNumber() != null && d.getUnitUnit() != null) d.addFlexibleField("Amount", d.getUnitNumber() + " " + d.getUnitUnit());
-			else if (d.getUnitNumber() != null) d.addFlexibleField("Amount", d.getUnitNumber()+"");
-			Station r = d.getReceiver();
-			//if (r != null) {
-				r.setAddress(generateAddress(r));
-				if (r.getDbId() == null) r.setDbId(genDbId(""+r.getName()+r.getAddress()));					
-				if (d.getDbId() == null) d.setDbId(genDbId(""+l.getDbId() + d.getDepartureDay()+d.getDepartureMonth()+d.getDepartureYear()+d.getFlexible("Amount")+d.getComment()+r.getDbId()));
+			Station s = p.getStation();	
+			//if (s != null) {
+				s.setAddress(generateAddress(s));
+				if (s.getDbId() == null) s.setDbId(genDbId(""+s.getName()+s.getAddress()));	
+				if (p.getDbId() == null) p.setDbId(genDbId(""+s.getDbId()+p.getName()+p.getFlexible(XlsProduct.EAN("en"))));	
+				String dd = d.getDepartureDay() == null || d.getDepartureMonth() == null || d.getDepartureYear() == null ? d.getId() : "" + d.getDepartureDay()+d.getDepartureMonth()+d.getDepartureYear();
+				String ln = l.getNumber() == null && l.getFlexible(XlsLot.MHD("en")) == null ? dd : l.getNumber()+l.getFlexible(XlsLot.MHD("en"));
+				if (l.getDbId() == null) l.setDbId(genDbId(""+p.getDbId() + ln));
+				if (d.getUnitNumber() != null && d.getUnitUnit() != null) d.addFlexibleField("Amount", d.getUnitNumber() + " " + d.getUnitUnit());
+				else if (d.getUnitNumber() != null) d.addFlexibleField("Amount", d.getUnitNumber()+"");
+				Station r = d.getReceiver();
+				//System.err.println(d.getLot().getProduct().getName());
+				//if (r != null) {
+					r.setAddress(generateAddress(r));
+					if (r.getDbId() == null) r.setDbId(genDbId(""+r.getName()+r.getAddress()));					
+					if (d.getDbId() == null) d.setDbId(genDbId(""+l.getDbId() + d.getDepartureDay()+d.getDepartureMonth()+d.getDepartureYear()+d.getFlexible("Amount")+d.getComment()+r.getDbId()));
+				//}
 			//}
 		}
 	}
@@ -1430,7 +1436,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			cell.setCellType(Cell.CELL_TYPE_STRING); 
 			String sid = getStr(cell.getStringCellValue());
 			Station s = stations.get(sid);
-			if (s == null) exceptions.add(new Exception("Recipient ID in sheet Deliveries not defined in stations sheet: '" + sid + "'; -> Row " + (rowNum+1)));
+			if (s == null) {
+				exceptions.add(new Exception("Recipient ID in sheet Deliveries not defined in stations sheet: '" + sid + "'; -> Row " + (rowNum+1)));
+			}
 			result.setReceiver(s);
 		}
 		else {
@@ -1737,11 +1745,16 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						}
 						doWarns(filename);
 						
+						boolean somethingIn = false;
 						logMessages += "<h1 id=\"error\">Error in file '" + filename + "'</h1><ul>";
 						for (Exception e : exceptions) {
-							logMessages += "<li>" + e.getMessage() + "</li>";
-							MyLogger.handleException(e);
+							if (e.getMessage() != null) {
+								logMessages += "<li>" + e.getMessage() + "</li>";
+								MyLogger.handleException(e);	
+								somethingIn = true;
+							}
 						}
+						if (!somethingIn) logMessages += "<li>some undefined problems occurred - contact the support team</li>";
 						logMessages += "</ul>";
 						if (progress != null) progress.setVisible(false);
 						
