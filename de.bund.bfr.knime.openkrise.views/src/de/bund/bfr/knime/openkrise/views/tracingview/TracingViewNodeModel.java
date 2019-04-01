@@ -19,11 +19,20 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.json.JsonValue;
+import javax.swing.JOptionPane;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -42,6 +51,8 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
+import org.knime.core.node.workflow.FlowVariable;
+
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.NoInternalsNodeModel;
 import de.bund.bfr.knime.gis.GisType;
@@ -174,8 +185,49 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		
 		//BufferedDataTable aggDataOutTable = createAggregatedDataTable(exec, graphImage, gisImage, combinedImage, configurationJsonCell);
 		
+		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
+		FlowVariable jo = fvm.get("JSON_out");
+		if (jo != null) {
+			exportJson(jo.getStringValue(), true, nodeInTable, edgeInTable, tracingInTable);
+		}
+		
 		return new PortObject[] { nodeOutTable, edgeOutTable, graphImage, gisImage, combinedImage}; //, configurationOutTable, aggDataOutTable};
 	}
+    private void exportJson(String filePath, boolean addData, BufferedDataTable nodeTable, BufferedDataTable edgeTable, BufferedDataTable tracingTable) {
+    	File f = new File(filePath);
+    	if (f.getParentFile() != null && f.getParentFile().exists()) {
+            JsonConverter.JsonBuilder jsonBuilder = new JsonConverter.JsonBuilder();
+            set.saveSettings(jsonBuilder);
+            if(addData) jsonBuilder.setData(nodeTable, edgeTable, tracingTable);
+            PrintWriter printWriter = null;
+            OutputStreamWriter outputStreamWriter = null;
+            try {
+              JsonValue jsonValue = jsonBuilder.build();
+              
+//              JsonReader jsonReader = Json.createReader(in);
+//              JsonValue jsonValue = jsonReader.readObject();
+              
+              FileOutputStream fos = new FileOutputStream(filePath);
+              outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
+              outputStreamWriter.write(jsonValue.toString());
+              //outputStreamWriter.close();
+              
+//              printWriter = new PrintWriter(filePath);
+//              printWriter.println(jsonValue.toString());
+              
+            } catch (Exception e) {
+              JOptionPane.showMessageDialog(null, e.getMessage(), "Export Problem", JOptionPane.ERROR_MESSAGE);
+            } finally {
+              if(printWriter!=null) printWriter.close();
+              if(outputStreamWriter!=null)
+                try {
+                  outputStreamWriter.close();
+                } catch (IOException e) {
+                  e.printStackTrace();
+                }
+            }
+    	}
+      }
 	
 //	private BufferedDataTable createAggregatedDataTable(ExecutionContext exec, ImagePortObject graphImage, ImagePortObject gisImage, ImagePortObject combinedImage, DataCell configurationJsonCell ) {
 //	  
