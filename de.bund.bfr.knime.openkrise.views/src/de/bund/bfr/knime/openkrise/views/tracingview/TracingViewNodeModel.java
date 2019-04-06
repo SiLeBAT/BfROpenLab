@@ -188,17 +188,18 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
 		FlowVariable jo = fvm.get("JSON_out");
 		if (jo != null) {
-			exportJson(jo.getStringValue(), true, nodeInTable, edgeInTable, tracingInTable);
+			exportJson(jo.getStringValue(), nodeInTable, edgeInTable, tracingInTable, false);
 		}
 		
 		return new PortObject[] { nodeOutTable, edgeOutTable, graphImage, gisImage, combinedImage}; //, configurationOutTable, aggDataOutTable};
 	}
-    private void exportJson(String filePath, boolean addData, BufferedDataTable nodeTable, BufferedDataTable edgeTable, BufferedDataTable tracingTable) {
+    private void exportJson(String filePath, BufferedDataTable nodeTable, BufferedDataTable edgeTable, BufferedDataTable tracingTable, boolean useInternalSettings) {
     	File f = new File(filePath);
     	if (f.getParentFile() != null && f.getParentFile().exists()) {
             JsonConverter.JsonBuilder jsonBuilder = new JsonConverter.JsonBuilder();
-            set.saveSettings(jsonBuilder);
-            if(addData) jsonBuilder.setData(nodeTable, edgeTable, tracingTable);
+            if (useInternalSettings) set.saveSettings(jsonBuilder);
+            else (new TracingViewSettings()).saveSettings(jsonBuilder);
+            jsonBuilder.setData(nodeTable, edgeTable, tracingTable);
             PrintWriter printWriter = null;
             OutputStreamWriter outputStreamWriter = null;
             try {
@@ -228,7 +229,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
             }
     	}
       }
-	
+
 //	private BufferedDataTable createAggregatedDataTable(ExecutionContext exec, ImagePortObject graphImage, ImagePortObject gisImage, ImagePortObject combinedImage, DataCell configurationJsonCell ) {
 //	  
 //      DataCell graphImageCell = graphImage.toDataCell();
