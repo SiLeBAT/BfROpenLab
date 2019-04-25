@@ -49,6 +49,7 @@
 		-->
 		<!-- Others -->
 		<module>de.bund.bfr.knime.openkrise.feature</module>
+		<module>de.bund.bfr.knime.network.feature</module>
 		<module>de.bund.bfr.knime.update.p2</module>
 		
 	</modules>
