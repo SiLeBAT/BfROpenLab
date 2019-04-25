@@ -24,6 +24,7 @@
 		<module>de.bund.bfr.knime.openkrise.views</module>
 		<module>de.bund.bfr.knime.gis</module>
 		<module>de.bund.bfr.knime.gis.util</module>
+		<module>de.bund.bfr.knime.gis.views</module>
 		<module>de.bund.bfr.knime</module>
 		<module>org.geotools</module>
 		<module>edu.uci.ics.jung</module>
