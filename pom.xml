@@ -38,6 +38,8 @@
 		<module>org.jooq</module>
 		<module>de.bund.bfr.knime.openkrise.common</module>
 		<module>de.bund.bfr.knime.openkrise.db.generated</module>
+		<module>de.bund.bfr.knime.openkrise.xml</module>
+		<module>de.nrw.verbraucherschutz.idv</module>
 		<module>edu.umd.cs.findbugs.annotations</module>
 		<module>de.bund.bfr.jung</module>
 
