@@ -9,6 +9,9 @@
    <feature url="features/de.bund.bfr.knime.openkrise.feature_1.1.37.201812010006.jar" id="de.bund.bfr.knime.openkrise.feature" version="1.1.37.201812010006">
       <category name="bfropenlab"/>
    </feature>
+   <feature url="features/de.bund.bfr.knime.openkrise.feat_1.1.37.201812010006.jar" id="de.bund.bfr.knime.openkrise.feat" version="1.1.37.201812010006">
+      <category name="bfropenlab"/>
+   </feature>
    <feature url="features/de.bund.bfr.knime.network.feature_1.1.37.201812010006.jar" id="de.bund.bfr.knime.network.feature" version="1.1.37.201812010006">
       <category name="bfropenlab"/>
    </feature>

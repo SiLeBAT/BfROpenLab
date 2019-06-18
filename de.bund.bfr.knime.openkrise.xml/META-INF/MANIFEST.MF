@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: XML
+Bundle-Name: KNIME Tracing Nodes (XML)
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise.xml;singleton:=true
 Bundle-Version: 1.1.37.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -21,3 +21,4 @@ Bundle-ClassPath: .,
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in,
  de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out
+Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
