@@ -17,7 +17,8 @@ Bundle-ClassPath: .,
  lib/jersey-common.jar,
  lib/jersey-guava-2.22.2.jar,
  lib/jersey-media-multipart-2.22.2.jar,
- lib/mimepull-1.9.6.jar
+ lib/mimepull-1.9.6.jar,
+ lib/jaxbnamespaceprefixmapper-2.2.4.jar
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in,
  de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out

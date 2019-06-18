@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/jaxbnamespaceprefixmapper-2.2.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hk2-api-2.4.0-b34.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hk2-locator-2.4.0-b34.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hk2-utils-2.4.0-b34.jar"/>
