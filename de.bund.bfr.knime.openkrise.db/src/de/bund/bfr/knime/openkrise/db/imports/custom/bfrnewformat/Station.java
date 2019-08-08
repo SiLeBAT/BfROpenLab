@@ -188,14 +188,14 @@ public class Station {
 					else DBKernel.sendRequest(sql, false);
 				}
 				if (doUpdate) {
-					sql = "UPDATE " + MyDBI.delimitL("ExtraFields") + " SET " + MyDBI.delimitL("value") + "=CONCAT(" + MyDBI.delimitL("value") + ",';;; " + es.getValue() + "')" +
+					sql = "UPDATE " + MyDBI.delimitL("ExtraFields") + " SET " + MyDBI.delimitL("value") + "=CONCAT(" + MyDBI.delimitL("value") + ",';;; " + es.getValue().replace("'", "''") + "')" +
 							" WHERE " + MyDBI.delimitL("tablename") + "='Station' AND " + MyDBI.delimitL("id") + "=" + dbId +
 							" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
 				}
 				else {
 					sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
 							" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-							") VALUES ('Station'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+							") VALUES ('Station'," + dbId + ",'" + es.getKey() + "','" + es.getValue().replace("'", "''") + "')";
 				}
 				if (mydbi != null) mydbi.sendRequest(sql, false, false);
 				else DBKernel.sendRequest(sql, false);

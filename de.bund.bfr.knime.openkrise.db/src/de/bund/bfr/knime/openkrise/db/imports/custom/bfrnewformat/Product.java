@@ -107,7 +107,7 @@ public class Product {
 			if (feldVals[i] != null) {
 				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
 				in += "," + MyDBI.delimitL(feldnames[i]);
-				iv += ",'" + feldVals[i] + "'";
+				iv += ",'" + feldVals[i].replace("'", "''") + "'";
 			}
 		}
 
