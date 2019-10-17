@@ -93,7 +93,7 @@ Erinnerung an die alten Template inhaber senden?
 			catch (Exception e) {e.printStackTrace();}
 
 			String message = "";
-			if (numFilesGenerated == 0) message = "No new Template generated. Maybe the selected station '" + station.getName() + "' has " + (isForward ? "no incoming deliveries? Or they are all already connected to outgoing lots?" : "no ougoing lots? Or they are all already connected to incoming deliveries?");
+			if (numFilesGenerated == 0) message = "No new Template generated. Maybe the selected station '" + station.getName() + "' has " + (isForward ? "no incoming deliveries? Or they are all already connected to outgoing lots?" : "no outgoing lots? Or they are all already connected to incoming deliveries?");
 			else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + outputFolder.getAbsolutePath() + "'";
 
 			IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
