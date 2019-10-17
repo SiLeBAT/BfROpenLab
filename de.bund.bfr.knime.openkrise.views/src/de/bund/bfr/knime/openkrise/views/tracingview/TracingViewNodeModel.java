@@ -101,37 +101,6 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		// optional inputs
 		
 		BufferedDataTable shapeInTable = (BufferedDataTable) inObjects[3];
-		//BufferedDataTable configurationInTable = (BufferedDataTable) inObjects[4];
-		
-//        if(configurationInTable!=null) {
-//          try {
-//            this.set.loadSettings(Utils.extractJsonValueFromBufferedDataTable(configurationInTable));
-//            this.set.fix();
-//          } catch (JsonProcessingException e) {
-//            throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
-//          } catch (InvalidSettingsException e) {
-//            throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
-//          }
-//        }
-        
-//		// ToDo:
-//		// if configurationTable is specified update node settings
-//		if(configurationInTable != null) {
-//		    DataRow row = Iterables.getFirst(configurationInTable, null);
-//	        DataCell cell = row.getCell(configurationInTable.getSpec().findColumnIndex(JsonConstants.JSON_COLUMN));
-//
-//	        if (cell.isMissing()) {
-//	            throw new Exception("Cell in " + JsonConstants.JSON_COLUMN + " is missing");
-//	        }
-//
-//	        //JsonObject json = (JsonObject) ((JSONValue) cell).getJsonValue();
-//	        
-//	      //ToDo validate configuration
-//	      set.loadSettings(((JSONValue) cell).getJsonValue());
-//		  
-//		}
-		
-//		this.set.fix
 		
 		GisType originalGisType = set.getGisType();
 
@@ -179,19 +148,13 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		BufferedDataTable edgeOutTable = createTable(graphCanvas.getEdges(), graphCanvas.getEdgeSchema().getMap(),
 				createEdgeOutSpec(edgeInTable.getSpec()), exec);
 		
-		//BufferedDataTable configurationOutTable = createConfigurationTable(exec);
-		
-		//DataCell configurationJsonCell = createConfigurationJSONCell();
-		
-		//BufferedDataTable aggDataOutTable = createAggregatedDataTable(exec, graphImage, gisImage, combinedImage, configurationJsonCell);
-		
 		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
 		FlowVariable jo = fvm.get("JSON_out");
 		if (jo != null) {
 			exportJson(jo.getStringValue(), nodeInTable, edgeInTable, tracingInTable, false);
 		}
 		
-		return new PortObject[] { nodeOutTable, edgeOutTable, graphImage, gisImage, combinedImage}; //, configurationOutTable, aggDataOutTable};
+		return new PortObject[] { nodeOutTable, edgeOutTable, graphImage, gisImage, combinedImage}; 
 	}
     private void exportJson(String filePath, BufferedDataTable nodeTable, BufferedDataTable edgeTable, BufferedDataTable tracingTable, boolean useInternalSettings) {
     	File f = new File(filePath);
@@ -205,16 +168,9 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
             try {
               JsonValue jsonValue = jsonBuilder.build();
               
-//              JsonReader jsonReader = Json.createReader(in);
-//              JsonValue jsonValue = jsonReader.readObject();
-              
               FileOutputStream fos = new FileOutputStream(filePath);
               outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
               outputStreamWriter.write(jsonValue.toString());
-              //outputStreamWriter.close();
-              
-//              printWriter = new PrintWriter(filePath);
-//              printWriter.println(jsonValue.toString());
               
             } catch (Exception e) {
               JOptionPane.showMessageDialog(null, e.getMessage(), "Export Problem", JOptionPane.ERROR_MESSAGE);
@@ -230,24 +186,6 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
     	}
       }
 
-//	private BufferedDataTable createAggregatedDataTable(ExecutionContext exec, ImagePortObject graphImage, ImagePortObject gisImage, ImagePortObject combinedImage, DataCell configurationJsonCell ) {
-//	  
-//      DataCell graphImageCell = graphImage.toDataCell();
-//      DataCell gisImageCell = gisImage.toDataCell();
-//      DataCell combinedImageCell = combinedImage.toDataCell();
-//      
-//
-//      DataTableSpec spec = createAggDataTableOutSpec(); 
-//      
-//      BufferedDataContainer nodeContainer = exec.createDataContainer(spec);
-//     
-//      nodeContainer.addRowToTable(new DefaultRow("0", new DataCell[] {graphImageCell, gisImageCell, combinedImageCell, configurationJsonCell}));
-//     
-//      nodeContainer.close();
-//
-//      return nodeContainer.getTable();
-//	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -258,8 +196,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		
 		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec), createEdgeOutSpec(edgeSpec),  
 				CanvasUtils.getImageSpec(set.isExportAsSvg()), CanvasUtils.getImageSpec(set.isExportAsSvg()),
-				CanvasUtils.getImageSpec(set.isExportAsSvg())}; //, 
-				//createConfigurationOutSpec(), createAggDataTableOutSpec() };
+				CanvasUtils.getImageSpec(set.isExportAsSvg())}; 
 	}
 
 	/**
@@ -329,40 +266,6 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 
 		return nodeContainer.getTable();
 	}
-	
-//	private DataTableSpec createAggDataTableOutSpec() {
-//	  
-//	  DataType imageType = set.isExportAsSvg()?SvgCell.TYPE:PNGImageContent.TYPE;
-//	  
-//	  return new DataTableSpec(new DataColumnSpec[] {
-//	      new DataColumnSpecCreator("Graph Image", imageType).createSpec(),
-//	      new DataColumnSpecCreator("GIS Image", imageType).createSpec(),
-//	      new DataColumnSpecCreator("Combined Image", imageType).createSpec(),
-//	      new DataColumnSpecCreator(de.bund.bfr.knime.openkrise.util.json.JsonConstants.JSON_COLUMN_SETTINGS, JSONCell.TYPE).createSpec()
-//	  });
-//	}
-	
-//    private BufferedDataTable createConfigurationTable(ExecutionContext exec) throws InvalidSettingsException {
-//      
-//      BufferedDataContainer container = exec.createDataContainer(createConfigurationOutSpec());
-//
-//      try {
-//        container.addRowToTable(new DefaultRow(RowKey.createRowKey(0L),
-//            createConfigurationJSONCell()));
-//      } catch (JsonProcessingException e) {
-//        throw(new InvalidSettingsException(e));
-//      }
-//      container.close();
-//
-//      return container.getTable();
-//    }
-    
-//    private DataCell createConfigurationJSONCell() throws JsonProcessingException {
-//      
-//      JsonValue json = set.toJson();    
-//      
-//      return JSONCellFactory.create(json);
-//    }
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) throws InvalidSettingsException {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
@@ -443,7 +346,4 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
 	}
 	
-//	private DataTableSpec createConfigurationOutSpec() {
-//	  return new DataTableSpec(new DataColumnSpecCreator(JsonConstants.JSON_COLUMN, JSONCell.TYPE).createSpec());
-//	}
 }

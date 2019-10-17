@@ -12,7 +12,8 @@ Require-Bundle: de.bund.bfr.knime.openkrise,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
  org.knime.json,
- de.bund.bfr.knime.gis
+ de.bund.bfr.knime.gis,
+ com.fasterxml.jackson.core.jackson-annotations
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.knime.base.data.xml

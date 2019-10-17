@@ -64,6 +64,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.bund.bfr.jung.LabelPosition;
@@ -160,13 +161,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 	private JScrollPane northScrollPane;
 	
-	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
 	 */
 	protected TracingViewNodeDialog() {
-//		this.initializeFileLogging();
 		this.set = new TracingViewSettings();
 		this.undoStack = new LinkedList<>();
 		this.redoStack = new LinkedList<>();
@@ -313,16 +312,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
       try {
         JsonValue jsonValue = jsonBuilder.build();
         
-//        JsonReader jsonReader = Json.createReader(in);
-//        JsonValue jsonValue = jsonReader.readObject();
-        
         FileOutputStream fos = new FileOutputStream(filePath);
         outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
         outputStreamWriter.write(jsonValue.toString());
-        //outputStreamWriter.close();
-        
-//        printWriter = new PrintWriter(filePath);
-//        printWriter.println(jsonValue.toString());
         
       } catch (Exception e) {
         JOptionPane.showMessageDialog(null, e.getMessage(), "Export Problem", JOptionPane.ERROR_MESSAGE);
@@ -344,17 +336,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		this.edgeTable = (BufferedDataTable) input[1];
 		this.tracingTable = (BufferedDataTable) input[2];
 		this.shapeTable = (BufferedDataTable) input[3];
-		//BufferedDataTable configurationTable = (BufferedDataTable) input[4];
+		
 		this.set.loadSettings(settings);
-		
-//		try {
-//          this.set.loadSettings(Utils.extractJsonValueFromBufferedDataTable(configurationTable));
-//        } catch (JsonProcessingException e) {
-//          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
-//        } catch (InvalidSettingsException e) {
-//          throw(new NotConfigurableException(String.format("Configuration from inport could not been applied. (%s)", e.getMessage())));
-//        }
-		
+				
 		// Settings might not fit to data
 		this.fixSettings();
 		
@@ -364,7 +348,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	
 	public void loadSettings(JsonValue json) throws JsonProcessingException, InvalidSettingsException, NotConfigurableException {
 	  if(json != null) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       
         JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
         JsonFormat jsonFormat = mapper.treeToValue(rootNode, JsonFormat.class);

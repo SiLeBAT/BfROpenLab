@@ -27,6 +27,7 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -303,7 +304,7 @@ public class JsonConverter {
   }
   
   public static JsonFormat convertFromJson(JsonValue json) throws JsonProcessingException {
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);;
   
     JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
     return mapper.treeToValue(rootNode, JsonFormat.class);

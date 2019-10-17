@@ -141,7 +141,6 @@ public class JsonConverter {
         valueCondition.valueType = valueHighlightCondition.getType().name();
         valueCondition.useZeroAsMinimum = valueHighlightCondition.isZeroAsMinimum();
         return valueCondition;
-        //return new ValueCondition(valueHighlightCondition.getProperty(), valueHighlightCondition.getType().toString(), valueHighlightCondition.isZeroAsMinimum());
       }
       return null;
     }
@@ -149,20 +148,15 @@ public class JsonConverter {
     private static LogicalCondition getLogicalCondition(LogicalHighlightCondition logicalHighlightCondition) {
       LogicalCondition logicalCondition = new LogicalCondition();
       logicalCondition.propertyName = logicalHighlightCondition.getProperty();
-      logicalCondition.operationType = logicalHighlightCondition.getType().name(); //   .toString();
+      logicalCondition.operationType = logicalHighlightCondition.getType().name(); 
       logicalCondition.value = logicalHighlightCondition.getValue();
       return logicalCondition;
     }
     
-    
-//    private static SettingsJson.View.LogicalCondition getLogicalCondition(LogicalHighlightCondition logicalCondition) {
-//      return new SettingsJson.View.LogicalCondition(logicalCondition.getProperty(), logicalCondition.getType().toString(), logicalCondition.getValue());
-//    }
-    
     private static LogicalCondition[][] getLogicalConditions(HighlightCondition hLCondition) {
       
       AndOrHighlightCondition andOrHighlightCondition = null; 
-      if(hLCondition instanceof LogicalValueHighlightCondition) {//AndOrHighlightCondition) {
+      if(hLCondition instanceof LogicalValueHighlightCondition) {
         andOrHighlightCondition = ((LogicalValueHighlightCondition) hLCondition).getLogicalCondition();
       } else if(hLCondition instanceof AndOrHighlightCondition) {
         andOrHighlightCondition = (AndOrHighlightCondition) hLCondition;
@@ -220,12 +214,8 @@ public class JsonConverter {
     private NodeHighlightCondition createNodeHighlightCondition(String name, Boolean showInLegend, int[] color, Boolean invisible, Boolean adjustThickness, String label, ValueCondition valueCondition, LogicalCondition[][] logicalConditions, NamedShape shape) {
       
       NodeHighlightCondition condition = new NodeHighlightCondition();
-      // ToDo: remove try
-      try {
       initHighlightCondition(condition, name, showInLegend, color, invisible, adjustThickness, label, valueCondition, logicalConditions);
-      } catch(Exception e) {
-        e.printStackTrace();
-      }
+      
       condition.shape = shape==null?null:shape.name();
       return condition;
     }
@@ -431,6 +421,7 @@ public class JsonConverter {
       settings.view.explosions[index].gis = new GisSettings();
       initGisSettings(settings.view.explosions[index].gis, scaleX,  scaleY,  translationX,  translationY,
          minEdgeThickness,  maxEdgeThickness,  fontSize,  fontBold,  minNodeSize,  maxNodeSize, avoidOverlay, borderAlpha);
+      
       return this;
     }
     
@@ -441,7 +432,7 @@ public class JsonConverter {
   
  
   private static NamedShape getShape(View.HighlightCondition source) throws InvalidSettingsException {
-    if(source instanceof View.GlobalNodeSettings.NodeHighlightCondition) { // && ((View.GlobalNodeSettings.NodeHighlightCondition) source).shape!=null) {
+    if(source instanceof View.GlobalNodeSettings.NodeHighlightCondition) { 
       String shape = ((View.GlobalNodeSettings.NodeHighlightCondition) source).shape;
       if (shape!=null) {
         try {
@@ -460,7 +451,6 @@ public class JsonConverter {
       return LogicalHighlightCondition.Type.valueOf(type);
     } catch(IllegalArgumentException e) {
       throw(new InvalidSettingsException("The logical condition type '" + type +"' in JSON data is unkown."));
-      //throw(new InvalidSettingsException(e.getMessage()));
     }
   }
   
@@ -488,30 +478,36 @@ public class JsonConverter {
       return ValueHighlightCondition.Type.valueOf(type);
     } catch(IllegalArgumentException e) {
       throw(new InvalidSettingsException("The value condition type '" + type +"' in JSON data is unkown."));
-      //ValueHighlightCondition.Type.values()
-      //throw(new InvalidSettingsException(e.getMessage()));
     }
   }
   
   protected static LabelPosition getLabelPosition(String labelPosition) throws InvalidSettingsException {
+	  
     if(labelPosition==null) throw(new InvalidSettingsException("The labelPosition in JSON data is missing."));
+    
     try {
+    	
       return LabelPosition.valueOf(labelPosition);
+      
     } catch(IllegalArgumentException e) {
+    	
       throw(new InvalidSettingsException("The labelPosition '" + labelPosition +"' in JSON data is unkown."));
-      //ValueHighlightCondition.Type.values()
-      //throw(new InvalidSettingsException(e.getMessage()));
+      
     }
   }
   
   protected static GisType getGisType(String gisType) throws InvalidSettingsException {
+	  
     if(gisType==null) throw(new InvalidSettingsException("The gisType in JSON data is missing."));
+    
     try {
+    	
       return GisType.valueOf(gisType);
+      
     } catch(IllegalArgumentException e) {
+    	
       throw(new InvalidSettingsException("The gisType '" + gisType +"' in JSON data is unkown."));
-      //ValueHighlightCondition.Type.values()
-      //throw(new InvalidSettingsException(e.getMessage()));
+      
     }
   }
   
@@ -542,13 +538,6 @@ public class JsonConverter {
   protected static <T extends View.HighlightCondition> void setHighlighting(HighlightConditionList target, T[] sources) throws InvalidSettingsException {
     target.getConditions().clear();
     for(T source: sources) 
-      target.getConditions().add(source.valueCondition==null ? createLogicalCondition(source) : (source.logicalConditions==null? createValueCondition(source) : createLogicalValueHighlightCondition(source)));
-      //hLCondition.
-//      if(source.valueCondition==null && source.logicalConditions==null) {
-//        hLCondition = new 
-//      }
-//      HighlightCondition hLCondition = new HighlightCondition();
-//      target.getConditions().add(new HighlightCondition())
-    
+      target.getConditions().add(source.valueCondition==null ? createLogicalCondition(source) : (source.logicalConditions==null? createValueCondition(source) : createLogicalValueHighlightCondition(source))); 
   }
 }

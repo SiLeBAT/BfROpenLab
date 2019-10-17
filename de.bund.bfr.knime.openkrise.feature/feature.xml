@@ -29,22 +29,22 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
    </license>
 
    <requires>
+      <import plugin="com.github.fge.jackson-coreutils"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-core"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-databind"/>
+      <import plugin="org.knime.json"/>
       <import plugin="org.knime.ext.svg"/>
       <import plugin="com.jayway.jsonpath.json-path"/>
       <import plugin="net.minidev.json-smart"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.knime.base" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="com.google.guava" version="19.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jdt.annotation" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.apache.commons.math3"/>
       <import plugin="org.knime.network.core"/>
       <import plugin="org.knime.network.base"/>
-      <import plugin="org.knime.json"/>
       <import plugin="org.eclipse.core.resources"/>
-      <import plugin="com.fasterxml.jackson.core.jackson-core"/>
-      <import plugin="com.fasterxml.jackson.core.jackson-databind"/>
-      <import plugin="com.github.fge.jackson-coreutils"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-annotations"/>
    </requires>
 
    <plugin
