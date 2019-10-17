@@ -19,9 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class XlsDelivery {
+
 	private HashMap<Integer, String> extraVals = new HashMap<>();	
 	public HashMap<Integer, String> getExtraVals() {
 		return extraVals;
@@ -34,18 +36,15 @@ public class XlsDelivery {
 		else if (lang.equals("es")) return "Envío";
 		else return null;
 	}
-	private static String DELIVERY_DATE(String lang) {
-		if (lang == null) return null;
-		if (lang.equals("de")) return "Lieferdatum";
-		else if (lang.equals("en")) return "DeliveryDate";
-		else if (lang.equals("es")) return "Fechaderecepción";
-		else return null;
+	
+	private static String[] DELIVERY_DATE_HEADERS(String lang) {
+		if (lang == null) return new String[0];
+		if (lang.equals("de")) return new String[] { "Lieferdatum" };
+		else if (lang.equals("en")) return new String[] { "DeliveryDate" };
+		else if (lang.equals("es")) return new String[]{ "Fechaderecepcióndeproducto", "Fechaderecepción", "Fechadeenvío" };
+		else return new String[0];
 	}
-	private static String DELIVERY_DATE_alt(String lang) {
-		if (lang == null) return null;
-		if (lang.equals("es")) return "Fechadeenvío";
-		else return DELIVERY_DATE(lang);
-	}
+	
 	private static String DAY(String lang) {
 		if (lang == null) return null;
 		if (lang.equals("de")) return "Tag";
@@ -81,11 +80,12 @@ public class XlsDelivery {
 		else if (lang.equals("es")) return "Comentarios";
 		else return null;
 	}
-
+	
 	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");
-			if (s.equalsIgnoreCase(DELIVERY_DATE(lang)) || s.equalsIgnoreCase(DELIVERY_DATE_alt(lang))) {
+			if (Arrays.asList(DELIVERY_DATE_HEADERS(lang)).stream().anyMatch((header) -> s.equalsIgnoreCase(header))) {
+				deliveryDateCol = index;
 				dayCol = index;
 				monthCol = index+1;
 				yearCol = index+2;
@@ -107,6 +107,7 @@ public class XlsDelivery {
 	private int startCol = -1;
 	private int endCol = -1;
 	private int dayCol = -1, monthCol = -1, yearCol = -1, amountCol = -1, commentCol = -1, chargenLinkCol = -1;
+	private int deliveryDateCol = -1;
 
 	public int getChargenLinkCol() {
 		return chargenLinkCol;
@@ -155,5 +156,9 @@ public class XlsDelivery {
 	}
 	public void setCommentCol(int commentCol) {
 		this.commentCol = commentCol;
+	}
+	
+	public int getDeliveryDateCol() {
+		return this.deliveryDateCol;
 	}
 }

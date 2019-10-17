@@ -54,9 +54,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.gisgraphy.addressparser.Address;
-import com.gisgraphy.addressparser.StructuredAddressQuery;
-
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
@@ -231,7 +228,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		lu.intoDb(mydbi);
 	}
-	private List<Exception> doTheImport(Workbook wb, String filename) { //  throws Exception
+	private List<Exception> doTheImport(Workbook wb, String filename)  throws Exception {
 		List<Exception> exceptions = new ArrayList<>();
 		
 		Sheet stationSheet = wb.getSheet("Stations");
@@ -556,61 +553,61 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return true;
 	}
-	private List<Exception> doTheSimpleImport(Workbook wb, String filename) { //  throws Exception
+	private List<Exception> doTheSimpleImport(Workbook wb, String filename) throws Exception {
 		List<Exception> exceptions = new ArrayList<>();
 		
 		boolean backtracing = true;
 		boolean isProduction = false;
 		String lang = null;
-		boolean isAiO = false; // All in One Template introduced for Fipronil
+		boolean isAllInOneTemplate = false; // All in One Template introduced for Fipronil
 
 		Sheet sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("de")); if (sheet != null) {lang = "de"; isProduction = false; backtracing = true;}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getFWD_SHEETNAME("de")); if (sheet != null) {lang = "de"; isProduction = false; backtracing = false;}}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("de")); if (sheet != null) {lang = "de"; isProduction = true; backtracing = true;}}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("de")); if (sheet != null) {lang = "de"; isProduction = true; backtracing = false;}}
-		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getAiO_SHEETNAME("de")); if (sheet != null) {lang = "de"; isAiO = true; isProduction = false; backtracing = true;}}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getAiO_SHEETNAME("de")); if (sheet != null) {lang = "de"; isAllInOneTemplate = true; isProduction = false; backtracing = true;}}
 		
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("en")); if (sheet != null) {lang = "en"; isProduction = false; backtracing = true;}}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getFWD_SHEETNAME("en")); if (sheet != null) {lang = "en"; isProduction = false; backtracing = false;}}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("en")); if (sheet != null) {lang = "en"; isProduction = true; backtracing = true;}}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("en")); if (sheet != null) {lang = "en"; isProduction = true; backtracing = false;}}		
-		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getAiO_SHEETNAME("en")); if (sheet != null) {lang = "en"; isAiO = true; isProduction = false; backtracing = true;}}
+		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getAiO_SHEETNAME("en")); if (sheet != null) {lang = "en"; isAllInOneTemplate = true; isProduction = false; backtracing = true;}}
 		
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getBACK_SHEETNAME("es")); if (sheet != null) {lang = "es"; isProduction = false; backtracing = true;}}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getFWD_SHEETNAME("es")); if (sheet != null) {lang = "es"; isProduction = false; backtracing = false;}}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_BACK_SHEETNAME("es")); if (sheet != null) {lang = "es"; isProduction = true; backtracing = true;}}
 		if (sheet == null) {sheet = wb.getSheet(XlsStruct.getPROD_FWD_SHEETNAME("es")); if (sheet != null) {lang = "es"; isProduction = true; backtracing = false;}}
 				
-		HashMap<Integer, Station> stations = new HashMap<>();
-		HashMap<Integer, Product> products = new HashMap<>();
-		HashMap<Integer, Lot> lots = new HashMap<>();
-		HashMap<Integer, Delivery> dels = new HashMap<>();
+		HashMap<Integer, Station> idToStationMap = new HashMap<>();
+		HashMap<Integer, Product> idToProductMap = new HashMap<>();
+		HashMap<Integer, Lot> idToLotMap = new HashMap<>();
+		HashMap<Integer, Delivery> idToDeliveryMap = new HashMap<>();
 		LinkedHashMap<String, Delivery> olddelsRow = new LinkedHashMap<>();
 		LinkedHashMap<Integer, HashSet<Delivery>> olddelsLot = new LinkedHashMap<>();
-		HashMap<String, Integer> lotNumber2ID = new HashMap<>();
+		HashMap<String, Integer> lotNumberToLotId = new HashMap<>();
 		HashSet<String> lotDoublettes = new HashSet<>();
 
 		if (sheet != null) {
-			Station focusS = null;
+			Station focusStation = null;
 			Row row;
-			String cs, address;
-			int sID;
-			if (!isAiO) {
-				focusS = new Station();
+			// String cs, address;
+			// int sID;
+			if (!isAllInOneTemplate) {
+				focusStation = new Station();
 				row = sheet.getRow(0);
 				HashMap<String, Integer> hmS = TraceGenerator.getFirstRow(sheet);
-				cs = getCellString(row.getCell(hmS.get("name")));
-				focusS.setName(cs);
-				address = getCellString(row.getCell(hmS.get("address")));
-				focusS.setAddress(address);
-				focusS.setCountry(getCellString(row.getCell(hmS.get("country"))));
+				String cs = getCellString(row.getCell(hmS.get("name")));
+				focusStation.setName(cs);
+				String address = getCellString(row.getCell(hmS.get("address")));
+				focusStation.setAddress(address);
+				focusStation.setCountry(getCellString(row.getCell(hmS.get("country"))));
 				if (!isProduction && hmS.get("tob") >= 0) {
-					focusS.setTypeOfBusiness(getCellString(row.getCell(hmS.get("tob"))));
+					focusStation.setTypeOfBusiness(getCellString(row.getCell(hmS.get("tob"))));
 				}
-				focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + 1);
-				sID = genDbId(""+cs+address);
-				focusS.setId(""+sID);
-				stations.put(sID, focusS);				
+				focusStation.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + 1);
+				int sID = genDbId(""+cs+address);
+				focusStation.setId(""+sID);
+				idToStationMap.put(sID, focusStation);				
 			}
 			
 			int numRows = sheet.getLastRowNum() + 1;
@@ -622,50 +619,50 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			XlsDelivery xlsD = new XlsDelivery();
 			XlsOther xlsO = new XlsOther();
 			boolean doPreCollect = false;
-			for (int i=(isAiO?0:1);i<=numRows;i++) {
-				row = sheet.getRow(i);
+			for (int iRow=(isAllInOneTemplate?0:1);iRow<=numRows;iRow++) {
+				row = sheet.getRow(iRow);
 				if (row != null) {
 					if (!rowEmpty(row)) {
-						cs = getCellString(row.getCell(0));
-						if (cs != null && !isAiO || isAiO && i > 1) doPreCollect = false; //  && cs.startsWith(XlsStruct.TOP_END_LINE)
+						String cellString = getCellString(row.getCell(0));
+						if (cellString != null && !isAllInOneTemplate || isAllInOneTemplate && iRow > 1) doPreCollect = false; //  && cs.startsWith(XlsStruct.TOP_END_LINE)
 						if (doCollect || doPreCollect) {
 							//System.err.print(i+1);
-							if (isAiO) {
-								focusS = null;
+							if (isAllInOneTemplate) {
+								focusStation = null;
 								String name = getCellString(row.getCell(xlsSRecipient.getNameCol()));
-								address = getCellString(row.getCell(xlsSRecipient.getAddressCol()));
-								sID = genDbId(""+name+address);
-								if (stations.containsKey(sID)) {
-									focusS = stations.get(sID);
-									focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), focusS.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+								String address = getCellString(row.getCell(xlsSRecipient.getAddressCol()));
+								int sID = genDbId(""+name+address);
+								if (idToStationMap.containsKey(sID)) {
+									focusStation = idToStationMap.get(sID);
+									focusStation.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), focusStation.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 								}
 								else {
-									focusS = new Station();
-									focusS.setName(name);
-									focusS.setAddress(address);
-									if (xlsSRecipient.getCountryCol() >= 0) focusS.setCountry(getCellString(row.getCell(xlsSRecipient.getCountryCol())));
-									if (xlsSRecipient.getTobCol() >= 0) focusS.setTypeOfBusiness(getCellString(row.getCell(xlsSRecipient.getTobCol())));
-									focusS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
-									focusS.setId(""+sID);
-									stations.put(sID, focusS);
+									focusStation = new Station();
+									focusStation.setName(name);
+									focusStation.setAddress(address);
+									if (xlsSRecipient.getCountryCol() >= 0) focusStation.setCountry(getCellString(row.getCell(xlsSRecipient.getCountryCol())));
+									if (xlsSRecipient.getTobCol() >= 0) focusStation.setTypeOfBusiness(getCellString(row.getCell(xlsSRecipient.getTobCol())));
+									focusStation.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
+									focusStation.setId(""+sID);
+									idToStationMap.put(sID, focusStation);
 								}
 								if (xlsSRecipient.getExtraVals().size() > 0) {
 									for (int colnum : xlsSRecipient.getExtraVals().keySet()) {
 										String val = getCellString(row.getCell(colnum));
 										if (val != null) {
-											focusS.addFlexibleField(xlsSRecipient.getExtraVals().get(colnum), val);
+											focusStation.addFlexibleField(xlsSRecipient.getExtraVals().get(colnum), val);
 										}
 									}
 								}
 							}
 
 							String name = getCellString(row.getCell(xlsS.getNameCol()));
-							address = getCellString(row.getCell(xlsS.getAddressCol()));
-							sID = genDbId(""+name+address);
+							String address = getCellString(row.getCell(xlsS.getAddressCol()));
+							int sID = genDbId(""+name+address);
 							Station supplierS = null;
-							if (stations.containsKey(sID)) {
-								supplierS = stations.get(sID);
-								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), supplierS.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+							if (idToStationMap.containsKey(sID)) {
+								supplierS = idToStationMap.get(sID);
+								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), supplierS.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 							}
 							else {
 								supplierS = new Station();
@@ -673,9 +670,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								supplierS.setAddress(address);
 								if (xlsS.getCountryCol() >= 0) supplierS.setCountry(getCellString(row.getCell(xlsS.getCountryCol())));
 								if (xlsS.getTobCol() >= 0) supplierS.setTypeOfBusiness(getCellString(row.getCell(xlsS.getTobCol())));
-								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 								supplierS.setId(""+sID);
-								stations.put(sID, supplierS);
+								idToStationMap.put(sID, supplierS);
 							}
 							if (xlsS.getExtraVals().size() > 0) {
 								for (int colnum : xlsS.getExtraVals().keySet()) {
@@ -688,28 +685,28 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							
 							String f2 = getCellString(row.getCell(xlsP.getNameCol()));
 							String f3 = xlsP.getEanCol() < 0 ? null : getCellString(row.getCell(xlsP.getEanCol()));
-							int pID = genDbId(""+(backtracing==doPreCollect?focusS.getId():supplierS.getId()) + f2 + f3);
+							int pID = genDbId(""+(backtracing==doPreCollect?focusStation.getId():supplierS.getId()) + f2 + f3);
 							//System.err.println(pID + " - " + f2 + " - " + f3 + " - " + focusS.getId() + " - " + supplierS.getId() + " - " + backtracing + " - " + doPreCollect);
 							Product p = null;
-							if (products.containsKey(pID)) {
-								p = products.get(pID);
-								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), p.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+							if (idToProductMap.containsKey(pID)) {
+								p = idToProductMap.get(pID);
+								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), p.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 							}
 							else {
 								p = new Product();
 								if (doPreCollect) {
 									if (!backtracing) p.setStation(supplierS);
-									else p.setStation(focusS);
+									else p.setStation(focusStation);
 								}
 								else {
 									if (backtracing) p.setStation(supplierS);
-									else p.setStation(focusS);									
+									else p.setStation(focusStation);									
 								}
 								p.setName(f2);
 								p.addFlexibleField(XlsProduct.EAN("en"), f3);
-								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+								p.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 								p.setId(pID);
-								products.put(pID, p);
+								idToProductMap.put(pID, p);
 							}
 							if (xlsP.getExtraVals().size() > 0) {
 								for (int colnum : xlsP.getExtraVals().keySet()) {
@@ -724,7 +721,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							f3 = getCellString(row.getCell(xlsL.getMhdCol()), true);
 							Integer f4 = null, f5 = null, f6 = null;
 							String f8 = "";
-							if (isAiO) {
+							if (isAllInOneTemplate) {
 								String date = getCellString(row.getCell(xlsD.getDayCol()), true);
 								if (date != null) {
 								    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -754,8 +751,17 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 							}
 							else {
+								if (xlsD.getDayCol()<0) { 
+									if (xlsD.getDeliveryDateCol()<0)  {
+										throw new Exception("Delivery date columns not found.");
+									} else {
+										throw new Exception("Delivery date day column not found.");
+									}
+								}
 								f4 = getInt(getCellString(row.getCell(xlsD.getDayCol())));
+								if (xlsD.getMonthCol()<0) { throw new Exception("Delivery date month column not found."); }
 								f5 = getInt(getCellString(row.getCell(xlsD.getMonthCol())));
+								if (xlsD.getYearCol()<0) { throw new Exception("Delivery date year column not found."); }
 								f6 = getInt(getCellString(row.getCell(xlsD.getYearCol())));
 							}
 							String f7 = xlsD.getAmountCol() >= 0 ? getCellString(row.getCell(xlsD.getAmountCol())) : null;
@@ -769,11 +775,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 							f8 = f8.trim();
 							if (f8.isEmpty()) f8 = null;
-							if (isAiO) {
+							if (isAllInOneTemplate) {
 								f2 = getCellString(row.getCell(6)); // Erzeugercode(s)
 							}
-							if (isAiO && f2 == null && f3 == null) {
-								f2 = "L." + i + ".";
+							if (isAllInOneTemplate && f2 == null && f3 == null) {
+								f2 = "L." + iRow + ".";
 							}
 							int lID;
 							if (f2 != null) {
@@ -784,14 +790,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 							else {
 								if (f4 == null && f5 == null && f6 == null && f7 == null && supplierS.getName() == null) {
-									exceptions.add(new Exception("You have no lot information at all in Row " + (i+1) + "."));
+									exceptions.add(new Exception("You have no lot information at all in Row " + (iRow+1) + "."));
 								}
 								else if (f4 == null && f5 == null && f6 == null && f7 == null) {
 									if (isProduction && backtracing && doPreCollect) f2 = "[receiver: " + supplierS.getName() + "]";
-									if (isProduction && backtracing && !doPreCollect) f2 = "[receiver: " + focusS.getName() + "]";
-									if (isProduction && !backtracing && doPreCollect) f2 = "[receiver: " + focusS.getName() + "]";
+									if (isProduction && backtracing && !doPreCollect) f2 = "[receiver: " + focusStation.getName() + "]";
+									if (isProduction && !backtracing && doPreCollect) f2 = "[receiver: " + focusStation.getName() + "]";
 									if (isProduction && !backtracing && !doPreCollect) f2 = "[receiver: " + supplierS.getName() + "]";
-									if (!isProduction && backtracing) f2 = "[receiver: " + focusS.getName() + "]";
+									if (!isProduction && backtracing) f2 = "[receiver: " + focusStation.getName() + "]";
 									if (!isProduction && !backtracing) f2 = "[receiver: " + supplierS.getName() + "]";
 								}
 								else {
@@ -800,18 +806,18 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								lID = genDbId(""+p.getId() + f2);
 							}
 							Lot lot = null;
-							if (lots.containsKey(lID)) {
-								lot = lots.get(lID);
-								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), lot.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+							if (idToLotMap.containsKey(lID)) {
+								lot = idToLotMap.get(lID);
+								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), lot.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 							}
 							else {
 								lot = new Lot();
 								lot.setProduct(p);
 								lot.setNumber(f2);
 								lot.addFlexibleField(XlsLot.MHD("en"), f3);
-								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 								lot.setId(lID);
-								lots.put(lID, lot);
+								idToLotMap.put(lID, lot);
 							}
 							if (xlsL.getExtraVals().size() > 0) {
 								for (int colnum : xlsL.getExtraVals().keySet()) {
@@ -822,7 +828,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 							}
 
-							int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+(doPreCollect==backtracing?supplierS.getId():focusS.getId()));						
+							int  dID = genDbId(""+lot.getId()+f4+f5+f6+f7+f8+(doPreCollect==backtracing?supplierS.getId():focusStation.getId()));						
 							Delivery d = null;
 							if (doPreCollect) {
 								d = new Delivery();
@@ -833,30 +839,30 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								if (f7 != null) d.addFlexibleField("Amount", f7);
 								d.setComment(f8);
 								if (doPreCollect) {
-									if (!backtracing) d.setReceiver(focusS);
+									if (!backtracing) d.setReceiver(focusStation);
 									else d.setReceiver(supplierS);									
 								}
 								else {
 									if (!backtracing) d.setReceiver(supplierS);
-									else d.setReceiver(focusS);
+									else d.setReceiver(focusStation);
 								}
-								d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+								d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 								d.setId(dID+"");
-								olddelsRow.put((i+1)+"", d);
+								olddelsRow.put((iRow+1)+"", d);
 								if (!olddelsLot.containsKey(d.getLot().getId())) olddelsLot.put(d.getLot().getId(), new HashSet<Delivery>());
 								olddelsLot.get(d.getLot().getId()).add(d);
-								if (lotNumber2ID.containsKey(d.getLot().getNumber())) {
-									if (lotNumber2ID.get(d.getLot().getNumber()).intValue() != d.getLot().getId().intValue()) {
+								if (lotNumberToLotId.containsKey(d.getLot().getNumber())) {
+									if (lotNumberToLotId.get(d.getLot().getNumber()).intValue() != d.getLot().getId().intValue()) {
 										lotDoublettes.add(d.getLot().getNumber());
 									}
 								}
-								lotNumber2ID.put(d.getLot().getNumber(), d.getLot().getId());
+								lotNumberToLotId.put(d.getLot().getNumber(), d.getLot().getId());
 							}
 							else {
-								if (dels.containsKey(dID)) {
-									System.err.println(i + "->" + focusS.getName() + " -> " + dels.get(dID).getReceiver().getName());
-									d = dels.get(dID);
-									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), d.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+								if (idToDeliveryMap.containsKey(dID)) {
+									System.err.println(iRow + "->" + focusStation.getName() + " -> " + idToDeliveryMap.get(dID).getReceiver().getName());
+									d = idToDeliveryMap.get(dID);
+									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), d.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 								}
 								else {
 									d = new Delivery();
@@ -866,11 +872,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									d.setArrivalYear(f6);
 									d.addFlexibleField("Amount", f7);
 									d.setComment(f8);								
-									if (backtracing) d.setReceiver(focusS);
+									if (backtracing) d.setReceiver(focusStation);
 									else d.setReceiver(supplierS);
-									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (i+1));
+									d.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 									d.setId(dID+"");
-									if (dels.put(dID, d) != null) {
+									if (idToDeliveryMap.put(dID, d) != null) {
 										System.err.println("did doppelt???");
 									};
 								}
@@ -904,12 +910,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							if (xlsD.getChargenLinkCol() >= 0) {
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
 								if (key != null) {
-									if (lotNumber2ID.containsKey(key)) {
+									if (lotNumberToLotId.containsKey(key)) {
 										if (lotDoublettes.contains(key)) {
-											exceptions.add(new Exception("[" + (i+1) + "] Unclear to which lot the ingredients should be connected - same Lot number (" + key + ") is used for different products.\nTry to make use of the Line Number as connection key."));											
+											exceptions.add(new Exception("[" + (iRow+1) + "] Unclear to which lot the ingredients should be connected - same Lot number (" + key + ") is used for different products.\nTry to make use of the Line Number as connection key."));											
 										}
 
-										HashSet<Delivery> odhs = olddelsLot.get(lotNumber2ID.get(key));
+										HashSet<Delivery> odhs = olddelsLot.get(lotNumberToLotId.get(key));
 										if (odhs != null) {
 											for (Delivery od : odhs) {
 												if (od != null) {
@@ -941,10 +947,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							
 						}
 						else if (
-								isAiO && i == 0 ||
-								backtracing && cs != null && (cs.trim().startsWith(XlsStruct.getBACK_NEW_DATA_START(lang)) || cs.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) ||
-								!backtracing && cs != null && (cs.trim().startsWith(XlsStruct.getFWD_NEW_DATA_START(lang)) || cs.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) ||
-								isProduction && i==3) {
+								isAllInOneTemplate && iRow == 0 ||
+								backtracing && cellString != null && (cellString.trim().startsWith(XlsStruct.getBACK_NEW_DATA_START(lang)) || cellString.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) ||
+								!backtracing && cellString != null && (cellString.trim().startsWith(XlsStruct.getFWD_NEW_DATA_START(lang)) || cellString.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) ||
+								isProduction && iRow==3) {
 							xlsS = new XlsStation();
 							xlsSRecipient = new XlsStation();
 							xlsP = new XlsProduct();
@@ -952,85 +958,85 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							xlsD = new XlsDelivery();
 							xlsO = new XlsOther();
 							// Header for Entities
-							row = sheet.getRow(i);
-							for (int ii=0;ii<row.getLastCellNum();ii++) {
-								String str = getCellString(row.getCell(ii));
+							row = sheet.getRow(iRow);
+							for (int iCell=0;iCell<row.getLastCellNum();iCell++) {
+								String str = getCellString(row.getCell(iCell));
 								if (str != null) {
 									str = str.trim();
 									boolean isRecipient = str.equalsIgnoreCase(XlsStation.BLOCK_RECIPIENT(lang));
 									if ((isRecipient || str.equalsIgnoreCase(XlsStation.BLOCK_SUPPLIER(lang)))) {
-										if (isAiO && isRecipient) xlsSRecipient.setStartCol(ii);
-										else xlsS.setStartCol(ii);
-										ii++;										
+										if (isAllInOneTemplate && isRecipient) xlsSRecipient.setStartCol(iCell);
+										else xlsS.setStartCol(iCell);
+										iCell++;										
 										while(true) {
-											String string = getCellString(row.getCell(ii));
-											System.err.println(ii + "-" + string);
+											String string = getCellString(row.getCell(iCell));
+											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
-											if (ii >= row.getLastCellNum()) break;
-											ii++;
+											if (iCell >= row.getLastCellNum()) break;
+											iCell++;
 										} 
-										ii--;
-										if (isAiO && isRecipient) xlsSRecipient.setEndCol(ii);
-										else xlsS.setEndCol(ii);
+										iCell--;
+										if (isAllInOneTemplate && isRecipient) xlsSRecipient.setEndCol(iCell);
+										else xlsS.setEndCol(iCell);
 										
 									}
 									else if ((str.equalsIgnoreCase(XlsProduct.BLOCK_INGREDIENT(lang)) || str.equalsIgnoreCase(XlsProduct.BLOCK_PRODUCT(lang)))) {
-										xlsP.setStartCol(ii); ii++;
+										xlsP.setStartCol(iCell); iCell++;
 										while(true) {
-											String string = getCellString(row.getCell(ii));
-											System.err.println(ii + "-" + string);
+											String string = getCellString(row.getCell(iCell));
+											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
-											if (ii >= row.getLastCellNum()) break;
-											ii++;
+											if (iCell >= row.getLastCellNum()) break;
+											iCell++;
 										} 
-										ii--; xlsP.setEndCol(ii);
+										iCell--; xlsP.setEndCol(iCell);
 									}
 									else if (str.equalsIgnoreCase(XlsLot.BLOCK(lang))) {
-										xlsL.setStartCol(ii); ii++;
+										xlsL.setStartCol(iCell); iCell++;
 										while(true) {
-											String string = getCellString(row.getCell(ii));
-											System.err.println(ii + "-" + string);
+											String string = getCellString(row.getCell(iCell));
+											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
-											if (ii >= row.getLastCellNum()) break;
-											ii++;
+											if (iCell >= row.getLastCellNum()) break;
+											iCell++;
 										} 
-										ii--; xlsL.setEndCol(ii);
+										iCell--; xlsL.setEndCol(iCell);
 									}
 									else if (str.equalsIgnoreCase(XlsDelivery.BLOCK(lang))) {
-										xlsD.setStartCol(ii); ii++;
+										xlsD.setStartCol(iCell); iCell++;
 										while(true) {
-											String string = getCellString(row.getCell(ii));
-											System.err.println(ii + "-" + string);
+											String string = getCellString(row.getCell(iCell));
+											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
-											if (ii >= row.getLastCellNum()) break;
-											ii++;
+											if (iCell >= row.getLastCellNum()) break;
+											iCell++;
 										} 
-										ii--; xlsD.setEndCol(ii);
+										iCell--; xlsD.setEndCol(iCell);
 									}
 									else if (str.equalsIgnoreCase(XlsOther.BLOCK(lang))) {
-										xlsO.setStartCol(ii); ii++;
+										xlsO.setStartCol(iCell); iCell++;
 										while(true) {
-											String string = getCellString(row.getCell(ii));
-											System.err.println(ii + "-" + string);
+											String string = getCellString(row.getCell(iCell));
+											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
-											if (ii >= row.getLastCellNum()) break;
-											ii++;
+											if (iCell >= row.getLastCellNum()) break;
+											iCell++;
 										} 
-										ii--; xlsO.setEndCol(ii);
+										iCell--; xlsO.setEndCol(iCell);
 									}
 									else if (str.equalsIgnoreCase(XlsDelivery.COMMENT(lang))) {
-										xlsD.setCommentCol(ii);
+										xlsD.setCommentCol(iCell);
 									}
 								}
 							}
 							// Fields for Entities
-							i++;
-							row = sheet.getRow(i);
+							iRow++;
+							row = sheet.getRow(iRow);
 							for (int ii=xlsS.getStartCol();ii<=xlsS.getEndCol();ii++) {
 								String str = getCellString(row.getCell(ii));
 								xlsS.addField(str, ii, lang);
 							}
-							if (isAiO) {
+							if (isAllInOneTemplate) {
 								for (int ii=xlsSRecipient.getStartCol();ii<=xlsSRecipient.getEndCol();ii++) {
 									String str = getCellString(row.getCell(ii));
 									xlsSRecipient.addField(str, ii, lang);
@@ -1055,11 +1061,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}								
 							}
 							
-							if (isProduction && i==4) {
+							if (isProduction && iRow==4) {
 								xlsD.setChargenLinkCol(-1);
 								doPreCollect = true;
 							}
-							else if (cs.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) { // "Zeilennummer"
+							else if (cellString.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) { // "Zeilennummer"
 								xlsD.setChargenLinkCol(0);
 								doCollect = true;
 							}
@@ -1067,7 +1073,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								xlsD.setChargenLinkCol(-1);
 								doCollect = true;
 							}
-							if (!isAiO) i++;
+							if (!isAllInOneTemplate) iRow++;
 							continue;
 						}
 					}
@@ -1080,8 +1086,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 			
 		try {
-			if (dels.size() > 0) {
-				for (Station s: stations.values()) {
+			if (idToDeliveryMap.size() > 0) {
+				for (Station s: idToStationMap.values()) {
 					s.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + ": " + s.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)));
 				}
 				for (Delivery d : olddelsRow.values()) {
@@ -1090,7 +1096,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 				}
-				for (Delivery d : dels.values()) {
+				for (Delivery d : idToDeliveryMap.values()) {
 					d.insertIntoDb(mydbi);
 					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
