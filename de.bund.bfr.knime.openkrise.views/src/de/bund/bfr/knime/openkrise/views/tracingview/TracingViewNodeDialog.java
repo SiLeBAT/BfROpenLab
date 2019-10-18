@@ -236,7 +236,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 	    @Override
 	    public boolean accept(File arg0) {
-	      return arg0.getName().toLowerCase().endsWith(".json");
+	      return arg0.isDirectory() || arg0.getName().toLowerCase().endsWith(".json");
 	    }
 
 	    @Override
@@ -280,7 +280,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
         @Override
         public boolean accept(File arg0) {
-          return arg0.getName().toLowerCase().endsWith(".json");
+          return arg0.isDirectory() || arg0.getName().toLowerCase().endsWith(".json");
 
         }
 
