@@ -80,6 +80,8 @@ import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
+import de.bund.bfr.knime.openkrise.util.json.JsonValidator;
+import de.bund.bfr.knime.openkrise.util.json.JsonValidator.SchemaValidationException;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionListener;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionTracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.IExplosionCanvas;
@@ -346,11 +348,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		this.loadSettings();
 	}
 	
-	public void loadSettings(JsonValue json) throws JsonProcessingException, InvalidSettingsException, NotConfigurableException {
+	public void loadSettings(JsonValue json) throws JsonProcessingException, InvalidSettingsException, NotConfigurableException, SchemaValidationException {
 	  if(json != null) {
         ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       
         JsonNode rootNode = JacksonConversions.getInstance().toJackson(json);
+        
+        if (!JsonValidator.isJsonValid(rootNode)) return;
+        
         JsonFormat jsonFormat = mapper.treeToValue(rootNode, JsonFormat.class);
         
         if(jsonFormat.data!=null) {
