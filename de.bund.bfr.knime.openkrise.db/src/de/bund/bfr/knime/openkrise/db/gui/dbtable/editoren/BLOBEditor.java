@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ * Copyright (c) 2019 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ package de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren;
 /**
  * <p>Title: Turniere</p>
  * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: HSH</p>
  * @author Armin Weiser
  * @version 1.0

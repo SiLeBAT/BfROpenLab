@@ -2,7 +2,7 @@
 <feature
       id="de.bund.bfr.knime.openkrise.feat"
       label="FoodChain-Lab-XML"
-      version="1.1.37.qualifier"
+      version="1.1.38.qualifier"
       provider-name="BfR">
 
    <description url="http://www.example.com/description">
