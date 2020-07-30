@@ -22,8 +22,6 @@ package de.bund.bfr.knime.openkrise;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -31,21 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
 import javax.ws.rs.core.MediaType;
 import javax.xml.soap.SOAPException;
 
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.JerseyClient;
-import org.glassfish.jersey.client.JerseyClientBuilder;
-import org.glassfish.jersey.client.JerseyWebTarget;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -262,6 +250,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		File tempDir = null;
 		String xmlFolder = set.getXmlPath();
 		if (set.isBusstop()) {
+	    	  /*  		
 		    TrustManager[] trustAllCerts = new TrustManager[] {
 		            new javax.net.ssl.X509TrustManager() {
 		                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -284,7 +273,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 					e.printStackTrace();
 				}
 		        HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-			HostnameVerifier hnv = new HostnameVerifier() {
+		        HostnameVerifier hnv = new HostnameVerifier() {
 
 		    	        public boolean verify(String hostname, SSLSession sslSession) {
 		    	        	//System.err.println(hostname); 
@@ -293,22 +282,39 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		    	            //}
 		    	            //return false;
 		    	        }
-		    	    };
+		    	    };		    	    
+
+		    	    
 		    ClientConfig config = new ClientConfig();
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
 		    JerseyClient client = new JerseyClientBuilder().withConfig(config).hostnameVerifier(hnv).sslContext(context).build();
 		    client.register(HttpAuthenticationFeature.basic("user", "pass"));
 		    JerseyWebTarget service = client.target(set.getServer());
+		    */
+    	    WebClient client = WebClient.create(set.getServer());
+    	    /*
+    	    ClientConfiguration config = WebClient.getConfig(client);
+    	    config.getRequestContext().put("http.redirect.relative.uri", "true");
+    	    */
 		    if (caseNumber == null) {
-			    String msg = service.path("rest").path("items").path("faelle").queryParam("environment", environment).request().accept(MediaType.TEXT_PLAIN).get(String.class);
+	    		client.accept(MediaType.TEXT_PLAIN);
+	    		client.path("rest").path("items").path("faelle");
+	    		client.query("environment", environment);
+	    		String msg = client.get(String.class);
+			    //String msg = service.path("rest").path("items").path("faelle").queryParam("environment", environment).request().accept(MediaType.TEXT_PLAIN).get(String.class);
 			    if (msg.trim().isEmpty()) this.setWarningMessage("Es sind keine Fälle vorhanden!");
 			    else this.setWarningMessage("Folgende Fälle sind verfügbar:\n" + msg + "\nbitte einen Fall auswählen und als Parameter eintragen!");
 			    stationContainer.close(); deliveryContainer.close(); linkContainer.close();
 				return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
 		    }
 		    else {
-			    InputStream stream = service.path("rest").path("items").path("kpms").queryParam("environment", environment).queryParam("fallnummer", caseNumber).request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
+	    		client.accept(MediaType.APPLICATION_OCTET_STREAM);
+	    		client.path("rest").path("items").path("kpms");
+	    		client.query("environment", environment);
+	    		client.query("fallnummer", caseNumber);
+	    		InputStream stream = client.get(InputStream.class);
+			    //InputStream stream = service.path("rest").path("items").path("kpms").queryParam("environment", environment).queryParam("fallnummer", caseNumber).request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
 		        ZipInputStream zipIn = new ZipInputStream(stream);
 		        
 			    tempDir = Files.createTempDir();
@@ -317,6 +323,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 	            zipIn.close();
 	            xmlFolder = tempDir.getAbsolutePath();		    	
 		    }
+		    
 		}
 		NRW_Importer nrw = new NRW_Importer();
 		String lastFallNummer = nrw.doImport(xmlFolder, caseNumber);

@@ -8,17 +8,12 @@ Require-Bundle: de.bund.bfr.knime.openkrise,
  de.bund.bfr.knime.openkrise.db,
  de.nrw.verbraucherschutz.idv
 Bundle-ClassPath: .,
- lib/hk2-api-2.4.0-b34.jar,
- lib/hk2-locator-2.4.0-b34.jar,
- lib/hk2-utils-2.4.0-b34.jar,
- lib/javax.annotation-api-1.3.jar,
- lib/javax.ws.rs-api-2.0.1.jar,
- lib/jersey-client.jar,
- lib/jersey-common.jar,
- lib/jersey-guava-2.22.2.jar,
- lib/jersey-media-multipart-2.22.2.jar,
- lib/mimepull-1.9.6.jar,
- lib/jaxbnamespaceprefixmapper-2.2.4.jar
+ lib/cxf-rt-rs-client-3.3.7.jar,
+ lib/cxf-manifest.jar,
+ lib/jakarta.ws.rs-api-2.1.5.jar,
+ lib/cxf-core-3.3.7.jar,
+ lib/cxf-rt-frontend-jaxrs-3.3.7.jar,
+ lib/cxf-rt-transports-http-3.3.7.jar
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in,
  de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out

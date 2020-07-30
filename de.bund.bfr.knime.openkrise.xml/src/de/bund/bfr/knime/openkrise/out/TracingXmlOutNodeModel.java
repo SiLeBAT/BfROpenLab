@@ -21,10 +21,12 @@ package de.bund.bfr.knime.openkrise.out;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -38,15 +40,11 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.glassfish.jersey.client.JerseyClient;
-import org.glassfish.jersey.client.JerseyClientBuilder;
-import org.glassfish.jersey.client.JerseyWebTarget;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -350,30 +348,44 @@ public class TracingXmlOutNodeModel extends NodeModel {
     }
     
 	private void upload(String server, String environment, File file, boolean dryRun) throws Exception {
+	    WebClient client = WebClient.create(server);
+	    
+		client.type(MediaType.MULTIPART_FORM_DATA);
+		client.path("rest").path("items").path("upload");
+		client.query("environment", environment);
+
+/*
 	    JerseyClient client = new JerseyClientBuilder()
 	    		.register(HttpAuthenticationFeature.basic("user", "pass")) // set.getUser(), set.getPass()
 	    		.register(MultiPartFeature.class)
 	    		.build();
 	    JerseyWebTarget t = client.target(UriBuilder.fromUri(server).build()).path("rest").path("items").path("upload");
+*/
 
-	    FileDataBodyPart filePart = new FileDataBodyPart("file", file);
 	    String fn = file.getName();
 	    fn = fn.substring(0, fn.lastIndexOf("_report") + 7); // die tempnummer am ende des filenamens noch wegoperieren!
 		System.out.println(fn);
-	    filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName(fn).build());
+	    
+		Attachment attachment = new Attachment("file", new FileInputStream(file), new ContentDisposition(("attachment;filename=" + fn)));
+		Attachment comment = new Attachment("comment", "text/plain", "Analysis from BfR");
+		
+	    //FileDataBodyPart filePart = new FileDataBodyPart("file", file);
+	    //filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName(fn).build());
 
-	    FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-	    MultiPart multipartEntity = formDataMultiPart.field("comment", "Analysis from BfR").bodyPart(filePart);
+	    //FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+	    //MultiPart multipartEntity = formDataMultiPart.field("comment", "Analysis from BfR").bodyPart(filePart);
 
 	    if (!dryRun) {
-		    Response response = t.queryParam("environment", environment).request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
+	    	Response response = client.post(new MultipartBody(Arrays.asList(attachment)));
+		    //Response response = t.queryParam("environment", environment).request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
 		    System.out.println(response.getStatus() + " \n" + response.readEntity(String.class));
 
 		    response.close();
 	    }
-
-	    formDataMultiPart.close();
-	    multipartEntity.close();
+	    
+	    //formDataMultiPart.close();
+	    //multipartEntity.close();
+	    
 	}
 	
 }

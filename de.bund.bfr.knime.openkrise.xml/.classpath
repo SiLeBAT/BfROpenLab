@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/jaxbnamespaceprefixmapper-2.2.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/hk2-api-2.4.0-b34.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/hk2-locator-2.4.0-b34.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/hk2-utils-2.4.0-b34.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/javax.annotation-api-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jersey-client.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jersey-common.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jersey-guava-2.22.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jersey-media-multipart-2.22.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mimepull-1.9.6.jar"/>
+	<classpathentry kind="lib" path="lib/cxf-rt-transports-http-3.3.7.jar"/>
+	<classpathentry kind="lib" path="lib/cxf-rt-frontend-jaxrs-3.3.7.jar"/>
+	<classpathentry kind="lib" path="lib/cxf-core-3.3.7.jar"/>
+	<classpathentry kind="lib" path="lib/cxf-manifest.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta.ws.rs-api-2.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/cxf-rt-rs-client-3.3.7.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
