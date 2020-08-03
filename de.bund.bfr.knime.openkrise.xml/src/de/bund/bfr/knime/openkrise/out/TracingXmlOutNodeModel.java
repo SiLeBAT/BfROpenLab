@@ -21,30 +21,31 @@ package de.bund.bfr.knime.openkrise.out;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -57,6 +58,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.workflow.FlowVariable;
+import org.knime.core.node.workflow.ICredentials;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.openkrise.TracingColumns;
@@ -232,10 +234,10 @@ public class TracingXmlOutNodeModel extends NodeModel {
 		}
 		
 		export(e, server, environment, aes, "bfr_score_report");
-		
+	
 		return null;
     }
-    private void export(NRW_Exporter e, String server, String environment, Analyseergebnis ae, String filename) throws Exception {
+    private boolean export(NRW_Exporter e, String server, String environment, Analyseergebnis ae, String filename) throws Exception {
 		ByteArrayOutputStream soap = e.doExport(ae, true);
 		if (soap != null) {
 		    File tempFile = File.createTempFile(filename, ".soap");
@@ -248,10 +250,11 @@ public class TracingXmlOutNodeModel extends NodeModel {
 			} finally {
 			    fos.close();
 			}
-			upload(server, environment, tempFile, false);
+			return upload(server, environment, tempFile, false);
 		}
 		else {
 			this.setWarningMessage("soap is null");
+			return false;
 		}
     }
 
@@ -347,13 +350,8 @@ public class TracingXmlOutNodeModel extends NodeModel {
     	return S;
     }
     
-	private void upload(String server, String environment, File file, boolean dryRun) throws Exception {
-	    WebClient client = WebClient.create(server);
-	    
-		client.type(MediaType.MULTIPART_FORM_DATA);
-		client.path("rest").path("items").path("upload");
-		client.query("environment", environment);
-
+	private boolean upload(String server, String environment, File file, boolean dryRun) throws Exception {
+		boolean result = true;
 /*
 	    JerseyClient client = new JerseyClientBuilder()
 	    		.register(HttpAuthenticationFeature.basic("user", "pass")) // set.getUser(), set.getPass()
@@ -362,13 +360,35 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    JerseyWebTarget t = client.target(UriBuilder.fromUri(server).build()).path("rest").path("items").path("upload");
 */
 
-	    String fn = file.getName();
+		URL url = new URL(server);
+		String protocol = url.getProtocol();
+		String host = url.getHost();
+		int port = url.getPort();
+		if (port == -1) port = url.getDefaultPort();
+		System.out.println(protocol);
+		System.out.println(host);
+		System.out.println(port);
+
+		String fn = file.getName();
 	    fn = fn.substring(0, fn.lastIndexOf("_report") + 7); // die tempnummer am ende des filenamens noch wegoperieren!
 		System.out.println(fn);
+
+		ICredentials cp = this.getCredentialsProvider().get("busstop");
+    	UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(cp.getLogin(), cp.getPassword().toCharArray());
+    	BasicCredentialsProvider provider = new BasicCredentialsProvider();
+    	provider.setCredentials(new AuthScope(host, port), credentials);
+
+    	HttpClientBuilder clientbuilder = HttpClients.custom();
+    	clientbuilder = clientbuilder.setDefaultCredentialsProvider(provider);
+    	CloseableHttpClient httpclient = clientbuilder.build();
+	    HttpPost httpPost = new HttpPost(server + "rest/items/upload");
+	 
+	    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+	    builder.addTextBody("comment", "Analysis from BfR");
+	    builder.addBinaryBody("file", file, ContentType.APPLICATION_OCTET_STREAM, fn);
+	    HttpEntity multipart = builder.build();
+	    httpPost.setEntity(multipart);
 	    
-		Attachment attachment = new Attachment("file", new FileInputStream(file), new ContentDisposition(("attachment;filename=" + fn)));
-		Attachment comment = new Attachment("comment", "text/plain", "Analysis from BfR");
-		
 	    //FileDataBodyPart filePart = new FileDataBodyPart("file", file);
 	    //filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName(fn).build());
 
@@ -376,16 +396,28 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    //MultiPart multipartEntity = formDataMultiPart.field("comment", "Analysis from BfR").bodyPart(filePart);
 
 	    if (!dryRun) {
-	    	Response response = client.post(new MultipartBody(Arrays.asList(attachment)));
+	    	/*
 		    //Response response = t.queryParam("environment", environment).request().post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
 		    System.out.println(response.getStatus() + " \n" + response.readEntity(String.class));
 
 		    response.close();
+		    */
+		 
+		    CloseableHttpResponse response = httpclient.execute(httpPost);
+		    
+		    int code = response.getCode();
+		    
+		    response.close();
+
+		    System.out.println(code);
+		    result = (code == 200);
+		    if (!result) throw new Exception("Upload did not succeed! (Code: " + code + ")");
 	    }
 	    
 	    //formDataMultiPart.close();
 	    //multipartEntity.close();
 	    
+	    return result;
 	}
 	
 }

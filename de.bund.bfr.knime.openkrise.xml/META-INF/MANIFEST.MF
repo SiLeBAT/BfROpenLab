@@ -13,7 +13,11 @@ Bundle-ClassPath: .,
  lib/jakarta.ws.rs-api-2.1.5.jar,
  lib/cxf-core-3.3.7.jar,
  lib/cxf-rt-frontend-jaxrs-3.3.7.jar,
- lib/cxf-rt-transports-http-3.3.7.jar
+ lib/cxf-rt-transports-http-3.3.7.jar,
+ lib/httpcore5-5.0.1.jar,
+ lib/httpclient5-5.0.1.jar,
+ lib/slf4j-api-1.7.25.jar,
+ lib/commons-codec-1.13.jar
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in,
  de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out
