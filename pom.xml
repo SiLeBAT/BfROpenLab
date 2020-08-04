@@ -84,6 +84,14 @@
     <extensions>true</extensions>
    </plugin>
    <!--Enable the replacement of the SNAPSHOT version in the final product configuration-->
+  <plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-compiler-plugin</artifactId>
+    <version>${tycho.version}</version>
+    <configuration>
+    <compilerArgument>-XDignore.symbol.file=true</compilerArgument>
+    </configuration>
+    </plugin>
    <plugin>
         <groupId>org.eclipse.tycho</groupId>
             <artifactId>tycho-packaging-plugin</artifactId>
