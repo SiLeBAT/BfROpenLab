@@ -10,11 +10,7 @@
 	<classpathentry kind="lib" path="lib/cxf-manifest.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta.ws.rs-api-2.1.5.jar"/>
 	<classpathentry kind="lib" path="lib/cxf-rt-rs-client-3.3.7.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
-		<accessrules>
-			<accessrule kind="accessible" pattern="com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper"/>
-		</accessrules>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="output" path="bin"/>
