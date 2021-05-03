@@ -36,6 +36,7 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.FeatureAdapter;
 import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
 import org.openstreetmap.gui.jmapviewer.OsmMercator;
+import org.openstreetmap.gui.jmapviewer.OsmTileLoader;
 import org.openstreetmap.gui.jmapviewer.Tile;
 import org.openstreetmap.gui.jmapviewer.TileController;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
@@ -58,8 +59,9 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 
 	private static final long serialVersionUID = 1L;
 	
-	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
-
+	private static final String HTTP_HEADER_USER_AGENT_ATTR = "user-agent";
+	private static final String HTTP_HEADER_USER_AGENT_VALUE = "BfROpenLab"; 
+	
 	private TileController tileController;
 
 	private int lastZoom;
@@ -71,6 +73,8 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		
 		tileController = new TileController(new OsmTileSource.Mapnik(), new MemoryTileCache(), this);
+		OsmTileLoader tileLoader = (OsmTileLoader) tileController.getTileLoader();
+		tileLoader.headers.put(HTTP_HEADER_USER_AGENT_ATTR, HTTP_HEADER_USER_AGENT_VALUE);
 		lastZoom = -1;
 		lastTopLeft = null;
 		lastBottomRight = null;

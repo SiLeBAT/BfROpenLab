@@ -27,14 +27,14 @@ import org.openstreetmap.gui.jmapviewer.tilesources.AbstractOsmTileSource;
 public enum GisType {
 	SHAPEFILE("Shapefile", null),
 
-	MAPNIK("Mapnik", new AbstractOsmTileSource("Mapnik", "http://a.tile.openstreetmap.org", "MAPNIK") {
+	MAPNIK("Mapnik", new AbstractOsmTileSource("Mapnik", "https://tile.openstreetmap.org", "MAPNIK") {
 	}),
 
 	WIKIMEDIA("Wikimedia", new AbstractOsmTileSource("Wikimedia", "https://maps.wikimedia.org/osm-intl", "WIKIMEDIA") {
 	}),
 
 	CARTO_LIGHT("Carto Light",
-			new AbstractOsmTileSource("Carto Light", "http://a.basemaps.cartocdn.com/light_all", "CARTO_LIGHT") {
+			new AbstractOsmTileSource("Carto Light", "https://a.basemaps.cartocdn.com/light_all", "CARTO_LIGHT") {
 			}),
 
 	BLACK_AND_WHITE("Black & White",
