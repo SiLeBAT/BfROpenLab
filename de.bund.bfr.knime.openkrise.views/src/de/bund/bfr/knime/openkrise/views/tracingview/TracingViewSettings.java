@@ -24,17 +24,25 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.json.JsonValue;
+
+import org.knime.core.data.DataRow;
+import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Ordering;
 import de.bund.bfr.jung.LabelPosition;
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.BackwardUtils;
@@ -535,6 +543,34 @@ public class TracingViewSettings extends NodeSettings {
       this.saveSettings(jsonBuilder);
       
       return jsonBuilder.build();
+	}
+	
+	protected void fixSettings(BufferedDataTable nodeTable) {
+		int intIDIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
+		
+		Set<String> availableNodeIds = new HashSet<String>();
+	
+		
+		for (DataRow row : nodeTable) {
+			String id = IO.getString(row.getCell(intIDIndex));
+			availableNodeIds.add(id);
+		}
+
+		// filter missing node ids
+		this.collapsedNodes = this.collapsedNodes.entrySet().stream()
+			.collect(Collectors.toMap(
+				Map.Entry::getKey, 
+				memberPosMapEntry -> memberPosMapEntry.getValue().entrySet().stream()
+					.filter(memPosEntry -> availableNodeIds.contains(memPosEntry.getKey()))
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+			));
+		
+		// remove empty groups
+		this.collapsedNodes = this.collapsedNodes.entrySet().stream()
+				.filter(memberPosMapEntry -> !memberPosMapEntry.getValue().isEmpty())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			
+		
 	}
 	
 	protected void saveSettings(JsonConverter.JsonBuilder jsonBuilder) {

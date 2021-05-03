@@ -429,6 +429,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 
 	private void fixSettings() {
 	  // ToDo: adapt Settings to data 
+		// GraphSettings gs = this.set.getGraphSettings();
+		
+		this.set.fixSettings(this.nodeTable);
 	}
 	
 	@Override
