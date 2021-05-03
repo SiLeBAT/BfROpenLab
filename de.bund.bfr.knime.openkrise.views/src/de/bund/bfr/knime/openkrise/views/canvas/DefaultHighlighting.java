@@ -53,7 +53,7 @@ public class DefaultHighlighting {
 		List<HighlightCondition> conditions = new ArrayList<>();
 
 		conditions.add(createOutbreakCondition());
-		conditions.add(createObservedCondition(Color.BLUE));
+		conditions.add(createObservedCondition(Color.GREEN));
 		conditions.add(createForwardCondition());
 		conditions.add(createBackwardCondition());
 
