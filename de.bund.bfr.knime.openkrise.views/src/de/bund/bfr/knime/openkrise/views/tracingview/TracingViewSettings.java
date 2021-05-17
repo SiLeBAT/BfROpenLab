@@ -53,6 +53,7 @@ import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.Tracing;
 import de.bund.bfr.knime.openkrise.views.Activator;
+import de.bund.bfr.knime.openkrise.views.canvas.DefaultHighlighting;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
 public class TracingViewSettings extends NodeSettings {
@@ -137,12 +138,12 @@ public class TracingViewSettings extends NodeSettings {
 		hideArrowHead = false;
 		arrowHeadInMiddle = false;
 		nodeLabelPosition = LabelPosition.BOTTOM_RIGHT;
-		showLegend = false;
+		showLegend = true;
 		canvasSize = null;
 		selectedNodes = new ArrayList<>();
 		selectedEdges = new ArrayList<>();
-		nodeHighlightConditions = new HighlightConditionList();
-		edgeHighlightConditions = new HighlightConditionList();
+		nodeHighlightConditions = DefaultHighlighting.createNodeHighlighting();
+		edgeHighlightConditions = DefaultHighlighting.createEdgeHighlighting();
 		collapsedNodes = new LinkedHashMap<>();
 		label = null;
 
