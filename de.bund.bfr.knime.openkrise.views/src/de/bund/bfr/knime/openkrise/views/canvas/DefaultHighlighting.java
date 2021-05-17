@@ -45,6 +45,7 @@ public class DefaultHighlighting {
 		conditions.add(createCrossContaminationCondition());
 		conditions.add(createCommonLinkCondition());
 		conditions.add(createScoreCondition());
+		conditions.add(createLabelCondition());
 
 		return new HighlightConditionList(conditions, false);
 	}
@@ -56,6 +57,7 @@ public class DefaultHighlighting {
 		conditions.add(createObservedCondition(Color.GREEN));
 		conditions.add(createForwardCondition());
 		conditions.add(createBackwardCondition());
+		conditions.add(createLabelCondition());
 
 		return new HighlightConditionList(conditions, false);
 	}
@@ -106,5 +108,15 @@ public class DefaultHighlighting {
 	private static HighlightCondition createScoreCondition() {
 		return new ValueHighlightCondition(TracingColumns.SCORE, ValueHighlightCondition.Type.VALUE, true, "Score",
 				false, null, false, true, null, null);
+	}
+	
+	private static HighlightCondition createLabelCondition() {
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
+		List<LogicalHighlightCondition> andList = new ArrayList<>();
+
+		conditions.add(andList);
+
+		return new AndOrHighlightCondition(conditions, "Label", false, null, false, false,
+				TracingColumns.NAME, null);
 	}
 }
