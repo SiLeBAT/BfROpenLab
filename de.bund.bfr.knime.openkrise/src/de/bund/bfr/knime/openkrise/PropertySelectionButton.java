@@ -22,9 +22,16 @@ package de.bund.bfr.knime.openkrise;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,6 +44,8 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.Scrollable;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
@@ -144,6 +153,46 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 	}
 
 	private class PropertySelectionDialog extends KnimeDialog {
+		
+		private class VScrollPane extends JScrollPane implements Scrollable {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -6494214709950569893L;
+
+			public Dimension initialSize = new Dimension(0, 0);
+
+			public VScrollPane(Component component) {
+				super(component, VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER);
+				this.setBorder(BorderFactory.createEmptyBorder());
+			}
+
+			@Override
+			public Dimension getPreferredScrollableViewportSize() {
+				return null;
+			}
+
+			@Override
+			public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+				return 0;
+			}
+
+			@Override
+			public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+				return 0;
+			}
+
+			@Override
+			public boolean getScrollableTracksViewportWidth() {
+				return true;
+			}
+
+			@Override
+			public boolean getScrollableTracksViewportHeight() {
+				return false;
+			}
+		}
 
 		private static final long serialVersionUID = 1L;
 
@@ -157,6 +206,9 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 			JButton cancelButton = new JButton("Cancel");
 
 			cancelButton.addActionListener(e -> dispose());
+			
+			List<VScrollPane> vScrollPanes = new ArrayList<VScrollPane>();
+			JPanel selectedComponent = null;
 
 			JPanel mainPanel = new JPanel();
 
@@ -165,15 +217,17 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 			for (Map.Entry<String, List<String>> entry : groupedProperties.entrySet()) {
 				JPanel panel = new JPanel();
 
-				panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+				panel.setBorder(BorderFactory.createEmptyBorder(5, 7, 5, 7));
 				panel.setLayout(new GridLayout(entry.getValue().size(), 1));
 
 				for (String property : entry.getValue()) {
 					JPanel p = new JPanel();
+					
 					JButton button = new JButton(property);
 
 					if (property.equals(selectedProperty)) {
 						p.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+						selectedComponent = p;
 					} else {
 						p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 					}
@@ -183,18 +237,72 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 					p.add(button, BorderLayout.CENTER);
 					panel.add(p);
 				}
+				
+				 VScrollPane vScrollPane = new VScrollPane(panel);
+				 vScrollPanes.add(vScrollPane);
 
-				mainPanel.add(UI.createTitledPanel(UI.createNorthPanel(panel), entry.getKey()));
+				 mainPanel.add(UI.createTitledPanel(UI.createNorthPanel(vScrollPane), entry.getKey()));
 			}
 
 			setLayout(new BorderLayout());
 			add(mainPanel, BorderLayout.CENTER);
 			add(UI.createEastPanel(UI.createBorderPanel(cancelButton)), BorderLayout.SOUTH);
-
+			
 			pack();
 			UI.adjustDialog(this);
 			setLocationRelativeTo(PropertySelectionButton.this);
 			getRootPane().setDefaultButton(cancelButton);
+			
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			int maxDialogHeight = (int)Math.floor(screenSize.height * 0.9);
+			this.setMaximumSize(new Dimension(this.getWidth(), maxDialogHeight)); // 800));
+			this.setMinimumSize(new Dimension(this.getWidth(), 125));
+			
+			vScrollPanes.forEach(vScrollPane -> vScrollPane.initialSize = vScrollPane.getSize());
+			
+			this.addComponentListener(new ComponentAdapter() 
+			{
+			    public void componentResized(ComponentEvent e)
+			    {
+			        vScrollPanes.forEach(vScrollPane -> vScrollPane.setPreferredSize(
+			        	new Dimension(
+			        		vScrollPane.initialSize.width, 
+			        		Math.min(vScrollPane.initialSize.height, vScrollPane.getParent().getHeight())
+			        	)
+			        ));
+			    }
+			});
+			
+			if (selectedComponent != null) {
+				this.addScrollToSelectedComponentFeature(selectedComponent);
+			}
+		}
+		
+		private void addScrollToSelectedComponentFeature(Component selectedComponent) {
+			this.addWindowListener(new WindowAdapter() {
+	            public void windowOpened(WindowEvent e) {
+	            	
+	            	// find containing VScrollPane
+    				Container parent = selectedComponent.getParent();
+    				
+    				while(!(parent instanceof VScrollPane)) {
+    					parent = parent.getParent();
+    				}
+    				
+    				JScrollPane scrollPane = (JScrollPane)parent;
+    				
+    				int viewPortHeight = scrollPane.getViewport().getHeight();
+    				
+    				Rectangle selectedComponentRect = selectedComponent.getBounds();
+    				int selectedComponentBottom = selectedComponentRect.y + selectedComponentRect.height;
+    				
+    				if (selectedComponentBottom > viewPortHeight) {
+    					scrollPane.getVerticalScrollBar().setValue(selectedComponentBottom - viewPortHeight);
+    				}
+	            }
+	            
+	            public void windowClosing(WindowEvent e) {}
+	        });
 		}
 
 		public boolean isApproved() {
