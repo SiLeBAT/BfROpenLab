@@ -34,8 +34,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -55,6 +58,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
+
+import org.knime.core.data.DataRow;
 import org.knime.core.data.json.JacksonConversions;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -68,7 +73,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.bund.bfr.jung.LabelPosition;
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
@@ -78,8 +85,12 @@ import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.ArrowHeadType;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.MetaNode;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
+import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View.NodePosition;
 import de.bund.bfr.knime.openkrise.util.json.JsonValidator;
 import de.bund.bfr.knime.openkrise.util.json.JsonValidator.SchemaValidationException;
 import de.bund.bfr.knime.openkrise.views.canvas.ExplosionListener;
@@ -365,15 +376,79 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
           jsonFormat.data = null;
         }
         
-        this.set.loadSettings(jsonFormat);
+        // json data might need preprocessing
+        this.preprocessImportSettings(jsonFormat);
+        
+        if (canvas instanceof ExplosionTracingGraphCanvas) {
+        	// meta station might not be available anymore
+        	this.closeExplosionViewRequested((IExplosionCanvas<?>)canvas);
+        } else {
+        	this.updateSettings();
+        }
+        
+        
+        TracingViewSettings newSettings = this.set.copy(); // new TracingViewSettings(this.set);
+        newSettings.loadSettings(jsonFormat);
+        this.set = newSettings;
+        
         //Settings might not fit to data
         this.fixSettings();
-        this.loadSettings();
         
+        this.loadSettings();
 	  }
 	}
 	
 	
+	private void preprocessImportSettings(JsonFormat jsonFormat) {
+		if (jsonFormat.settings != null) {
+			if (
+				jsonFormat.settings.metaNodes != null &&
+				jsonFormat.settings.view != null && 
+				jsonFormat.settings.view.graph != null &&
+				jsonFormat.settings.view.graph.node != null &&
+				jsonFormat.settings.view.graph.node.positions != null
+			) {
+				// fixes node positions
+				// web app stores relative positions (meta members to its meta station)
+				// DA stores and requires absolute positions and only for non meta stations
+				MetaNode[] metaNodes = jsonFormat.settings.metaNodes;
+				NodePosition[] positions = jsonFormat.settings.view.graph.node.positions;
+				Map<String, Point2D> posMap = new HashMap<>();
+				for(View.NodePosition nodePosition: positions) {
+					posMap.put(nodePosition.id, new Point2D.Double(nodePosition.position.x, nodePosition.position.y));
+				}
+				for(MetaNode metaNode: metaNodes) {
+					if (posMap.containsKey(metaNode.id)) {
+						// position of meta station is given
+						// the members have relative positions
+						// but they need absolute positions
+						Point2D metaPos = posMap.get(metaNode.id);
+						for(String memberId: metaNode.members) {
+							if (posMap.containsKey(memberId)) {
+								Point2D memberPos = posMap.get(memberId);
+								posMap.put(memberId, PointUtils.addPoints(metaPos, memberPos));
+							}
+						}
+						// remove pos of meta station
+						posMap.remove(metaNode.id);
+					}
+				}
+				
+				Set<String> availableNodeIds = this.getAvailableNodeIds();
+				// Apply recalculated positions
+				jsonFormat.settings.view.graph.node.positions = Arrays.stream(positions)
+						.filter(np -> posMap.containsKey(np.id) && availableNodeIds.contains(np.id))
+						.map(np -> {
+							Point2D pos = posMap.get(np.id);
+							np.position.x = pos.getX();
+							np.position.y = pos.getY();
+							return np;
+						})
+						.toArray(NodePosition[]::new);	
+			}
+		}
+		
+	}
 	
 	private void loadSettings() throws NotConfigurableException {
 	  this.undoButton.setEnabled(false);
@@ -428,10 +503,20 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 	}
 
 	private void fixSettings() {
-	  // ToDo: adapt Settings to data 
-		// GraphSettings gs = this.set.getGraphSettings();
+		// ToDo: adapt Settings to data 
 		
-		this.set.fixSettings(this.nodeTable);
+		this.set.fixSettings(this.getAvailableNodeIds());
+	}
+	
+	private Set<String> getAvailableNodeIds() {
+		Set<String> nodeIds = new HashSet<>();
+		int intIDIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
+		
+		for (DataRow row : nodeTable) {
+			String id = IO.getString(row.getCell(intIDIndex));
+			nodeIds.add(id);
+		}
+		return nodeIds;
 	}
 	
 	@Override
@@ -845,7 +930,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 				set);
 
 		boolean isGisAvailable = creator.hasGisCoordinates();
-		//boolean isGraphViewEnforced = (!isGisAvailable || set.getGisType() == GisType.SHAPEFILE) && set.isShowGis();
 		boolean isGraphViewEnforced = !isGisAvailable && set.isShowGis();
 		if(isGraphViewEnforced) this.forceGraphView();
 		

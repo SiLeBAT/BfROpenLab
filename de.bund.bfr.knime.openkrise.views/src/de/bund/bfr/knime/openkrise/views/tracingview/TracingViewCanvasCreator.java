@@ -50,8 +50,6 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingShapefileCanvas;
 
 public class TracingViewCanvasCreator {
-
-	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
 	
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
@@ -156,29 +154,6 @@ public class TracingViewCanvasCreator {
 		return canvas;
 	}
 	
-//	private void filterExplosionData(Map<String, ? extends Node> nodes, List<? extends Edge<? extends Node>> edges, Map<String, Delivery> deliveries) {
-//		// filter relevant edges, nodes, deliveries
-//		ExplosionSettings objES = this.set.getExplosionSettingsList().getActiveExplosionSettings();
-//		Set<String> filterNodes = new HashSet<>(new ArrayList<>(objES.getContainedNodesIds()));
-//		
-//		// remove edges which are not connected with one of the exploded nodes
-//		edges.removeAll(edges.stream()
-//				.filter(e -> !(filterNodes.contains(e.getFrom().getId()) || filterNodes.contains(e.getTo().getId())))
-//				.collect(Collectors.toList()));
-//		
-//		// remove deliveries which are to received or supplied by one of the exploded stations
-//		deliveries.keySet().removeAll(deliveries.entrySet().stream()
-//				.filter(e -> !(filterNodes.contains(e.getValue().getRecipientId()) || filterNodes.contains(e.getValue().getSupplierId())))
-//				.map(e -> e.getKey())
-//				.collect(Collectors.toList()));
-//		
-//		// add boundary nodes (neighbours of the exploded nodes which are not in the set itself)
-//		filterNodes.addAll(edges.stream().map(e -> e.getFrom().getId()).collect(Collectors.toSet()));
-//		filterNodes.addAll(edges.stream().map(e -> e.getTo().getId()).collect(Collectors.toSet()));
-//		
-//		nodes.keySet().retainAll(filterNodes);
-//	}
-	
 	/*
 	 * returns an explosion canvas for graph views
 	 */
@@ -188,9 +163,6 @@ public class TracingViewCanvasCreator {
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedDeliveryRows);
 		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedDeliveryRelationRows);
-		
-		
-		//this.filterExplosionData(nodes, edges, deliveries);
 		
 		TracingGraphCanvas canvas = new ExplosionTracingGraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
 				edgeSchema, deliveries, lotBased, 
@@ -244,11 +216,7 @@ public class TracingViewCanvasCreator {
 				skippedDeliveryRelationRows);
 		ITracingGisCanvas<?> canvas;
 
-		//this.filterExplosionData(nodes, edges, deliveries);
-		
 		if (set.getGisType() == GisType.SHAPEFILE) {
-//			// this point should not be reached
-//			throw(new NotConfigurableException("An explosion is not supported for shapefile view."));
 		
 			canvas = new ExplosionTracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
 					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries, lotBased, 

@@ -47,6 +47,13 @@ public class Transform implements Serializable {
 		this.translationX = translationX;
 		this.translationY = translationY;
 	}
+	
+	public Transform(Transform that) {
+		this.scaleX = that.scaleX;
+		this.scaleY = that.scaleY;
+		this.translationX = that.translationX;
+		this.translationY = that.translationY;
+	}
 
 	public Transform(AffineTransform transform) {
 		this(transform.getScaleX(), transform.getScaleY(), transform.getTranslateX(), transform.getTranslateY());

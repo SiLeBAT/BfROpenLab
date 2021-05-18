@@ -69,17 +69,21 @@ public class GisSettings extends NodeSettings {
 		avoidOverlay = false;
 	}
 	
-	public GisSettings(GisSettings set) {
-      transform = Transform.INVALID_TRANSFORM;
-      nodeSize = set.nodeSize;
-      nodeMaxSize = set.nodeMaxSize;
-      edgeThickness = set.edgeThickness;
-      edgeMaxThickness = set.edgeMaxThickness;
-      fontSize = set.fontSize;
-      fontBold = set.fontBold;
-      borderAlpha = set.borderAlpha;
-      avoidOverlay = set.avoidOverlay;
-  }
+	public GisSettings(GisSettings set, boolean applyTransform) {
+		transform = applyTransform ? new Transform(set.transform) : Transform.INVALID_TRANSFORM;
+	    nodeSize = set.nodeSize;
+	    nodeMaxSize = set.nodeMaxSize;
+	    edgeThickness = set.edgeThickness;
+	    edgeMaxThickness = set.edgeMaxThickness;
+	    fontSize = set.fontSize;
+	    fontBold = set.fontBold;
+	    borderAlpha = set.borderAlpha;
+	    avoidOverlay = set.avoidOverlay;
+	}
+	
+	public GisSettings copy() {
+		return new GisSettings(this, true);
+	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
@@ -178,29 +182,37 @@ public class GisSettings extends NodeSettings {
 	}
 	
 	public void loadSettings(View.GisSettings gisView) {
-            
-	  if(gisView==null) return;
       
-      if(gisView.transformation!=null)       
-        this.transform = new Transform(
-            gisView.transformation.scale.x, gisView.transformation.scale.y,
-            gisView.transformation.translation.x, gisView.transformation.translation.y);
+	  // transformation aka viewport is not applied anymore
+	  this.transform = Transform.INVALID_TRANSFORM;
+	  
+	  if (gisView == null) return;
       
-      if(gisView.edge!=null) {
-        this.edgeThickness = gisView.edge.minWidth;
-        this.edgeMaxThickness = gisView.edge.maxWidth;
+      if (gisView.edge != null) {
+    	  if(gisView.edge.minWidth >= 1) {
+    		  this.edgeThickness = gisView.edge.minWidth;
+    	  }
+    	  if(gisView.edge.maxWidth == null || gisView.edge.maxWidth >= this.edgeThickness) {
+    		  this.edgeMaxThickness = gisView.edge.maxWidth;
+    	  }
       } 
       
-      if(gisView.text!=null) {
-        this.fontSize = gisView.text.fontSize;
-        this.fontBold = gisView.text.fontBold;
+      if (gisView.text != null) {
+    	 if (gisView.text.fontSize >= 1) {
+    		 this.fontSize = gisView.text.fontSize;
+    	 }
+    	 this.fontBold = gisView.text.fontBold;
       }
       
-      if(gisView.node!=null) {
-        this.nodeSize = gisView.node.minSize;
-        this.nodeMaxSize = gisView.node.maxSize;
-        this.avoidOverlay = gisView.node.avoidOverlay;
-        this.borderAlpha = gisView.borderAlpha;
+      if (gisView.node != null) {
+    	  if (gisView.node.minSize >= 1) {
+    		  this.nodeSize = gisView.node.minSize;
+    	  }
+    	  if (gisView.node.maxSize == null || gisView.node.maxSize >= this.nodeSize) {
+    		  this.nodeMaxSize = gisView.node.maxSize;
+    	  }
+          this.avoidOverlay = gisView.node.avoidOverlay;
+          this.borderAlpha = gisView.borderAlpha;
       }
     }
 

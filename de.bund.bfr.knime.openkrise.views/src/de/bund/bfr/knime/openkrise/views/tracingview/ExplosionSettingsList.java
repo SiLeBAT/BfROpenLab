@@ -46,6 +46,14 @@ public class ExplosionSettingsList extends NodeSettings {
 		this.explosionSettingsList = new ArrayList<ExplosionSettings>();
 		this.activeExplosionSettingsList = new Stack<ExplosionSettings>();
 	}
+    
+    protected ExplosionSettingsList copy() {
+    	ExplosionSettingsList copy = new ExplosionSettingsList();
+    	copy.explosionSettingsList = new ArrayList<>(explosionSettingsList);
+    	copy.activeExplosionSettingsList = new Stack<>();
+    	activeExplosionSettingsList.forEach(expSettings -> copy.activeExplosionSettingsList.add(expSettings.copy()));
+    	return copy;
+    }
 	
 	private static String getElementPrefix(int index) {
 		return CFG_PREFIX + "_" + index + "_";
@@ -87,7 +95,6 @@ public class ExplosionSettingsList extends NodeSettings {
       int n = this.explosionSettingsList.size();
       jsonBuilder.setExplosionCount(n);
       for(int i=0; i<n; ++i) {
-          //settings.explosions[i] = new SettingsJson.View.ExplosionSettings();
           this.explosionSettingsList.get(i).saveSettings(jsonBuilder, i);
       }
     }

@@ -73,8 +73,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 public class ExplosionCanvasUtils {
 
 	private static final GeometryFactory FACTORY = new GeometryFactory();
-	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
-
+	
 	public static final double BOUNDARY_AREA_RELATIVE_MARGIN = LocationCanvasUtils.INVALID_AREA_RELATIVE_MARGIN; //    0.2;
 	public static final double BOUNDARY_AREA_RELATIVE_BOUNDARYWIDTH = LocationCanvasUtils.INVALID_AREA_RELATIVE_BORDERWIDTH; // 0.02;
 	public static final double BOUNDARY_WIDTH = 5; // 10
@@ -253,7 +252,7 @@ public class ExplosionCanvasUtils {
      * 
      * @param innerBounds - rectangular border area
      */
-    public static Polygon createBoundaryArea(Rectangle2D innerBounds, Canvas canvas) {
+    public static Polygon createBoundaryArea(Rectangle2D innerBounds, Canvas<?> canvas) {
         double size = Math.max(innerBounds.getWidth(), innerBounds.getHeight());
         if(size == 0) size = Math.max(canvas.getCanvasSize().getWidth(), canvas.getCanvasSize().getHeight())/2;
         if(size == 0) size = 1;

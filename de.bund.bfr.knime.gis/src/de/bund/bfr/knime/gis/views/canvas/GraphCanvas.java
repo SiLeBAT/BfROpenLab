@@ -48,7 +48,6 @@ import de.bund.bfr.jung.layout.Layout;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.UI;
-//import de.bund.bfr.knime.gis.views.canvas.Canvas.PostPaintable;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
@@ -64,21 +63,8 @@ import de.bund.bfr.knime.ui.Dialogs;
  */
 public class GraphCanvas extends Canvas<GraphNode> {
 	
-	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
-
 	private static final long serialVersionUID = 1L;
 	private static final boolean USE_FR_LAYOUT_TO_PLACE_NEW_NODES = true;
-	
-//	private static class MyLogger {
-//	    private void finest(String msg) {
-//	      SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-//	      String strDate = sdfDate.format(new Date());
-//	      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-////	      System.out.println("Finest" + "\t" + strDate + "\t" + stackTrace[3].getClassName() + "." + stackTrace[3].getMethodName() + "\t" + msg);
-//	    }
-//	  }
-//	  private static MyLogger logger = new MyLogger(); // =  Logger.getLogger("de.bund.bfr");
-	  
 
 	public GraphCanvas(boolean allowCollapse, Naming naming) {
 		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(), naming,
@@ -172,14 +158,19 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
-
-		if (bounds != null) {
-			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
+		Transform fitTransform = this.getFitTransform();
+		if (transform != null) {
+			setTransform(fitTransform);
 			transformFinished();
 		} else {
 			super.resetLayoutItemClicked();
 		}
+	}
+	
+	public Transform getFitTransform() {
+		Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
+		
+		return bounds == null ? null : CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null);
 	}
 
 	@Override
@@ -194,14 +185,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				nodesForLayout = selectedNodes;
 				break;
 			case NO:
-				nodesForLayout = this.nodes;//this.getLayoutableNodes();
+				nodesForLayout = this.nodes;
 				break;
 			case CANCEL:
 			default:
 				return;
 			}
 		} else {
-			nodesForLayout = this.nodes; //this.getLayoutableNodes();
+			nodesForLayout = this.nodes;
 		}
 
 		if (nodesForLayout.size() < 2) {
@@ -244,18 +235,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return newNode;
 	}
 	
-	protected Set<GraphNode> getLayoutableNodes() { return this.nodes; }
+	protected Set<GraphNode> getLayoutableNodes() { 
+		return this.nodes; 
+	}
 	
-	protected Rectangle2D getLayoutBounds() { return new Rectangle2D.Double(0.0, 0.0, viewer.getSize().getWidth(), viewer.getSize().getHeight()); }
-//	protected Rectangle2D getLayoutBounds(Set<GraphNode> nodesForLayout) {
-//	  
-//	}
+	protected Rectangle2D getLayoutBounds() { 
+		return new Rectangle2D.Double(0.0, 0.0, viewer.getSize().getWidth(), viewer.getSize().getHeight()); 
+	}
 
 	
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog, boolean signalLayoutProcessFinish) {
-//	    logger.finest("entered");
 		Rectangle2D layoutBounds = this.getLayoutBounds();
-		Dimension s =  layoutBounds.getBounds().getSize();  //viewer.getSize();
+		Dimension s =  layoutBounds.getBounds().getSize();  
 		
 		Layout<GraphNode, Edge<GraphNode>> layout = 
 				((layoutType==LayoutType.FR_LAYOUT && nodesForLayout != nodes)?   // ToDo: use !nodesForLayout.equals(this.getLayoutableNodes()) instead? 
@@ -287,9 +278,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			layoutDialog.pack();
 			layoutDialog.setResizable(false);
 			layoutDialog.setLocationRelativeTo(this);
-//			logger.finest("before Thread start");
 			new Thread(() -> {
-//			    logger.finest("enter Thread");
 				while (!layoutDialog.isVisible()) {
 					try {
 						Thread.sleep(500);
@@ -300,9 +289,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				layoutResult.putAll(layout.getNodePositions(initialPositions,
 						p -> SwingUtilities.invokeLater(() -> progressBar.setValue((int) Math.round(p * 100)))));
 				SwingUtilities.invokeLater(() -> layoutDialog.setVisible(false));
-//				logger.finest("leave Thread");
 			}).start();
-//			logger.finest("after Thread start");
 			layoutDialog.setVisible(true);
 		} else {
 			layoutResult.putAll(layout.getNodePositions(initialPositions, null));
@@ -342,7 +329,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if(signalLayoutProcessFinish) Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
-//		logger.finest("leave");
 	}
 	
 	protected void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {

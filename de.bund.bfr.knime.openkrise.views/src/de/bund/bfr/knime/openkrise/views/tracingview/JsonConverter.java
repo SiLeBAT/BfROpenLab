@@ -536,8 +536,11 @@ public class JsonConverter {
   }
   
   protected static <T extends View.HighlightCondition> void setHighlighting(HighlightConditionList target, T[] sources) throws InvalidSettingsException {
-    target.getConditions().clear();
-    for(T source: sources) 
-      target.getConditions().add(source.valueCondition==null ? createLogicalCondition(source) : (source.logicalConditions==null? createValueCondition(source) : createLogicalValueHighlightCondition(source))); 
+	  if (sources != null) { 
+		  target.getConditions().clear();
+		  for(T source: sources) { 
+			  target.getConditions().add(source.valueCondition==null ? createLogicalCondition(source) : (source.logicalConditions==null? createValueCondition(source) : createLogicalValueHighlightCondition(source)));
+		  }
+	  }
   }
 }

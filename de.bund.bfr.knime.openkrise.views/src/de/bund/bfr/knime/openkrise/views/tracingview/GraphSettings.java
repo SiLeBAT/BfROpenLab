@@ -21,6 +21,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.geom.Point2D;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -30,15 +31,12 @@ import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
-//import de.bund.bfr.knime.openkrise.util.json.JsonFormat;
 import de.bund.bfr.knime.openkrise.util.json.JsonFormat.TracingViewSettings.View;
 import de.bund.bfr.knime.openkrise.views.Activator;
 
 
 public class GraphSettings extends NodeSettings {
 
-	//private static Logger logger =  Logger.getLogger("de.bund.bfr");
-	
 	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	private static final String CFG_SCALE_X = "GraphScaleX";
@@ -72,17 +70,26 @@ public class GraphSettings extends NodeSettings {
 		fontSize = 12;
 		fontBold = false;
 	}
+	
+	public GraphSettings(GraphSettings set, boolean applyTransformAndPositions) {
+		if (applyTransformAndPositions) {
+			transform = new Transform(set.transform); // set.transform;
+			nodePositions = set.nodePositions == null ? null : new LinkedHashMap<>(set.nodePositions);
+		} else {
+			transform = Transform.INVALID_TRANSFORM;
+			nodePositions = null;
+		}
+		nodeSize = set.nodeSize;
+		nodeMaxSize = set.nodeMaxSize;
+		edgeThickness = set.edgeThickness;
+		edgeMaxThickness = set.edgeMaxThickness;
+		fontSize = set.fontSize;
+		fontBold = set.fontBold;
+	}
 
-public GraphSettings(GraphSettings set) {
-      this.transform = set.transform; //   transform = Transform.INVALID_TRANSFORM;
-      this.nodePositions = null;
-      this.nodeSize = set.nodeSize;
-      this.nodeMaxSize = set.nodeMaxSize;
-      this.edgeThickness = set.edgeThickness;
-      this.edgeMaxThickness = set.edgeMaxThickness;
-      this.fontSize = set.fontSize;
-      this.fontBold = set.fontBold;
-  }
+	public GraphSettings copy() {
+		return new GraphSettings(this, true);
+	}
   
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
@@ -179,6 +186,10 @@ public GraphSettings(GraphSettings set) {
 
 		if (nodePositions != null) {
 			canvas.setNodePositions(nodePositions);
+	
+			if (!transform.isValid()) {
+				canvas.setTransform(canvas.getFitTransform());
+			}
 		} else {
 			canvas.initLayout();
 		}
@@ -203,19 +214,43 @@ public GraphSettings(GraphSettings set) {
 	}
 	
 	public void loadSettings(View.GraphSettings graphView) {
-	  this.nodePositions = new HashMap<>();
-	  for(View.NodePosition nodePosition: graphView.node.positions) 
-	    this.nodePositions.put(nodePosition.id, new Point2D.Double(nodePosition.position.x,nodePosition.position.y));
-	  
-	  this.transform = new Transform(
-	      graphView.transformation.scale.x, graphView.transformation.scale.y,
-	      graphView.transformation.translation.x, graphView.transformation.translation.y);
-	  
-	  this.edgeThickness = graphView.edge.minWidth;
-	  this.edgeMaxThickness = graphView.edge.maxWidth;
-	  this.fontSize = graphView.text.fontSize;
-	  this.fontBold = graphView.text.fontBold;
-	  this.nodeSize = graphView.node.minSize;
-	  this.nodeMaxSize = graphView.node.maxSize;
+		
+		// transformation aka viewport is not applied anymore, reset it instead
+		this.transform = Transform.INVALID_TRANSFORM;
+		
+		if (graphView == null) return;
+		
+		if (graphView.node != null) {
+		  
+			if (graphView.node.positions != null && graphView.node.positions.length > 0) {
+				
+				if (this.nodePositions == null) this.nodePositions = new HashMap<>();
+				for(View.NodePosition nodePosition: graphView.node.positions) {
+					this.nodePositions.put(nodePosition.id, new Point2D.Double(nodePosition.position.x,nodePosition.position.y));
+				}
+			}
+				
+			if (graphView.node.minSize >= 1) {
+				this.nodeSize = graphView.node.minSize;
+			}
+			if (graphView.node.maxSize == null || graphView.node.maxSize >= this.nodeSize) {
+				this.nodeMaxSize = graphView.node.maxSize;
+			}
+		}
+	    
+		if (graphView.edge != null) {
+			if (graphView.edge.minWidth >= 1) {
+				this.edgeThickness = graphView.edge.minWidth;
+			}
+			if (graphView.edge.maxWidth == null || graphView.edge.maxWidth >= this.edgeThickness) {
+				this.edgeMaxThickness = graphView.edge.maxWidth;
+			}
+		}
+		if (graphView.text != null) {
+			if (graphView.text.fontSize >= 1) {
+				this.fontSize = graphView.text.fontSize;
+			}
+			this.fontBold = graphView.text.fontBold;
+		}
 	}
 }

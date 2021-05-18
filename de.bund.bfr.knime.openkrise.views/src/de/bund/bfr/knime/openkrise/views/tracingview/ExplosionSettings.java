@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -51,11 +52,11 @@ public class ExplosionSettings {
 	}
 	
 	public ExplosionSettings(TracingViewSettings set) {
-      this.gisSettings = new GisSettings(set.getGisSettings());
+      this.gisSettings =  new GisSettings(set.getGisSettings(), false);
       this.graphSettings = new ExplosionGraphSettings(set.getGraphSettings());
       this.selectedNodes = new ArrayList<>();
       this.selectedEdges = new ArrayList<>();
-  }
+	}
 	
 	public ExplosionSettings(String metaNodeId, Set<String> containedNodesIds, TracingViewSettings set) {
 		this(set);
@@ -67,6 +68,17 @@ public class ExplosionSettings {
 	public GisSettings getGisSettings() { return this.gisSettings; }
 	public String getKey() { return this.metaNodeId; }
 	public Set<String> getContainedNodesIds() {	return this.containedNodesIds; }
+	
+	public ExplosionSettings copy() {
+		ExplosionSettings copy = new ExplosionSettings();
+		copy.metaNodeId = metaNodeId;
+		copy.containedNodesIds = new HashSet<>(containedNodesIds);
+		copy.gisSettings = gisSettings.copy();
+		copy.graphSettings = graphSettings.copy();
+		copy.selectedNodes = new ArrayList<>(selectedNodes);
+		copy.selectedEdges = new ArrayList<>(selectedEdges);
+		return copy;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public void loadSettings(NodeSettingsRO settings, String prefix) {
