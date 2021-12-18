@@ -3,11 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Pmm-Lab-Lite Core Types
 Bundle-SymbolicName: de.bund.bfr.knime.pmmlite.core.types;singleton:=true
 Bundle-Version: 1.1.41.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.emf.ecore;bundle-version="2.11.0",
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.eclipse.emf.ecore,
  de.bund.bfr.knime;visibility:=reexport,
  de.bund.bfr.math;visibility:=reexport,
  org.sbml.jsbml;visibility:=reexport
 Export-Package: de.bund.bfr.knime.pmmlite.core
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: de.bund.bfr.knime.pmmlite.core.types

@@ -30,10 +30,9 @@ import java.util.List;
 import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.core.MediaType;
-import javax.xml.soap.SOAPException;
 
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.xmlbeans.impl.soap.SOAPException;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -70,8 +69,8 @@ import de.nrw.verbraucherschutz.idv.daten.Warenumfang;
 
 /**
  * This is the model implementation of MyKrisenInterfaces.
- * 
- * 
+ *
+ *
  * @author draaw
  */
 public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
@@ -198,7 +197,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		addSpec(columns, TracingColumns.STATION_CITY, StringCell.TYPE);
 		//addSpec(columns, TracingColumns.STATION_STATE, StringCell.TYPE);
 		addSpec(columns, TracingColumns.STATION_COUNTRY, StringCell.TYPE);
-		
+
 		addSpec(columns, "Bemerkung", StringCell.TYPE);
 		addSpec(columns, "EgZulassungsnummer", StringCell.TYPE);
 		addSpec(columns, "Lat", DoubleCell.TYPE);
@@ -250,7 +249,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		File tempDir = null;
 		String xmlFolder = set.getXmlPath();
 		if (set.isBusstop()) {
-	    	  /*  		
+	    	  /*
 		    TrustManager[] trustAllCerts = new TrustManager[] {
 		            new javax.net.ssl.X509TrustManager() {
 		                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -276,15 +275,15 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		        HostnameVerifier hnv = new HostnameVerifier() {
 
 		    	        public boolean verify(String hostname, SSLSession sslSession) {
-		    	        	//System.err.println(hostname); 
+		    	        	//System.err.println(hostname);
 		    	            //if (hostname.equals("localhost")) { if (hostname.startsWith("foodrisklabs.bfr.")
 		    	                return true;
 		    	            //}
 		    	            //return false;
 		    	        }
-		    	    };		    	    
+		    	    };
 
-		    	    
+
 		    ClientConfig config = new ClientConfig();
 		    config.register(MultiPartFeature.class);
 		    config.property(ClientProperties.FOLLOW_REDIRECTS, true);
@@ -306,7 +305,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 			    if (msg.trim().isEmpty()) this.setWarningMessage("Es sind keine Fälle vorhanden!");
 			    else this.setWarningMessage("Folgende Fälle sind verfügbar:\n" + msg + "\nbitte einen Fall auswählen und als Parameter eintragen!");
 			    stationContainer.close(); deliveryContainer.close(); linkContainer.close();
-				return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
+				return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };
 		    }
 		    else {
 	    		client.accept(MediaType.APPLICATION_OCTET_STREAM);
@@ -316,14 +315,14 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 	    		InputStream stream = client.get(InputStream.class);
 			    //InputStream stream = service.path("rest").path("items").path("kpms").queryParam("environment", environment).queryParam("fallnummer", caseNumber).request().accept(MediaType.APPLICATION_OCTET_STREAM).get(InputStream.class);
 		        ZipInputStream zipIn = new ZipInputStream(stream);
-		        
+
 			    tempDir = Files.createTempDir();
 		        UnzipUtility unzipper = new UnzipUtility();
 	            unzipper.unzip(zipIn, tempDir.getAbsolutePath());
 	            zipIn.close();
-	            xmlFolder = tempDir.getAbsolutePath();		    	
+	            xmlFolder = tempDir.getAbsolutePath();
 		    }
-		    
+
 		}
 		NRW_Importer nrw = new NRW_Importer();
 		String lastFallNummer = nrw.doImport(xmlFolder, caseNumber);
@@ -348,9 +347,9 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		if (tempDir != null) {
 			deleteDir(tempDir);
 		}
-		
+
 		DataCell[] cells = new DataCell[specS.getNumColumns()];
-		
+
 		if (caseNumber != null) {
 			Collection<Betrieb> betriebe = nrw.getFaelle().get(caseNumber).getBetriebe();
 			if (betriebe != null) {
@@ -367,13 +366,13 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 						fillCell(specS, cells, TracingColumns.STATION_CITY, createCell(b.getOrt()));
 						fillCell(specS, cells, TracingColumns.STATION_COUNTRY, createCell(b.getLand()));
 						//fillCell(specS, cells, TracingColumns.STATION_COUNTRY, createCell("DE"));
-						
+
 						fillCell(specS, cells, "Bemerkung", createCell(b.getBemerkung()));
 						fillCell(specS, cells, "EgZulassungsnummer", createCell(b.getEgZulassungsnummer()));
 						fillCell(specS, cells, "Lat", createCell(b.getGeoPositionLatitude() == null ? null : b.getGeoPositionLatitude().doubleValue()));
 						fillCell(specS, cells, "Lon", createCell(b.getGeoPositionLongitude() == null ? null : b.getGeoPositionLongitude().doubleValue()));
-						
-						stationContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index++), cells));				
+
+						stationContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index++), cells));
 					}
 				}
 			}
@@ -382,7 +381,7 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		stationContainer.close();
 
 		cells = new DataCell[specD.getNumColumns()];
-		
+
 		HashMap<String, List<String>> identicalLieferungen = new HashMap<>();
 		HashMap<String, List<String>> identicalLots = new HashMap<>();
 		List<String[]> linkList = new ArrayList<>();
@@ -401,31 +400,31 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 									String[] keys = fillDeliveries(specD, cells, "D" + index, b.getBetriebsnummer(), kpm.getBetrieb().getBetriebsnummer(), we.getProdukt(), we.getWarenumfang(), we.getLieferung(), kpm.getMeldung().getNummer(), we.getId(), null, b.getTyp(), refDel);
 									String lotKey = keys[0];
 									String deliveryKey = keys[1];
-									
+
 									if (!identicalLieferungen.containsKey(deliveryKey)) {
 										List<String> l = new ArrayList<String>();
-										l.add("D" + index);								
+										l.add("D" + index);
 										identicalLieferungen.put(deliveryKey, l);
 										deliveryContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index), cells));
 									}
 									else {
 										List<String> l = identicalLieferungen.get(deliveryKey);
-										l.add("D" + index);								
+										l.add("D" + index);
 									}
 									if (!identicalLots.containsKey(lotKey)) {
 										List<String> l = new ArrayList<String>();
-										l.add("D" + index);								
+										l.add("D" + index);
 										identicalLots.put(lotKey, l);
 									}
 									else {
 										List<String> l = identicalLots.get(lotKey);
-										l.add("D" + index);																		
+										l.add("D" + index);
 									}
 									weIDs.put(we.getId(), "D" + index);
 									index++;
 								}
 							}
-						}									
+						}
 					}
 					HashMap<String, Produktion> prods = new HashMap<>();
 					if (kpm.getProduktionen() != null) {
@@ -443,25 +442,25 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 									String[] keys = fillDeliveries(specD, cells, "D" + index, kpm.getBetrieb().getBetriebsnummer(), b.getBetriebsnummer(), wa.getProdukt(), wa.getWarenumfang(), wa.getLieferung(), kpm.getMeldung().getNummer(), null, wa.getId(), b.getTyp(), refDel);
 									String lotKey = keys[0];
 									String deliveryKey = keys[1];
-									
+
 									if (!identicalLieferungen.containsKey(deliveryKey)) {
 										List<String> l = new ArrayList<String>();
-										l.add("D" + index);								
+										l.add("D" + index);
 										identicalLieferungen.put(deliveryKey, l);
 										deliveryContainer.addRowToTable(new DefaultRow(RowKey.createRowKey(index), cells));
 									}
 									else {
 										List<String> l = identicalLieferungen.get(deliveryKey);
-										l.add("D" + index);								
+										l.add("D" + index);
 									}
 									if (!identicalLots.containsKey(lotKey)) {
 										List<String> l = new ArrayList<String>();
-										l.add("D" + index);								
+										l.add("D" + index);
 										identicalLots.put(lotKey, l);
 									}
 									else {
 										List<String> l = identicalLots.get(lotKey);
-										l.add("D" + index);																		
+										l.add("D" + index);
 									}
 									if (prods.containsKey(wa.getProduktionId())) {
 										Produktion p = prods.get(wa.getProduktionId());
@@ -479,13 +478,13 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 									index++;
 								}
 							}
-						}	
+						}
 					}
 				}
 			}
 		}
 		deliveryContainer.close();
-		
+
 		DataCell[] cellsL = new DataCell[specL.getNumColumns()];
 
 		System.err.println("\nremoving identical deliveries...");
@@ -505,10 +504,10 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		}
 		linkContainer.close();
 		// Achtung!!! still missing: Verknüpfung von deliveries, die identisch sind, aber in verschiedenen Aufträgen definiert wurden - hier auch "Ausloeser" einbeziehen!!!
-		
-		return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };		
+
+		return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(), linkContainer.getTable() };
 	}
-	
+
 	private String[] fillDeliveries(DataTableSpec specD, DataCell[] cells, String deliveryId, String from, String to, Produkt p, Warenumfang wu, Lieferung l, String kontrollpunktnummer, String we_id, String wa_id, String betriebsTyp, String referenceDelivery) {
 		fillCell(specD, cells, TracingColumns.ID, createCell(deliveryId));
 		fillCell(specD, cells, TracingColumns.FROM, createCell(from));
@@ -535,17 +534,17 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 		Date ld = l == null || l.getAusgeliefertAm() == null ? null : l.getAusgeliefertAm().toGregorianCalendar().getTime();
 		fillCell(specD, cells, TracingColumns.DELIVERY_DEPARTURE, createCell(ld));
 		fillCell(specD, cells, "Lieferscheinnummer", createCell(l == null ? null : l.getLieferscheinNummer()));
-		
+
 		fillCell(specD, cells, "Kontrollpunktnummer", createCell(kontrollpunktnummer));
 		fillCell(specD, cells, "WE_ID", createCell(we_id));
 		fillCell(specD, cells, "WA_ID", createCell(wa_id));
 		fillCell(specD, cells, "BetriebsTyp", createCell(betriebsTyp));
 		fillCell(specD, cells, "ReferenzDelivery", createCell(referenceDelivery));
-		
+
 		String delivery_id = from + ";;;" + to + ";;;" + lot_id + ";;;" + ld;
 
 		return new String[] {lot_id, delivery_id};
-	}	
+	}
 	private boolean deleteDir(File folder) {
 	    File[] contents = folder.listFiles();
 	    if (contents != null) {
@@ -554,5 +553,5 @@ public class MyKrisenInterfacesXmlNodeModel extends NodeModel {
 	        }
 	    }
 	    return folder.delete();
-	}		
+	}
 }

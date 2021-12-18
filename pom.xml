@@ -41,38 +41,39 @@
 		<module>de.nrw.verbraucherschutz.idv</module>
 		<module>edu.umd.cs.findbugs.annotations</module>
 		<module>de.bund.bfr.jung</module>
+		<module>de.bund.bfr.knime.target</module>
 
-		<!-- Test plugins 
+		<!-- Test plugins
 		<module>de.bund.bfr.knime.fsklab.metadata.model.test</module>
 		<module>de.bund.bfr.knime.fsklab.nodes.test</module>
 		<module>de.bund.bfr.knime.pmm.common.test</module>
 -->
-		<!-- Test report 
+		<!-- Test report
 		<module>de.bund.bfr.knime.testreport</module>
 		-->
 		<!-- Others -->
 		<module>de.bund.bfr.knime.openkrise.feature</module>
 		<module>de.bund.bfr.knime.gis.feature</module>
 		<module>de.bund.bfr.knime.update.p2</module>
-		
+
 	</modules>
 
 
 <repositories>
-  
+
   <repository>
    <id>eclipse</id>
    <!-- <url>https://download.eclipse.org/releases/2018-09</url>  -->
-   <url>https://download.eclipse.org/eclipse/updates/4.9/</url>
+   <url>https://download.eclipse.org/eclipse/updates/4.22/</url>
    <layout>p2</layout>
   </repository>
-  
+
   <repository>
    <id>knime</id>
-   <url>https://update.knime.org/analytics-platform/4.3/</url>
+   <url>https://update.knime.org/analytics-platform/4.4/</url>
    <layout>p2</layout>
   </repository>
-     
+
  </repositories>
 
 
@@ -107,41 +108,38 @@
             </execution>
         </executions>
     </plugin>
-    
+
     <plugin>
-    <groupId>org.eclipse.tycho</groupId>
-    <artifactId>target-platform-configuration</artifactId>
-    <version>${tycho.version}</version>
-    <configuration>
-     <environments>
-      <environment>
-       <os>linux</os>
-       <ws>gtk</ws>
-       <arch>x86</arch>
-      </environment>
-      <environment>
-       <os>linux</os>
-       <ws>gtk</ws>
-       <arch>x86_64</arch>
-      </environment>
-      <environment>
-       <os>win32</os>
-       <ws>win32</ws>
-       <arch>x86</arch>
-      </environment>
-      <environment>
-       <os>win32</os>
-       <ws>win32</ws>
-       <arch>x86_64</arch>
-      </environment>
-      <environment>
-       <os>macosx</os>
-       <ws>cocoa</ws>
-       <arch>x86_64</arch>
-      </environment>
-     </environments>
-    </configuration>
-   </plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<target>
+						<artifact>
+							<groupId>de.bund.bfr.knime</groupId>
+							<artifactId>target-platform</artifactId>
+							<version>1.0.0-SNAPSHOT</version>
+						</artifact>
+					</target>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
   </plugins>
  </build>
 </project>

@@ -95,10 +95,10 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 public class CanvasUtils {
 
 	private static Logger logger =  Logger.getLogger("de.bund.bfr");
-	
+
 	private static final int NODE_TEXTURE_SIZE = 3;
 	private static final int EDGE_TEXTURE_SIZE = 5;
-	
+
 	private static final Color[] COLORS = new Color[] { new Color(255, 85, 85), new Color(85, 85, 255),
 			new Color(85, 255, 85), new Color(255, 85, 255), new Color(85, 255, 255), new Color(255, 175, 175),
 			new Color(128, 128, 128), new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
@@ -546,7 +546,7 @@ public class CanvasUtils {
 			g.translate(x, 0);
 			server.paint(g);
 			x += c.getCanvasSize().width;
-		} 
+		}
 		} else {
 			//
 			g.drawString("Image not available.", width*2, height*2);
@@ -557,10 +557,10 @@ public class CanvasUtils {
 
 		return document;
 	}
-	
+
 	/**
 	 * Return a Non-Empty SVGDocument, with a string out of image bounds (not visible)
-	 * 
+	 *
 	 */
 	private static SVGDocument getPseudoEmptySvgDocument() {
 		int width = 1;
@@ -571,19 +571,19 @@ public class CanvasUtils {
 		g.setSVGCanvasSize(new Dimension(width, height));
 
 		g.drawString("Image not available.", width*2, height*2);
-		
+
 
 		g.dispose();
 		document.replaceChild(g.getRoot(), document.getDocumentElement());
 
 		return document;
 	}
-	
+
 	public static ImagePortObject getImage(boolean asSvg, ICanvas<?>... canvas) throws IOException {
 		if (asSvg) {
 			// if canvas list is empty create an empty create an pseudo empty svg document otherwise the SVGImageContent constructor throws an error
-			// because it checks whether were is at least something on the image 
-			// With this setting the image view show not anymore an invalid svg file 
+			// because it checks whether were is at least something on the image
+			// With this setting the image view show not anymore an invalid svg file
 			return new ImagePortObject(new SvgImageContent((canvas.length>0?CanvasUtils.getSvgDocument(canvas):getPseudoEmptySvgDocument())),
 					new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {

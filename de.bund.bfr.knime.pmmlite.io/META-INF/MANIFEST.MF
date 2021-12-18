@@ -8,5 +8,7 @@ Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: de.bund.bfr.knime.pmmlite.core,
  org.apache.poi.new
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: de.bund.bfr.knime.pmmlite.io
+Import-Package: org.w3c.dom.events;version="3.0.0"
 

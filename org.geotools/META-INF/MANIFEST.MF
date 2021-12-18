@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Geotools
 Bundle-SymbolicName: org.geotools
 Bundle-Version: 12.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: lib/commons-pool-1.5.4.jar,
  lib/gt-api-12.0.jar,
  lib/gt-data-12.0.jar,
@@ -208,3 +208,4 @@ Export-Package: com.vividsolutions.jts,
  org.opengis.style,
  org.opengis.temporal,
  org.opengis.util
+Automatic-Module-Name: org.geotools
