@@ -31,21 +31,22 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.SchemaFactory;
 
+import org.apache.xmlbeans.impl.soap.MessageFactory;
+import org.apache.xmlbeans.impl.soap.MimeHeaders;
+import org.apache.xmlbeans.impl.soap.SOAPBody;
+import org.apache.xmlbeans.impl.soap.SOAPEnvelope;
+import org.apache.xmlbeans.impl.soap.SOAPException;
+import org.apache.xmlbeans.impl.soap.SOAPMessage;
+import org.apache.xmlbeans.impl.soap.SOAPPart;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.nrw.verbraucherschutz.idv.daten.*;
+import de.nrw.verbraucherschutz.idv.daten.Kontrollpunktmeldung;
+import de.nrw.verbraucherschutz.idv.daten.Meldung;
 
 public class NRW_Importer {
 

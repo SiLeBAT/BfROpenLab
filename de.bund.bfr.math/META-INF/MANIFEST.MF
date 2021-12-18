@@ -5,10 +5,11 @@ Bundle-SymbolicName: de.bund.bfr.math;singleton:=true
 Bundle-Version: 1.1.41.qualifier
 Bundle-Activator: de.bund.bfr.math.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
  org.apache.commons.math3;visibility:=reexport,
  org.sbml.jsbml;visibility:=reexport
 Export-Package: de.bund.bfr.math
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
+Automatic-Module-Name: de.bund.bfr.math

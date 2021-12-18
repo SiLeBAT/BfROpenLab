@@ -18,7 +18,7 @@
  *     Department Biological Safety - BfR
  *******************************************************************************/
 /**
- * 
+ *
  */
 package de.bund.bfr.knime.openkrise.db.gui.dbtree;
 
@@ -31,6 +31,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -46,16 +47,16 @@ import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBPanel;
 public class MyDBTree extends JTree implements TreeSelectionListener, KeyListener {
 
   /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 private MyTable myT = null;
 	private boolean catchEvent = true;
 	private MyDBPanel myDBPanel1 = null;
-	private MyDBTreeModel myModel = null; 
+	private MyDBTreeModel myModel = null;
 
   public MyDBTree() {
-    this.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);   
+    this.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     //ImageIcon customLeafIcon = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/Table.gif"));
     DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
     //renderer.setOpenIcon(customOpenIcon);
@@ -64,12 +65,12 @@ private MyTable myT = null;
     this.setCellRenderer(renderer);
     this.setToggleClickCount(2);
 		//this.setEditable(true);
-    
+
     this.addTreeSelectionListener(this);
     this.addKeyListener(this);
     //this.setRootVisible(false);
 	}
-	
+
 	public MyTable getActualTable() {
 		return myT;
 	}
@@ -84,20 +85,20 @@ private MyTable myT = null;
 			this.setRootVisible(true);
 		}
 	}
-	
+
 	public void expandPath(String nodeName) {
-	    @SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> e = ((DefaultMutableTreeNode) this.getModel().getRoot()).depthFirstEnumeration();
-	    while (e.hasMoreElements()) {
-	        DefaultMutableTreeNode node = e.nextElement();
-	        if (node.getLevel() == 1 && node.toString().equalsIgnoreCase(nodeName)) {
-	            this.expandPath(new TreePath(node.getPath()));
-	        }
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getModel().getRoot();
+	    Enumeration<TreeNode> enumeration = rootNode.depthFirstEnumeration();
+	    while (enumeration.hasMoreElements()) {
+	    	DefaultMutableTreeNode node = (DefaultMutableTreeNode) enumeration.nextElement();
+	    	if (node.getLevel() == 1 && node.toString().equalsIgnoreCase(nodeName)) {
+	    		expandPath(new TreePath(node.getPath()));
+	    	}
 	    }
 	}
 	@Override
 	public void valueChanged(TreeSelectionEvent event) {
-		if (catchEvent) { // !event.getValueIsAdjusting()    				
+		if (catchEvent) { // !event.getValueIsAdjusting()
 			DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
 			/*
     		boolean isLeaf = selectedTreeNode.isLeaf();
@@ -106,13 +107,13 @@ private MyTable myT = null;
 				isLeaf = mydbt.isLeaf();
 			}
 			*/
-			if (selectedTreeNode.getLevel() < 2) { // selectedTreeNode.getLevel() < 3    !selectedTreeNode.isLeaf() && 
+			if (selectedTreeNode.getLevel() < 2) { // selectedTreeNode.getLevel() < 3    !selectedTreeNode.isLeaf() &&
 				catchEvent = false;
 				this.setSelectionPath(event.getOldLeadSelectionPath());
 			}
 			else {
 				int id = getSelectedID();
-				if (id > 0 && myDBPanel1 != null) myDBPanel1.setSelectedID(id);				
+				if (id > 0 && myDBPanel1 != null) myDBPanel1.setSelectedID(id);
 			}
 		}
 		catchEvent = true;
@@ -156,7 +157,7 @@ private MyTable myT = null;
 			}
 			catch (Exception e) {
 				MyLogger.handleException(e);
-			}			
+			}
 		}
 	}
 	private int getSelectedID() {

@@ -31,14 +31,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -49,21 +41,34 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.xmlbeans.impl.soap.MessageFactory;
+import org.apache.xmlbeans.impl.soap.SOAPBody;
+import org.apache.xmlbeans.impl.soap.SOAPElement;
+import org.apache.xmlbeans.impl.soap.SOAPEnvelope;
+import org.apache.xmlbeans.impl.soap.SOAPException;
+import org.apache.xmlbeans.impl.soap.SOAPHeader;
+import org.apache.xmlbeans.impl.soap.SOAPMessage;
+import org.apache.xmlbeans.impl.soap.SOAPPart;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.nrw.verbraucherschutz.idv.daten.*;
+import de.nrw.verbraucherschutz.idv.daten.Analyseergebnis;
+import de.nrw.verbraucherschutz.idv.daten.Bewertung;
+import de.nrw.verbraucherschutz.idv.daten.ObjectFactory;
+import de.nrw.verbraucherschutz.idv.daten.Property;
+import de.nrw.verbraucherschutz.idv.daten.PropertyKeys;
+import de.nrw.verbraucherschutz.idv.daten.PropertyList;
 
 public class NRW_Exporter {
-		
+
 	public static void main(String[] args) throws JAXBException, SAXException {
 		Analyseergebnis ae = new Analyseergebnis();
 		ae.setBewertung(new Bewertung());
 		new NRW_Exporter().doExport(ae, true);
 	}
-	
+
 	public ByteArrayOutputStream doExport(Analyseergebnis ae, boolean xmlStyleOutput) throws SAXException {
 		ByteArrayOutputStream result = null;
 		Marshaller writer;
@@ -82,7 +87,7 @@ public class NRW_Exporter {
 			writer.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new MyNamespaceMapper());
 			/*
 			writer.marshal(jaxbWrappedHeader, System.out);
-						
+
 			if (filename != null) {
 				writer.marshal(jaxbWrappedHeader, new File(filename));
 			}
@@ -126,21 +131,21 @@ public class NRW_Exporter {
 			writer.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new MyNamespaceMapper());
 			writer.marshal(jaxbWrappedCommHeader, header);
 			header.removeNamespaceDeclaration(envelope.getPrefix());
-			
+
 			SOAPBody body = envelope.getBody();
 			body.setPrefix("soapenv");
 			envelope.addNamespaceDeclaration("dok", "http://verbraucherschutz.nrw.de/idv/daten/2016.1/dokument");
 			envelope.addNamespaceDeclaration("tran", "http://verbraucherschutz.nrw.de/idv/dienste/2016.2/warenrueckverfolgung/transport");
 			envelope.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-			
+
 			body.addDocument(document);
-			
+
 			soapMsg.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
 			//soapMsg.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true");
-			
+
 			removeXmlns(header.getElementsByTagName("*"));
 			removeXmlns(body.getElementsByTagName("*"));
-			
+
 			if (xmlStyleOutput) {
 			    Source source = part.getContent();
 
@@ -158,22 +163,22 @@ public class NRW_Exporter {
 			      Document doc = dbb.parse(inSource);
 			      root = (Node) doc.getDocumentElement();
 			    }
-			    
+
 			    Transformer transformer = TransformerFactory.newInstance().newTransformer();
 			    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-			    transformer.transform(new DOMSource(root), new StreamResult(System.out));    
+			    transformer.transform(new DOMSource(root), new StreamResult(System.out));
 			    result = new ByteArrayOutputStream();
-			    transformer.transform(new DOMSource(root), new StreamResult(result));    				
+			    transformer.transform(new DOMSource(root), new StreamResult(result));
 			}
 			else {
-				//soapMsg.writeTo(System.out);				
-				soapMsg.writeTo(result);				
+				//soapMsg.writeTo(System.out);
+				soapMsg.writeTo(result);
 			}
-		  
+
 			//FileOutputStream fOut = new FileOutputStream("SoapMessage.xml");
 			//soapMsg.writeTo(fOut);
-			
+
 		} catch (JAXBException | ParserConfigurationException | SOAPException | IOException | TransformerFactoryConfigurationError | TransformerException e) {
 			e.printStackTrace();
 		}
@@ -185,11 +190,11 @@ public class NRW_Exporter {
 		    Node node = nodeList.item(i);
 		    if (node.getNodeType() == Node.ELEMENT_NODE) {
 	            SOAPElement childX = (SOAPElement) node;
-	            
+
 	            for (String ns : nss) {
-			    	childX.removeNamespaceDeclaration(ns);	            	
+			    	childX.removeNamespaceDeclaration(ns);
 	            }
-	            
+
 	            /*
 		    	childX.removeNamespaceDeclaration("tran");
 		    	childX.removeNamespaceDeclaration("dok");
@@ -198,6 +203,6 @@ public class NRW_Exporter {
 		    	childX.removeNamespaceDeclaration("kom");
 		    	*/
 		    }
-		}			
+		}
 	}
 }

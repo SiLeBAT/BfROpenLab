@@ -63,7 +63,7 @@ import org.knime.core.node.workflow.NodeMessage;
 import org.knime.core.node.workflow.SingleNodeContainer;
 import org.knime.core.node.workflow.SubNodeContainer;
 import org.knime.core.node.workflow.WorkflowManager;
-// import org.knime.core.util.GUIDeadlockDetector;
+import org.knime.core.util.GUIDeadlockDetector;
 import org.knime.core.util.ThreadUtils;
 import org.knime.testing.core.TestrunConfiguration;
 

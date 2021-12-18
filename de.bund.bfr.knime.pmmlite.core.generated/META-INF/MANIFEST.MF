@@ -5,7 +5,7 @@ Bundle-SymbolicName: de.bund.bfr.knime.pmmlite.core.generated;singleton:=true
 Bundle-Version: 1.1.41.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: Christian Thoens
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: de.bund.bfr.knime.pmmlite.core.common,
  de.bund.bfr.knime.pmmlite.core.common.impl,
  de.bund.bfr.knime.pmmlite.core.common.util,
@@ -16,6 +16,7 @@ Export-Package: de.bund.bfr.knime.pmmlite.core.common,
  de.bund.bfr.knime.pmmlite.core.models.impl,
  de.bund.bfr.knime.pmmlite.core.models.util
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.emf.ecore;bundle-version="2.11.0";visibility:=reexport,
+ org.eclipse.emf.ecore;visibility:=reexport,
  de.bund.bfr.knime.pmmlite.core.types;visibility:=reexport
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: de.bund.bfr.knime.pmmlite.core.generated

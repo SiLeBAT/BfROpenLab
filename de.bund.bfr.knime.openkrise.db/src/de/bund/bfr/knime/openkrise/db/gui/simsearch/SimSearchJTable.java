@@ -56,17 +56,17 @@ import javax.swing.table.TableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
-import sun.swing.SwingUtilities2;
+import javax.swing.plaf.basic.BasicGraphicsUtils;
 
 public class SimSearchJTable extends JTable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 7055490193917189461L;
 
 	private enum EditType {
-		None(EnumSet.of(Alignment.EditOperation.None)), 
-		Neutral(EnumSet.of(Alignment.EditOperation.GAP)), 
+		None(EnumSet.of(Alignment.EditOperation.None)),
+		Neutral(EnumSet.of(Alignment.EditOperation.GAP)),
 		MisMatch(EnumSet.of(Alignment.EditOperation.Replace,Alignment.EditOperation.Insert,Alignment.EditOperation.Delete));
 
 		private EnumSet<Alignment.EditOperation> editOperations;
@@ -89,7 +89,7 @@ public class SimSearchJTable extends JTable {
 	private SimSearchTable.ViewSettings viewSettings;
 	private double[] unzoomedRowHeights;
 
-	SimSearchJTable(SimSearchTable.ViewSettings viewSettings) { 
+	SimSearchJTable(SimSearchTable.ViewSettings viewSettings) {
 		super();
 		this.viewSettings = viewSettings;
 	}
@@ -104,7 +104,7 @@ public class SimSearchJTable extends JTable {
 	protected JTableHeader createDefaultTableHeader() {
 		return new SimSearchJTableHeader(this.getColumnModel());
 	}
-	
+
 	public void initColumnRenderer(TableColumn tableColumn) {
 		if(this.getModel()==null || !(this.getModel() instanceof SimSearchTableModel)) return;
 		SimSearchTableModel tableModel = (SimSearchTableModel) this.getModel();
@@ -178,12 +178,12 @@ public class SimSearchJTable extends JTable {
 
 		return width;
 	}
-	
-//	@Override 
+
+//	@Override
 //	public void setFont(Font font) {
 //	  this.
 //	}
-	
+
 	@Override
 	public void setModel(TableModel model) {
 		if(model!=this.getModel()) this.removeColumns();
@@ -194,10 +194,10 @@ public class SimSearchJTable extends JTable {
 
 	public void removeColumns() {
 		TableColumnModel columnModel = this.getColumnModel();
-		while (this.getColumnCount() > 0) this.removeColumn(columnModel.getColumn(0)); 
+		while (this.getColumnCount() > 0) this.removeColumn(columnModel.getColumn(0));
 	}
 
-	//Implements table cell tool tips.           
+	//Implements table cell tool tips.
 	public String getToolTipText(MouseEvent e) {
 
 		if(this.getModel()==null || !(this.getModel() instanceof SimSearchTableModel)) return null;
@@ -206,7 +206,7 @@ public class SimSearchJTable extends JTable {
 		int colViewIndex = columnAtPoint(p);
 
 		TableCellRenderer cellRenderer = this.getColumnModel().getColumn(colViewIndex).getCellRenderer();
-		if(cellRenderer!=null && (cellRenderer instanceof ToolTipRenderer)) 
+		if(cellRenderer!=null && (cellRenderer instanceof ToolTipRenderer))
 			return ((ToolTipRenderer) cellRenderer).createToolTipText((SimSearchTableModel) this.getModel(), this.convertRowIndexToModel(rowViewIndex), this.convertColumnIndexToModel(colViewIndex));
 		else
 			return null;
@@ -367,17 +367,17 @@ public class SimSearchJTable extends JTable {
 
 
 	}
-	
 
-	
+
+
 	// Cell Renderer start
 
-	public static class DefaultColumnRenderer extends DefaultTableCellRenderer  implements ToolTipRenderer  { 
+	public static class DefaultColumnRenderer extends DefaultTableCellRenderer  implements ToolTipRenderer  {
 
 		private static final long serialVersionUID = -5815150426074228820L;
 
 		private static final Color COLOR_INACTIVEROW_BACKGROUND = Color.LIGHT_GRAY;
-		private static final int EXTRA_X_MARGIN = 1; 
+		private static final int EXTRA_X_MARGIN = 1;
 		private static final int EXTRA_Y_MARGIN = 1;
 
 		private DefaultColumnRenderer() {
@@ -397,7 +397,7 @@ public class SimSearchJTable extends JTable {
 			SimSearchTable.ViewSettings viewSettings = ((SimSearchJTable) table).viewSettings;
 
 			Border border = getBorder();
-			if(border!=null) 
+			if(border!=null)
 				if(!(border instanceof CompoundBorder)) {
 					border = new CompoundBorder(border, new EmptyBorder(viewSettings.getCellMarginY(),viewSettings.getCellMarginX(),viewSettings.getCellMarginY(), viewSettings.getCellMarginX()));
 					setBorder(border);
@@ -463,13 +463,13 @@ public class SimSearchJTable extends JTable {
 
 
 			try {
-				return "<html><table cellpadding=\"0\">\n" + 
-						"  <tr>\n" + 
-						"    <td>" + StringEscapeUtils.escapeHtml4(toolTip) + "</td>\n" + 
-						"  </tr>\n" + 
-						"  <tr>\n" + 
-						"    <td>" + StringEscapeUtils.escapeHtml4(value.toString())  + "</td>\n" + 
-						"  </tr>\n" + 
+				return "<html><table cellpadding=\"0\">\n" +
+						"  <tr>\n" +
+						"    <td>" + StringEscapeUtils.escapeHtml4(toolTip) + "</td>\n" +
+						"  </tr>\n" +
+						"  <tr>\n" +
+						"    <td>" + StringEscapeUtils.escapeHtml4(value.toString())  + "</td>\n" +
+						"  </tr>\n" +
 						"</table></font></html>";
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -478,7 +478,7 @@ public class SimSearchJTable extends JTable {
 		}
 	}
 
-	public static class AlignmentColumnRenderer extends DefaultColumnRenderer implements ToolTipRenderer { 
+	public static class AlignmentColumnRenderer extends DefaultColumnRenderer implements ToolTipRenderer {
 
 
 		private static final long serialVersionUID = 2667223719310814039L;
@@ -523,7 +523,7 @@ public class SimSearchJTable extends JTable {
 			}
 
 			if(data[modelRow]==null && value!=null) {
-				Insets insets = this.getBorder().getBorderInsets(this);	
+				Insets insets = this.getBorder().getBorderInsets(this);
 				int availableWidth = Math.max(0, columnWidth - insets.left - insets.right);
 				Alignment.AlignedSequence alignedSeq = (Alignment.AlignedSequence) value;
 
@@ -566,7 +566,7 @@ public class SimSearchJTable extends JTable {
 			else return 0;
 		}
 
-		public static String createHtmlCode(Alignment.AlignedSequence alignedSequence, boolean addHtmlTag) throws Exception { 
+		public static String createHtmlCode(Alignment.AlignedSequence alignedSequence, boolean addHtmlTag) throws Exception {
 			return createHtmlCode(alignedSequence, addHtmlTag, Integer.MAX_VALUE);
 		}
 
@@ -575,7 +575,7 @@ public class SimSearchJTable extends JTable {
 				return "";
 			}
 			StringBuilder sb = new StringBuilder((addHtmlTag?"<html><nobr>":"")+"<font face=\"Monospaced\">"); //+"<nobr>");
-			final String SYMBOL_GAP = "&#752;"; 
+			final String SYMBOL_GAP = "&#752;";
 			final String SYMBOL_SPACE_DELETE = "&#8718;";
 			final String SYMBOL_SPACE = "&nbsp;";
 			int textPos = -1;
@@ -609,7 +609,7 @@ public class SimSearchJTable extends JTable {
 			if(nSymbols<alignedSequence.getEditOperations().size()) sb.append("...");
 			if(addHtmlTag) sb.append("<nobr></html>");
 			return sb.toString();
-		}  
+		}
 
 		@Override
 		public String createToolTipText(SimSearchTableModel tableModel, int rowIndex, int columnIndex) {
@@ -625,22 +625,22 @@ public class SimSearchJTable extends JTable {
 					alignedSeq = new Alignment.AlignedSequence(alignedSeq.getSequence(), new ArrayList<>(alignedSeq.getEditOperations()));
 					alignedRefSeq = new Alignment.AlignedSequence(alignedRefSeq.getSequence(), new ArrayList<>(alignedRefSeq.getEditOperations()));
 
-					for(int i=alignedSeq.getEditOperations().size()-1; i>=0; --i) 
+					for(int i=alignedSeq.getEditOperations().size()-1; i>=0; --i)
 						if(alignedSeq.getEditOperations().get(i)==Alignment.EditOperation.GAP && alignedRefSeq.getEditOperations().get(i)==Alignment.EditOperation.GAP) {
 							alignedSeq.getEditOperations().remove(i);
 							alignedRefSeq.getEditOperations().remove(i);
 						}
 
 					try {
-						return "<html><table cellpadding=\"0\">\n" + 
-								"  <tr>\n" + 
-								"    <td>" + RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + "</td>\n" + 
-								"    <td>" + createHtmlCode(alignedRefSeq, false)  + "</td>\n" + 
-								"  </tr>\n" + 
-								"  <tr>\n" + 
-								"    <td></td>\n" + 
-								"    <td>" + createHtmlCode(alignedSeq, false)  + "</td>\n" + 
-								"  </tr>\n" + 
+						return "<html><table cellpadding=\"0\">\n" +
+								"  <tr>\n" +
+								"    <td>" + RowHeaderColumnRenderer.HTML_SYMBOL_SIM_REFERENCE + "</td>\n" +
+								"    <td>" + createHtmlCode(alignedRefSeq, false)  + "</td>\n" +
+								"  </tr>\n" +
+								"  <tr>\n" +
+								"    <td></td>\n" +
+								"    <td>" + createHtmlCode(alignedSeq, false)  + "</td>\n" +
+								"  </tr>\n" +
 								"</table></html>";
 					} catch (Exception e) {
 
@@ -712,10 +712,10 @@ public class SimSearchJTable extends JTable {
 			int ascent = hgt-descent; //metrics.getAscent();
 			Insets inset = this.getBorder().getBorderInsets(this);
 
-			int linepad = 0; 
+			int linepad = 0;
 
-			int y = inset.top; 
-			int maxWidth = this.getWidth()-inset.left-inset.right; 
+			int y = inset.top;
+			int maxWidth = this.getWidth()-inset.left-inset.right;
 			int maxHeight = this.getHeight()-inset.top -inset.bottom;
 
 			g.setFont(this.getFont());
@@ -723,13 +723,13 @@ public class SimSearchJTable extends JTable {
 			int yLine;
 
 			Shape oldClip = g.getClip();
-			int heightContinueMark = 2*descent; 
+			int heightContinueMark = 2*descent;
 			boolean showContinueMark = false;
 
 			g.setClip(new Rectangle(inset.left, inset.top, maxWidth, maxHeight));
 
 			for(int i=0; i<data.size(); ++i) {
-				String s = SwingUtilities2.clipStringIfNecessary(this.label, metrics, data.get(i), maxWidth);
+				String s = BasicGraphicsUtils.getClippedString(this.label, metrics, data.get(i), maxWidth);
 
 				yLine = y + (hgt+linepad)*(i);
 
@@ -764,11 +764,11 @@ public class SimSearchJTable extends JTable {
 			try {
 				StringBuilder sb = new StringBuilder();
 				sb.append("<html><table cellpadding=\"0\">\n");
-				if(toolTip!=null) sb.append("  <tr>\n" + 
-						"    <td>Format: <i>" + StringEscapeUtils.escapeHtml4(toolTip) + "</i></td>\n" + 
+				if(toolTip!=null) sb.append("  <tr>\n" +
+						"    <td>Format: <i>" + StringEscapeUtils.escapeHtml4(toolTip) + "</i></td>\n" +
 						"  </tr>\n");
-				for(String element: (List<String>) value) sb.append("  <tr>\n" + 
-						"    <td>" + StringEscapeUtils.escapeHtml4(element.toString())  + "</td>\n" + 
+				for(String element: (List<String>) value) sb.append("  <tr>\n" +
+						"    <td>" + StringEscapeUtils.escapeHtml4(element.toString())  + "</td>\n" +
 						"  </tr>\n");
 				sb.append("</table></html>");
 				return sb.toString();
@@ -810,7 +810,7 @@ public class SimSearchJTable extends JTable {
 				} else {
 					tagList.add(SYMBOL_MERGEDTO_NON_PRESENT_ROW);
 				}
-			} 
+			}
 
 			if(tableModel.getMergeCount(modelRow)>0) tagList.add("&#43;" + tableModel.getMergeCount(modelRow) );
 
@@ -883,7 +883,7 @@ public class SimSearchJTable extends JTable {
 				return (toolTipText.isEmpty()?null:String.join(" ", toolTipText));
 			} else return null;
 		}
-		
+
 		private static String getReferenceRowToolTipText(SimSearchTableModel tableModel) {
 		  switch(tableModel.getSimSet().getType()) {
 		      case STATION:
@@ -899,9 +899,9 @@ public class SimSearchJTable extends JTable {
 		    }
 		}
 	}
-	
+
 	// Cell Renderer end
-	
+
 	// this function is required to get to allow a one click drag operation on unselected rows
 	// Background:
 	// in single row selection mode, drag & drop works with one click on unselected or selected rows
@@ -921,5 +921,5 @@ public class SimSearchJTable extends JTable {
          }
          super.processMouseEvent(e);
     }
-	
+
 }
