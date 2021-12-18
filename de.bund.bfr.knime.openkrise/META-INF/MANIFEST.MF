@@ -12,5 +12,6 @@ Require-Bundle: de.bund.bfr.knime.gis;visibility:=reexport,
  de.bund.bfr.knime.openkrise.db
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.openkrise
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: de.bund.bfr.knime.openkrise
 

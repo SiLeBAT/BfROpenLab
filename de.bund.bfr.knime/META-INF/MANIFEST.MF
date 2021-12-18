@@ -5,11 +5,12 @@ Bundle-SymbolicName: de.bund.bfr.knime;singleton:=true
 Bundle-Version: 1.1.38.qualifier
 Bundle-Activator: de.bund.bfr.knime.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
-Require-Bundle: org.eclipse.ui;visibility:=reexport,
- org.knime.base;bundle-version="3.2.0";visibility:=reexport,
- edu.umd.cs.findbugs.annotations;visibility:=reexport,
- com.google.guava;bundle-version="19.0.0";visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: edu.umd.cs.findbugs.annotations;visibility:=reexport,
+ com.google.guava;visibility:=reexport,
+ org.knime.base;visibility:=reexport,
+ org.eclipse.ui;visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime,
  de.bund.bfr.knime.ui
+Automatic-Module-Name: de.bund.bfr.knime

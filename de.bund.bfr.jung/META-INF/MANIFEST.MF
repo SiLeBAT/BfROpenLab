@@ -6,8 +6,9 @@ Bundle-Version: 1.1.38.qualifier
 Bundle-Activator: de.bund.bfr.jung.Activator
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
  edu.uci.ics.jung;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Export-Package: de.bund.bfr.jung,
  de.bund.bfr.jung.layout
+Automatic-Module-Name: de.bund.bfr.jung

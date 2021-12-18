@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2019 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -86,13 +87,13 @@ private MyTable myT = null;
 	}
 	
 	public void expandPath(String nodeName) {
-	    @SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> e = ((DefaultMutableTreeNode) this.getModel().getRoot()).depthFirstEnumeration();
-	    while (e.hasMoreElements()) {
-	        DefaultMutableTreeNode node = e.nextElement();
-	        if (node.getLevel() == 1 && node.toString().equalsIgnoreCase(nodeName)) {
-	            this.expandPath(new TreePath(node.getPath()));
-	        }
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getModel().getRoot();
+	    Enumeration<TreeNode> enumeration = rootNode.depthFirstEnumeration();
+	    while (enumeration.hasMoreElements()) {
+	    	DefaultMutableTreeNode node = (DefaultMutableTreeNode) enumeration.nextElement();
+	    	if (node.getLevel() == 1 && node.toString().equalsIgnoreCase(nodeName)) {
+	    		expandPath(new TreePath(node.getPath()));
+	    	}
 	    }
 	}
 	@Override

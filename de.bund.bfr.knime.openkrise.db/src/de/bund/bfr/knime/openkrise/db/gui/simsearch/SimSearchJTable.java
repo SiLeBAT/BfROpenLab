@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2017 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ import javax.swing.table.TableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
-import sun.swing.SwingUtilities2;
+import javax.swing.plaf.basic.BasicGraphicsUtils;
 
 public class SimSearchJTable extends JTable {
 	/**
@@ -729,7 +729,7 @@ public class SimSearchJTable extends JTable {
 			g.setClip(new Rectangle(inset.left, inset.top, maxWidth, maxHeight));
 
 			for(int i=0; i<data.size(); ++i) {
-				String s = SwingUtilities2.clipStringIfNecessary(this.label, metrics, data.get(i), maxWidth);
+				String s = BasicGraphicsUtils.getClippedString(this.label, metrics, data.get(i), maxWidth);
 
 				yLine = y + (hgt+linepad)*(i);
 

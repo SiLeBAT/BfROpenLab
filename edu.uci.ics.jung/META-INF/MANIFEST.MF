@@ -4,12 +4,11 @@ Bundle-Name: JUNG
 Bundle-SymbolicName: edu.uci.ics.jung
 Bundle-Version: 2.0.1.qualifier
 Require-Bundle: org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .,
  lib/collections-generic-4.01.jar,
  lib/colt-1.2.0.jar,
  lib/concurrent-1.3.4.jar,
- lib/stax-api-1.0.1.jar,
  lib/wstx-asl-3.2.6.jar
 Export-Package: edu.uci.ics.jung.algorithms.blockmodel,
  edu.uci.ics.jung.algorithms.cluster,
@@ -57,3 +56,4 @@ Export-Package: edu.uci.ics.jung.algorithms.blockmodel,
  org.apache.commons.collections15.map,
  org.apache.commons.collections15.multimap,
  org.apache.commons.collections15.set
+Automatic-Module-Name: edu.uci.ics.jung

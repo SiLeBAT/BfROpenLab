@@ -18,6 +18,7 @@ Require-Bundle: de.bund.bfr.knime.openkrise,
  com.github.fge.json-schema-core,
  com.github.fge.json-schema-validator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: de.bund.bfr.knime.openkrise.util.json
+Automatic-Module-Name: de.bund.bfr.knime.openkrise.util
 

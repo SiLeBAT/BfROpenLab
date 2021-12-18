@@ -45,7 +45,7 @@ public class StartApp {
 	        //UIManager.setLookAndFeel(new com.jgoodies.looks.plastic.Plastic3DLookAndFeel()); // .plastic.Plastic3DLookAndFeel() .windows.WindowsLookAndFeel()
 	        //UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel"); // PlasticXPLookAndFeel Plastic3DLookAndFeel
 	        //UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
-	        UIManager.setLookAndFeel(new WindowsLookAndFeel());
+	        //UIManager.setLookAndFeel(new WindowsLookAndFeel());
 	        /*
 	        UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 	        UIManager.put("Table.gridColor", Color.black);

@@ -3,7 +3,7 @@
 	<!-- Configure the database connection here -->
 	<jdbc>
 		<driver>org.hsqldb.jdbc.JDBCDriver</driver>
-		<url>jdbc:hsqldb:file:D:/KNIME/runtime-New_configuration/.fclabDB/DB</url>
+		<url>jdbc:hsqldb:file:/Users/ahmadswaid/runtime-KINIME/.fclabDB/DB</url>
 		<user>SA</user>
 		<password></password>
 	</jdbc>

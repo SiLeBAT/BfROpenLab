@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Quicktable
 Bundle-SymbolicName: quick.dbtable
 Bundle-Version: 2.0.5.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: lib/quicktable2swing11.jar
 Export-Package: quick.dbtable
+Automatic-Module-Name: quick.dbtable

@@ -5,9 +5,11 @@ Bundle-SymbolicName: de.bund.bfr.knime.chart;singleton:=true
 Bundle-Version: 1.1.38.qualifier
 Bundle-Activator: de.bund.bfr.knime.chart.Activator
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
- org.knime.ext.jfreechart;visibility:=reexport,
- org.knime.ext.svg;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+ org.knime.ext.jfreechart;bundle-version="[4.0.0,5.0.0)";visibility:=reexport,
+ org.knime.ext.svg;bundle-version="[4.0.0,5.0.0)";visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Export-Package: de.bund.bfr.knime.chart
+Automatic-Module-Name: de.bund.bfr.knime.chart
+Import-Package: org.w3c.dom.events;version="3.0.0"

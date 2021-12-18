@@ -7,14 +7,15 @@ Bundle-Version: 1.1.38.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.network.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
-Require-Bundle: org.knime.base;bundle-version="3.2.0",
+Require-Bundle: org.knime.base,
  org.knime.network.base,
  org.knime.network.core,
  org.knime.timeseries,
  org.knime.js.views,
  org.knime.ext.jep,
- org.eclipse.jdt.annotation;bundle-version="2.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+ org.eclipse.jdt.annotation
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.network,
  de.bund.bfr.knime.network.analyzer
+Automatic-Module-Name: de.bund.bfr.knime.network

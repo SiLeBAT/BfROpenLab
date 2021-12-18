@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FoodChain-Lab DB Generated
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise.db.generated;singleton:=true
 Bundle-Version: 1.1.38.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.jooq;visibility:=reexport
 Export-Package: de.bund.bfr.knime.openkrise.db.generated.information_schema,
@@ -12,3 +12,5 @@ Export-Package: de.bund.bfr.knime.openkrise.db.generated.information_schema,
  de.bund.bfr.knime.openkrise.db.generated.public_.tables.records,
  de.bund.bfr.knime.openkrise.db.generated.system_lobs
 Bundle-ActivationPolicy: lazy
+Import-Package: javax.annotation
+Automatic-Module-Name: de.bund.bfr.knime.openkrise.db.generated

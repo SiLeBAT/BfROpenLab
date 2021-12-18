@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2019 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,14 +31,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -49,12 +41,25 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.xmlbeans.impl.soap.MessageFactory;
+import org.apache.xmlbeans.impl.soap.SOAPBody;
+import org.apache.xmlbeans.impl.soap.SOAPElement;
+import org.apache.xmlbeans.impl.soap.SOAPEnvelope;
+import org.apache.xmlbeans.impl.soap.SOAPException;
+import org.apache.xmlbeans.impl.soap.SOAPHeader;
+import org.apache.xmlbeans.impl.soap.SOAPMessage;
+import org.apache.xmlbeans.impl.soap.SOAPPart;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.nrw.verbraucherschutz.idv.daten.*;
+import de.nrw.verbraucherschutz.idv.daten.Analyseergebnis;
+import de.nrw.verbraucherschutz.idv.daten.Bewertung;
+import de.nrw.verbraucherschutz.idv.daten.ObjectFactory;
+import de.nrw.verbraucherschutz.idv.daten.Property;
+import de.nrw.verbraucherschutz.idv.daten.PropertyKeys;
+import de.nrw.verbraucherschutz.idv.daten.PropertyList;
 
 public class NRW_Exporter {
 		

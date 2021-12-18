@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2019 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,9 @@ import java.util.List;
 import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.core.MediaType;
-import javax.xml.soap.SOAPException;
 
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.xmlbeans.impl.soap.SOAPException;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;

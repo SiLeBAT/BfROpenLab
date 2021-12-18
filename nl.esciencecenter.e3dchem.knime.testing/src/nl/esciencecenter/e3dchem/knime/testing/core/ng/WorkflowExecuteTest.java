@@ -64,6 +64,7 @@ import org.knime.core.node.workflow.SingleNodeContainer;
 import org.knime.core.node.workflow.SubNodeContainer;
 import org.knime.core.node.workflow.WorkflowManager;
 import org.knime.core.util.GUIDeadlockDetector;
+import org.knime.core.util.ThreadUtils;
 import org.knime.testing.core.TestrunConfiguration;
 
 import org.knime.testing.node.config.TestConfigNodeModel;
@@ -128,7 +129,7 @@ public class WorkflowExecuteTest extends WorkflowTest {
                                 (usage.getMax() - usage.getUsed()) / 1024.0 / 1024.0);
                             message += "\n" + formatter.out().toString();
                             formatter.close();
-                            message += "\nThread status:\n" + GUIDeadlockDetector.createStacktrace();
+                            message += "\nThread status:\n" + ThreadUtils.getJVMStacktraces();
                         }
                         NodeLogger.getLogger(WorkflowExecuteTest.class).info(message);
                         collector.addError(new Throwable(message));
