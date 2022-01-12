@@ -15,8 +15,6 @@
 		<tycho.testArgLine></tycho.testArgLine>
 		<jacoco-version>0.8.5</jacoco-version>
 	</properties>
-
-
 	<modules>
 		<!-- Plugins -->
 		<module>de.bund.bfr.knime.openkrise</module>
@@ -43,14 +41,9 @@
 		<module>de.bund.bfr.jung</module>
 		<module>de.bund.bfr.knime.target</module>
 
-		<!-- Test plugins
-		<module>de.bund.bfr.knime.fsklab.metadata.model.test</module>
-		<module>de.bund.bfr.knime.fsklab.nodes.test</module>
-		<module>de.bund.bfr.knime.pmm.common.test</module>
--->
-		<!-- Test report
-		<module>de.bund.bfr.knime.testreport</module>
-		-->
+		<!-- Test plugins <module>de.bund.bfr.knime.fsklab.metadata.model.test</module>
+			<module>de.bund.bfr.knime.fsklab.nodes.test</module> <module>de.bund.bfr.knime.pmm.common.test</module> -->
+		<!-- Test report <module>de.bund.bfr.knime.testreport</module> -->
 		<!-- Others -->
 		<module>de.bund.bfr.knime.openkrise.feature</module>
 		<module>de.bund.bfr.knime.gis.feature</module>
@@ -59,57 +52,39 @@
 	</modules>
 
 
-<repositories>
 
-  <repository>
-   <id>eclipse</id>
-   <!-- <url>https://download.eclipse.org/releases/2018-09</url>  -->
-   <url>https://download.eclipse.org/eclipse/updates/4.22/</url>
-   <layout>p2</layout>
-  </repository>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>11</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<id>package-feature</id>
+						<configuration>
+							<finalName>${project.artifactId}_${unqualifiedVersion}.${buildQualifier}</finalName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-  <repository>
-   <id>knime</id>
-   <url>https://update.knime.org/analytics-platform/4.4/</url>
-   <layout>p2</layout>
-  </repository>
-
- </repositories>
-
-
- <build>
-  <plugins>
-   <plugin>
-    <groupId>org.eclipse.tycho</groupId>
-    <artifactId>tycho-maven-plugin</artifactId>
-    <version>${tycho.version}</version>
-    <extensions>true</extensions>
-   </plugin>
-   <!--Enable the replacement of the SNAPSHOT version in the final product configuration-->
-  <plugin>
-    <groupId>org.eclipse.tycho</groupId>
-    <artifactId>tycho-compiler-plugin</artifactId>
-    <version>${tycho.version}</version>
-    <configuration>
-      <useProjectSettings>true</useProjectSettings>
-    </configuration>
-    </plugin>
-   <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-            <artifactId>tycho-packaging-plugin</artifactId>
-            <version>${tycho.version}</version>
-             <executions>
-              <execution>
-                <phase>package</phase>
-                <id>package-feature</id>
-                    <configuration>
-                        <finalName>${project.artifactId}_${unqualifiedVersion}.${buildQualifier}</finalName>
-                    </configuration>
-            </execution>
-        </executions>
-    </plugin>
-
-    <plugin>
+			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
@@ -140,6 +115,6 @@
 					</environments>
 				</configuration>
 			</plugin>
-  </plugins>
- </build>
+		</plugins>
+	</build>
 </project>
