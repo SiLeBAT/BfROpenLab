@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 German Federal Institute for Risk Assessment (BfR)
+ * Copyright (c) 2021 German Federal Institute for Risk Assessment (BfR)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,26 +106,6 @@ import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel
 		implements JungListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
-
-	//private static Logger logger; // =  Logger.getLogger("de.bund.bfr");
-	
-//	{
-//	  logger = Logger.getLogger("de.bund.bfr.test");
-//	  Formatter fmt = new Formatter() {
-//
-//      @Override
-//      public String format(LogRecord arg0) {
-//        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-//        String strDate = sdfDate.format(arg0.getMillis());
-//        return arg0.getLevel() + "\t" + strDate + "\t" + arg0.getSourceClassName() + "." + arg0.getSourceMethodName() + "\t" + arg0.getMessage() + "\n";
-//      }
-//	    
-//	  };
-//	  StreamHandler sh = new StreamHandler(System.out, fmt);
-//	  //sh.setLevel(Level.FINEST);
-//	  logger.addHandler(sh);
-//	  //logger.setLevel(Level.FINEST);
-//	}
 	
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
@@ -160,7 +140,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	public Canvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
-//		logger.finest("entered");
 		this.nodeSchema = nodeSchema;
 		this.edgeSchema = edgeSchema;
 		this.naming = naming;
@@ -214,8 +193,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
-		
-//		logger.finest("leaving");
 	}
 
 	@Override
@@ -308,7 +285,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 		viewer.getPickedVertexState().clear();
 		this.nodes.stream().filter(n -> selectedNodeIds.contains(n.getId())).forEach(n -> viewer.getPickedVertexState().pick(n, true));
 		this.updateNodeSelectionSensitiveMenuItemAccess();
-		//popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 	}
 	
 	
@@ -343,11 +319,9 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
-//		logger.finest("entered");
 		this.nodeHighlightConditions = nodeHighlightConditions;
 		applyChanges();
 		call(l -> l.nodeHighlightingChanged(this));
-//		logger.finest("leaving");
 	}
 
 	@Override
@@ -357,22 +331,18 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions) {
-//		logger.finest("entered");
 		this.edgeHighlightConditions = edgeHighlightConditions;
 		applyChanges();
 		call(l -> l.edgeHighlightingChanged(this));
-//		logger.finest("leaving");
 	}
 
 	@Override
 	public void setHighlightConditions(HighlightConditionList nodeHighlightConditions,
 			HighlightConditionList edgeHighlightConditions) {
-//		logger.finest("entered");
 		this.nodeHighlightConditions = nodeHighlightConditions;
 		this.edgeHighlightConditions = edgeHighlightConditions;
 		applyChanges();
 		call(l -> l.highlightingChanged(this));
-//		logger.finest("leaving");
 	}
 
 	@Override
@@ -382,12 +352,10 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
-//		logger.finest("entered");
 		Sets.difference(this.collapsedNodes.keySet(), collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
 		this.collapsedNodes = collapsedNodes;
 		applyChanges();
 		call(l -> l.collapsedNodesChanged(this));
-//		logger.finest("leaving");
 	}
 
 	@Override
@@ -415,7 +383,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void pickingFinished() {
-		//popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 		this.updateNodeSelectionSensitiveMenuItemAccess();
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
 		call(l -> l.selectionChanged(this));
@@ -424,7 +391,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void nodePickingFinished() {
 		this.updateNodeSelectionSensitiveMenuItemAccess();
-		//popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 		call(l -> l.nodeSelectionChanged(this));
 	}
 
@@ -994,18 +960,14 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void joinEdgesChanged() {
-//		logger.finest("entered");
 		applyChanges();
 		call(l -> l.edgeJoinChanged(this));
-//		logger.finest("leaving");
 	}
 
 	@Override
 	public void skipEdgelessNodesChanged() {
-//		logger.finest("entered");
 		applyChanges();
 		call(l -> l.skipEdgelessChanged(this));
-//		logger.finest("leaving");
 	}
 
 	@Override
@@ -1123,7 +1085,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void applyChanges() {
-//		logger.finest("entered");
+		
 		Set<String> selectedNodeIds = getSelectedNodeIds();
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
@@ -1138,19 +1100,15 @@ public abstract class Canvas<V extends Node> extends JPanel
 		setSelectedNodeIdsWithoutListener(selectedNodeIds);
 		setSelectedEdgeIdsWithoutListener(selectedEdgeIds);
 		viewer.repaint();
-//		logger.finest("leaving");
 	}
 
 	@Override
 	public void resetNodesAndEdges() {
-//		logger.finest("entered");
 		nodes = CanvasUtils.getElementsById(nodeSaveMap, CanvasUtils.getElementIds(allNodes));
 		edges = CanvasUtils.getElementsById(edgeSaveMap, CanvasUtils.getElementIds(allEdges));
-//		logger.finest("leaving");
 	}
 
 	void applyNodeCollapse(Map<String,Set<String>> collapsedNodes) {
-//		logger.finest("entered");
 		Map<String, String> collapseTo = new LinkedHashMap<>();
 
 		collapsedNodes.forEach((to, fromList) -> fromList.forEach(from -> collapseTo.put(from, to)));
@@ -1193,28 +1151,22 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		nodes = newNodes;
 		edges = newEdges;
-//		logger.finest("leaving");
 	}
 	
 	@Override
 	public void applyNodeCollapse() {
-//		logger.finest("entered");
 		this.applyNodeCollapse(collapsedNodes);
-//		logger.finest("leaving");
 	}
 
 	@Override
 	public void applyInvisibility() {
-//		logger.finest("entered");
 		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
 		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
 		CanvasUtils.removeNodelessEdges(edges, nodes);
-//		logger.finest("leaving");
 	}
 
 	@Override
 	public void applyJoinEdgesAndSkipEdgeless() {
-//		logger.finest("entered");
 		joinMap.clear();
 
 		if (optionsPanel.isJoinEdges()) {
@@ -1226,7 +1178,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 		if (optionsPanel.isSkipEdgelessNodes()) {
 			CanvasUtils.removeEdgelessNodes(nodes, edges);
 		}
-//		logger.finest("leaving");
 	}
 
 	@Override
@@ -1256,8 +1207,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 			if (pos != null) {
 				map.put(node.getId(), new Point2D.Double(pos.getX(), pos.getY()));
-			} else {
-//			  logger.finest("pos = null");
 			}
 		}
 
