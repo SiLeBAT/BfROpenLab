@@ -6,5 +6,14 @@
    <feature url="features/de.bund.bfr.knime.gis.feature_1.1.41.qualifier.jar" id="de.bund.bfr.knime.gis.feature" version="1.1.41.qualifier">
       <category name="bfropenlab"/>
    </feature>
+   <feature id="de.bund.bfr.knime.network.feature">
+      <category name="bfropenlab"/>
+   </feature>
+   <feature id="de.bund.bfr.knime.nls.feature">
+      <category name="bfropenlab"/>
+   </feature>
+   <feature id="de.bund.bfr.knime.pmmlite.feature">
+      <category name="bfropenlab"/>
+   </feature>
    <category-def name="bfropenlab" label="BfROpenLab"/>
 </site>
