@@ -2,13 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Testflows
 Bundle-SymbolicName: de.bund.bfr.knime.testflows
-Bundle-Version: 1.1.38.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.junit,
  org.knime.base,
- org.knime.testing,
- nl.esciencecenter.e3dchem.knime.testing;bundle-version="1.0.0",
+ org.knime.testing;bundle-version="[4.0.0,5.0.0)",
  de.bund.bfr.jung,
  de.bund.bfr.knime,
  de.bund.bfr.knime.chart,
@@ -23,5 +22,8 @@ Require-Bundle: org.junit,
  de.bund.bfr.knime.openkrise.db.generated,
  de.bund.bfr.knime.openkrise.util,
  de.bund.bfr.knime.openkrise.views,
- de.bund.bfr.math
+ de.bund.bfr.math,
+ nl.esciencecenter.e3dchem.knime.testing.plugin;bundle-version="[1.0.0,2.0.0)"
 Export-Package: de.bund.bfr.knime.testflows
+Automatic-Module-Name: de.bund.bfr.knime.testflows
+Import-Package: org.w3c.dom.events
