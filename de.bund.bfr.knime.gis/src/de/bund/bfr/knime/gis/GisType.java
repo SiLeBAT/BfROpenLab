@@ -34,13 +34,14 @@ public enum GisType {
 	}),
 
 	CARTO_LIGHT("Carto Light",
-			new AbstractOsmTileSource("Carto Light", "https://a.basemaps.cartocdn.com/light_all", "CARTO_LIGHT") {
-			}),
-
+		new AbstractOsmTileSource("Carto Light", "https://a.basemaps.cartocdn.com/light_all", "CARTO_LIGHT") {
+	}),
+/*	
+// temporarily inactivated, because the tile server might become available again
 	BLACK_AND_WHITE("Black & White",
-			new AbstractOsmTileSource("Black & White", "https://tiles.wmflabs.org/bw-mapnik", "BLACK_AND_WHITE") {
-			}),
-
+		new AbstractOsmTileSource("Black & White", "https://tiles.wmflabs.org/bw-mapnik", "BLACK_AND_WHITE") {
+	}),
+*/
 	HOT("HOT", new AbstractOsmTileSource("HOT", "http://a.tile.openstreetmap.fr/hot", "HOT") {
 	});
 
