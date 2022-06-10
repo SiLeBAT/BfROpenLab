@@ -50,7 +50,7 @@ import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
-import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.collections15.Transformer;
 import org.knime.base.data.xml.SvgCell;
