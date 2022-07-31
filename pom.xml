@@ -69,7 +69,7 @@
   
   <repository>
    <id>knime</id>
-   <url>https://update.knime.org/analytics-platform/4.2/</url>
+   <url>https://update.knime.org/analytics-platform/4.3/</url>
    <layout>p2</layout>
   </repository>
      
