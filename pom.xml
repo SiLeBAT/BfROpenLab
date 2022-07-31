@@ -107,7 +107,7 @@
 					<target>
 						<artifact>
 							<groupId>de.bund.bfr.knime</groupId>
-							<artifactId>target-platform</artifactId>
+							<artifactId>KNIME_4_4</artifactId>
 							<version>1.0.0-SNAPSHOT</version>
 						</artifact>
 					</target>
