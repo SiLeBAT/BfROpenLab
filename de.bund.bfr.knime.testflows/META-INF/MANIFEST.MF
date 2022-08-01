@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Testflows
 Bundle-SymbolicName: de.bund.bfr.knime.testflows
-Bundle-Version: 1.1.39.qualifier
+Bundle-Version: 1.1.40.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.junit,
