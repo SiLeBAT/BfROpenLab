@@ -9,7 +9,7 @@ Require-Bundle: edu.umd.cs.findbugs.annotations;visibility:=reexport,
  com.google.guava;visibility:=reexport,
  org.knime.base;visibility:=reexport,
  org.eclipse.ui;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime,
  de.bund.bfr.knime.ui

@@ -10,7 +10,7 @@ Require-Bundle: de.bund.bfr.knime,
  de.bund.bfr.math,
  de.bund.bfr.knime.chart
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: de.bund.bfr.knime.nls
 Import-Package: org.w3c.dom.events;version="3.0.0"
 

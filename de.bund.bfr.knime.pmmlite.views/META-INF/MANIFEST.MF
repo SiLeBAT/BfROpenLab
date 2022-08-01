@@ -6,7 +6,7 @@ Bundle-Version: 1.1.43.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: de.bund.bfr.knime.pmmlite.core
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: de.bund.bfr.knime.pmmlite.views
 Import-Package: org.w3c.dom.events;version="3.0.0"

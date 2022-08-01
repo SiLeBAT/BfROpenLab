@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FindBugs Annotation
 Bundle-SymbolicName: edu.umd.cs.findbugs.annotations
 Bundle-Version: 3.0.1.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: lib/annotations.jar
 Export-Package: edu.umd.cs.findbugs.annotations
 Automatic-Module-Name: edu.umd.cs.findbugs.annotations
