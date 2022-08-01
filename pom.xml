@@ -10,7 +10,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>1.7.0</tycho.version>
+		<tycho.version>2.7.0</tycho.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho.testArgLine></tycho.testArgLine>
 		<jacoco-version>0.8.5</jacoco-version>
@@ -107,7 +107,7 @@
 					<target>
 						<artifact>
 							<groupId>de.bund.bfr.knime</groupId>
-							<artifactId>KNIME_4_5</artifactId>
+							<artifactId>KNIME_4_6</artifactId>
 							<version>1.0.0-SNAPSHOT</version>
 						</artifact>
 					</target>
