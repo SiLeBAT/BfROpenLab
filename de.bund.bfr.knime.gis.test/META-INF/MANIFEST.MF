@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME GIS Nodes Test
 Bundle-SymbolicName: de.bund.bfr.knime.gis.test
-Bundle-Version: 1.1.42.qualifier
+Bundle-Version: 1.1.43.qualifier
 Bundle-ClassPath: .
 Fragment-Host: de.bund.bfr.knime.gis
 Bundle-RequiredExecutionEnvironment: JavaSE-11
