@@ -12,8 +12,10 @@
    <feature id="de.bund.bfr.knime.nls.feature">
       <category name="bfropenlab"/>
    </feature>
+   <!--
    <feature id="de.bund.bfr.knime.pmmlite.feature">
       <category name="bfropenlab"/>
    </feature>
+   -->
    <category-def name="bfropenlab" label="BfROpenLab"/>
 </site>

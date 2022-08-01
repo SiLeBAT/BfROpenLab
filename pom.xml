@@ -45,24 +45,32 @@
 		<module>de.bund.bfr.knime.nls</module>
 		<module>de.bund.bfr.math</module>
 		<module>org.sbml.jsbml</module>
+		<!-- disabled pmm 
 		<module>de.bund.bfr.knime.pmmlite.views</module>
 		<module>de.bund.bfr.knime.pmmlite.util</module>
 		<module>de.bund.bfr.knime.pmmlite.io</module>
 		<module>de.bund.bfr.knime.pmmlite.core.generated</module>
 		<module>de.bund.bfr.knime.pmmlite.core.types</module>
 		<module>de.bund.bfr.knime.pmmlite.core</module>
+		-->
 		<!-- Test plugins <module>de.bund.bfr.knime.fsklab.metadata.model.test</module>
 			<module>de.bund.bfr.knime.fsklab.nodes.test</module> <module>de.bund.bfr.knime.pmm.common.test</module> -->
 		<!-- Test report <module>de.bund.bfr.knime.testreport</module> -->
 		<!-- Others -->
+		<!-- no test flow
 		<module>de.bund.bfr.knime.testflows</module>
+		-->
 		<module>de.bund.bfr.knime.openkrise.feature</module>
 		<module>de.bund.bfr.knime.gis.feature</module>
 		<module>de.bund.bfr.knime.network.feature</module>
 		<module>de.bund.bfr.knime.nls.feature</module>
+		<!-- no pmm feature
 		<module>de.bund.bfr.knime.pmmlite.feature</module>
+		-->
 		<module>de.bund.bfr.knime.update.p2</module>
+		<!-- no Test_feature
 		<module>Test_feature</module>
+		-->
 
 	</modules>
 
