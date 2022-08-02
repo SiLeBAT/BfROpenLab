@@ -58,7 +58,9 @@
 			<module>de.bund.bfr.knime.fsklab.nodes.test</module> <module>de.bund.bfr.knime.pmm.common.test</module> -->
 		<!-- Test report <module>de.bund.bfr.knime.testreport</module> -->
 		<!-- Others -->
+                <!-- disabled testflows
 		<module>de.bund.bfr.knime.testflows</module>
+                -->
 		<module>de.bund.bfr.knime.openkrise.feature</module>
 		<module>de.bund.bfr.knime.gis.feature</module>
 		<module>de.bund.bfr.knime.network.feature</module>
@@ -67,7 +69,9 @@
 		<module>de.bund.bfr.knime.pmmlite.feature</module>
 		-->
 		<module>de.bund.bfr.knime.update.p2</module>
+                <!-- disabled Test_feature
 		<module>Test_feature</module>
+                -->
 
 	</modules>
 
