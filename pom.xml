@@ -14,6 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho.testArgLine></tycho.testArgLine>
 		<jacoco-version>0.8.5</jacoco-version>
+		<qualifier.prefix>K4-4-</qualifier.prefix>
 	</properties>
 	<modules>
 		<!-- Plugins -->
@@ -45,7 +46,7 @@
 		<module>de.bund.bfr.knime.nls</module>
 		<module>de.bund.bfr.math</module>
 		<module>org.sbml.jsbml</module>
-		<!-- disabled pmm 
+		<!-- disabled pmm
 		<module>de.bund.bfr.knime.pmmlite.views</module>
 		<module>de.bund.bfr.knime.pmmlite.util</module>
 		<module>de.bund.bfr.knime.pmmlite.io</module>
@@ -92,6 +93,10 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
 				<version>${tycho.version}</version>
+				<configuration>
+					<!--<strictBinIncludes>false</strictBinIncludes>-->
+					<format>'${qualifier.prefix}'yyyyMMddHHmm</format>
+				</configuration>
 				<executions>
 					<execution>
 						<phase>package</phase>
