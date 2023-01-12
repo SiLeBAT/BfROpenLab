@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Polygon;
 
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;

@@ -43,13 +43,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.openstreetmap.gui.jmapviewer.OsmMercator;
 
 import com.google.common.base.Joiner;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.shapecell.ShapeValue;

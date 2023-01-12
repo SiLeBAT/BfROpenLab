@@ -21,7 +21,7 @@ package de.bund.bfr.knime.gis.shapecell;
 
 import org.knime.core.data.DataValue;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 public interface ShapeValue extends DataValue {
 

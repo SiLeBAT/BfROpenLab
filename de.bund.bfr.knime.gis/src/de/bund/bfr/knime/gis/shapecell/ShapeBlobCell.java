@@ -23,7 +23,7 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.container.BlobDataCell;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 public class ShapeBlobCell extends BlobDataCell implements ShapeValue {
 

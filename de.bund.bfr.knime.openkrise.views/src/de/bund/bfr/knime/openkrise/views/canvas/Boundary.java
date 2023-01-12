@@ -37,7 +37,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.google.common.collect.Sets;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Polygon;
 import de.bund.bfr.jung.MoveController;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;

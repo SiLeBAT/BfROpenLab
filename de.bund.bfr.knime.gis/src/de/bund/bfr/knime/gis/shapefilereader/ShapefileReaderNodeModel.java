@@ -31,6 +31,7 @@ import java.util.Set;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.store.ContentFeatureCollection;
+import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
@@ -55,11 +56,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.PropertyDescriptor;
+import org.opengis.feature.type.PropertyType;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
@@ -103,7 +105,7 @@ public class ShapefileReaderNodeModel extends NoInternalsNodeModel {
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		MathTransform transform = null;
 		int index = 0;
-
+		
 		try {
 			transform = CRS.findMathTransform(GisUtils.getCoordinateSystem(shpFile.getStringValue()),
 					CRS.decode("EPSG:4326"), true);
@@ -114,6 +116,7 @@ public class ShapefileReaderNodeModel extends NoInternalsNodeModel {
 		try (SimpleFeatureIterator iterator = collection.features()) {
 			loop: while (iterator.hasNext()) {
 				SimpleFeature feature = iterator.next();
+				
 				DataCell[] cells = new DataCell[spec.getNumColumns()];
 				MultiPolygon shape = null;
 
@@ -212,23 +215,19 @@ public class ShapefileReaderNodeModel extends NoInternalsNodeModel {
 	private DataTableSpec createSpec(SimpleFeatureType type) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 		Set<String> columnNames = new LinkedHashSet<>();
+		
+		for (PropertyDescriptor propertyDescriptor : type.getDescriptors()) {
+		
+			PropertyType propertyType = propertyDescriptor.getType();
+			String name = propertyDescriptor.getName().toString();
 
-		for (AttributeType t : type.getTypes()) {
-			String name;
-
-			if (t == type.getGeometryDescriptor().getType()) {
-				name = type.getGeometryDescriptor().getName().toString();
-			} else {
-				name = t.getName().toString();
-			}
-
-			if (t == type.getGeometryDescriptor().getType()) {
+			if (propertyType instanceof GeometryTypeImpl) {
 				columns.add(new DataColumnSpecCreator(name, ShapeBlobCell.TYPE).createSpec());
-			} else if (t.getBinding() == Integer.class) {
+			} else if (propertyType.getBinding() == Integer.class) {
 				columns.add(new DataColumnSpecCreator(name, IntCell.TYPE).createSpec());
-			} else if (t.getBinding() == Double.class) {
+			} else if (propertyType.getBinding() == Double.class) {
 				columns.add(new DataColumnSpecCreator(name, DoubleCell.TYPE).createSpec());
-			} else if (t.getBinding() == Boolean.class) {
+			} else if (propertyType.getBinding() == Boolean.class) {
 				columns.add(new DataColumnSpecCreator(name, BooleanCell.TYPE).createSpec());
 			} else {
 				columns.add(new DataColumnSpecCreator(name, StringCell.TYPE).createSpec());
@@ -236,7 +235,7 @@ public class ShapefileReaderNodeModel extends NoInternalsNodeModel {
 
 			columnNames.add(name);
 		}
-
+		
 		latitudeColumn = KnimeUtils.createNewValue(LATITUDE_COLUMN, columnNames);
 		longitudeColumn = KnimeUtils.createNewValue(LONGITUDE_COLUMN, columnNames);
 		areaColumn = KnimeUtils.createNewValue(AREA_COLUMN, columnNames);

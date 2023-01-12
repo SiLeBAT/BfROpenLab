@@ -45,8 +45,8 @@ import org.knime.core.node.NotConfigurableException;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.GisUtils;

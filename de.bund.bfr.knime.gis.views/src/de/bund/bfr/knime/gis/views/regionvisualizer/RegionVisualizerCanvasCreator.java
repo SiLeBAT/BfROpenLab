@@ -28,7 +28,7 @@ import java.util.Set;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 
-import com.vividsolutions.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;

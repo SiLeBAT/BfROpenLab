@@ -27,7 +27,7 @@ import java.util.Objects;
 
 import org.geotools.geometry.jts.LiteShape;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 public class Transform implements Serializable {
 
