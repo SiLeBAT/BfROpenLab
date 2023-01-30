@@ -10,7 +10,7 @@ Export-Package: com.networknt.schema,
  com.networknt.schema.urn,
  com.networknt.schema.utils,
  com.networknt.schema.walk
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.networknt.jsonschemavalidator
 Import-Package: com.fasterxml.jackson.databind,
  com.fasterxml.jackson.databind.node,

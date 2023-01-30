@@ -16,7 +16,7 @@ Require-Bundle: de.bund.bfr.knime.openkrise,
  com.fasterxml.jackson.core.jackson-annotations,
  com.networknt.jsonschemavalidator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: de.bund.bfr.knime.openkrise.util.json
 Automatic-Module-Name: de.bund.bfr.knime.openkrise.util
 

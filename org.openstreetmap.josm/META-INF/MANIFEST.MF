@@ -105,5 +105,5 @@ Export-Package: org.openstreetmap.gui.jmapviewer,
  org.openstreetmap.josm.tools.bugreport,
  org.openstreetmap.josm.tools.date,
  org.openstreetmap.josm.tools.template_engine
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.openstreetmap.josm

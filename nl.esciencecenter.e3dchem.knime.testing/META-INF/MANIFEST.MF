@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Testing
 Bundle-SymbolicName: nl.esciencecenter.e3dchem.knime.testing;singleton:=true
 Bundle-Version: 1.0.0.20161125
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: nl.esciencecenter.e3dchem.knime.testing,
  nl.esciencecenter.e3dchem.knime.testing.core.ng
 Require-Bundle: org.knime.core,

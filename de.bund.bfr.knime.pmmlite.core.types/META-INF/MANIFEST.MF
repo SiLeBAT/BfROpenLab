@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Pmm-Lab-Lite Core Types
 Bundle-SymbolicName: de.bund.bfr.knime.pmmlite.core.types;singleton:=true
 Bundle-Version: 1.1.45.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.emf.ecore,
  de.bund.bfr.knime;visibility:=reexport,
  de.bund.bfr.math;visibility:=reexport,

@@ -8,6 +8,6 @@ Bundle-Activator: de.bund.bfr.knime.gis.util.Activator
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: de.bund.bfr.knime.gis
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: de.bund.bfr.knime.gis.util
 

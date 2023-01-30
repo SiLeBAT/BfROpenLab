@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Tracing Nodes (XML)
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise.xml;singleton:=true
 Bundle-Version: 1.1.45.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: de.bund.bfr.knime.openkrise,
  de.bund.bfr.knime.openkrise.db,
  de.nrw.verbraucherschutz.idv

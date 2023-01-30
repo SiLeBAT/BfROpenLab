@@ -14,7 +14,7 @@ Require-Bundle: de.bund.bfr.knime.openkrise,
  de.bund.bfr.knime.gis,
  com.fasterxml.jackson.core.jackson-annotations
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: org.knime.base.data.xml
 Automatic-Module-Name: de.bund.bfr.knime.openkrise.views
 

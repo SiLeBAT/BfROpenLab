@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Mockito
 Bundle-SymbolicName: org.mockito
 Bundle-Version: 2.7.0
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: lib/byte-buddy-1.6.5.jar,
  lib/byte-buddy-agent-1.6.5.jar,
  lib/mockito-core-2.7.0.jar,

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Data Exchange with NRW
 Bundle-SymbolicName: de.nrw.verbraucherschutz.idv
 Bundle-Version: 1.1.45.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: de.nrw.verbraucherschutz.idv.daten
 Automatic-Module-Name: de.nrw.verbraucherschutz.idv
 Require-Bundle: jakarta.xml.bind

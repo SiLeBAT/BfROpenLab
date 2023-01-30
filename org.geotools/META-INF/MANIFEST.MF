@@ -277,6 +277,6 @@ Export-Package: javax.measure,
  tech.units.indriya.unit,
  tech.uom.lib.common.function,
  tech.uom.lib.common.util
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.geotools
 Import-Package: com.fasterxml.jackson.core

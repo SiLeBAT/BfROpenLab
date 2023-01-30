@@ -94,5 +94,5 @@ Export-Package: org.apache.poi,
  org.apache.poi.xwpf.extractor,
  org.apache.poi.xwpf.model,
  org.apache.poi.xwpf.usermodel
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.apache.poi.new

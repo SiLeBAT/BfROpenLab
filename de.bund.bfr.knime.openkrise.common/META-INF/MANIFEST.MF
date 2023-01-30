@@ -6,7 +6,7 @@ Bundle-Version: 1.1.45.qualifier
 Bundle-Activator: de.bund.bfr.knime.openkrise.common.Activator
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
  de.bund.bfr.knime.openkrise.db.generated;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Export-Package: de.bund.bfr.knime.openkrise.common

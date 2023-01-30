@@ -22,6 +22,6 @@ Export-Package: de.bund.bfr.knime.gis,
  de.bund.bfr.knime.gis.views.canvas.element,
  de.bund.bfr.knime.gis.views.canvas.highlighting,
  de.bund.bfr.knime.gis.views.canvas.util
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: de.bund.bfr.knime.gis
 Import-Package: org.w3c.dom.events;version="3.0.0"
