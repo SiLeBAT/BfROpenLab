@@ -52,6 +52,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.workflow.FlowVariable;
+import org.knime.core.node.workflow.VariableType;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.NoInternalsNodeModel;
@@ -148,7 +149,7 @@ public class TracingViewNodeModel extends NoInternalsNodeModel {
 		BufferedDataTable edgeOutTable = createTable(graphCanvas.getEdges(), graphCanvas.getEdgeSchema().getMap(),
 				createEdgeOutSpec(edgeInTable.getSpec()), exec);
 		
-		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
+		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables(new VariableType[]{ VariableType.StringType.INSTANCE });
 		FlowVariable jo = fvm.get("JSON_out");
 		if (jo != null) {
 			exportJson(jo.getStringValue(), nodeInTable, edgeInTable, tracingInTable, false);

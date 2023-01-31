@@ -584,13 +584,13 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
 		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
 			if (cell.getStringCellValue().trim().length() > 0) {
-				result = new Integer(cell.getStringCellValue());
+				result = Integer.valueOf(cell.getStringCellValue());
 				if (ps != null) ps.setInt(lfdCol, result);
 				if (psUpdate != null) psUpdate.setInt(lfdCol, result);
 				return result;
 			}
 		} else {
-			result = new Integer((int) cell.getNumericCellValue());
+			result = Integer.valueOf((int) cell.getNumericCellValue());
 			if (ps != null) ps.setInt(lfdCol, result);
 			if (psUpdate != null) psUpdate.setInt(lfdCol, result);
 			return result;
@@ -635,13 +635,13 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
 		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
 			if (cell.getStringCellValue().trim().length() > 0) {
-				result = new Long(cell.getStringCellValue());
+				result = Long.valueOf(cell.getStringCellValue());
 				if (ps != null) ps.setLong(lfdCol, result);
 				if (psUpdate != null) psUpdate.setLong(lfdCol, result);
 				return result;
 			}
 		} else {
-			result = new Long((long) cell.getNumericCellValue());
+			result = Long.valueOf((long) cell.getNumericCellValue());
 			if (ps != null) ps.setLong(lfdCol, result);
 			if (psUpdate != null) psUpdate.setLong(lfdCol, result);
 			return result;

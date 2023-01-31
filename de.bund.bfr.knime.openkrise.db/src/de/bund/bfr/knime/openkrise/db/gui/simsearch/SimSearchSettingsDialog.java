@@ -30,9 +30,6 @@ import javax.swing.*;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
-import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearch;
-import de.bund.bfr.knime.openkrise.db.gui.simsearch.SimSearchJFrame;
-
 
 public class SimSearchSettingsDialog extends JDialog {
     /**

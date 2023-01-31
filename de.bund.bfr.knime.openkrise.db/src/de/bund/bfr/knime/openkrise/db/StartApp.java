@@ -29,8 +29,6 @@ import java.util.LinkedHashMap;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
-import com.jgoodies.looks.windows.WindowsLookAndFeel;
-
 import de.bund.bfr.knime.openkrise.db.gui.Login;
 
 /**

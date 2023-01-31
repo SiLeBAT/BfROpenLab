@@ -127,7 +127,7 @@ public class MainKernel {
       }
 	private static Connection getDefaultAdminConn(final int index) throws Exception {
 	    Connection result = null;
-	    Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+	    Class.forName("org.hsqldb.jdbc.JDBCDriver").getDeclaredConstructor().newInstance();
 	    String connStr = "jdbc:hsqldb:hsql://localhost/" + dbDefs[index][0];
 	    try {
 	    	result = DriverManager.getConnection(connStr, dbDefs[index][2], dbDefs[index][3]);	    			

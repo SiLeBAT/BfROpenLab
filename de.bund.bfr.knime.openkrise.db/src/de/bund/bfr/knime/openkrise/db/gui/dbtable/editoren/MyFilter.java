@@ -61,7 +61,7 @@ public class MyFilter implements Filter {
 		  	 for (int row = 0; row < tm.getRowCount(); row++) {
 		  		Integer o = (Integer) tm.getValueAt(row, 1);
 		  		if (userIDs.containsKey(o)) {
-		  			rows2check.addElement(new Integer(row));
+		  			rows2check.addElement(Integer.valueOf(row));
 		  		}
 			 }
     	 }
@@ -151,7 +151,7 @@ public class MyFilter implements Filter {
   	    		if (res.toUpperCase().indexOf(findStrings[i]) < 0) break;
   	    	}
   	    	if (i == findStrings.length) {
-  	    		vv.addElement(new Integer(row));
+  	    		vv.addElement(Integer.valueOf(row));
   	    		return true;
   	    	}
     	}

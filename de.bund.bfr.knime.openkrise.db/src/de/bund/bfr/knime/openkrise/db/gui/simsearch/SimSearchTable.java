@@ -328,7 +328,7 @@ public class SimSearchTable extends JScrollPane{
 	    
 	    
       JMenuItem unmergeMenuItem = new JMenuItem("unmerge");
-      unmergeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_MASK));
+      unmergeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK));
       unmergeMenuItem.getAccessibleContext().setAccessibleDescription(
           "Unmerge rows.");
       unmergeMenuItem.setEnabled(isUnmergeAvailable);
@@ -345,7 +345,7 @@ public class SimSearchTable extends JScrollPane{
       
       if(this.copyAdapter!=null) {
 	      JMenuItem copyMenuItem = new JMenuItem("copy");
-	      copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+	      copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
 	      copyMenuItem.getAccessibleContext().setAccessibleDescription(
 	          "Copy data to clipboard.");
 	      

@@ -531,7 +531,7 @@ public class MyDBPanel extends JPanel {
 				for (int i=0;i<myDBTable2.getColumnCount();i++) {
 					if (i == 0) vec.add(null); // ID
 					else if (i == 1) vec.add(null); // Basis ID wird in der Funktion insertNewRow eingetragen!
-					else if (i1 != null && i == i1+1) vec.add(new Integer(id)); // Kit ID
+					else if (i1 != null && i == i1+1) vec.add(Integer.valueOf(id)); // Kit ID
 					else vec.add(null);
 				}				
 			myDBTable2.insertNewRow(false, vec);

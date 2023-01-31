@@ -48,7 +48,7 @@ public class MyTrigger implements Trigger {
         			if (triggerType == Trigger.INSERT_BEFORE_ROW) {
 	          			//System.out.println(rowBefore + "\t" + rowAfter[4]);
 	          			if (rowAfter[4] == null) {
-							rowAfter[4] = new Integer(Users.READ_ONLY);
+							rowAfter[4] = Integer.valueOf(Users.READ_ONLY);
 						}        				
         			}
         			else if (triggerType == Trigger.UPDATE_BEFORE_ROW) {
@@ -90,7 +90,7 @@ public class MyTrigger implements Trigger {
         				// Userrechte sollten auch nicht leer sein 
         				if (rowAfter != null && rowAfter[4] == null) {
         					int oldAccRight = (rowBefore == null || rowBefore[4] == null) ? Users.READ_ONLY : ((Integer) rowBefore[4]).intValue();
-        					rowAfter[4] = new Integer(oldAccRight);
+        					rowAfter[4] = Integer.valueOf(oldAccRight);
         				}
         			}
         		}

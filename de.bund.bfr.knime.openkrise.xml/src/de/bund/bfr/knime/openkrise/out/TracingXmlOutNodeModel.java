@@ -59,6 +59,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.workflow.FlowVariable;
 import org.knime.core.node.workflow.ICredentials;
+import org.knime.core.node.workflow.VariableType;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.openkrise.TracingColumns;
@@ -121,7 +122,7 @@ public class TracingXmlOutNodeModel extends NodeModel {
 	    m_content.save(baos);
 	    baos.close();
 
-		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables();
+		Map<String, FlowVariable> fvm = this.getAvailableInputFlowVariables(new VariableType[]{ VariableType.StringType.INSTANCE });
 		FlowVariable fv = fvm.get("Fallnummer");
 		String fallNummer = fv == null ? null : fv.getStringValue();
 		fv = fvm.get("Server");

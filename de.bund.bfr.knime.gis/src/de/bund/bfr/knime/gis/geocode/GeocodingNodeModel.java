@@ -25,7 +25,6 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -71,12 +70,6 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.Activator;
 import de.bund.bfr.knime.gis.GisUtils;
 import net.minidev.json.JSONArray;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-//import javax.xml.parsers;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 /**
  * This is the model implementation of Geocoding.

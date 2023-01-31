@@ -701,7 +701,7 @@ public class DBKernel {
 		// serverPath = "192.168.212.54/silebat";
 		Connection result = null;
 		passFalse = false;
-		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+		Class.forName("org.hsqldb.jdbc.JDBCDriver").getDeclaredConstructor().newInstance();
 		String connStr = "jdbc:hsqldb:hsql://" + serverPath;
 		try {
 			result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
@@ -748,7 +748,7 @@ public class DBKernel {
 		// startHsqldbServer("c:/tmp/DB", "DB");
 		Connection result = null;
 		passFalse = false;
-		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+		Class.forName("org.hsqldb.jdbc.JDBCDriver").getDeclaredConstructor().newInstance();
 		// System.out.println(dbFile);
 		String connStr = "jdbc:hsqldb:file:" + dbFile;// + ";hsqldb.write_delay=false;";
 		try {
@@ -1045,7 +1045,7 @@ public class DBKernel {
 					o = rs.getObject(1);
 					val = value;
 					if (theTable.getTablename().equals("DoubleKennzahlen")) {
-						h.put(new Double((Integer) rs.getObject(1)), value);
+						h.put(Double.valueOf((Integer) rs.getObject(1)), value);
 					} else {
 						h.put(rs.getObject(1), value);
 					}

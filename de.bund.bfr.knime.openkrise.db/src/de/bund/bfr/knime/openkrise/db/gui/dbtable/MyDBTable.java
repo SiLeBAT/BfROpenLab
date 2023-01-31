@@ -1017,9 +1017,9 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 				      c = this.getColumn(fieldTypes.length+extraFields); // Guetescore
 				      c.setReadOnly(false);
 				      Hashtable<Integer, ImageIcon> h = new Hashtable<>();
-				      h.put(new Integer(1), new ImageIcon(this.getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/green.gif")));
-				      h.put(new Integer(2), new ImageIcon(this.getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/yellow.gif")));
-				      h.put(new Integer(3), new ImageIcon(this.getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/red.gif")));
+				      h.put(Integer.valueOf(1), new ImageIcon(this.getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/green.gif")));
+				      h.put(Integer.valueOf(2), new ImageIcon(this.getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/yellow.gif")));
+				      h.put(Integer.valueOf(3), new ImageIcon(this.getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/red.gif")));
 				      this.setCellComponent(c, Column.IMAGE_CELL, h);
 					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, "Hier kann eine SUBJEKTIVE Einschaetzung der Guete des Datensatzes (des Experiments, der Methode, ...) abgegeben werden\nACHTUNG: nicht vergessen diese Einschaetzung zu kommentieren im Feld Kommentar"));
 					    if (sorter != null) {

@@ -11,3 +11,4 @@ Require-Bundle: org.junit,
  de.bund.bfr.knime.gis,
  de.bund.bfr.knime.openkrise
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
+Automatic-Module-Name: de.bund.bfr.knime.test

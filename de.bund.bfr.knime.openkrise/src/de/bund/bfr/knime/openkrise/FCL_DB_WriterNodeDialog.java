@@ -22,6 +22,8 @@ package de.bund.bfr.knime.openkrise;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -57,7 +59,7 @@ public class FCL_DB_WriterNodeDialog extends NodeDialogPane {
 	JComboBox<String> dbSAddress = new JComboBox<>();
 	JComboBox<String> dbSCountry = new JComboBox<>();
 	JComboBox<String> dbSTOB = new JComboBox<>();
-	JComboBox<String>[] sCombos = new JComboBox[]{dbSId, dbSName, dbSAddress, dbSCountry, dbSTOB};
+	List<JComboBox<String>> sCombos = Arrays.asList(dbSId, dbSName, dbSAddress, dbSCountry, dbSTOB);
 	
 	JComboBox<String> dbDId = new JComboBox<>();
 	JComboBox<String> dbDFrom = new JComboBox<>();
@@ -71,11 +73,12 @@ public class FCL_DB_WriterNodeDialog extends NodeDialogPane {
 	JComboBox<String> dbDDDY = new JComboBox<>();
 	JComboBox<String> dbDAmount = new JComboBox<>();
 	JComboBox<String> dbDComment = new JComboBox<>();
-	JComboBox<String>[] dCombos = new JComboBox[]{dbDId, dbDFrom, dbDTo, dbDName, dbDEAN, dbDLot, dbDBestBefore, dbDDDD, dbDDDM, dbDDDY, dbDAmount, dbDComment};
+	List<JComboBox<String>> dCombos = Arrays.asList(dbDId, dbDFrom, dbDTo, dbDName, dbDEAN, dbDLot, dbDBestBefore, dbDDDD, dbDDDM, dbDDDY, dbDAmount, dbDComment);
 	
 	JComboBox<String> dbTFrom = new JComboBox<>();
 	JComboBox<String> dbTTo = new JComboBox<>();
-	JComboBox<String>[] tCombos = new JComboBox[]{dbTFrom, dbTTo};
+	List<JComboBox<String>> tCombos = Arrays.asList(dbTFrom, dbTTo);
+	
 	protected FCL_DB_WriterNodeDialog() {
 		JPanel dbPanel = new JPanel();
 

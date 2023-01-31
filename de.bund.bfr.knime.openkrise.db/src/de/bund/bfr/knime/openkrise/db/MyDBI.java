@@ -288,7 +288,7 @@ public abstract class MyDBI {
 	public void establishNewConnection(final String dbUsername, final String dbPassword, final String dbPath, final boolean suppressWarnings, final boolean ro) {
 		closeDBConnections(false);
 		try {
-			Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+			Class.forName("org.hsqldb.jdbc.JDBCDriver").getDeclaredConstructor().newInstance();
 			String connStr = isServerConnection ? "jdbc:hsqldb:hsql://" + dbPath : "jdbc:hsqldb:file:" + dbPath + "DB";
 			//connStr += ";hsqldb.write_delay=false;";
 			conn = DriverManager.getConnection(connStr, dbUsername, dbPassword);
@@ -479,7 +479,7 @@ public abstract class MyDBI {
 					o = rs.getObject(1);
 					val = value;
 					if (theTable.getTablename().equals("DoubleKennzahlen")) {
-						h.put(new Double((Integer) rs.getObject(1)), value);
+						h.put(Double.valueOf((Integer) rs.getObject(1)), value);
 					} else {
 						h.put(rs.getObject(1), value);
 					}

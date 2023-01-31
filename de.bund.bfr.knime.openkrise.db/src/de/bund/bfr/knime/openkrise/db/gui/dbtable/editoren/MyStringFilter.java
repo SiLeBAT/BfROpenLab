@@ -69,7 +69,7 @@ public class MyStringFilter implements Filter {
 			 if (myTable.getFieldNames()[col].equals(columnName)) {				 
 	    	 		Object o = tm.getValueAt(row, col + 2);
 	    	 		if (o != null && o.toString().equals(findString)) { // sonst Fehler in z.B. Methoden bei der Suchfunktion
-	 					vv.addElement(new Integer(row));
+	 					vv.addElement(Integer.valueOf(row));
 	    	 		}
 	    	 }
 		 }

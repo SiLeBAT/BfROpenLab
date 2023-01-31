@@ -141,7 +141,7 @@ public class TableInputPanel<T> extends JPanel implements RowSorterListener, Cel
 			return (T) Boolean.TRUE;
 		} else if (classType == Double.class && setAllBox.isSelected()) {
 			try {
-				return (T) new Double(Double.parseDouble(setAllField.getText()));
+				return (T) Double.valueOf(Double.parseDouble(setAllField.getText()));
 			} catch (NumberFormatException e) {
 				throw new InvalidSettingsException("\"" + setAllField.getText() + "\" is not a valid number");
 			}

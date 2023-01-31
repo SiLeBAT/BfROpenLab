@@ -254,20 +254,20 @@ public class MyDBTablesNew extends MyDBI {
 		addTable(toxinUrsprung, -1);
 		
 		LinkedHashMap<Integer, String> btv = new LinkedHashMap<>();
-		btv.put(new Integer(1), "Bakterium");	btv.put(new Integer(2), "Toxin"); btv.put(new Integer(3), "Virus");
+		btv.put(Integer.valueOf(1), "Bakterium");	btv.put(Integer.valueOf(2), "Toxin"); btv.put(Integer.valueOf(3), "Virus");
 		LinkedHashMap<Integer, String> h1234 = new LinkedHashMap<>();
-		h1234.put(new Integer(1), "eins");	h1234.put(new Integer(2), "zwei");
-		h1234.put(new Integer(3), "drei");	h1234.put(new Integer(4), "vier");					
+		h1234.put(Integer.valueOf(1), "eins");	h1234.put(Integer.valueOf(2), "zwei");
+		h1234.put(Integer.valueOf(3), "drei");	h1234.put(Integer.valueOf(4), "vier");					
 		LinkedHashMap<Integer, String> hPM = new LinkedHashMap<>();
-		hPM.put(new Integer(1), "+");	hPM.put(new Integer(2), "-");
+		hPM.put(Integer.valueOf(1), "+");	hPM.put(Integer.valueOf(2), "-");
 		LinkedHashMap<Integer, String> hYN = new LinkedHashMap<>();
-		if (getLanguage().equalsIgnoreCase("en")) {hYN.put(new Integer(1), "yes");	hYN.put(new Integer(0), "no");}
-		else {hYN.put(new Integer(1), "ja");	hYN.put(new Integer(0), "nein");}
+		if (getLanguage().equalsIgnoreCase("en")) {hYN.put(Integer.valueOf(1), "yes");	hYN.put(Integer.valueOf(0), "no");}
+		else {hYN.put(Integer.valueOf(1), "ja");	hYN.put(Integer.valueOf(0), "nein");}
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<>();
-		if (getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
-		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
+		if (getLanguage().equalsIgnoreCase("en")) {hYNB.put(Boolean.valueOf(true), "yes");	hYNB.put(Boolean.valueOf(false), "no");}
+		else {hYNB.put(Boolean.valueOf(true), "ja");	hYNB.put(Boolean.valueOf(false), "nein");}
 		LinkedHashMap<Integer, String> hYNT = new LinkedHashMap<>();
-		hYNT.put(new Integer(1), "mit Therapie");hYNT.put(new Integer(0), "ohne Therapie");hYNT.put(new Integer(2), "Keine Angabe");
+		hYNT.put(Integer.valueOf(1), "mit Therapie");hYNT.put(Integer.valueOf(0), "ohne Therapie");hYNT.put(Integer.valueOf(2), "Keine Angabe");
 		
 		MyTable agenzien = new MyTable("Agenzien",
 				new String[]{"Agensname","Kurzbezeichnung","WissenschaftlicheBezeichnung",
@@ -329,8 +329,8 @@ public class MyDBTablesNew extends MyDBI {
 	@SuppressWarnings("unchecked")
 	private void doLieferkettenTabellen(final MyTable agenzien, final MyTable matrix) {
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<>();
-		if (getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
-		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
+		if (getLanguage().equalsIgnoreCase("en")) {hYNB.put(Boolean.valueOf(true), "yes");	hYNB.put(Boolean.valueOf(false), "no");}
+		else {hYNB.put(Boolean.valueOf(true), "ja");	hYNB.put(Boolean.valueOf(false), "nein");}
 				
 		MyTable Knoten = new MyTable("Station", new String[]{"Produktkatalog","Name","Adresse","Land","Betriebsart","Strasse","Hausnummer","Postfach","PLZ","Ort","District","Bundesland","Longitude","Latitude","Ansprechpartner","Telefon","Fax","EMail","Webseite","Betriebsnummer","VATnumber","Code",
 				"CasePriority","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis","Serial","ImportSources"},

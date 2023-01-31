@@ -21,7 +21,6 @@ package de.bund.bfr.knime.openkrise;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.HashMap;
 
 import org.knime.core.data.DataRow;
@@ -44,9 +43,6 @@ import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.Product;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.Station;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.XlsLot;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.XlsProduct;
-import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.XlsStruct;
-
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

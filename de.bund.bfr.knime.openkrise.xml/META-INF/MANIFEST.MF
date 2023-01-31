@@ -24,3 +24,4 @@ Export-Package: de.bund.bfr.knime.openkrise.db.imports.custom.nrw.in,
  de.bund.bfr.knime.openkrise.db.imports.custom.nrw.out
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Import-Package: javax.xml.bind
+Automatic-Module-Name: de.bund.bfr.knime.openkrise.xml

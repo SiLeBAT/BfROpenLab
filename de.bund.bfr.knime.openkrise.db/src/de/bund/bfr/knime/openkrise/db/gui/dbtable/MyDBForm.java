@@ -538,16 +538,17 @@ public class MyDBForm extends JPanel {
 	}
 
 	private void mouseClicked(MouseEvent e) {
-		switch(e.getModifiers()) {
-	      case InputEvent.BUTTON1_MASK: {
+		switch(e.getModifiersEx()) {
+		  case InputEvent.BUTTON1_DOWN_MASK: {
 	        if (e.getClickCount() > 1) go4OtherWindow(e);
 	        break;
 	        }
-	      case InputEvent.BUTTON2_MASK: {
+		  
+	      case InputEvent.BUTTON2_DOWN_MASK: {
 	    	  go4OtherWindow(e);
 	        break;
 	        }
-	      case InputEvent.BUTTON3_MASK: {
+	      case InputEvent.BUTTON3_DOWN_MASK: {
 	    	  go4OtherWindow(e);
 	        break;
 	        }
