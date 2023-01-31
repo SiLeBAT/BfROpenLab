@@ -29,7 +29,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
    </license>
 
    <requires>
-      <import plugin="com.github.fge.jackson-coreutils"/>
+      <import plugin="com.networknt.jsonschemavalidator"/>
       <import plugin="com.fasterxml.jackson.core.jackson-core"/>
       <import plugin="com.fasterxml.jackson.core.jackson-databind"/>
       <import plugin="org.knime.json"/>
@@ -47,6 +47,13 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="com.fasterxml.jackson.core.jackson-annotations"/>
    </requires>
 
+
+   <plugin
+         id="com.networknt.jsonschemavalidator"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+         
    <plugin
          id="de.bund.bfr.knime.openkrise"
          download-size="0"
@@ -67,6 +74,12 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="de.bund.bfr.knime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.log4j"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

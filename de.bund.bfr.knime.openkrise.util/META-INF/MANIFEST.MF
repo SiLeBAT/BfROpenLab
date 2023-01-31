@@ -13,10 +13,8 @@ Require-Bundle: de.bund.bfr.knime.openkrise,
  org.knime.json,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
- com.github.fge.jackson-coreutils,
  com.fasterxml.jackson.core.jackson-annotations,
- com.github.fge.json-schema-core,
- com.github.fge.json-schema-validator
+ com.networknt.jsonschemavalidator
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: de.bund.bfr.knime.openkrise.util.json

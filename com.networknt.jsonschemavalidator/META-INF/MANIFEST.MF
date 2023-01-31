@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jsonschemavalidator
+Bundle-SymbolicName: com.networknt.jsonschemavalidator
+Bundle-Version: 1.0.76
+Bundle-ClassPath: lib/json-schema-validator-1.0.76.jar
+Export-Package: com.networknt.schema,
+ com.networknt.schema.format,
+ com.networknt.schema.uri,
+ com.networknt.schema.urn,
+ com.networknt.schema.utils,
+ com.networknt.schema.walk
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: com.networknt.jsonschemavalidator
+Import-Package: com.fasterxml.jackson.databind,
+ com.fasterxml.jackson.databind.node,
+ org.slf4j

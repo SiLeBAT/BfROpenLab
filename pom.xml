@@ -24,9 +24,11 @@
 		<module>de.bund.bfr.knime.gis.util</module>
 		<module>de.bund.bfr.knime.gis.views</module>
 		<module>de.bund.bfr.knime</module>
+		<module>ch.qos.reload4j</module>
 		<module>org.geotools</module>
 		<module>edu.uci.ics.jung</module>
 		<module>com.jgoodies</module>
+		<module>com.networknt.jsonschemavalidator</module>
 		<module>com.thoughtworks.xstream</module>
 		<module>de.bund.bfr.knime.openkrise.util</module>
 		<module>quick.dbtable</module>
