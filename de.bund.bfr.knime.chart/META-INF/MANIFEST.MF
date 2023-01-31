@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Chart
 Bundle-SymbolicName: de.bund.bfr.knime.chart;singleton:=true
-Bundle-Version: 1.1.43.qualifier
+Bundle-Version: 1.1.44.qualifier
 Bundle-Activator: de.bund.bfr.knime.chart.Activator
 Require-Bundle: de.bund.bfr.knime;visibility:=reexport,
  org.knime.ext.jfreechart;bundle-version="[4.0.0,5.0.0)";visibility:=reexport,
