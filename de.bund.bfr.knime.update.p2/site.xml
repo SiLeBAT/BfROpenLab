@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/de.bund.bfr.knime.gis.feature_1.1.45.qualifier.jar" id="de.bund.bfr.knime.gis.feature" version="1.1.45.qualifier">
+   <feature url="features/de.bund.bfr.knime.gis.feature_1.1.46.qualifier.jar" id="de.bund.bfr.knime.gis.feature" version="1.1.46.qualifier">
       <category name="bfropenlab"/>
    </feature>
-   <feature url="features/de.bund.bfr.knime.nls.feature_1.1.45.qualifier.jar" id="de.bund.bfr.knime.nls.feature" version="1.1.45.qualifier">
+   <feature url="features/de.bund.bfr.knime.nls.feature_1.1.46.qualifier.jar" id="de.bund.bfr.knime.nls.feature" version="1.1.46.qualifier">
       <category name="bfropenlab"/>
    </feature>
-   <feature url="features/de.bund.bfr.knime.openkrise.feature_1.1.45.qualifier.jar" id="de.bund.bfr.knime.openkrise.feature" version="1.1.45.qualifier">
+   <feature url="features/de.bund.bfr.knime.openkrise.feature_1.1.46.qualifier.jar" id="de.bund.bfr.knime.openkrise.feature" version="1.1.46.qualifier">
       <category name="bfropenlab"/>
    </feature>
-   <feature url="features/de.bund.bfr.knime.network.feature_1.1.45.qualifier.jar" id="de.bund.bfr.knime.network.feature" version="1.1.45.qualifier">
+   <feature url="features/de.bund.bfr.knime.network.feature_1.1.46.qualifier.jar" id="de.bund.bfr.knime.network.feature" version="1.1.46.qualifier">
       <category name="bfropenlab"/>
    </feature>
    <category-def name="bfropenlab" label="BfROpenLab"/>
