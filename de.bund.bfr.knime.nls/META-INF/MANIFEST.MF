@@ -12,5 +12,5 @@ Require-Bundle: de.bund.bfr.knime,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: de.bund.bfr.knime.nls
-Import-Package: org.w3c.dom.events;version="3.0.0"
+Import-Package: org.w3c.dom.events
 

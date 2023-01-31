@@ -9,5 +9,5 @@ Require-Bundle: de.bund.bfr.knime.pmmlite.core
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: de.bund.bfr.knime.pmmlite.util
-Import-Package: org.w3c.dom.events;version="3.0.0"
+Import-Package: org.w3c.dom.events
 
