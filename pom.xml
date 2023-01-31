@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho.testArgLine></tycho.testArgLine>
 		<jacoco-version>0.8.5</jacoco-version>
-		<qualifier.prefix>K4-5-</qualifier.prefix>
+		<qualifier.prefix>K4-6-</qualifier.prefix>
 	</properties>
 	<modules>
 		<!-- Plugins -->
@@ -122,7 +122,7 @@
 					<target>
 						<artifact>
 							<groupId>de.bund.bfr.knime</groupId>
-							<artifactId>KNIME_4_5</artifactId>
+							<artifactId>KNIME_4_6</artifactId>
 							<version>1.0.0-SNAPSHOT</version>
 						</artifact>
 					</target>
