@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.8.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ejml-ddense-0.41.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ejml-core-0.41.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gt-epsg-hsql-28.0.jar"/>
@@ -21,9 +23,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/uom-lib-common-2.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<!--
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	-->
 	<classpathentry kind="output" path="bin"/>
 </classpath>
