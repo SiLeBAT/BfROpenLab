@@ -103,9 +103,9 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	private static final String PATTERN_CODE_ZIP = "<ZIP>";
 	private static final String PATTERN_CODE_COUNTRY = "<COUNTRY>";
 	
-	private static final String URL_PATTERN_MAPQUEST = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS;
-	//private static final String URL_PATTERN_MAPQUEST_WITH_COUNTRY = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&location=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY;
-	private static final String URL_PATTERN_MAPQUEST5BOX = "https://open.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY + "&street=" + PATTERN_CODE_STREET + "&city=" + PATTERN_CODE_CITY + "&postalCode=" + PATTERN_CODE_ZIP + "&country=" + PATTERN_CODE_COUNTRY;
+	private static final String URL_PATTERN_MAPQUEST_PART1 = "https://www.mapquestapi.com/geocoding/v1/address?key=" + PATTERN_CODE_KEY;
+	private static final String URL_PATTERN_MAPQUEST = URL_PATTERN_MAPQUEST_PART1 + "&location=" + PATTERN_CODE_ADDRESS;
+	private static final String URL_PATTERN_MAPQUEST5BOX = URL_PATTERN_MAPQUEST_PART1 + "&street=" + PATTERN_CODE_STREET + "&city=" + PATTERN_CODE_CITY + "&postalCode=" + PATTERN_CODE_ZIP + "&country=" + PATTERN_CODE_COUNTRY;
 	private static final String URL_PATTERN_BKG = "https://sg.geodatenzentrum.de/gdz_geokodierung__" + PATTERN_CODE_KEY + "/geosearch?query=" + PATTERN_CODE_ADDRESS;
 	private static final String URL_PATTERN_GISGRAPHY = PATTERN_CODE_SERVER + "?address=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY + "&format=json";
 	//private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&osm_tag=highway:residential&limit=2";
@@ -655,10 +655,6 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 		public String getStreet() {
 			return street;
 		}
-		
-		public String getHouseNumber() {
-          return houseNumber;
-      }
 
 		public String getCity() {
 			return city;
