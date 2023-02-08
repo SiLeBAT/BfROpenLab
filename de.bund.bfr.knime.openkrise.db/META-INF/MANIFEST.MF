@@ -49,7 +49,7 @@ Bundle-ClassPath: .,
  lib/gisgraphy-commons-4.0-beta1.jar,
  lib/universalserialiser-3.0.jar,
  lib/universalserialiser-commons-3.0.jar,
- lib/commons-lang3-3.7.jar,
+ lib/commons-lang3-3.12.0.jar,
  lib/commons-text-1.2.jar
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Import-Package: javax.activation;version="1.2.2"
