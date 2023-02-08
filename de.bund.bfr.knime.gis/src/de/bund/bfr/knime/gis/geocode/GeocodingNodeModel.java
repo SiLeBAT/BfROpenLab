@@ -107,7 +107,7 @@ public class GeocodingNodeModel extends NoInternalsNodeModel {
 	private static final String URL_PATTERN_MAPQUEST = URL_PATTERN_MAPQUEST_PART1 + "&location=" + PATTERN_CODE_ADDRESS;
 	private static final String URL_PATTERN_MAPQUEST5BOX = URL_PATTERN_MAPQUEST_PART1 + "&street=" + PATTERN_CODE_STREET + "&city=" + PATTERN_CODE_CITY + "&postalCode=" + PATTERN_CODE_ZIP + "&country=" + PATTERN_CODE_COUNTRY;
 	private static final String URL_PATTERN_BKG = "https://sg.geodatenzentrum.de/gdz_geokodierung__" + PATTERN_CODE_KEY + "/geosearch?query=" + PATTERN_CODE_ADDRESS;
-	private static final String URL_PATTERN_GISGRAPHY = PATTERN_CODE_SERVER + "?address=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY + "&format=json";
+	private static final String URL_PATTERN_GISGRAPHY = PATTERN_CODE_SERVER + "geocoding/geocode?address=" + PATTERN_CODE_ADDRESS + "&country=" + PATTERN_CODE_COUNTRY + "&format=json";
 	//private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS + "&osm_tag=highway:residential&limit=2";
 	private static final String URL_PATTERN_PHOTON = PATTERN_CODE_SERVER + "api?q=" + PATTERN_CODE_ADDRESS; // + "&limit=2";
 	private static final String URL_PATTERN_BING = "http://dev.virtualearth.net/REST/v1/Locations?query=" + PATTERN_CODE_ADDRESS + "&key=" + PATTERN_CODE_KEY;
