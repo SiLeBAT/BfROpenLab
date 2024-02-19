@@ -21,7 +21,7 @@ package de.bund.bfr.knime.openkrise.util.json;
 
 import java.io.File;
 import java.io.IOException;
-import javax.json.JsonValue;
+import jakarta.json.JsonValue;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;

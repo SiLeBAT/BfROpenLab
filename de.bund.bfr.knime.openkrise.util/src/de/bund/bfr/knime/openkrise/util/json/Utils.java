@@ -19,7 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.json;
 
-import javax.json.JsonValue;
+import jakarta.json.JsonValue;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;

@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.json.JsonValue;
+import jakarta.json.JsonValue;
 import org.knime.core.node.InvalidSettingsException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import de.bund.bfr.jung.LabelPosition;

@@ -30,7 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonValue;
+import jakarta.json.JsonValue;
 import javax.swing.JOptionPane;
 
 import org.knime.core.data.DataCell;
