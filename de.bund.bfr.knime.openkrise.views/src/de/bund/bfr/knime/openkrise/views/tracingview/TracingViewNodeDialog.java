@@ -59,6 +59,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.json.JacksonConversions;
 import org.knime.core.node.BufferedDataTable;
@@ -73,7 +74,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.bund.bfr.jung.LabelPosition;
-import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.UI;
@@ -513,8 +513,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ex
 		int intIDIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		
 		for (DataRow row : nodeTable) {
-			String id = IO.getString(row.getCell(intIDIndex));
-			nodeIds.add(id);
+			DataCell idCell = row.getCell(intIDIndex);
+			if (idCell != null) {
+				String id = idCell.toString();
+				if (id != null) {
+					nodeIds.add(id);
+				}
+			}
 		}
 		return nodeIds;
 	}
