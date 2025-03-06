@@ -57,7 +57,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.workflow.UnsupportedWorkflowVersionException;
-import org.knime.core.node.workflow.WorkflowContext;
+import org.knime.core.node.workflow.contextv2.WorkflowContextV2;
 import org.knime.core.node.workflow.WorkflowLoadHelper;
 import org.knime.core.node.workflow.WorkflowManager;
 import org.knime.core.node.workflow.WorkflowPersistor.LoadResultEntry.LoadResultEntryType;
@@ -121,10 +121,8 @@ public class WorkflowLoadTest extends WorkflowTest {
 			 * {@inheritDoc}
 			 */
 			@Override
-			public WorkflowContext getWorkflowContext() {
-				WorkflowContext.Factory fac = new WorkflowContext.Factory(workflowDir);
-				fac.setMountpointRoot(testcaseRoot);
-				return fac.createContext();
+			public WorkflowContextV2 getWorkflowContext() {
+				return WorkflowContextV2.forTemporaryWorkflow(workflowDir.toPath(), null);
 			}
 		};
 

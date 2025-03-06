@@ -40,7 +40,7 @@ import de.bund.bfr.knime.openkrise.db.generated.public_.tables.records.LookupsRe
 import de.bund.bfr.knime.openkrise.db.generated.public_.tables.records.ProduktkatalogRecord;
 import de.bund.bfr.knime.openkrise.db.generated.public_.tables.records.StationRecord;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import org.jooq.ForeignKey;
 import org.jooq.Identity;

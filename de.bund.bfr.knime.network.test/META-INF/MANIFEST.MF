@@ -8,5 +8,5 @@ Fragment-Host: de.bund.bfr.knime.network
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.junit,
- org.mockito
+ org.mockito.mockito-core
 Automatic-Module-Name: de.bund.bfr.knime.network.test

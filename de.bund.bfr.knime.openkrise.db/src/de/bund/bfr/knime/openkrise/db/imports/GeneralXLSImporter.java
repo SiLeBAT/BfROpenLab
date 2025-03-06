@@ -53,6 +53,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -581,8 +582,8 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 
 	private Integer manageInteger(PreparedStatement ps, PreparedStatement psUpdate, int lfdCol, HSSFCell cell) throws SQLException {
 		Integer result = null;
-		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+		if (cell == null || cell.getCellType() == CellType.BLANK) {
+		} else if (cell.getCellType() == CellType.STRING) {
 			if (cell.getStringCellValue().trim().length() > 0) {
 				result = Integer.valueOf(cell.getStringCellValue());
 				if (ps != null) ps.setInt(lfdCol, result);
@@ -602,8 +603,8 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 
 	private Date manageDate(PreparedStatement ps, PreparedStatement psUpdate, int lfdCol, HSSFCell cell) throws SQLException {
 		Date result = null;
-		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+		if (cell == null || cell.getCellType() == CellType.BLANK) {
+		} else if (cell.getCellType() == CellType.STRING) {
 			if (cell.getStringCellValue().trim().length() > 0) {
 				DateFormat formater = new SimpleDateFormat("yyyy-MM-dd"); // 2012-06-01   hh:mm:ss
 				java.util.Date parsedUtilDate;
@@ -632,8 +633,8 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 
 	private Long manageBigInteger(PreparedStatement ps, PreparedStatement psUpdate, int lfdCol, HSSFCell cell) throws SQLException {
 		Long result = null;
-		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+		if (cell == null || cell.getCellType() == CellType.BLANK) {
+		} else if (cell.getCellType() == CellType.STRING) {
 			if (cell.getStringCellValue().trim().length() > 0) {
 				result = Long.valueOf(cell.getStringCellValue());
 				if (ps != null) ps.setLong(lfdCol, result);
@@ -653,8 +654,8 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 
 	private Double manageDouble(PreparedStatement ps, PreparedStatement psUpdate, int lfdCol, HSSFCell cell) throws SQLException {
 		Double dbl = null;
-		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+		if (cell == null || cell.getCellType() == CellType.BLANK) {
+		} else if (cell.getCellType() == CellType.STRING) {
 			if (cell.getStringCellValue().trim().length() > 0 && !cell.getStringCellValue().equalsIgnoreCase("null")) {
 				try {
 					dbl = Double.parseDouble(cell.getStringCellValue());
@@ -687,11 +688,11 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 
 	private String manageString(PreparedStatement ps, PreparedStatement psUpdate, int lfdCol, HSSFCell cell, LinkedHashMap<Object, String> hashBL) throws SQLException {
 		String result = null;
-		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+		if (cell == null || cell.getCellType() == CellType.BLANK) {
 			if (ps != null) ps.setNull(lfdCol, java.sql.Types.VARCHAR);
 			if (psUpdate != null) psUpdate.setNull(lfdCol, java.sql.Types.VARCHAR);
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
-			cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+		} else if (cell.getCellType() == CellType.NUMERIC) {
+			cell.setCellType(CellType.STRING);
 			result = cell.getStringCellValue().trim();
 			if (ps != null) ps.setString(lfdCol, result);
 			if (psUpdate != null) psUpdate.setString(lfdCol, result);
@@ -724,14 +725,14 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 
 	private Boolean manageBoolean(PreparedStatement ps, PreparedStatement psUpdate, int lfdCol, HSSFCell cell) throws SQLException {
 		Boolean result = null;
-		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+		if (cell == null || cell.getCellType() == CellType.BLANK) {
 			if (ps != null) ps.setNull(lfdCol, java.sql.Types.BOOLEAN);
 			if (psUpdate != null) psUpdate.setNull(lfdCol, java.sql.Types.BOOLEAN);
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
+		} else if (cell.getCellType() == CellType.NUMERIC) {
 			result = cell.getNumericCellValue() != 0;
 			if (ps != null) ps.setBoolean(lfdCol, result);
 			if (psUpdate != null) psUpdate.setBoolean(lfdCol, result);
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+		} else if (cell.getCellType() == CellType.STRING) {
 			result = cell.getStringCellValue().equalsIgnoreCase("true");
 			if (ps != null) ps.setBoolean(lfdCol, result);
 			if (psUpdate != null) psUpdate.setBoolean(lfdCol, result);

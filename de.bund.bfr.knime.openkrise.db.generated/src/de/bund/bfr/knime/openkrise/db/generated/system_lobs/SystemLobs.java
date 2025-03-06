@@ -22,8 +22,7 @@
  */
 package de.bund.bfr.knime.openkrise.db.generated.system_lobs;
 
-
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import org.jooq.impl.SchemaImpl;
 

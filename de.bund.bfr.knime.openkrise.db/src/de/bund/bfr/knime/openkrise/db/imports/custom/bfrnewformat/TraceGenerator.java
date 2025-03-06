@@ -34,15 +34,15 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-import org.apache.poi.POIXMLProperties;
+import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.util.Nullable;
 import org.apache.poi.ss.usermodel.DataValidationConstraint.OperatorType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Name;
@@ -1791,7 +1791,7 @@ Erinnerung an die alten Template inhaber senden?
 			}
 			POIXMLProperties.CoreProperties coreProp = workbook.getProperties().getCoreProperties();
 			coreProp.setCreator("FoodChain-Lab");
-			coreProp.setCreated(new Nullable<Date>(new Date(System.currentTimeMillis())));
+			coreProp.setCreated(Optional.of(new Date(System.currentTimeMillis())));
 			// Write the workbook in file system
 			FileOutputStream out = new FileOutputStream(f);
 			System.err.println("outb" + System.currentTimeMillis());

@@ -10,7 +10,7 @@ Require-Bundle: de.bund.bfr.jung;visibility:=reexport,
  org.openstreetmap.josm;visibility:=reexport,
  org.geotools;visibility:=reexport,
  org.knime.ext.svg,
- com.jayway.jsonpath.json-path,
+ json-path,
  net.minidev.json-smart
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis,

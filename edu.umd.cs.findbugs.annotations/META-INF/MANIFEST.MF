@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FindBugs Annotation
-Bundle-SymbolicName: edu.umd.cs.findbugs.annotations
+Bundle-SymbolicName: edu.umd.cs.findbugs.annotations;singleton:=true
 Bundle-Version: 3.0.1.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: lib/annotations.jar

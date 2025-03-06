@@ -25,7 +25,7 @@ package de.bund.bfr.knime.openkrise.db.generated.public_.tables.records;
 
 import de.bund.bfr.knime.openkrise.db.generated.public_.tables.Importmetadata;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import org.jooq.Field;
 import org.jooq.Record1;

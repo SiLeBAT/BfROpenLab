@@ -6,7 +6,7 @@ Bundle-Version: 1.1.47.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.jooq;visibility:=reexport,
- javax.annotation
+ jakarta.annotation-api
 Export-Package: de.bund.bfr.knime.openkrise.db.generated.information_schema,
  de.bund.bfr.knime.openkrise.db.generated.public_,
  de.bund.bfr.knime.openkrise.db.generated.public_.tables,

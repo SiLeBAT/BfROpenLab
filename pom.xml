@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.bund.bfr.knime</groupId>
 	<artifactId>de.bund.bfr.knime.root</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.1.47-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho.testArgLine></tycho.testArgLine>
 		<jacoco-version>0.8.5</jacoco-version>
-		<qualifier.prefix>K5-1-</qualifier.prefix>
+		<qualifier.prefix>K5-3-</qualifier.prefix>
 	</properties>
 	<modules>
 		<!-- Plugins -->
@@ -24,7 +24,6 @@
 		<module>de.bund.bfr.knime.gis.util</module>
 		<module>de.bund.bfr.knime.gis.views</module>
 		<module>de.bund.bfr.knime</module>
-		<module>ch.qos.reload4j</module>
 		<module>org.geotools</module>
 		<module>edu.uci.ics.jung</module>
 		<module>com.jgoodies</module>
@@ -34,7 +33,6 @@
 		<module>quick.dbtable</module>
 		<module>de.bund.bfr.knime.openkrise.db</module>
 		<module>org.openstreetmap.josm</module>
-		<module>org.apache.poi</module>
 		<module>org.jooq</module>
 		<module>de.bund.bfr.knime.openkrise.common</module>
 		<module>de.bund.bfr.knime.openkrise.db.generated</module>
@@ -49,31 +47,37 @@
 		<module>de.bund.bfr.math</module>
 		<module>org.sbml.jsbml</module>
 		<!-- disabled pmm
-		<module>de.bund.bfr.knime.pmmlite.views</module>
-		<module>de.bund.bfr.knime.pmmlite.util</module>
-		<module>de.bund.bfr.knime.pmmlite.io</module>
-		<module>de.bund.bfr.knime.pmmlite.core.generated</module>
-		<module>de.bund.bfr.knime.pmmlite.core.types</module>
-		<module>de.bund.bfr.knime.pmmlite.core</module>
+			<module>de.bund.bfr.knime.pmmlite.views</module>
+			<module>de.bund.bfr.knime.pmmlite.util</module>
+			<module>de.bund.bfr.knime.pmmlite.io</module>
+			<module>de.bund.bfr.knime.pmmlite.core.generated</module>
+			<module>de.bund.bfr.knime.pmmlite.core.types</module>
+			<module>de.bund.bfr.knime.pmmlite.core</module>
 		-->
-		<!-- Test plugins <module>de.bund.bfr.knime.fsklab.metadata.model.test</module>
-			<module>de.bund.bfr.knime.fsklab.nodes.test</module> <module>de.bund.bfr.knime.pmm.common.test</module> -->
-		<!-- Test report <module>de.bund.bfr.knime.testreport</module> -->
+		<!-- disabled Test plugins 
+		    <module>de.bund.bfr.knime.fsklab.metadata.model.test</module>
+			<module>de.bund.bfr.knime.fsklab.nodes.test</module> 
+			<module>de.bund.bfr.knime.pmm.common.test</module> 
+		-->
+		<!-- Test report 
+			<module>de.bund.bfr.knime.testreport</module>
+		-->
 		<!-- Others -->
-                <!-- disabled testflows
+        <!-- enabled testflows -->
+        <module>nl.esciencecenter.e3dchem.knime.testing</module>     
 		<module>de.bund.bfr.knime.testflows</module>
-                -->
+        <!---->
 		<module>de.bund.bfr.knime.openkrise.feature</module>
 		<module>de.bund.bfr.knime.gis.feature</module>
 		<module>de.bund.bfr.knime.network.feature</module>
 		<module>de.bund.bfr.knime.nls.feature</module>
 		<!-- disabled pmm feature
-		<module>de.bund.bfr.knime.pmmlite.feature</module>
+			<module>de.bund.bfr.knime.pmmlite.feature</module>
 		-->
 		<module>de.bund.bfr.knime.update.p2</module>
-                <!-- disabled Test_feature
-		<module>Test_feature</module>
-                -->
+        <!-- enabled Test_feature -->
+			<module>Test_feature</module>
+        <!--  -->
 
 	</modules>
 
@@ -122,8 +126,8 @@
 					<target>
 						<artifact>
 							<groupId>de.bund.bfr.knime</groupId>
-							<artifactId>KNIME_5_1</artifactId>
-							<version>1.0.0-SNAPSHOT</version>
+							<artifactId>KNIME_5_3</artifactId>
+							<version>1.1.47-SNAPSHOT</version>
 						</artifact>
 					</target>
 					<environments>
@@ -145,6 +149,40 @@
 					</environments>
 				</configuration>
 			</plugin>
+			<!--
+			<plugin>
+        <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>12.1.0</version>
+					<configuration>
+            <failBuildOnCVSS>8</failBuildOnCVSS>
+						<skipProvidedScope>true</skipProvidedScope>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>check</goal>
+              </goals>
+          </execution>
+      	</executions>
+    	</plugin>
+    	-->
 		</plugins>
 	</build>
+	<reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>12.1.0</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+	</reporting>
 </project>

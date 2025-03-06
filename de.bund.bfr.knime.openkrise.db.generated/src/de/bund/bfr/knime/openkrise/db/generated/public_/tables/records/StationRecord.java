@@ -27,7 +27,7 @@ import de.bund.bfr.knime.openkrise.db.generated.public_.tables.Station;
 
 import java.sql.Date;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import org.jooq.Record1;
 import org.jooq.impl.UpdatableRecordImpl;

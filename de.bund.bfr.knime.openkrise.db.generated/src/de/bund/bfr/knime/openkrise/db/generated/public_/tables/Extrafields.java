@@ -30,7 +30,7 @@ import de.bund.bfr.knime.openkrise.db.generated.public_.tables.records.Extrafiel
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import org.jooq.Field;
 import org.jooq.Table;

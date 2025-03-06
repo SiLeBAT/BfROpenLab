@@ -1,16 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Testing
-Bundle-SymbolicName: nl.esciencecenter.e3dchem.knime.testing;singleton:=true
-Bundle-Version: 1.0.0.20161125
+Bundle-Name: Test Knime workflows from a JUnit test
+Bundle-SymbolicName: nl.esciencecenter.e3dchem.knime.testing.plugin
+Automatic-Module-Name: nl.esciencecenter.e3dchem.knime.testing.plugin
+Bundle-Version: 1.0.5.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package: nl.esciencecenter.e3dchem.knime.testing,
- nl.esciencecenter.e3dchem.knime.testing.core.ng
-Require-Bundle: org.knime.core,
+Bundle-Vendor: Netherlands eScience Center
+Require-Bundle: org.knime.workbench.repository,
  org.knime.workbench.core,
- org.knime.workbench.repository,
  org.knime.testing,
- org.apache.log4j,
- org.junit
-Automatic-Module-Name: nl.esciencecenter.e3dchem.knime.testing
-Bundle-ClassPath: lib/org.knime.testing.application_4.4.1.v202108201736.jar
+ org.junit,
+ org.apache.log4j
+Bundle-ClassPath: .,
+ lib/org.knime.testing.application_5.3.3.v202410291553.jar
+Export-Package: nl.esciencecenter.e3dchem.knime.testing

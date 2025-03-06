@@ -48,8 +48,6 @@
 package nl.esciencecenter.e3dchem.knime.testing.core.ng;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryType;
 import java.lang.management.MemoryUsage;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -120,20 +118,6 @@ public abstract class WorkflowTest {
     protected static MemoryUsage getHeapUsage() {
         System.gc();
 
-        long initMem = 0;
-        long maxMem = 0;
-        long committedMem = 0;
-        long usedMem = 0;
-        for (MemoryPoolMXBean memoryPool : ManagementFactory.getMemoryPoolMXBeans()) {
-            if (memoryPool.getType().equals(MemoryType.HEAP) && (memoryPool.getCollectionUsage() != null)) {
-                MemoryUsage usage = memoryPool.getUsage();
-
-                initMem += usage.getInit();
-                maxMem += usage.getMax();
-                committedMem += usage.getCommitted();
-                usedMem += usage.getUsed();
-            }
-        }
-        return new MemoryUsage(initMem, usedMem, committedMem, maxMem);
+        return ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
     }
 }

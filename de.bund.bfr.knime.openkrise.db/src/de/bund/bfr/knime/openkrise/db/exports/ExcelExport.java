@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -92,9 +93,9 @@ public class ExcelExport extends FileFilter {
 		    	HSSFSheet sheet = wb.createSheet(myDB.getActualTable().getTablename());
 		    	// Create Titel
 		    	cs = wb.createCellStyle();
-		    	cs.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		    	cs.setAlignment(HorizontalAlignment.CENTER);
 		    	HSSFFont font = wb.createFont();
-		    	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		    	font.setBold(true);
 		    	cs.setFont(font);
 		    	HSSFRow row0 = sheet.createRow(0); 
 		    	//row0.setRowStyle(cs);

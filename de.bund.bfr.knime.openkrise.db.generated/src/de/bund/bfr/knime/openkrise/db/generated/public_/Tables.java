@@ -32,7 +32,7 @@ import de.bund.bfr.knime.openkrise.db.generated.public_.tables.Lookups;
 import de.bund.bfr.knime.openkrise.db.generated.public_.tables.Produktkatalog;
 import de.bund.bfr.knime.openkrise.db.generated.public_.tables.Station;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 
 /**

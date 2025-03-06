@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -357,15 +358,15 @@ public class XlsReader {
 			return null;
 		}
 
-		if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+		if (cell.getCellType() == CellType.FORMULA) {
 			CellValue value = wb.getCreationHelper().createFormulaEvaluator().evaluate(cell);
 
 			switch (value.getCellType()) {
-			case Cell.CELL_TYPE_BOOLEAN:
+			case BOOLEAN:
 				return String.valueOf(value.getBooleanValue());
-			case Cell.CELL_TYPE_NUMERIC:
+			case NUMERIC:
 				return String.valueOf(value.getNumberValue());
-			case Cell.CELL_TYPE_STRING:
+			case STRING:
 				return Strings.emptyToNull(Strings.nullToEmpty(value.getStringValue()).trim());
 			default:
 				return null;
