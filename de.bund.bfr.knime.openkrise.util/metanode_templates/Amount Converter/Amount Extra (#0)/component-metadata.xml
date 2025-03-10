@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-metadata content-type="text/plain" xmlns="http://www.knime.org/core/node/workflow/metadata/v1.0">
+    <last-modified>2025-03-07T17:13:09.518+01:00</last-modified>
+    <description>This node parses the 'Amount' column of the input table and extracts the number and the unit. The extracted number or unit are given in the columns 'ExtractedNumber' and 'ExtractedUnit'.
+If the numberformat is not detectable or the reference unit is not detectable, the number and unit are extracted based on assumptions which are given in the additional column 'ExtractionComment'.
+
+E.g. 
+Amount: '100 Schalen x 0.5 kg Erdbeeren'   --> ExtractedNumber: '50', ExtractedUnit: 'kg', ExtractionComment: ''
+Amount: '10,000 Stück' --> ExtractedNumber: '10000', ExtractedUnit: 'Stück', ExtractionComment:, 'Number was parsed with "." as decimal point assumption.'</description>
+    <in-ports>
+        <port name="Data table">Data table with 'Amount' column.</port>
+    </in-ports>
+    <out-ports>
+        <port name="Data table">Data table with columns 'ExtractedNumber', 'ExtractedUnit' and 'ExtractionComment'.</port>
+    </out-ports>
+</component-metadata>
