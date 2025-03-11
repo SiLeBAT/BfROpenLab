@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho.testArgLine></tycho.testArgLine>
 		<jacoco-version>0.8.5</jacoco-version>
-		<qualifier.prefix>K5-3-</qualifier.prefix>
+		<qualifier.prefix>K5-4-</qualifier.prefix>
 	</properties>
 	<modules>
 		<!-- Plugins -->
@@ -55,17 +55,17 @@
 			<module>de.bund.bfr.knime.pmmlite.core.types</module>
 			<module>de.bund.bfr.knime.pmmlite.core</module>
 		-->
-		<!-- disabled Test plugins 
+		<!-- disabled Test plugins
 		    <module>de.bund.bfr.knime.fsklab.metadata.model.test</module>
-			<module>de.bund.bfr.knime.fsklab.nodes.test</module> 
-			<module>de.bund.bfr.knime.pmm.common.test</module> 
+			<module>de.bund.bfr.knime.fsklab.nodes.test</module>
+			<module>de.bund.bfr.knime.pmm.common.test</module>
 		-->
-		<!-- Test report 
+		<!-- Test report
 			<module>de.bund.bfr.knime.testreport</module>
 		-->
 		<!-- Others -->
         <!-- enabled testflows -->
-        <module>nl.esciencecenter.e3dchem.knime.testing</module>     
+        <module>nl.esciencecenter.e3dchem.knime.testing</module>
 		<module>de.bund.bfr.knime.testflows</module>
         <!---->
 		<module>de.bund.bfr.knime.openkrise.feature</module>
@@ -127,7 +127,7 @@
 					<target>
 						<artifact>
 							<groupId>de.bund.bfr.knime</groupId>
-							<artifactId>KNIME_5_3</artifactId>
+							<artifactId>KNIME_5_4</artifactId>
 							<version>1.1.48-SNAPSHOT</version>
 						</artifact>
 					</target>
