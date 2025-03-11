@@ -25,6 +25,7 @@
 		<module>de.bund.bfr.knime.gis.views</module>
 		<module>de.bund.bfr.knime</module>
 		<module>org.geotools</module>
+		<module>org.apache.commons-io</module>
 		<module>edu.uci.ics.jung</module>
 		<module>com.jgoodies</module>
 		<module>com.networknt.jsonschemavalidator</module>
