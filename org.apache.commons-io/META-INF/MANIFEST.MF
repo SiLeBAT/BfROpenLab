@@ -5,7 +5,7 @@ Bundle-Name: Apache Commons IO
 Bundle-SymbolicName: org.apache.commons-io;singleton:=true
 Automatic-Module-Name: org.apache.commons-io
 Bundle-Vendor: The Apache Software Foundation
-Bundle-Version: 2.18.0
+Bundle-Version: 2.18.0.qualifier
 Export-Package: org.apache.commons.io,
  org.apache.commons.io.build,
  org.apache.commons.io.channels,
