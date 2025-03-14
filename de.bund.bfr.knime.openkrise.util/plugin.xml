@@ -3,14 +3,15 @@
 
 	<extension point="org.knime.workbench.repository.categories">
 		<category icon="icons/FoodChainLab.png" level-id="convert" name="Convert" path="/foodchain" />
+		<category icon="icons/FoodChainLab.png" level-id="others" name="Other FCL nodes" path="/foodchain" />
 	</extension>
 
 	<extension point="org.knime.workbench.repository.nodes">
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.cluster.DBSCANNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.geocode.GeocodingNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.shapefilereader.ShapefileReaderNodeFactory"/>
-		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.tracing.TracingParametersNodeFactory"/>
-		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.address.AddressCreatorNodeFactory"/>
+		<node category-path="/foodchain/others" factory-class="de.bund.bfr.knime.openkrise.util.tracing.TracingParametersNodeFactory"/>
+		<node category-path="/foodchain/others" factory-class="de.bund.bfr.knime.openkrise.util.address.AddressCreatorNodeFactory"/>
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.json.ToJsonNodeFactory"/>
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.json.FromJsonNodeFactory"/>
 		<node category-path="/foodchain/convert" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
