@@ -24,12 +24,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -42,8 +44,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.poi.ss.usermodel.CellType;
@@ -61,6 +67,10 @@ import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 
 public class TraceImporter extends FileFilter implements MyImporter {
+	
+	private enum ChargenLinkType {
+		lotNo, lineNo
+	}
 
 	private MyDBI mydbi;
 	
@@ -530,22 +540,27 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return getCellString(cell, false);
 	}
 	private String getCellString(Cell cell, boolean checkIfDate) {
-		if (cell != null && cell.getCellType() != CellType.BLANK) {			
-			if (checkIfDate && cell.getCellType() != CellType.STRING && DateUtil.isCellDateFormatted(cell)) {
-				Date date = cell.getDateCellValue();
-				return df.format(date);
+		try {
+			if (cell != null && cell.getCellType() != CellType.BLANK) {			
+				if (checkIfDate && cell.getCellType() != CellType.STRING && DateUtil.isCellDateFormatted(cell)) {
+					Date date = cell.getDateCellValue();
+					return df.format(date);
+				}
+				else if (cell.getCellType() == CellType.NUMERIC) {
+					String str = NumberToTextConverter.toText(cell.getNumericCellValue());
+					if (str != null) str = str.replace(".", ",");
+					return getStr(str);
+				}
+				else {
+					cell.setCellType(CellType.STRING);
+					return getStr(cell.getStringCellValue());				
+				}
 			}
-			else if (cell.getCellType() == CellType.NUMERIC) {
-				String str = NumberToTextConverter.toText(cell.getNumericCellValue());
-				if (str != null) str = str.replace(".", ",");
-				return getStr(str);
-			}
-			else {
-				cell.setCellType(CellType.STRING);
-				return getStr(cell.getStringCellValue());				
-			}
+			return null;
+		} catch (Exception ex) {
+			System.err.println("Error while retrieving value in getCellString from cell " + cell.getAddress().formatAsString() + ": " + ex.getMessage());
+			throw ex;
 		}
-		return null;
 	}
 	private boolean rowEmpty(Row row) {
 		for (int i=0;i<row.getPhysicalNumberOfCells();i++) {
@@ -554,6 +569,126 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return true;
 	}
+	
+	private Set<String> getChargenLinks(Sheet sheet, int colIndex, int rowStartIndex, int rowEndIndex) {
+		ArrayList<String> linkList = new ArrayList<String>();
+		for (int iR = rowStartIndex; iR <= rowEndIndex; iR++) {
+			Row row = sheet.getRow(iR);
+			if (row != null) {
+				Cell cell = row.getCell(colIndex);
+				if (cell != null) {
+					String text = getCellString(cell, false);
+					if (text != null) {
+						linkList.add(text);
+					}
+				}
+			}
+		}
+		return new HashSet<String>(linkList);
+	}
+	
+	abstract class MyRunnable<T> implements Runnable {
+		T result = null;
+		boolean finished = false;
+	}
+	
+	private <T> T executeInMainThread(Supplier<T> fun) throws Exception {
+		System.err.println("executeInEventThread entered ...");
+		if (!SwingUtilities.isEventDispatchThread()) {
+			System.err.println("not within event dispatch thread ...");
+			MyRunnable<T> myRunnable = new MyRunnable<>()
+			{
+			    public void run()
+			    {
+			    	result = fun.get();
+				    finished = true;
+			    }
+			};
+			SwingUtilities.invokeLater(myRunnable);
+			Thread.sleep(2000);
+			while (!myRunnable.finished) {
+				System.err.println("waiting 1000 ms for runnable to finish ...");
+				Thread.sleep(1000);
+			}
+			return myRunnable.result;
+		} else {
+			System.err.println("within event dispatch thread ...");
+			return fun.get();
+		}
+		/*try {
+			SwingUtilities.invokeAndWait(myRunnable);
+			return myRunnable.result;
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+	}
+	
+	private ChargenLinkType askUserForChargenLinkType(long lotNoMatchCount, long lineNoMatchCount, long misMatchCount, String lang) {
+		String[] options = {"Lot Number",
+                "Line Number", //+ XlsLot.NUMBER(lang),
+                "Cancel"};
+		
+		String msg = "The reference type is not unique. " + 
+			    lotNoMatchCount + " references match lot numbers and " + 
+			    lineNoMatchCount + " references match line numbers. " +
+				(misMatchCount == 0 ? "" : (misMatchCount + " references have no match at all. ")) + 
+				"Are the references referring to lot numbers or line numbers?";
+		System.err.println(msg);
+		/*ChargenLinkType chargenLinkType = null;
+		
+		MyRunnable<ChargenLinkType> myRunnable = new MyRunnable<>()
+		{
+		    public void run()
+		    {
+		    	int n = JOptionPane.showOptionDialog(
+		    		DBKernel.mainFrame,
+	    			msg,
+	    			"Choose reference type",
+	    			JOptionPane.YES_NO_CANCEL_OPTION,
+	    			JOptionPane.QUESTION_MESSAGE,
+	    			null,
+	    			options,
+	    			options[lotNoMatchCount > lineNoMatchCount ? 0 : 1]);
+		    	result =  n == 0 ? ChargenLinkType.lotNo : n == 1 ? ChargenLinkType.lineNo : null;
+		    }
+		};
+		try {
+			SwingUtilities.invokeAndWait(myRunnable);
+			return myRunnable.result;
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		try {
+			int n = executeInMainThread(() -> JOptionPane.showOptionDialog(
+				DBKernel.mainFrame,
+				msg,
+				"Choose reference type",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				options[lotNoMatchCount > lineNoMatchCount ? 0 : 1]));
+			return n == 0 ? ChargenLinkType.lotNo : n == 1 ? ChargenLinkType.lineNo : null;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private String getTranslation(Function<String, String> translatorFun, String preferredLang, String fallbackLang) {
+		String result = translatorFun.apply(preferredLang);
+		return result != null ? result : translatorFun.apply(fallbackLang);
+	}
+	
 	private List<Exception> doTheSimpleImport(Workbook wb, String filename) throws Exception {
 		List<Exception> exceptions = new ArrayList<>();
 		
@@ -620,6 +755,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			XlsDelivery xlsD = new XlsDelivery();
 			XlsOther xlsO = new XlsOther();
 			boolean doPreCollect = false;
+			boolean chargenLinkTypeChecked = false;
+			ChargenLinkType chargenLinkType = null;
 			for (int iRow=(isAllInOneTemplate?0:1);iRow<=numRows;iRow++) {
 				row = sheet.getRow(iRow);
 				if (row != null) {
@@ -909,9 +1046,31 @@ public class TraceImporter extends FileFilter implements MyImporter {
 // DAtei AllInOne-Import muss noch geändert werden!!!!!! Bitte die ID entsprechend des neuen Imports durch den Hash erzeugen!!!!! Sonst wird die weitere Generierung von Templates nach einem allinone import zu unnötigen Dopplungen bei den Stationen und Deliveries etc führen!!!!!
 							//System.err.println(i + " -> " + lID + " -> " + dID);
 							if (xlsD.getChargenLinkCol() >= 0) {
+								if (!chargenLinkTypeChecked) {
+									// collect chargenRefs 
+									Set<String> chargenLinks = getChargenLinks(sheet, xlsD.getChargenLinkCol(), iRow, numRows);
+									// refs = new HashSet<String>(Arrays.asList(refs)).stream().toArray(String[]::new);
+									long lotNoMatchCount = chargenLinks.stream().filter(ref -> lotNumberToLotId.containsKey(ref)).count();
+									long lineNoMatchCount = chargenLinks.stream().filter(ref -> olddelsRow.containsKey(ref)).count();
+									
+											
+									if (lotNoMatchCount > 0 && lineNoMatchCount > 0) {
+										// user decides
+										long misMatchCount = chargenLinks.stream().filter(ref -> !lotNumberToLotId.containsKey(ref) && !olddelsRow.containsKey(ref)).count();
+										chargenLinkType = askUserForChargenLinkType(
+											lotNoMatchCount, 
+											lineNoMatchCount, 
+											misMatchCount,
+											"en"
+										);
+										if (chargenLinkType == null) return new ArrayList<>();
+									}
+									chargenLinkTypeChecked = true;
+								}
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
 								if (key != null) {
-									if (lotNumberToLotId.containsKey(key)) {
+									if (chargenLinkType != ChargenLinkType.lineNo && lotNumberToLotId.containsKey(key)) {
+										
 										if (lotDoublettes.contains(key)) {
 											exceptions.add(new Exception("[" + (iRow+1) + "] Unclear to which lot the ingredients should be connected - same Lot number (" + key + ") is used for different products.\nTry to make use of the Line Number as connection key."));											
 										}
@@ -926,12 +1085,21 @@ public class TraceImporter extends FileFilter implements MyImporter {
 											}
 										}
 									}
-									else if (olddelsRow.containsKey(key)) {
+									else if (chargenLinkType != ChargenLinkType.lotNo && olddelsRow.containsKey(key)) {
 										Delivery od = olddelsRow.get(key);
 										if (od != null) {
 											if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
 											else d.getLot().getInDeliveries().add(od.getId());											
-										}
+										} 
+										//else {
+										//	exceptions.add(new Exception("[" + (iRow+1) + "] Unclear to which lot the ingredients should be connected - same Lot number (" + key + ") is used for different products.\nTry to make use of the Line Number as connection key."));											
+										//}
+									} else if (chargenLinkType == ChargenLinkType.lineNo) {
+										exceptions.add(new Exception("[" + (iRow+1) + "] Value " + key + " in column " + xlsD.getChargenLinkCol() + " does not match a line number."));											
+									} else if (chargenLinkType == ChargenLinkType.lotNo) {
+										exceptions.add(new Exception("[" + (iRow+1) + "] Value " + key + " in column " + xlsD.getChargenLinkCol() + " does not match a lot number."));
+									} else {
+										exceptions.add(new Exception("[" + (iRow+1) + "] Value " + key + " in column " + xlsD.getChargenLinkCol() + " does not match a lot number or a line number."));
 									}
 								}
 							}
@@ -958,6 +1126,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							xlsL = new XlsLot();
 							xlsD = new XlsDelivery();
 							xlsO = new XlsOther();
+							System.out.println("CP1 iRow: " + iRow);
 							// Header for Entities
 							row = sheet.getRow(iRow);
 							for (int iCell=0;iCell<row.getLastCellNum();iCell++) {
@@ -1692,6 +1861,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private boolean importResult = false;
 	@Override
 	public boolean doImport(final String filename, final JProgressBar progress, boolean showResults) {
+		System.err.println("TraceImporter.doImport entered ...");
+		System.err.println("executed within Event Dispatch Thread: " + javax.swing.SwingUtilities.isEventDispatchThread());
 		importResult = false;
 		Runnable runnable = new Runnable() {
 			public void run() {

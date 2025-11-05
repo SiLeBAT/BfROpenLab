@@ -25,17 +25,22 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
@@ -48,6 +53,107 @@ import de.bund.bfr.knime.openkrise.db.imports.GeneralXLSImporter;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 import de.bund.bfr.knime.openkrise.db.imports.custom.LieferkettenImporterEFSA;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.TraceImporter;
+//
+
+enum TaskEndType {
+	failed, completed, canceled
+}
+
+class Task {
+	Supplier<Boolean> supplier;
+	Consumer<Boolean> taskEndedCallback;
+	Consumer<Double> progressCallback;
+	
+	Task(Supplier<Boolean> supplier, Consumer<Boolean> taskEndedCallback, Consumer<Double> progressCallback) {
+		this.supplier = supplier;
+		this.taskEndedCallback = taskEndedCallback;
+		this.progressCallback = progressCallback;
+	};
+	
+	public void start() {
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
+				boolean result = supplier.get();
+				taskEndedCallback.accept(result);
+			}
+		});
+		thread.start();
+	}
+}
+
+class TaskQueue<T> {
+	// int completedTasks = 0;
+	// int failedTask = 0;
+	// int canceledTasks = 0;
+	// List<Task<T>> tasks = new ArrayList<>();
+	int currentTaskIndex = -1;
+	// Thread currentThread = null;
+	List<Supplier<Boolean>> suppliers = new ArrayList<Supplier<Boolean>>();
+	Consumer<Boolean> tasksEnded;
+	// Supplier<T>[] suppliers = null;
+	
+	TaskQueue(JFrame jframe, Consumer<Boolean> tasksEnded) {
+		
+	}
+	
+	//public <T> void startTasks(List<Task<T>> tasks) {
+		
+	//}
+	
+	public void startTasks(List<Supplier<Boolean>> suppliers) {
+		this.suppliers = suppliers;
+//		this.tasks = suppliers.stream().map(supplier -> {
+//			Task<T> task = new Task<T>() 
+//			{
+//				public void run() {
+//					result = supplier.get();
+//				}
+//			};
+//			return task;
+//		}).toList();
+		this.startNextTask();
+	}
+	
+	private boolean startNextTask() {
+		this.currentTaskIndex++;
+		if (this.currentTaskIndex < this.suppliers.size()) {
+			Supplier<Boolean> supplier = this.suppliers.get(this.currentTaskIndex);
+			// Task task = new Task(supplier, (x) -> this.taskEnded(x), (x) -> this.taskProgressed(x));
+			// task.start();
+			Thread thread = new Thread(new Runnable() {
+				public void run() {
+					boolean result = supplier.get();
+					taskEnded(result);
+				}
+			});
+		
+			thread.start();
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private void taskEnded(boolean completed) {
+		if (!completed || this.currentTaskIndex == this.suppliers.size() - 1) {
+			this.tasksEnded.accept(completed);
+			return;
+		}
+		this.startNextTask();
+	}
+	
+	private void setProgress() {
+		
+	}
+	
+	private void taskProgressed(double progress) {
+		
+	}
+	
+	public void cancelTasks() {
+		
+	}
+}
 
 /**
  * @author Armin
@@ -69,6 +175,9 @@ public class ImportAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
+		System.err.println("ImportAction.actionPerformed entered ...");
+		System.err.println("executed within Event Dispatch Thread: " + javax.swing.SwingUtilities.isEventDispatchThread());
+		
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
 		Locale oldLocale = JComponent.getDefaultLocale();
 		JComponent.setDefaultLocale(Locale.US);
@@ -98,8 +207,16 @@ public class ImportAction extends AbstractAction {
 					MyImporter mi = (MyImporter) fc.getFileFilter();
 					File[] selectedFiles = fc.getSelectedFiles();
 					if (selectedFiles != null && selectedFiles.length > 0) {
+						System.err.println("ImportAction.perfromAction selectedFiles branch");	
 						if (selectedFiles.length > 1 && mi instanceof TraceImporter) selectedFiles = sortFilesByDate(selectedFiles);
 						if (mi instanceof TraceImporter) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+						TaskQueue<Boolean> taskQueue = new TaskQueue<>(DBKernel.mainFrame);
+						taskQueue.startTasks(
+								Arrays.asList(selectedFiles).stream().map(file -> {
+									Supplier<Boolean> supplier = () -> doTheImport(mi, file, false);
+									return supplier;
+								}).toList()
+						);
 						boolean ir = true;
 						for (File selectedFile : selectedFiles) {
 							if (selectedFile != null) {
@@ -134,6 +251,7 @@ public class ImportAction extends AbstractAction {
 							}
 						}
 					} else {
+						System.err.println("ImportAction.perfromAction selectedFiles else branch");						
 						File selectedSingleFile = fc.getSelectedFile();
 						if (selectedSingleFile != null) {
 							doTheImport(mi, selectedSingleFile, true);
@@ -175,6 +293,8 @@ public class ImportAction extends AbstractAction {
 	}
 
 	private boolean doTheImport(MyImporter mi, File selectedFile, boolean showResults) {
+		System.err.println("ImportAction.doTheImport entered ...");
+		System.err.println("executed within Event Dispatch Thread: " + javax.swing.SwingUtilities.isEventDispatchThread());
 		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
 		DBKernel.prefs.prefsFlush();
 		boolean result = mi.doImport(selectedFile.getAbsolutePath(), progressBar1, showResults);

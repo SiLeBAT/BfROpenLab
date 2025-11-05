@@ -36,6 +36,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
+import java.time.LocalTime;
+
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -903,6 +905,7 @@ Erinnerung an die alten Template inhaber senden?
 	    }
 	}
 	private int getSimpleBackStationRequests(String outputFolder, ResultSet rs, boolean startTracing) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
+		System.err.println("getSimpleBackStationRequests entered ...");
 		int result = 0;
 		if (rs.getObject("Station.ID") != null) {
 			String template = null;
@@ -975,6 +978,9 @@ Erinnerung an die alten Template inhaber senden?
 			}
 			else {
 				// Products Out
+				long start = System.currentTimeMillis();
+				System.err.println("Products out started at " + LocalTime.now().toString());
+				
 				do {
 					//System.err.println(rowIndex);
 					if (rs.getObject("Station.ID") == null || !rs.getString("Station.ID").equals(stationID)) break;
@@ -1000,6 +1006,9 @@ Erinnerung an die alten Template inhaber senden?
 					}
 				} while (rs.next());
 				rs.previous();
+				System.err.println("Products out ended at " + LocalTime.now().toString());
+				
+				System.err.println("consumed time for Products out: " + (System.currentTimeMillis() -start));
 				
 				row = sheetTracing.getRow(rowIndex+4);
 				cell = row.getCell(0);
@@ -1011,6 +1020,7 @@ Erinnerung an die alten Template inhaber senden?
 			}
 			
 			if (generateAllData || startTracing) {
+				long start = System.currentTimeMillis();
 				String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
 						" LEFT JOIN " + MyDBI.delimitL("Chargen") +
 						" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
@@ -1021,7 +1031,10 @@ Erinnerung an die alten Template inhaber senden?
 						" WHERE " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Empfänger") + "=" + stationID +
 						" ORDER BY " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
 				ResultSet rs2 = DBKernel.getResultSet(sql, false);
+				System.err.println("Sql-Execution for rs2 consumed: " + (System.currentTimeMillis() - start));
+				
 				if (rs2 != null && rs2.first()) {
+					start = System.currentTimeMillis();
 					rowIndex += startTracing ? 11 : 12; //lang.equals("en")
 					int numCols = sheetTracing.getRow(rowIndex).getLastCellNum();
 					do {
@@ -1050,6 +1063,8 @@ Erinnerung an die alten Template inhaber senden?
 						}
 						rowIndex++;
 					} while (rs2.next());
+					System.err.println("Rs2 to excel consumed: " + (System.currentTimeMillis() - start));
+					
 				}
 			}
 			String fn = "StationBacktrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
@@ -1067,6 +1082,7 @@ Erinnerung an die alten Template inhaber senden?
 		return result;
 	}
 	private int getBackStationRequests(String outputFolder, Station station) throws SQLException, IOException, NumberFormatException, InvalidFormatException, URISyntaxException {
+		System.err.println("getBackStationRequests entered ...");
 		if (do2017Format) return getBacktraceRequests(outputFolder, null, Integer.parseInt(station.getId2017()));
 		int result = 0;
 		String sql = "Select * from " + MyDBI.delimitL("Station") +
@@ -1289,7 +1305,9 @@ Erinnerung an die alten Template inhaber senden?
 		insertDropBox(dvHelper, sheetTracing, rowIndex, 0, "=LotNumbers");		
 	}
 	private int getBacktraceRequests(String outputFolder, List<String> business2Backtrace, Integer stationId) throws SQLException, IOException, InvalidFormatException, URISyntaxException {
+		System.err.println("getBacktraceRequests entered ...");
 		int result = 0;
+		long start = System.currentTimeMillis();
 		String sql;
 			String backtracingBusinessesSQL = "";
 			String backtracingIdSQL = "";
@@ -1319,14 +1337,19 @@ Erinnerung an die alten Template inhaber senden?
 					backtracingIdSQL +
 					" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC," + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + " ASC, " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Empfänger") + " ASC, " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Bezeichnung") + " ASC, " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ChargenNr") + " ASC";
 		//System.err.println(sql);
+		System.err.println("SQL-Execution 1 started at " + LocalTime.now().toString());
 		ResultSet rs = DBKernel.getResultSet(sql, false);
+		System.err.println("SQL-Execution 1 ended at " + LocalTime.now().toString());
 		boolean startTracing = false;
 		if (do2017Format && generateAllData && (rs == null || !rs.first())) {
 			sql = "Select * from " + MyDBI.delimitL("Station") +
-			" WHERE " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + stationId + (stationId == null ? backtracingBusinessesSQL : "");	
+			" WHERE " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + stationId + (stationId == null ? backtracingBusinessesSQL : "");
+			System.err.println("SQL-Execution 2 started at " + LocalTime.now().toString());
 			rs = DBKernel.getResultSet(sql, false);
+			System.err.println("SQL-Execution 2 ended at " + LocalTime.now().toString());
 			startTracing = true;
 		}
+		System.err.println("Time for sql execution: " + (System.currentTimeMillis() - start));
 		if (rs != null && rs.first()) {
 			do {
 				if (do2017Format) {

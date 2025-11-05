@@ -51,7 +51,8 @@ public class PlausibleAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-	  
+		System.err.println("PausibleAction.actionPerformed entered ...");
+		System.err.println("executed within Event Dispatch Thread: " + javax.swing.SwingUtilities.isEventDispatchThread());
 		final SimSearchJFrame simSearchFrame = new SimSearchJFrame(DBKernel.mainFrame);
 		
 		simSearchFrame.setVisible(true);
