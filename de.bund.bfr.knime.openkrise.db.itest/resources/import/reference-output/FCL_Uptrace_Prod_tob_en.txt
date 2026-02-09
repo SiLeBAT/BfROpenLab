@@ -1,0 +1,74 @@
+ImportResult: true
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+-582189178 |  | "S1Name" |  |  |  |  |  |  |  | "DE" |  |  |  |  |  |  |  |  | "S1ToB" |  |  |  |  |  |  |  |  |  |  | "-582189178" |  |  | "S1Street 1, 10001 S1City"
+311995369 |  | "S2Name" |  |  |  |  |  |  |  | "DE" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "311995369" |  |  | "S2Street 2, 10002 S2City"
+1206179916 |  | "S3Name" |  |  |  |  |  |  |  | "DE" |  |  |  |  |  |  |  |  | "S3ToB" |  |  |  |  |  |  |  |  |  |  | "1206179916" |  |  | "S3Street 3, 10003 S3City"
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+-1404544240 | -582189178 |  | "Zut2" |  |  |  |  |  | "-1404544240" |  | 
+-4885130 | 311995369 |  | "P2" |  |  |  |  |  | "-4885130" |  | 
+433938102 | 311995369 |  | "P2b" |  |  |  |  |  | "433938102" |  | 
+1147612720 | -582189178 |  | "Zut1" |  |  |  |  |  | "1147612720" |  | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+-413979642 | 1147612720 |  | "InLot1" |  |  |  |  |  |  |  |  |  | "-413979642" |  |  |  | 
+-204423244 | -4885130 |  | "OutL2" |  |  |  |  |  |  |  |  |  | "-204423244" |  |  |  | 
+1372056183 | 433938102 |  | "OutL2b" |  |  |  |  |  |  |  |  |  | "1372056183" |  |  |  | 
+1505540819 | -1404544240 |  | "InLot2" |  |  |  |  |  |  |  |  |  | "1505540819" |  |  |  | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+-1404937178 | 1372056183 |  |  |  | 29 | 1 | 2003 |  |  |  |  | 1206179916 | "-1404937178" |  |  |  |  |  | 
+-1096145294 | -413979642 |  |  |  | 20 | 1 | 2003 |  |  |  |  | 311995369 | "-1096145294" |  |  |  |  |  | "Some Indel Comment"
+569873255 | -204423244 |  |  |  | 1 | 2 | 2003 |  |  |  |  | 1206179916 | "569873255" |  |  |  |  |  | "Some OutDel Comment"
+765290535 | 1505540819 |  |  |  | 22 | 1 | 2003 |  |  |  |  | 311995369 | "765290535" |  |  |  |  |  | 
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+1 | -1096145294 | -204423244 |  |  | 
+2 | 765290535 | 1372056183 |  |  | 
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+1 | "Station" | -582189178 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx: Row 7; Row 8"
+2 | "Produktkatalog" | 1147612720 | "EAN" | "EANZut1"
+3 | "Produktkatalog" | 1147612720 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 7"
+4 | "Chargen" | -413979642 | "BestBefore" | "08.09.2003"
+5 | "Chargen" | -413979642 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 7"
+6 | "Station" | 311995369 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx: Row 1"
+7 | "Lieferungen" | -1096145294 | "Amount" | "45 kg"
+8 | "Lieferungen" | -1096145294 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 7"
+9 | "Produktkatalog" | -1404544240 | "EAN" | "EANZut2"
+10 | "Produktkatalog" | -1404544240 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 8"
+11 | "Chargen" | 1505540819 | "BestBefore" | "13.07.2003"
+12 | "Chargen" | 1505540819 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 8"
+13 | "Lieferungen" | 765290535 | "Amount" | "40 kg"
+14 | "Lieferungen" | 765290535 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 8"
+15 | "Produktkatalog" | -4885130 | "EAN" | "EAN2"
+16 | "Produktkatalog" | -4885130 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 20"
+17 | "Chargen" | -204423244 | "BestBefore" | "04.05.2003"
+18 | "Chargen" | -204423244 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 20"
+19 | "Station" | 1206179916 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx: Row 20; Row 21"
+20 | "Lieferungen" | 569873255 | "Amount" | "45 kg"
+21 | "Lieferungen" | 569873255 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 20"
+22 | "Produktkatalog" | 433938102 | "EAN" | "EAN2b"
+23 | "Produktkatalog" | 433938102 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 21"
+24 | "Chargen" | 1372056183 | "BestBefore" | "07.06.2003"
+25 | "Chargen" | 1372056183 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 21"
+26 | "Lieferungen" | -1404937178 | "Amount" | "40 kg"
+27 | "Lieferungen" | -1404937178 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Prod_tob_en.xlsx - Row 21"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+
+
+WarnMessages:

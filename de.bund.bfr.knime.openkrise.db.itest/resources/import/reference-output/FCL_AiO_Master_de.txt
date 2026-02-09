@@ -1,0 +1,56 @@
+ImportResult: true
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+-582189178 |  | "S1Name" |  |  |  |  |  |  |  | "DE" |  |  |  |  |  |  |  |  | "S1ToB" |  |  |  |  |  |  |  |  |  |  | "-582189178" |  |  | "S1Street 1, 10001 S1City"
+311995369 |  | "S2Name" |  |  |  |  |  |  |  | "DE" |  |  |  |  |  |  |  |  | "S2ToB" |  |  |  |  |  |  |  |  |  |  | "311995369" |  |  | "S2Street 2, 10002 S2City"
+1206179916 |  | "S3Name" |  |  |  |  |  |  |  | "DE" |  |  |  |  |  |  |  |  | "S3ToB" |  |  |  |  |  |  |  |  |  |  | "1206179916" |  |  | "S3Street 3, 10003 S3City"
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+-4885130 | 311995369 |  | "P2" |  |  |  |  |  | "-4885130" |  | 
+2126231266 | -582189178 |  | "P1" |  |  |  |  |  | "2126231266" |  | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+-2086411899 | 2126231266 |  | "Lot1" |  |  |  |  |  |  |  |  |  | "-2086411899" |  |  |  | 
+1932973185 | -4885130 |  | "Lot2" |  |  |  |  |  |  |  |  |  | "1932973185" |  |  |  | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+-953144473 | -2086411899 |  |  |  | 30 | 1 | 2003 |  |  |  |  | 311995369 | "-953144473" |  |  |  |  |  | "S2Comment"
+-797805135 | 1932973185 |  |  |  | 3 | 2 | 2003 |  |  |  |  | 1206179916 | "-797805135" |  |  |  |  |  | "S3Comment"
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+1 | "Station" | 311995369 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx: null"
+2 | "Produktkatalog" | -4885130 | "EAN" | "EAN2"
+3 | "Produktkatalog" | -4885130 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx - Zeile 4"
+4 | "Chargen" | 1932973185 | "BestBefore" | "05.07.2003"
+5 | "Chargen" | 1932973185 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx - Zeile 4"
+6 | "Station" | 1206179916 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx: null"
+7 | "Lieferungen" | -797805135 | "Amount" | "40 kg"
+8 | "Lieferungen" | -797805135 | "Quelle" | "S3Quelle"
+9 | "Lieferungen" | -797805135 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx - Zeile 4"
+10 | "Station" | -582189178 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx: null"
+11 | "Produktkatalog" | 2126231266 | "EAN" | "EAN1"
+12 | "Produktkatalog" | 2126231266 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx - Zeile 3"
+13 | "Chargen" | -2086411899 | "BestBefore" | "22.06.2003"
+14 | "Chargen" | -2086411899 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx - Zeile 3"
+15 | "Lieferungen" | -953144473 | "Amount" | "45 kg"
+16 | "Lieferungen" | -953144473 | "Quelle" | "S2Quelle"
+17 | "Lieferungen" | -953144473 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_AiO_Master_de.xlsx - Zeile 3"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+
+
+WarnMessages:

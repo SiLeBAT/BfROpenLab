@@ -1,0 +1,33 @@
+ImportResult: false
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+
+
+--- DB Content End ---
+
+
+LogMessages:
+<h1 id="error">'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_fatal_errors_invS2I10-POQuant.xlsx'</h1>
+<ul><li>For input string: "AA"</li>
+</ul>
+
+
+WarnMessages:

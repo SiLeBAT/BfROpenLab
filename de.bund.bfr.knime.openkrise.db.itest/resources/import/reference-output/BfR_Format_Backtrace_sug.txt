@@ -1,0 +1,46 @@
+ImportResult: true
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+1 |  | "S3Correct" | "StreetC" | "3" |  | "10003" | "City 3" | "District3" | "State3" | "FR" |  |  |  |  |  |  |  |  | "Kuchenesser" |  |  |  |  |  |  |  |  |  |  | "S3" | ";1;" |  | 
+2 |  | "S2Correct" | "StreetB" | "2" |  | "10002" | "City2" | "District2" | "State2" | "IT" |  |  |  |  |  |  |  |  | "Gewürzhändler" |  |  |  |  |  |  |  |  |  |  | "S2" | ";1;" |  | 
+3 |  | "S1Correct" | "StreetA" | "1" |  | "10001" | "City1" | "District1" | "State1" | "DE" |  |  |  |  |  |  |  |  | "Primärerzeuger" |  |  |  |  |  |  |  |  |  |  | "S1" | ";1;" |  | 
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+1 | 2 |  | "P2" |  |  |  |  |  |  | ";1;" | 
+2 | 3 |  | "P1" |  |  |  |  |  |  | ";1;" | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+1 | 1 |  | "L2" | 1000.0 | "100g Packets" |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+2 | 2 |  | "L1" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+1 | 1 | 3 | 2 | 2000 | 4 | 2 | 2000 | 1000.0 | "100g Packets" |  |  | 1 | "1" |  |  |  |  | ";1;" | 
+2 | 2 | 1 | 2 | 2000 | 2 | 2 | 2000 | 1000.0 | "100g Packets" |  |  | 2 | "S1;P1;L1;1;2;2000;2;2;2000;1000.0;100g Packets;S2" |  |  |  |  | ";1;" | 
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+1 | 2 | 1 |  | ";1;" | 
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+1 | "Chargen" | 1 | "Production Date" | "-363"
+2 | "Chargen" | 1 | "Best before date" | "12.2004"
+3 | "Chargen" | 1 | "Sampling" | "Not tested"
+4 | "Chargen" | 1 | "Treatment of product during production" | "Heating"
+5 | "Lieferungen" | 1 | "Item Number" | "ItemNo2"
+6 | "Lieferungen" | 2 | "Item Number" | "ItemNo1"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+
+
+WarnMessages:

@@ -1,0 +1,54 @@
+ImportResult: true
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+1 |  | "S3Correct" | "StreetC" | "3" |  | "10003" | "City 3" | "District3" | "State3" | "FR" |  |  |  |  |  |  |  |  | "Kuchenesser" |  |  |  |  |  |  |  |  |  |  | "S3" | ";1;" |  | 
+2 |  | "S2Correct" | "StreetB" | "2" |  | "10002" | "City2" | "District2" | "State2" | "IT" |  |  |  |  |  |  |  |  | "Gewürzhändler" |  |  |  |  |  |  |  |  |  |  | "S2" | ";1;" |  | 
+3 |  | "S1Correct" | "StreetA" | "1" |  | "10001" | "City1" | "District1" | "State1" | "DE" |  |  |  |  |  |  |  |  | "Primärerzeuger" |  |  |  |  |  |  |  |  |  |  | "S1" | ";1;" |  | 
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+1 | 2 |  | "P2" |  |  |  |  |  |  | ";1;" | 
+2 | 2 |  | "P2b" |  |  |  |  |  |  | ";1;" | 
+3 | 3 |  | "Zut1" |  |  |  |  |  |  | ";1;" | 
+4 | 3 |  | "Zut2" |  |  |  |  |  |  | ";1;" | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+1 | 1 |  | "outLot1" | 47.0 | "kg" |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+2 | 2 |  | "outLot2b" | 42.0 | "kg" |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+3 | 3 |  | "InLot1" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+4 | 4 |  | "InLot2" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+1 | 1 | 1 | 2 | 2003 | 2 | 2 | 2003 | 46.0 | "kg" |  |  | 1 | "S2;P2;outLot1;1;2;2003;2;2;2003;46.0;kg;S3" |  |  |  |  | ";1;" | 
+2 | 2 | 29 | 1 | 2003 | 30 | 1 | 2003 | 41.0 | "kg" |  |  | 1 | "S2;P2b;outLot2b;29;1;2003;30;1;2003;41.0;kg;S3" |  |  |  |  | ";1;" | 
+3 | 3 | 20 | 1 | 2003 | 21 | 1 | 2003 | 45.0 | "kg" |  |  | 2 | "Zut1;InLot1;20;1;2003;21;1;2003;45;kg;S1" |  |  |  |  | ";1;" | 
+4 | 4 | 22 | 1 | 2003 | 23 | 1 | 2003 | 40.0 | "kg" |  |  | 2 | "Zut2;InLot2;22;1;2003;23;1;2003;40;kg;S1" |  |  |  |  | ";1;" | 
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+1 | "Chargen" | 1 | "CustomLotProp" | "CustomLotPropValue"
+2 | "Chargen" | 1 | "Production Date" | "37646"
+3 | "Chargen" | 1 | "Best before date" | "37745"
+4 | "Chargen" | 1 | "Sampling" | "Not tested"
+5 | "Chargen" | 1 | "Treatment of product during production" | "Heating"
+6 | "Lieferungen" | 1 | "Comments" | "Some OutDel Comment"
+7 | "Lieferungen" | 1 | "Custom Del Prop" | "OutDel Custom Prop Value"
+8 | "Lieferungen" | 3 | "Comments" | "Some Indel Comment"
+9 | "Lieferungen" | 3 | "Custom Del Prop" | "InDel Custom Prop Value"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+
+
+WarnMessages:

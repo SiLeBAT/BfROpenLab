@@ -1,0 +1,43 @@
+ImportResult: true
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+311995369 |  | "S2Name" |  |  |  |  |  |  |  | "DE" |  |  |  |  |  |  |  |  | "S2ToB" |  |  |  |  |  |  |  |  |  |  | "311995369" |  |  | "S2Street 2, 10002 S2City"
+1206179916 |  | "S3Name" |  |  |  |  |  |  |  | "DE" |  |  |  |  |  |  |  |  | "S3ToB" |  |  |  |  |  |  |  |  |  |  | "1206179916" |  |  | "S3Street 3, 10003 S3City"
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+-4885130 | 311995369 |  | "P2" |  |  |  |  |  | "-4885130" |  | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+-204423244 | -4885130 |  | "OutL2" |  |  |  |  |  |  |  |  |  | "-204423244" |  |  |  | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+1427855266 | -204423244 |  |  |  | 1 | 2 | 2003 |  |  |  |  | 1206179916 | "1427855266" |  |  |  |  |  | "Some Outdel comment"
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+1 | "Station" | 311995369 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Start_tob_de.xlsx: null"
+2 | "Produktkatalog" | -4885130 | "EAN" | "EAN2"
+3 | "Produktkatalog" | -4885130 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Start_tob_de.xlsx - Zeile 12"
+4 | "Chargen" | -204423244 | "BestBefore" | "18.07.2003"
+5 | "Chargen" | -204423244 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Start_tob_de.xlsx - Zeile 12"
+6 | "Station" | 1206179916 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Start_tob_de.xlsx: null"
+7 | "Lieferungen" | 1427855266 | "Amount" | "40 kg"
+8 | "Lieferungen" | 1427855266 | "Source" | "/Users/ruegenm/git/BfROpenLab/de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Uptrace_Start_tob_de.xlsx - Zeile 12"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+
+
+WarnMessages:

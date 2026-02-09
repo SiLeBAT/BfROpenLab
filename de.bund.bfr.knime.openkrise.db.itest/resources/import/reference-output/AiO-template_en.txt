@@ -1,0 +1,73 @@
+ImportResult: false
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+-582189178 |  | "S1Name" | "S1Street" | "1" |  | "10001" | "S1City" | "District1" | "State1" | "DE" |  |  |  |  |  |  |  |  | "S1ToB" |  |  |  |  |  |  |  |  |  |  | "S1" | ";1;" |  | "S1Street 1, 10001 S1City"
+311995369 |  | "S2Name" | "S2Street" | "2" |  | "10002" | "S2City" | "District2" | "State2" | "DE" |  |  |  |  |  |  |  |  | "S2ToB" |  |  |  |  |  |  |  |  |  |  | "S2" | ";1;" |  | "S2Street 2, 10002 S2City"
+1206179916 |  | "S3Name" | "S3Street" | "3" |  | "10003" | "S3City" | "District3" | "State3" | "DE" |  |  |  |  |  |  |  |  | "S3ToB" |  |  |  |  |  |  |  |  |  |  | "S3" | ";1;" |  | "S3Street 3, 10003 S3City"
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+-1749803376 | -582189178 |  | "Zutat3" |  |  |  |  |  |  | ";1;" | 
+-1747956334 | -582189178 |  | "Zutat5" |  |  |  |  |  |  | ";1;" | 
+-1747032813 | -582189178 |  | "Zutat6" |  |  |  |  |  |  | ";1;" | 
+-1745185771 | -582189178 |  | "Zutat8" |  |  |  |  |  |  | ";1;" | 
+-4536260 | 311995369 |  | "P1" |  |  |  |  |  |  | ";1;" | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+-314857004 | -4536260 |  | "Lok" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+-115205902 | -1747032813 |  | "L6" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+574059102 | -1749803376 |  | "L7" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+1122119206 | -1745185771 |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+1486120384 | -1747956334 |  | "L5" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+1909061437 | -1749803376 |  | "L3" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+-1752029760 | 574059102 |  |  |  |  |  |  |  |  |  |  | 311995369 | "D_7" |  |  |  |  | ";1;" | 
+-1485237968 | 1486120384 |  |  |  |  |  |  |  |  |  |  | 311995369 | "D_5" |  |  |  |  | ";1;" | 
+795519475 | -314857004 | 2 | 2 | 2003 | 3 | 2 | 2003 | 40.0 | "kg" |  |  | 1206179916 | "D_S2_S3" |  |  |  |  | ";1;" | 
+1039008764 | 1909061437 | 29 | 1 | 2003 | 30 | 1 | 2003 | 40.0 | "kg" |  |  | 311995369 | "D_S1_S2" |  |  |  |  | ";1;" | 
+1039012370 | 1122119206 |  |  |  |  |  |  |  |  |  |  | 311995369 | "D_8" |  |  |  |  | ";1;" | 
+1274619621 | -115205902 |  |  |  |  |  |  |  |  |  |  | 311995369 | "D_6" |  |  |  |  | ";1;" | 
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+1 | 1039008764 | -314857004 |  | ";1;" | 
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+8 | "Lieferungen" | 1039008764 | "Comment" | "ok"
+9 | "Lieferungen" | 1039008764 | "Amount" | "40.0 kg"
+10 | "Station" | 1206179916 | "Comment" | "ok"
+11 | "Station" | 1206179916 | "Latitude" | "1.003"
+12 | "Station" | 1206179916 | "Longitude" | "10.03"
+16 | "Lieferungen" | 795519475 | "Comment" | "ok"
+17 | "Lieferungen" | 795519475 | "Amount" | "40.0 kg"
+25 | "Lieferungen" | 1274619621 | "Comment" | "Unknown Lot Number"
+33 | "Lieferungen" | -1485237968 | "Comment" | "Missing Lot Number"
+41 | "Lieferungen" | 1039012370 | "Comment" | "Missing Zutat lot"
+42 | "Station" | 311995369 | "Comment" | "ok"
+43 | "Station" | 311995369 | "Latitude" | "1.002"
+44 | "Station" | 311995369 | "Longitude" | "10.02"
+45 | "Station" | -582189178 | "Comment" | "ok"
+46 | "Station" | -582189178 | "Custom StatProp" | "Custom Stat Prop Value"
+47 | "Station" | -582189178 | "Latitude" | "1.001"
+48 | "Station" | -582189178 | "Longitude" | "10.01"
+49 | "Lieferungen" | -1752029760 | "Comment" | "Missing Zutat name"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+<h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/AiO-template_en.xlsx'</h1>
+<ul><li>Station has no ID -> Row 5</li>
+<li>Station ID 'SE_DID' is defined more than once -> Row 7</li>
+</ul>
+
+
+WarnMessages:

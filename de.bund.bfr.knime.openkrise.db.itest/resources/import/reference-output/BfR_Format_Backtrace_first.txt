@@ -1,0 +1,64 @@
+ImportResult: false
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+-1905561714 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "S4" | ";1;" |  | 
+123481376 |  | "S2Correct" | "StreetB" | "2" |  | "10002" | "City2" | "District2" | "State2" | "IT" |  |  |  |  |  |  |  |  | "Gewürzhändler" |  |  |  |  |  |  |  |  |  |  | "S2" | ";1;" |  | "StreetB 2, 10002 City2"
+192459335 |  | "S3Correct" | "StreetC" | "3" |  | "10003" | "City 3" | "District3" | "State3" | "FR" |  |  |  |  |  |  |  |  | "Kuchenesser" |  |  |  |  |  |  |  |  |  |  | "S3" | ";1;" |  | "StreetC 3, 10003 City 3"
+240754369 |  | "S1Correct" | "StreetA" | "1" |  | "10001" | "City1" | "District1" | "State1" | "DE" |  |  |  |  |  |  |  |  | "Primärerzeuger" |  |  |  |  |  |  |  |  |  |  | "S1" | ";1;" |  | "StreetA 1, 10001 City1"
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+-1000647403 | 192459335 |  |  |  |  |  |  |  |  | ";1;" | 
+95825270 | 240754369 |  | "P1" |  |  |  |  |  |  | ";1;" | 
+1201777376 | 123481376 |  | "P2" |  |  |  |  |  |  | ";1;" | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+-1195523656 | 95825270 |  | "L1" | 5.656 | "100g Packets" |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+405457714 | -1000647403 |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+1182168664 | -1000647403 |  | "L3" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+1656516138 | 1201777376 |  | "L2" | 20000.0 | "100g Packets" |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+-497825583 | 405457714 | 1 | 1 | 1900 | 1 | 1 | 1900 |  |  |  |  | -1905561714 | "D4-S3-S4" |  |  |  |  | ";1;" | 
+-391647457 | 1182168664 | 31 | 2 | 2000 | 31 | 2 | 2000 |  |  |  |  | -1905561714 | "D3-S3-S4" |  |  |  |  | ";1;" | 
+636427002 | -1195523656 |  |  |  |  |  |  |  |  |  |  | 192459335 | "D5-S1-S2" |  |  |  |  | ";1;" | 
+1147594835 | 1656516138 | 3 | 2 | 2000 | 4 | 2 | 2000 | 10000.0 | "100g Packets" |  |  | 192459335 | "D2-S2-S3" |  |  |  |  | ";1;" | 
+1721910558 | -1195523656 | 1 | 2 | 2000 | 2 | 2 | 2000 | 4.233 | "100g Packets" |  |  | 123481376 | "D1-S1-S2" |  |  |  |  | ";1;" | 
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+1 | "Lieferungen" | -391647457 | "Item Number" | "ItemNo3"
+2 | "Chargen" | 1656516138 | "Production date" | "-363"
+3 | "Chargen" | 1656516138 | "Sampling" | "Not tested"
+4 | "Chargen" | 1656516138 | "Treatment of product during production" | "Heating"
+5 | "Lieferungen" | 1147594835 | "Item Number" | "ItemNo2"
+6 | "Lieferungen" | 1147594835 | "Amount" | "10000.0 100g Packets"
+7 | "Lieferungen" | 1147594835 | " Best before date" | "12.2004"
+8 | "Chargen" | 405457714 | "Production date" | "31.02.1899"
+9 | "Lieferungen" | -497825583 | " Best before date" | "32.12.2025"
+10 | "Chargen" | -1195523656 | "Production date" | "36526"
+11 | "Chargen" | -1195523656 | "Sampling" | "Not tested"
+12 | "Lieferungen" | 1721910558 | "Item Number" | "ItemNo1"
+13 | "Lieferungen" | 1721910558 | "Amount" | "4.233 100g Packets"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+<h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_first.xlsx'</h1>
+<ul><li>Please, do always provide a lot number as this is most helpful! -> Row 6 in 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_first.xlsx'
+</li>
+<li>Lot has different quantities -> Lot number: 'L1'; -> Row 7</li>
+</ul>
+
+
+WarnMessages:
