@@ -19,7 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
-import java.awt.Cursor;
+import java.awt.Window;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -42,11 +43,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -54,11 +59,17 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jooq.tools.StringUtils;
 
+import de.bund.bfr.knime.MemoryUtils;
+import de.bund.bfr.knime.UserCancelException;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
+import de.bund.bfr.knime.ui.EdtUtils;
+import de.bund.bfr.knime.ui.IProgressMonitor;
+import de.bund.bfr.knime.ui.ProgressMonitorParent;
 
 public class TraceImporter extends FileFilter implements MyImporter {
 
@@ -67,6 +78,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	public TraceImporter() {
 		this.mydbi = null;
 	}
+	
 	public TraceImporter(MyDBI mydbi) {
 		this.mydbi = mydbi;
 	}
@@ -80,15 +92,18 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	public Map<String, Set<String>> getLastWarnings() {
 		return warns;
 	}
+	
 	public String getLogWarnings() {
 		return logWarnings;
 	}
+	
 	private int classRowIndex = -1;
 	
 	public String getLogMessages() {
 		return logMessages;
 	}
-	private void checkStationsFirst(List<Exception> exceptions, Sheet businessSheet) {
+	
+	private void checkStationsFirst(List<Exception> exceptions, Sheet businessSheet, IProgressMonitor taskMonitor) throws UserCancelException {
 		HashSet<String> stationIDs = new HashSet<>();
 		int numRows = businessSheet.getLastRowNum() + 1;
 		for (int i=1;i<numRows;i++) {
@@ -103,9 +118,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				if (stationIDs.contains(val)) exceptions.add(new Exception("Station ID '" + val + "' is defined more than once -> Row " + (i+1)));
 				stationIDs.add(val);
 			}
+			if (taskMonitor.isCanceled()) throw new UserCancelException();
 		}
 	}
-	private void checkDeliveriesFirst(List<Exception> exceptions, Sheet deliverySheet) {
+	
+	private void checkDeliveriesFirst(List<Exception> exceptions, Sheet deliverySheet, IProgressMonitor taskMonitor) throws UserCancelException {
 		HashSet<String> deliveryIDs = new HashSet<>();
 		int numRows = deliverySheet.getLastRowNum() + 1;
 		for (int i=2;i<numRows;i++) {
@@ -120,10 +137,17 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				if (deliveryIDs.contains(val)) exceptions.add(new Exception("Delivery ID '" + val + "' is defined more than once -> Row " + (i+1)));
 				deliveryIDs.add(val);
 			}
+			if (taskMonitor.isCanceled()) throw new UserCancelException();
+			taskMonitor.setProgress(i * 100 / numRows);
 		}
 	}
-	private void checkTraceDeliveries(List<Exception> exceptions, Sheet deliverySheet, int borderRowBetweenTopAndBottom, boolean isForTracing, boolean isNewFormat_151105) {
+	
+	private void checkTraceDeliveries(List<Exception> exceptions, Sheet deliverySheet, int borderRowBetweenTopAndBottom, boolean isForTracing, boolean isNewFormat_151105, IProgressMonitor taskMonitor) throws UserCancelException {
 		HashMap<String, HashSet<Row>> deliveryIDs = new HashMap<>();
+		
+		ProgressMonitorParent taskMonitorParent= new ProgressMonitorParent(taskMonitor, 2);
+		IProgressMonitor subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+		
 		int numRows = deliverySheet.getLastRowNum() + 1;
 		for (int i=2;i<numRows;i++) {
 			Row row = deliverySheet.getRow(i);
@@ -145,7 +169,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						hs.add(row);						
 					}
 				}
-				
+				if (taskMonitor.isCanceled()) throw new UserCancelException();
+				subTaskMonitor.setProgress(i * 100 / numRows);
 				/*
 				String key = getRowKey(row, borderRowBetweenTopAndBottom, isForTracing);
 					if (!duplicateRows.containsKey(key)) duplicateRows.put(key, new HashSet<Row>());
@@ -154,6 +179,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					*/
 			}			
 		}
+		
+		subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
 		for (String val : deliveryIDs.keySet()) {
 			HashSet<Row> hs = deliveryIDs.get(val);
 			if (hs.size() > 1) {
@@ -169,7 +196,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				}
 				if (different) exceptions.add(new Exception("Delivery ID '" + val + "' is defined more than once -> Rows: " + rows.substring(1) + ". If you have copy/pasted a new row, please clear the cell for the DeliveryID of the new Row in Column 'M' (expand it firstly to be able to see it)."));
 			}
+			if (taskMonitor.isCanceled()) throw new UserCancelException();
 		}
+		subTaskMonitor.setProgress(100);
 		/*
 		for (String val : duplicateRows.keySet()) {
 			HashSet<Integer> hs = duplicateRows.get(val);
@@ -183,6 +212,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		*/
 	}
+	
 	private String getRowKey(Row row, int borderRowBetweenTopAndBottom, boolean isForTracing) {
 		boolean isProductsOut = row.getRowNum() < borderRowBetweenTopAndBottom && !isForTracing || isForTracing && row.getRowNum() > borderRowBetweenTopAndBottom;
 		String key = "";
@@ -199,7 +229,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}	
 		return key;
 	}
-	private void loadLookupSheet(Sheet lookupSheet) {
+	
+	private void loadLookupSheet(Sheet lookupSheet, IProgressMonitor taskMonitor) throws UserCancelException {
 		LookUp lu = new LookUp();
 		int numRows = lookupSheet.getLastRowNum() + 1;
 		for (int i=1;i<numRows;i++) {
@@ -226,14 +257,49 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					lu.addUnit(cell.getStringCellValue());
 				}
 			}
+			if (taskMonitor.isCanceled()) throw new UserCancelException();
+			taskMonitor.setProgress(i * 100 / numRows);
 		}
 		lu.intoDb(mydbi);
+		taskMonitor.setProgress(100);
 	}
-	private List<Exception> doTheImport(Workbook wb, String filename)  throws Exception {
+	
+	private void sleep() { //int ms) {
+//		try {
+//			Thread.sleep(ms);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+	}
+	
+	private void debug(String msg) {
+//		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+//		String time = LocalTime.now().format(formatter);
+//		System.out.println(time + " " + msg);
+	}
+	
+	private String formatDayNanos(long dayNanos) {
+		long dayMs = dayNanos / 1000000;
+		long hours = dayMs / (3600 * 1000);
+		long mins = (dayMs / (60 * 1000)) % 60;
+		long secs = (dayMs / 1000) % 60;
+		long ms = dayMs % 1000;
+		String result = "";
+		if (secs == 0 && mins == 0 && hours == 0) return "" + ms;
+		result = "." + StringUtils.leftPad("" + ms, 3, "0");
+		if (mins == 0 && hours == 0) return "" + secs + result;
+		result = ":" + StringUtils.leftPad("" + secs, 2, "0") + result;
+		if (hours == 0) return "" + mins + result;
+		return "" + hours + ":" + StringUtils.leftPad("" + mins, 2, "0") + result;
+	}
+	
+	private List<Exception> importWorkbook(Workbook wb, String filename, final Window owner, IProgressMonitor taskMonitor)  throws Exception {
 		List<Exception> exceptions = new ArrayList<>();
 		
 		Sheet stationSheet = wb.getSheet("Stations");
-		if (stationSheet == null) return doTheSimpleImport(wb, filename);
+		if (stationSheet == null) return importSingleSheetWorkbook(wb, filename, owner, taskMonitor);
+		
 		Sheet deliverySheet = wb.getSheet("Deliveries");
 		Sheet d2dSheet = wb.getSheet("Deliveries2Deliveries");
 		Sheet transactionSheet = wb.getSheet("BackTracing");
@@ -244,18 +310,43 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		Sheet fwdSheet = wb.getSheet("FwdTracing");
 		if (forSheet == null) forSheet = fwdSheet;
 		
-		boolean isForTracing = forSheet != null;
+		final boolean isForTracing = forSheet != null;
 		if (isForTracing) transactionSheet = forSheet;
 		
 		if (stationSheet == null || transactionSheet == null && deliverySheet == null) {
 			exceptions.add(new Exception("Wrong template format!"));
 			return exceptions;
 		}
-
-		checkStationsFirst(exceptions, stationSheet);
+		
+		int requiredSubTaskMonitorCount = 1;
+		if (deliverySheet != null) {
+			requiredSubTaskMonitorCount = 4 + (d2dSheet != null ? 1 : 0) + (lookupSheet != null ? 1 : 0) + 2;
+		} else {
+			requiredSubTaskMonitorCount = 6 + (lookupSheet != null ? 1 : 0) + (!isForTracing ? 1 : 0);
+		}
+		ProgressMonitorParent taskMonitorParent = new ProgressMonitorParent(taskMonitor, requiredSubTaskMonitorCount);
+		IProgressMonitor subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+				
+		debug("TracingImporter.importWorkbook checking stations ...");
+		
+		checkStationsFirst(exceptions, stationSheet, subTaskMonitor);
+		debug("TracingImporter.importWorkbook checking stations done.");
+		subTaskMonitor.setProgress(100);
+		sleep();
 		
 		if (deliverySheet != null) {
-			checkDeliveriesFirst(exceptions, deliverySheet);
+			debug("TracingImporter.importWorkbook checking deliveries ...");
+			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+			
+			checkDeliveriesFirst(exceptions, deliverySheet, subTaskMonitor);
+			
+			debug("TracingImporter.importWorkbook checking deliveries done.");
+			subTaskMonitor.setProgress(100);
+			sleep();
+			
+			debug("TracingImporter.importWorkbook importing stations ...");
+			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+			
 			// load all Stations
 			HashMap<String, Station> stations = new HashMap<>();
 			int numRows = stationSheet.getLastRowNum() + 1;
@@ -265,8 +356,16 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				if (s == null) break;
 				if (stations.containsKey(s.getId())) exceptions.add(new Exception("Station defined twice -> Row " + (classRowIndex+1) + "; Station Id: '" + s.getId() + "'"));
 				stations.put(s.getId(), s);
+				subTaskMonitor.setProgress(classRowIndex * 100 / numRows);
 			}
+			debug("TracingImporter.importWorkbook importing stations done.");
+			subTaskMonitor.setProgress(100);
+			sleep();
+			
 			// load all Deliveries
+			debug("TracingImporter.importWorkbook importing deliveries ...");
+			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+			
 			HashMap<String, Delivery> deliveries = new HashMap<>();
 			numRows = deliverySheet.getLastRowNum() + 1;
 			titleRow = deliverySheet.getRow(0);
@@ -278,28 +377,47 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				if (deliveries.containsKey(d.getId())) exceptions.add(new Exception("Delivery defined twice -> in Row " + (classRowIndex+1) + " and in Row " + deliveryRows.get(d.getId()) + "; Delivery Id: '" + d.getId() + "'"));
 				else deliveryRows.put(d.getId(), classRowIndex+1);
 				deliveries.put(d.getId(), d);
+				subTaskMonitor.setProgress(classRowIndex * 100 / numRows);
 			}
+			debug("TracingImporter.importWorkbook importing deliveries done.");
+			subTaskMonitor.setProgress(100);
+			sleep();
 			
 			// load Recipes
 			HashSet<D2D> recipes = new HashSet<>();
 			if (d2dSheet != null) {
+				debug("TracingImporter.importWorkbook importing d2ds ...");
+				subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
 				numRows = d2dSheet.getLastRowNum() + 1;
 				titleRow = d2dSheet.getRow(0);
 				for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
 					D2D dl = getD2D(exceptions, deliveries, titleRow, d2dSheet.getRow(classRowIndex), classRowIndex);
 					if (dl == null) break;
 					recipes.add(dl);
+					if (taskMonitor.isCanceled()) throw new UserCancelException();
+					subTaskMonitor.setProgress(classRowIndex * 100 / numRows);
 				}
+				debug("TracingImporter.importWorkbook importing d2ds done.");
+				subTaskMonitor.setProgress(100);
+				sleep();
 			}
 
 			MetaInfo mi = new MetaInfo();
 			mi.setFilename(filename);
 			
-			if (lookupSheet != null) loadLookupSheet(lookupSheet);
+			if (lookupSheet != null) {
+				debug("TracingImporter.importWorkbook looking up ...");
+				subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+				loadLookupSheet(lookupSheet, subTaskMonitor);
+				debug("TracingImporter.importWorkbook after lookup ...");
+				subTaskMonitor.setProgress(100);
+				sleep();
+			}
 			Integer miDbId = null;
 			try {
 				miDbId = mi.getID(mydbi);
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				exceptions.add(e);
 			}
 			if (miDbId == null) exceptions.add(new Exception("Template already imported"));
@@ -308,27 +426,62 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 			else {
 				// Predefine DB IDs for Format_2017
+				debug("TracingImporter.importWorkbook predefining ids ...");
 				try {
 					predefineIDs(deliveries.values());
 				}
 				catch (Exception e) {}
-
+				
+				debug("TracingImporter.importWorkbook processing CB 1 ...");
+				subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+								
+				int iDelivery = -1;
+				long startTime = LocalTime.now().toNanoOfDay();
+				long currentTime = startTime;
+			
 				for (Delivery d : deliveries.values()) {
+					iDelivery++;
 					try {
 						d.getID(miDbId, false, mydbi);
-					} catch (Exception e) {
+					} 
+					catch (Exception e) {
 						exceptions.add(e);
 					}
 					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
-					
+					if (taskMonitor.isCanceled()) throw new UserCancelException();
+
+					if ((iDelivery % 1000) == 0) {
+						long newCurrentTime = LocalTime.now().toNanoOfDay();
+						debug(	
+							"After DeliveryNo" + StringUtils.leftPad("" + (iDelivery + 1), 6) + ": " +
+							"freespace: " + StringUtils.leftPad(MemoryUtils.getFormatedPresumableFreeMemory(), 14) + ", " +
+							"consumed time: " + StringUtils.leftPad(formatDayNanos(newCurrentTime - startTime), 12)  + " ms, " +
+							"lastDelta time: " + StringUtils.leftPad(formatDayNanos(newCurrentTime - currentTime), 12)  + " ms" //, " +
+//							"ReqestCount: " + StringUtils.leftPad("" + (DBKernel.RequestCount - startRequestCount), 6) + ", " +
+//							"avgRequestCount: " + ((DBKernel.RequestCount - startRequestCount) / (iDelivery + 1))
+						);
+						currentTime = newCurrentTime;
+					}
+					subTaskMonitor.setProgress(iDelivery * 100 / deliveries.size());
+					MemoryUtils.checkMimimumRemainingMemory();
+					checkUserCancel(taskMonitor);
 				}
+				debug("TracingImporter.importWorkbook processing CB 1 done.");
+				subTaskMonitor.setProgress(100);
+				sleep();
+				
+				debug("TracingImporter.importWorkbook processing CB 2 ...");
+				subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
 				
 				HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
+				int recipeNo = 0;
 				for (D2D dl : recipes) {
+					recipeNo++;
 					try {
 						dl.getId(miDbId, mydbi);
-					} catch (Exception e) {
+					}
+					catch (Exception e) {
 						exceptions.add(e);
 					}
 					
@@ -337,11 +490,19 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					if (!ingredients.containsKey(d)) ingredients.put(d, new HashSet<Integer>());
 					HashSet<Integer> hd = ingredients.get(d);
 					if (dl.getIngredient() != null) hd.add(dl.getIngredient().getDbId());
+					subTaskMonitor.setProgress(recipeNo * 100 / recipes.size());
+					checkUserCancel(taskMonitor);
 				}
+				debug("TracingImporter.importWorkbook processing CB 2 done.");
+				subTaskMonitor.setProgress(100);
+				sleep();
+				
+				debug("Freespace CP4: " + MemoryUtils.getFormatedPresumableFreeMemory());
 			}			
 
 			return exceptions;
 		}
+		
 		int borderRowLotStart = 0;
 		
 		Row row = transactionSheet.getRow(0);
@@ -353,6 +514,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		MetaInfo mi;
 				
 		boolean isNewFormat_151105 = false;
+		debug("TracingImporter.importWorkbook importing transactionsheet rows ...");
+		subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+		
 		if (forwardSheet != null) {
 			// Station in focus
 			cell = row.getCell(1);
@@ -377,7 +541,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Reporter Information") + 2;
 			row = transactionSheet.getRow(classRowIndex);
 			mi = getMetaInfo(exceptions, row, transactionSheet.getRow(classRowIndex-1));
-			mi.setFilename(filename);
+			mi.setFilename(filename);	
 		}
 		else { // Reporter shifted to the top
 			// Metadata on Reporter
@@ -411,7 +575,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				if (!isForTracing) outLots.put(d.getLot().getNumber(), d.getLot());
 			}			
 		}
+		debug("TracingImporter.importWorkbook importing transactionsheet rows done.");
+		subTaskMonitor.setProgress(100);
+		checkUserCancel(taskMonitor);
+		sleep();
 		
+		System.out.println("TracingImporter.importWorkbook importing transactionsheet rows step 1 ...");
+		subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
 		String label = "Ingredients In for Lot(s)";
 		if (isForTracing) label = "Products Out";
 		// Lot(s)
@@ -426,9 +596,19 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				exceptions.add(new Exception("Lot number unknown in Row number " + (classRowIndex + 1)));
 			}
 		}
+		debug("TracingImporter.importWorkbook importing transactionsheet rows step 2 done.");
+		subTaskMonitor.setProgress(100);
+		sleep();
 		
-		checkTraceDeliveries(exceptions, transactionSheet, borderRowLotStart, isForTracing, isNewFormat_151105);
+		debug("TracingImporter.importWorkbook checking trace deliveries ...");
+		subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+		checkTraceDeliveries(exceptions, transactionSheet, borderRowLotStart, isForTracing, isNewFormat_151105, subTaskMonitor);
+		debug("TracingImporter.importWorkbook checking trace deliveries done.");
+		subTaskMonitor.setProgress(100);
+		sleep();
 
+		debug("TracingImporter.importWorkbook importing transactionsheet rows step 3 ...");
+		subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
 		// Deliveries/Recipe Inbound
 		boolean hasIngredients = false;
 		label = "Ingredients for Lot(s)";
@@ -450,10 +630,15 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (!hasIngredients) {
 			warns.put("No " + (isForTracing ? "Products Out" : "ingredients") + " defined...", null);
 		}
+		debug("TracingImporter.importWorkbook importing transactionsheet rows step 3 done.");
+		subTaskMonitor.setProgress(100);
+		sleep();
 		
 		// Opt_ForwardTracing
 		HashSet<Delivery> forwDeliveries = new HashSet<>(); 
 		if (!isForTracing) {
+			debug("TracingImporter.importWorkbook importing transactionsheet rows step 4 ...");
+			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
 			if (forwardSheet == null) forwardSheet = forwardSheetNew;
 			numRows = forwardSheet.getLastRowNum() + 1;
 			titleRow = forwardSheet.getRow(0);
@@ -464,32 +649,52 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				if (d == null) continue;
 				forwDeliveries.add(d);
 			}
+			debug("TracingImporter.importWorkbook importing transactionsheet rows step 4 done.");
+			subTaskMonitor.setProgress(100);
+			checkUserCancel(taskMonitor);
+			sleep();
 		}
 		
-		if (lookupSheet != null) loadLookupSheet(lookupSheet);
+		if (lookupSheet != null) {
+			debug("TracingImporter.importWorkbook iloading lookup sheet ...");
+			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+			loadLookupSheet(lookupSheet, subTaskMonitor);
+			debug("TracingImporter.importWorkbook iloading lookup sheet done.");
+			subTaskMonitor.setProgress(100);
+			checkUserCancel(taskMonitor);
+			sleep();
+		}
 		Integer miDbId = null;
 		try {
 			miDbId = mi.getID(mydbi);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			exceptions.add(e);
 		}
 		if (miDbId == null) exceptions.add(new Exception("File already imported"));
 		
+		debug("TracingImporter.importWorkbook inserting into db ...");
+		subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
 		if (isForTracing)
 			try {
 				insertForIntoDb(exceptions, miDbId, inDeliveries, outDeliveries);
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				exceptions.add(e);
 			}
 		else
 			try {
 				insertIntoDb(exceptions, miDbId, inDeliveries, outDeliveries, forwDeliveries);
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				exceptions.add(e);
 			}
-		
+		debug("TracingImporter.importWorkbook inserting into db done.");
+		subTaskMonitor.setProgress(100);
+		sleep();
 		return exceptions;
 	}
+	
 	private String generateAddress(Station s) {
 		String ad = s.getStreet()==null?"":s.getStreet();
 		ad += (ad.isEmpty() ? "" : " ") + (s.getNumber()==null?"":s.getNumber());
@@ -502,6 +707,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (ad.isEmpty()) ad = null;
 		return ad;
 	}
+	
 	private void predefineIDs(Collection<Delivery> deliveries) {
 		for (Delivery d : deliveries) {
 			Lot l = d.getLot();
@@ -526,27 +732,34 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			//}
 		}
 	}
+	
 	private String getCellString(Cell cell) {
 		return getCellString(cell, false);
 	}
+	
 	private String getCellString(Cell cell, boolean checkIfDate) {
-		if (cell != null && cell.getCellType() != CellType.BLANK) {			
-			if (checkIfDate && cell.getCellType() != CellType.STRING && DateUtil.isCellDateFormatted(cell)) {
-				Date date = cell.getDateCellValue();
-				return df.format(date);
+		try {
+			if (cell != null && cell.getCellType() != CellType.BLANK) {			
+				if (checkIfDate && cell.getCellType() != CellType.STRING && DateUtil.isCellDateFormatted(cell)) {
+					Date date = cell.getDateCellValue();
+					return df.format(date);
+				}
+				else if (cell.getCellType() == CellType.NUMERIC) {
+					String str = NumberToTextConverter.toText(cell.getNumericCellValue());
+					if (str != null) str = str.replace(".", ",");
+					return getStr(str);
+				}
+				else {
+					cell.setCellType(CellType.STRING);
+					return getStr(cell.getStringCellValue());				
+				}
 			}
-			else if (cell.getCellType() == CellType.NUMERIC) {
-				String str = NumberToTextConverter.toText(cell.getNumericCellValue());
-				if (str != null) str = str.replace(".", ",");
-				return getStr(str);
-			}
-			else {
-				cell.setCellType(CellType.STRING);
-				return getStr(cell.getStringCellValue());				
-			}
+			return null;
+		} catch(IllegalStateException ex) {
+			throw new IllegalStateException(ex.getMessage() + " (Cell: " + cell.getAddress().toString() + ")");
 		}
-		return null;
 	}
+	
 	private boolean rowEmpty(Row row) {
 		for (int i=0;i<row.getPhysicalNumberOfCells();i++) {
 			String cs = getCellString(row.getCell(i));
@@ -554,7 +767,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return true;
 	}
-	private List<Exception> doTheSimpleImport(Workbook wb, String filename) throws Exception {
+	
+	private List<Exception> importSingleSheetWorkbook(Workbook wb, String filename, Window owner, IProgressMonitor taskMonitor) throws Exception {
+		System.out.println("TracingImporter.importSingleSheetWorkbook entered ...");
+		
 		List<Exception> exceptions = new ArrayList<>();
 		
 		boolean backtracing = true;
@@ -589,6 +805,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		HashSet<String> lotDoublettes = new HashSet<>();
 
 		if (sheet != null) {
+			// region sheet_exists
 			Station focusStation = null;
 			Row row;
 			// String cs, address;
@@ -620,7 +837,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			XlsDelivery xlsD = new XlsDelivery();
 			XlsOther xlsO = new XlsOther();
 			boolean doPreCollect = false;
+			boolean chargenLinkTypeChecked = false;
+			ChargenLinkType preferedChargenLinkType = null;
+			
 			for (int iRow=(isAllInOneTemplate?0:1);iRow<=numRows;iRow++) {
+				checkUserCancel(taskMonitor);
 				row = sheet.getRow(iRow);
 				if (row != null) {
 					if (!rowEmpty(row)) {
@@ -909,9 +1130,20 @@ public class TraceImporter extends FileFilter implements MyImporter {
 // DAtei AllInOne-Import muss noch geändert werden!!!!!! Bitte die ID entsprechend des neuen Imports durch den Hash erzeugen!!!!! Sonst wird die weitere Generierung von Templates nach einem allinone import zu unnötigen Dopplungen bei den Stationen und Deliveries etc führen!!!!!
 							//System.err.println(i + " -> " + lID + " -> " + dID);
 							if (xlsD.getChargenLinkCol() >= 0) {
+								if (!chargenLinkTypeChecked) {
+									preferedChargenLinkType = detectPreferredChargenLinkType(
+										sheet, xlsD.getChargenLinkCol(), iRow, numRows, olddelsRow, lotNumberToLotId, filename
+									);
+									
+									chargenLinkTypeChecked = true;
+								}
 								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
 								if (key != null) {
-									if (lotNumberToLotId.containsKey(key)) {
+									// if (chargenLinkType != ChargenLinkType.lineNo && lotNumberToLotId.containsKey(key)) {
+									if (
+										lotNumberToLotId.containsKey(key) && 
+										(preferedChargenLinkType != ChargenLinkType.lineNo || !olddelsRow.containsKey(key))
+									) {
 										if (lotDoublettes.contains(key)) {
 											exceptions.add(new Exception("[" + (iRow+1) + "] Unclear to which lot the ingredients should be connected - same Lot number (" + key + ") is used for different products.\nTry to make use of the Line Number as connection key."));											
 										}
@@ -926,12 +1158,21 @@ public class TraceImporter extends FileFilter implements MyImporter {
 											}
 										}
 									}
+									//else if (chargenLinkType != ChargenLinkType.lotNo && olddelsRow.containsKey(key)) {
 									else if (olddelsRow.containsKey(key)) {
+										// To check:
+										// the handling of rowNo references amd lotNo reference is to different
+										// for lotNo references all deliveries of the corresponding lot are used 
+										// but for a rowNo only the corresponding delivery
 										Delivery od = olddelsRow.get(key);
 										if (od != null) {
+											
 											if (backtracing) d.addTargetLotId(od.getLot().getId()+"");
 											else d.getLot().getInDeliveries().add(od.getId());											
 										}
+									}
+									else {
+										exceptions.add(new Exception("[" + (iRow+1) + "] Value " + key + " in column " + xlsD.getChargenLinkCol() + " does not match a lot number or a line number."));
 									}
 								}
 							}
@@ -1079,7 +1320,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						}
 					}
 				}
-			}			
+				// if (taskMonitor.isCanceled()) throw new UserCancelException();
+				taskMonitor.setProgress((int)((iRow + 1) / (double)numRows * 100));
+			}
 		}
 		else {
 			exceptions.add(new Exception("Wrong template format!"));
@@ -1096,11 +1339,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					d.insertIntoDb(mydbi);
 					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+					checkUserCancel(taskMonitor);
 				}
 				for (Delivery d : idToDeliveryMap.values()) {
 					d.insertIntoDb(mydbi);
 					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+					checkUserCancel(taskMonitor);
 				}	
 				
 				MetaInfo mi = new MetaInfo();
@@ -1108,7 +1353,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				Integer miDbId = null;
 				try {
 					miDbId = mi.getID(mydbi);
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					exceptions.add(e);
 				}
 				if (miDbId == null) exceptions.add(new Exception("File already imported"));				
@@ -1116,15 +1362,23 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			else {
 				exceptions.add(new Exception("No new delivery data found. Nothing imported!"));	
 			}
-		} catch (Exception e) {
+		}
+
+		catch (UserCancelException e) {
+			throw e;
+		}
+		catch (Exception e) {
 			exceptions.add(e);
 		}
 
 		return exceptions;
 	}
+	
+	
 	private int genDbId(String toCode) {
 		return toCode.hashCode();
 	}
+	
 	private void insertForIntoDb(List<Exception> exceptions, Integer miDbId, HashMap<String, Delivery> outDeliveries, HashMap<String, Delivery> inDeliveries) throws Exception {
 		HashMap<String, Integer> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
@@ -1144,6 +1398,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 	}
+	
 	private void insertIntoDb(List<Exception> exceptions, Integer miDbId, HashMap<String, Delivery> inDeliveries, HashMap<String, Delivery> outDeliveries, HashSet<Delivery> forwDeliveries) throws Exception {
 		HashMap<String, Lot> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
@@ -1180,18 +1435,28 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 		}
 	}
+
 	private boolean isBlockEnd(Row row, int numCols2Check, String nextBlockIdentifier) {
-		if (row == null) return true;
-		for (int j=0;j<numCols2Check;j++) {
+		if (row == null) {
+			return true;
+		}
+		for (int j = 0; j < numCols2Check; j++) {
 			Cell cell = row.getCell(j);
-			if (cell == null) continue;
+			if (cell == null) {
+				continue;
+			}
 			cell.setCellType(CellType.STRING);
 			String s = cell.getStringCellValue().trim(); 
-			if (j == 0 && nextBlockIdentifier != null && s.equals(nextBlockIdentifier)) return true;
-			if (!s.isEmpty()) return false;
+			if (j == 0 && nextBlockIdentifier != null && s.equals(nextBlockIdentifier)) {
+				return true;
+			}
+			if (!s.isEmpty()) {
+				return false;
+			}
 		}
 		return true;
 	}
+	
 	private int getNextBlockRowIndex(Sheet transactionSheet, int rowIndex, String nextBlockIdentifier) {
 		int numRows = transactionSheet.getLastRowNum() + 1;
 		for (;rowIndex < numRows;rowIndex++) {
@@ -1259,6 +1524,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	
 	private Station getStation(List<Exception> exceptions, Sheet businessSheet, String lookup, Row srcrow) {
 		Station result = null;
 		int numRows = businessSheet.getLastRowNum() + 1;
@@ -1275,6 +1541,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (result == null) exceptions.add(new Exception("Station '" + lookup + "' is not correctly defined in Row " + (srcrow.getRowNum() + 1)));
 		return result;
 	}
+	
 	private Station getStation(Row titleRow, Row row) {
 		if (row == null) return null;
 		Station result = new Station();
@@ -1307,6 +1574,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	
 	private D2D getD2D(List<Exception> exceptions, HashMap<String, Delivery> deliveries, Row titleRow, Row row, int rowNum) {
 		if (row == null) return null;
 		D2D result = new D2D();
@@ -1348,6 +1616,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	
 	private Delivery getForwardDelivery(List<Exception> exceptions, Sheet stationSheet, HashMap<String, Lot> lots, Row titleRow, Row row, boolean isNewFormat_151105) {
 		if (row == null) return null;
 		Lot l = null;
@@ -1391,12 +1660,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	
 	private String getStr(Cell cell) {
 		if (cell == null || cell.getCellType() == CellType.BLANK) return null;
 		cell.setCellType(CellType.STRING);
 		String s = getStr(cell.getStringCellValue());
 		return s;
 	}
+	
 	private Delivery getMultiOutDelivery(List<Exception> exceptions, HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum, String filename, boolean ignoreMissingLotnumbers) {
 		if (row == null) return null;
 		Delivery result = new Delivery();
@@ -1474,9 +1745,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	
 	private boolean isCellEmpty(Cell cell) {
 		return cell == null || cell.getCellType() == CellType.BLANK || (cell.getCellType() == CellType.STRING && cell.getStringCellValue().isEmpty());
 	}
+	
 	private Delivery getDelivery(List<Exception> exceptions, Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, boolean isForTracing, HashMap<String, Lot> outLots, HashMap<String, Delivery> existingDeliveries, boolean ignoreMissingLotnumbers, boolean isNewFormat_151105) {
 		Cell cell;
 		if (isNewFormat_151105) {
@@ -1602,6 +1875,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	
 	private String getNewSerial(Lot l, Delivery d) {
 		String newSerial = (l.getProduct() != null && l.getProduct().getStation() != null ? l.getProduct().getStation().getId() + ";" + l.getProduct().getName() : "null") + ";" + l.getNumber() + ";" +
 				d.getDepartureDay() + ";" + d.getDepartureMonth() + ";" + d.getDepartureYear() + ";" +
@@ -1609,6 +1883,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				d.getUnitNumber() + ";" + d.getUnitUnit() + ";" + d.getReceiver().getId();
 		return newSerial;
 	}
+	
 	private static Integer getInt(String val) {
 		Integer result = null;
 		if (val != null && !val.trim().isEmpty()) {
@@ -1624,16 +1899,19 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	
 	private Double getDbl(String val) {
 		Double result = null;
 		if (!val.trim().isEmpty()) result = Double.parseDouble(val.trim());
 		return result;
 	}
+	
 	private static String getStr(String val) {
 		if (val == null) return null;
 		if (val.trim().isEmpty()) return null;
 		return val.trim();
 	}
+	
 	private boolean fillLot(List<Exception> exceptions, Row row, Station sif, HashMap<String, Lot> outLots, Row titleRow, HashMap<String, Delivery> outDeliveries, int rowIndex, boolean isNewFormat_151105) {
 		Lot l = null;
 		String lotNumber = null;
@@ -1688,148 +1966,258 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return true;
 	}
-
-	private boolean importResult = false;
-	@Override
-	public boolean doImport(final String filename, final JProgressBar progress, boolean showResults) {
-		importResult = false;
-		Runnable runnable = new Runnable() {
-			public void run() {
-				System.err.println("Importing " + filename);
-				InputStream is = null;
-				//File file;
-				try {
-					if (progress != null) {
-						progress.setVisible(true);
-						progress.setStringPainted(true);
-						progress.setString("Importiere Lieferketten Datei...");
-						progress.setMinimum(0);
+	
+	private Map<String, String> getChargenLinks(Sheet sheet, int colIndex, int rowStartIndex, int rowEndIndex) {
+		Map<String, String> links = new HashMap<>();
+		for (int iR = rowStartIndex; iR <= rowEndIndex; iR++) {
+			Row row = sheet.getRow(iR);
+			if (row != null) {
+				Cell cell = row.getCell(colIndex);
+				if (cell != null) {
+					String text = getCellString(cell, false);
+					if (text != null && !links.containsKey(text)) {
+						links.put(text, cell.getAddress().toString());
 					}
-
-					if (filename.startsWith("http://")) {
-						URL url = new URL(filename);
-						URLConnection uc = url.openConnection();
-						is = uc.getInputStream();
-						//file = TraceGenerator.getResourceAsFile(is);
-						//is.close();
-					} else if (filename.startsWith("/de/bund/bfr/knime/openkrise/db/")) {
-						is = getClass().getResourceAsStream(filename);
-						//file = TraceGenerator.getResourceAsFile(is);
-						//is.close();
-					} else {
-						is = new FileInputStream(filename);
-						//file = new File(filename);
-					}
-
-					// warnsBeforeImport erkennen
-					warnsBeforeImport = new HashMap<>();
-					if (existsDBKernel()) warnsBeforeImport.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
-					else if (mydbi != null) warnsBeforeImport.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
-
-
-					XSSFWorkbook wb = new XSSFWorkbook(is);
-					//OPCPackage opcPackage = OPCPackage.open(file.getAbsolutePath());
-					//XSSFWorkbook wb = new XSSFWorkbook(opcPackage);
-
-					Station.reset(); Lot.reset(); Delivery.reset();
-					warns = new HashMap<>();
-					//if (existsDBKernel()) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
-										
-					if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					List<Exception> exceptions = doTheImport(wb, filename);
-					if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getDefaultCursor());
-					//List<Exception> exceptions = doTheSimpleImport(wb, filename);
-					
-					if (exceptions != null && exceptions.size() > 0) {
-						importResult = false;
-						if (existsDBKernel()) {
-							//DBKernel.sendRequest("ROLLBACK", false);
-							//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
-						}
-						else if (mydbi != null) {
-							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
-						}
-						doWarns(filename);
-						
-						boolean somethingIn = false;
-						logMessages += "<h1 id=\"error\">Error in file '" + filename + "'</h1><ul>";
-						for (Exception e : exceptions) {
-							if (e.getMessage() != null) {
-								logMessages += "<li>" + e.getMessage() + "</li>";
-								MyLogger.handleException(e);	
-								somethingIn = true;
-							}
-						}
-						if (!somethingIn) logMessages += "<li>some undefined problems occurred - contact the support team</li>";
-						logMessages += "</ul>";
-						if (progress != null) progress.setVisible(false);
-						
-						try {
-							is.close();
-						} catch (IOException e1) {}
-						
-					}
-					else {
-						importResult = true;
-						if (existsDBKernel()) {
-							/*
-							if (exceptions != null) DBKernel.sendRequest("COMMIT", false);
-							DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-							DBKernel.myDBi.getTable("Station").doMNs();
-							DBKernel.myDBi.getTable("Produktkatalog").doMNs();
-							DBKernel.myDBi.getTable("Chargen").doMNs();
-							DBKernel.myDBi.getTable("Lieferungen").doMNs();
-							if (progress != null) {
-								// Refreshen:
-								MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
-								if (myDB.getActualTable() != null) {
-									String actTablename = myDB.getActualTable().getTablename();
-									if (actTablename.equals("Produktkatalog") || actTablename.equals("Lieferungen") || actTablename.equals("Station") || actTablename.equals("Chargen")) {
-										myDB.setTable(myDB.getActualTable());
-									}
-								}
-								progress.setVisible(false);
-							}
-							*/
-							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
-						}
-						else if (mydbi != null) {
-							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
-						}
-						doWarns(filename);
-						is.close();
-					}
-				} catch (Exception e) {
-					importResult = false;
-					if (existsDBKernel()) {
-						//DBKernel.sendRequest("ROLLBACK", false);
-						//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-						//if (progress != null) progress.setVisible(false);
-					}
-					logMessages += "<h1 id=\"error\">'" + filename + "'</h1><ul><li>" + e.getMessage() + "</li></ul>";
-					MyLogger.handleException(e);
-					
-					try {
-						is.close();
-					} catch (IOException e1) {}
-					
 				}
-				System.err.println("Importing - Fin");
-				//logMessages += "Importing - Fin" + "\n";
+			}
+		}
+		return links;
+	}
+	
+	private String getFormatedCellAddressesString(String[] addresses) {
+		final int maxCount = 5;
+		String[] filteredAddresses = ArrayUtils.subarray(addresses, 0, maxCount);
+		return String.join(", ", filteredAddresses) + (filteredAddresses.length < addresses.length ? ", ..." : "");
+	}
+	
+	private ChargenLinkType detectPreferredChargenLinkType(
+			Sheet sheet, int colIndex, int rowStartIndex, int rowEndIndex, 
+			LinkedHashMap<String, Delivery> rowNoToReferableDeliveryMap,
+			HashMap<String, Integer> lotNoToLotIdMap,
+			String filepath
+	) throws UserCancelException {
+		// collect chargenRefs 
+		Map<String, String> chargenLinksToCellAddressMap = getChargenLinks(sheet, colIndex, rowStartIndex, rowEndIndex);
+		
+		Set<String> chargenLinks = chargenLinksToCellAddressMap.keySet();
+		Set<String> ambiguousLinks = chargenLinks.stream()
+			.filter(ref -> 
+				lotNoToLotIdMap.containsKey(ref) && 
+				rowNoToReferableDeliveryMap.containsKey(ref) && 
+				!ref.equals(rowNoToReferableDeliveryMap.get(ref).getLot().getNumber())
+			).collect(Collectors.toSet());
+		long lotNoMatchCount = chargenLinks.stream().filter(ref -> lotNoToLotIdMap.containsKey(ref)).count();
+		long lineNoMatchCount = chargenLinks.stream().filter(ref -> rowNoToReferableDeliveryMap.containsKey(ref)).count();
+				
+		if (!ambiguousLinks.isEmpty()) {
+			long misMatchCount = chargenLinks.stream().filter(ref -> !lotNoToLotIdMap.containsKey(ref) && !rowNoToReferableDeliveryMap.containsKey(ref)).count();
+			
+			
+			String[] options = {
+				"Lot Number", //+ XlsLot.NUMBER(lang),
+                "Line Number", 
+                "Cancel"
+	        };
+			String fileame = "";
+			
+			String cellAddresses = getFormatedCellAddressesString(ambiguousLinks.stream().map(ref -> chargenLinksToCellAddressMap.get(ref)).toArray(String[]::new));
+			long unambiguousLotNoMatchCount = lotNoMatchCount - ambiguousLinks.size();
+			long unambiguousRowNoMatchCount = lineNoMatchCount - ambiguousLinks.size();
+			
+			String msg = "<html>" + 
+					"Sheet '" + StringEscapeUtils.escapeHtml4(sheet.getSheetName()) + "' " +
+					"in file '" + StringEscapeUtils.escapeHtml4(new File(filepath).getName()) + "'<br>" + 
+					"contains " + ambiguousLinks.size() + " ambiguous lot reference(s) in cell(s) " + cellAddresses + ".<br>" + 
+					unambiguousLotNoMatchCount + " of the " + (chargenLinks.size() - ambiguousLinks.size()) + " unambiguous lot references match lot numbers " + 
+					"and " + unambiguousRowNoMatchCount + " match line numbers. " +
+					(misMatchCount == 0 ? "" : ("<br>" + misMatchCount + " references have no match at all. ")) + 
+					"<br><br>Are the ambiguous references refering to lot numbers or to line numbers?" +
+					"</html>";
+			
+			// System.err.println(msg);
+			
+			int answer = EdtUtils.askQuestionInEdt(
+				DBKernel.mainFrame,
+				msg,
+				"Choose reference type",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				null,
+				options,
+				options[lotNoMatchCount > lineNoMatchCount ? 0 : 1]
+			);
+			if (answer == 0) return ChargenLinkType.lotNo;
+			else if (answer == 1) return ChargenLinkType.lineNo;
+			throw new UserCancelException();
+			
+		}
+		return null;
+	}
+	
+	enum ChargenLinkType {
+		lotNo, lineNo
+	}
+	
+	private void checkUserCancel(IProgressMonitor taskMonitor) throws UserCancelException {
+		if (taskMonitor.isCanceled()) throw new UserCancelException();
+	}
+	
+	private boolean importResult = false;
+	
+	@Override
+	/**
+	 * @deprecated This method is deprecated due to refactoring
+	 * Use {@link #importFile()} instead
+	 */
+	@Deprecated  
+	public boolean doImport(String filename, JProgressBar progress, boolean showResults) {
+		return false;
+	}
+	
+	public boolean importFile(final String filename, Window owner, IProgressMonitor taskMonitor) throws UserCancelException {
+		debug("TracingImporter.importFile entered ... (" + filename + ")");
+		debug("Before loading stream freespace: " + MemoryUtils.getFormatedPresumableFreeMemory());
+		importResult = false;
+		
+		InputStream is = null;
+		//taskMonitor.setMessage("Importiere Lieferketten Datei...");
+		taskMonitor.setProgress(0);
+		//File file;
+		try {
+			if (filename.startsWith("http://")) {
+				URL url = new URL(filename);
+				URLConnection uc = url.openConnection();
+				is = uc.getInputStream();
+				//file = TraceGenerator.getResourceAsFile(is);
+				//is.close();
+			} else if (filename.startsWith("/de/bund/bfr/knime/openkrise/db/")) {
+				is = getClass().getResourceAsStream(filename);
+				//file = TraceGenerator.getResourceAsFile(is);
+				//is.close();
+			} else {
+				is = new FileInputStream(filename);
+				//file = new File(filename);
+			}
+
+			// warnsBeforeImport erkennen
+			warnsBeforeImport = new HashMap<>();
+			if (existsDBKernel()) warnsBeforeImport.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
+			else if (mydbi != null) warnsBeforeImport.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
+
+			debug("Loading wb ... (freespace: " + MemoryUtils.getFormatedPresumableFreeMemory() + ")");
+			XSSFWorkbook wb = new XSSFWorkbook(is);
+			debug("Loading wb done (freespace: " + MemoryUtils.getFormatedPresumableFreeMemory() + ").");
+			MemoryUtils.checkMimimumRemainingMemory();
+			
+			Station.reset(); Lot.reset(); Delivery.reset();
+			warns = new HashMap<>();
+								
+			// if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			// List<Exception> exceptions = doTheImport(wb, filename);
+			List<Exception> exceptions = importWorkbook(wb, filename, owner, taskMonitor);
+			// if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getDefaultCursor());
+			
+			// if (exceptions != null && exceptions.size() > 0) {
+			if (exceptions == null || exceptions.size() > 0) {
+				importResult = false;
+				if (existsDBKernel()) {
+					//DBKernel.sendRequest("ROLLBACK", false);
+					//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+					warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
+				}
+				else if (mydbi != null) {
+					warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
+				}
+				doWarns(filename);
+				
+				boolean somethingIn = false;
+				logMessages += "<h1 id=\"error\">Error in file '" + filename + "'</h1><ul>";
+				for (Exception e : exceptions) {
+					if (e.getMessage() != null) {
+						logMessages += "<li>" + e.getMessage() + "</li>";
+						MyLogger.handleException(e);	
+						somethingIn = true;
+					}
+				}
+				if (!somethingIn) logMessages += "<li>some undefined problems occurred - contact the support team</li>";
+				logMessages += "</ul>";
+				// if (progress != null) progress.setVisible(false);
+				
+				try {
+					is.close();
+				} catch (IOException e1) {}
 				
 			}
-		};
-		Thread thread = new Thread(runnable);
-		thread.start();
-		try {
-			thread.join();
-		} catch (InterruptedException e) {
-			logMessages += "<h1 id=\"error\">'" + filename + "' (Maybe wrong file format)</h1><ul><li>" + e.getMessage() + "</li></ul>";			
+			else {
+				importResult = true;
+				if (existsDBKernel()) {
+					/*
+					if (exceptions != null) DBKernel.sendRequest("COMMIT", false);
+					DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+					DBKernel.myDBi.getTable("Station").doMNs();
+					DBKernel.myDBi.getTable("Produktkatalog").doMNs();
+					DBKernel.myDBi.getTable("Chargen").doMNs();
+					DBKernel.myDBi.getTable("Lieferungen").doMNs();
+					if (progress != null) {
+						// Refreshen:
+						MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
+						if (myDB.getActualTable() != null) {
+							String actTablename = myDB.getActualTable().getTablename();
+							if (actTablename.equals("Produktkatalog") || actTablename.equals("Lieferungen") || actTablename.equals("Station") || actTablename.equals("Chargen")) {
+								myDB.setTable(myDB.getActualTable());
+							}
+						}
+						progress.setVisible(false);
+					}
+					*/
+					warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
+				}
+				else if (mydbi != null) {
+					warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
+				}
+				doWarns(filename);
+				//is.close();
+			}
+		} catch (OutOfMemoryError | UserCancelException e) {
+			throw e;
+		} catch (Exception e) {
+			importResult = false;
+			if (existsDBKernel()) {
+				//DBKernel.sendRequest("ROLLBACK", false);
+				//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+				//if (progress != null) progress.setVisible(false);
+			}
+			logMessages += "<h1 id=\"error\">'" + filename + "'</h1><ul><li>" + e.getMessage() + "</li></ul>";
 			MyLogger.handleException(e);
+			
+//			try {
+//				is.close();
+//			} catch (IOException e1) {}
+			
 		}
+		finally {
+			if (is != null) {
+				try {
+					is.close();
+				} 
+				catch (IOException e1) {}
+			}
+		}
+		System.err.println("Importing - Fin");
+		//logMessages += "Importing - Fin" + "\n";
+		
+			//}
+		// };
+//		Thread thread = new Thread(runnable);
+//		thread.start();
+//		try {
+//			thread.join();
+//		} catch (InterruptedException e) {
+//			logMessages += "<h1 id=\"error\">'" + filename + "' (Maybe wrong file format)</h1><ul><li>" + e.getMessage() + "</li></ul>";			
+//			MyLogger.handleException(e);
+//		}
 		return importResult;
 	}
+	
 	private void doWarns(String filename) {
 		if (warns.size() > 0) {
 			String newFileLogs = "";
@@ -1866,6 +2254,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (i > 0 && i < s.length() - 1) return s.substring(i + 1).toLowerCase();
 		return "";
 	}
+	
 	@Override
 	public boolean accept(File f) {
 		if (f.isDirectory()) return true;
@@ -1880,41 +2269,41 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return "Supply Chain Importer - BfR-formats (*.xlsx)";
 	}
 	
-	  public static Long getMillis(List<Exception> exceptions, String filename) {
-		  Long result = 0L;//System.currentTimeMillis();
-	
-		  try (InputStream is = filename.startsWith("http://") ? new URL(filename).openConnection().getInputStream() : new FileInputStream(filename);
-			XSSFWorkbook wb = new XSSFWorkbook(is)) {
-			  Date date = wb.getProperties().getCoreProperties().getCreated();
-			  if (date != null) result = date.getTime();
-			  if (result < new GregorianCalendar(2012,1,1,0,0,0).getTime().getTime()) {
-					Sheet transactionSheet = wb.getSheet("BackTracing");
-					Sheet forSheet = wb.getSheet("ForTracing");
-					Sheet fwdSheet = wb.getSheet("FwdTracing");
-					if (forSheet == null) forSheet = fwdSheet;
-					
-					boolean isForTracing = forSheet != null;
-					if (isForTracing) transactionSheet = forSheet;
-					
-					if (transactionSheet != null) {
-						Row row = transactionSheet.getRow(2);
-						MetaInfo mi = getMetaInfo(exceptions, row, transactionSheet.getRow(1));
-						result = mi.getDateInMillis();
-					}
-			  }
-		  } catch (Exception e) {
-			  e.printStackTrace();
-		  }
-		  return result;
-	  }	
+	public static Long getMillis(List<Exception> exceptions, String filename) {
+		Long result = 0L;//System.currentTimeMillis();
 
-		private boolean existsDBKernel() {
-			boolean result = true;
-			try {
-			 Class.forName("de.bund.bfr.knime.openkrise.db.DBKernel");
-			} catch( ClassNotFoundException e ) {
-				result = false;
+		try (InputStream is = filename.startsWith("http://") ? new URL(filename).openConnection().getInputStream() : new FileInputStream(filename);
+		XSSFWorkbook wb = new XSSFWorkbook(is)) {
+			Date date = wb.getProperties().getCoreProperties().getCreated();
+			if (date != null) result = date.getTime();
+			if (result < new GregorianCalendar(2012,1,1,0,0,0).getTime().getTime()) {
+				Sheet transactionSheet = wb.getSheet("BackTracing");
+				Sheet forSheet = wb.getSheet("ForTracing");
+				Sheet fwdSheet = wb.getSheet("FwdTracing");
+				if (forSheet == null) forSheet = fwdSheet;
+				
+				boolean isForTracing = forSheet != null;
+				if (isForTracing) transactionSheet = forSheet;
+				
+				if (transactionSheet != null) {
+					Row row = transactionSheet.getRow(2);
+					MetaInfo mi = getMetaInfo(exceptions, row, transactionSheet.getRow(1));
+					result = mi.getDateInMillis();
+				}
 			}
-			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		return result;
+	}	
+
+	private boolean existsDBKernel() {
+		boolean result = true;
+		try {
+			Class.forName("de.bund.bfr.knime.openkrise.db.DBKernel");
+		} catch( ClassNotFoundException e ) {
+			result = false;
+		}
+		return result;
+	}
 }

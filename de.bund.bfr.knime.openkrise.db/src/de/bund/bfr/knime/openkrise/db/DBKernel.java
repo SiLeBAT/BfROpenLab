@@ -87,6 +87,7 @@ public class DBKernel {
 	private static Connection localConn = null;
 	private static String m_Username = "";
 	private static String m_Password = "";
+	public static long RequestCount = 0;
 
 	final static String HSH_PATH = System.getProperty("user.home") + System.getProperty("file.separator") + ".localHSH" + System.getProperty("file.separator") + "BfR"
 			+ System.getProperty("file.separator");
@@ -1187,6 +1188,7 @@ public class DBKernel {
 	}
 
 	public static boolean sendRequest(Connection conn, final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
+		RequestCount++;
 		boolean result = false;
 		boolean adminGathered = false;
 		try {
@@ -1199,19 +1201,25 @@ public class DBKernel {
 			Statement anfrage = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			anfrage.execute(sql);
 			result = true;
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
+			if (e instanceof SQLException && e.getMessage().equals("java.lang.OutOfMemoryError: Java heap space")) {
+				throw new OutOfMemoryError("Java heap space");
+			}
 			if (!suppressWarnings) {
 				//if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
 				if (!DBKernel.isKNIME || (e instanceof SQLException && Math.abs(((SQLException)e).getErrorCode()) != 451 && Math.abs(((SQLException)e).getErrorCode()) != 3706)) MyLogger.handleMessage(sql);
 				MyLogger.handleException(e);
 			}
 		}
-		if (adminGathered) {
-			DBKernel.closeDBConnections(false);
-			try {
-				conn = DBKernel.getDBConnection();
-			} catch (Exception e) {
-				e.printStackTrace();
+		finally {
+			if (adminGathered) {
+				DBKernel.closeDBConnections(false);
+				try {
+					conn = DBKernel.getDBConnection();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return result;

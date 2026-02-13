@@ -33,6 +33,7 @@ import org.apache.commons.io.FileUtils;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.TraceImporter;
+import de.bund.bfr.knime.ui.IProgressMonitor;
 
 class ImporterTest {
 	private ImporterTest() {};
@@ -111,7 +112,24 @@ class ImporterTest {
 		TraceImporter traceImporter = createTraceImporter();
 		
 		try {
-			result = traceImporter.doImport(inputXlsxPath, null, false);
+			// result = traceImporter.doImport(inputXlsxPath, null, false);
+			result = traceImporter.importFile(
+				inputXlsxPath, 
+				DBKernel.mainFrame, 
+				new IProgressMonitor() {
+
+					@Override
+					public void setMessage(String message) {}
+	
+					@Override
+					public void setProgress(int progress) {}
+	
+					@Override
+					public boolean isCanceled() {
+						return false;
+					}
+				}
+			);
 		} catch(Throwable throwable) {
 			throw throwable;
 		} finally {

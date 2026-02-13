@@ -31,6 +31,8 @@ import java.util.Date;
 
 import org.hsqldb.Trigger;
 
+import de.bund.bfr.knime.ExceptionUtils;
+
 /**
  * @author Armin
  *
@@ -317,6 +319,7 @@ public class MyTrigger implements Trigger {
 			}
 		}
 		catch (SQLException e) {
+			ExceptionUtils.rethrowOutOfMemoryException(e);
 			MyLogger.handleException(e);
 		} 
 	  	return username;
