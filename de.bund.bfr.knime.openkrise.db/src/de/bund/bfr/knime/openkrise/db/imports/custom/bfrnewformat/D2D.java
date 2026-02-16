@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 
-public class D2D {
+public class D2D implements IFlexibleFieldContainer {
 
 	private HashMap<String, String> flexibles = new HashMap<>();
 	
@@ -54,6 +54,7 @@ public class D2D {
 
 	private Delivery ingredient;
 
+	@Override
 	public void addFlexibleField(String key, String value) {
 		flexibles.put(key, value);
 	}

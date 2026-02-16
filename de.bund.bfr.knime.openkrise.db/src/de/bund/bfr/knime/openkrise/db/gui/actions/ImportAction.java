@@ -192,6 +192,7 @@ public class ImportAction extends AbstractAction {
 				taskResult.result = false;
 				try {
 					int iFile = -1;
+					boolean result = true;
 					for (File selectedFile : sortedFiles) {
 						iFile++;
 						DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
@@ -199,12 +200,11 @@ public class ImportAction extends AbstractAction {
 						String infix = sortedFiles.length == 1  ? "" : " (file " + (iFile + 1) + " of " + sortedFiles.length + ")";
 						progressDialog.setMessage("Importing '" + selectedFile.getName() + "'" + infix + " ...");
 						progressDialog.setProgress(0);
-						boolean result = traceImporter.importFile(selectedFile.getAbsolutePath(), DBKernel.mainFrame, progressDialog);
+						result = traceImporter.importFile(selectedFile.getAbsolutePath(), DBKernel.mainFrame, progressDialog) && result;
 						MyLogger.handleMessage("Importing - Fin!");
-						if (!result) return false;
 					}
-					taskResult.result = true;
-					return true;
+					taskResult.result = result;
+					return result;
 				} 
 				catch(UserCancelException e) {
 					taskResult.canceled = true;

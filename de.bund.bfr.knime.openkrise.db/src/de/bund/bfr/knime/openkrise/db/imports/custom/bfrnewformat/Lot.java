@@ -34,7 +34,7 @@ import java.util.Map.Entry;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 
-public class Lot {
+public class Lot implements IFlexibleFieldContainer {
 
 	private static HashMap<String, Lot> gathereds = new HashMap<>();
 	private boolean alreadyInDb = false;
@@ -65,6 +65,8 @@ public class Lot {
 	public HashSet<String> getInDeliveries() {
 		return inDeliveries;
 	}
+	
+	@Override
 	public void addFlexibleField(String key, String value) {
 		flexibles.put(key, value);
 	}

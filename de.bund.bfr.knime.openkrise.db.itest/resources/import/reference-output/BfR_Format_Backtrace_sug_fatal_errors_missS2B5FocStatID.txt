@@ -25,8 +25,8 @@ ID | tablename | id | attribute | value
 
 
 LogMessages:
-<h1 id="error">'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_sug_fatal_errors_missS2B5FocStatID.xlsx'</h1>
-<ul><li>Cannot invoke "org.apache.poi.ss.usermodel.Cell.getStringCellValue()" because "cell" is null</li>
+<h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_sug_fatal_errors_missS2B5FocStatID.xlsx'</h1>
+<ul><li>Station in Focus is missing (cell B5 (sheet: BackTracing)).</li>
 </ul>
 
 

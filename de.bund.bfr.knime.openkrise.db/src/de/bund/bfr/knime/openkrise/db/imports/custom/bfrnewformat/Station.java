@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 
-public class Station {
+public class Station implements IFlexibleFieldContainer {
 
 	private static HashMap<String, Station> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
@@ -52,6 +52,7 @@ public class Station {
 	public static void reset() {
 		gathereds = new HashMap<>();
 	}
+	
 	public void addFlexibleField(String key, String value) {
 		flexibles.put(key, value);
 	}

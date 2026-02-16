@@ -26,8 +26,7 @@ ID | tablename | id | attribute | value
 
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_fatal_errros_missS2B5-FocStatID.xlsx'</h1>
-<ul><li>Station in Focus not defined</li>
-<li>Station '' is not correctly defined in Row 5</li>
+<ul><li>Station in Focus is missing (cell B5 (sheet: BackTracing)).</li>
 </ul>
 
 
