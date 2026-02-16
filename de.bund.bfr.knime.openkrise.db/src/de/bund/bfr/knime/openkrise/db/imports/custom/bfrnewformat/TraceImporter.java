@@ -47,10 +47,8 @@ import java.util.Map;
 import java.util.Set;
 
 import java.util.stream.Collectors;
-
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -253,9 +251,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	
 	private void debug(String msg) {
-		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
-		String time = LocalTime.now().format(formatter);
-		System.out.println(time + " " + msg);
+//		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+//		String time = LocalTime.now().format(formatter);
+//		System.out.println(time + " " + msg);
 	}
 	
 	private String formatDayNanos(long dayNanos) {
@@ -752,8 +750,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		void addFlexibleField(String key, String value);
 	}
 	
-	
-	
 	private void applyCellString(Cell cell, ApplyStringFunction fun) throws Exception {
 		String cellString = getCellString(cell);
 		fun.applyString(cellString);
@@ -764,7 +760,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		fun.applyInt(cellInt);
 	}
 	
-	private void applyCellDouble(Cell cell, ApplyDoubleFunction fun) {
+	private void applyCellDouble(Cell cell, ApplyDoubleFunction fun) throws InvalidCellValueException {
 		Double cellDouble = getCellDouble(cell);
 		fun.applyDouble(cellDouble);
 	}
@@ -781,17 +777,15 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return getCellString(cell, checkIfDate, true, true);
 	}
 	
-//	private String getCellString(Cell cell, boolean checkIfDate, boolean removeLinebreaks) {
-//		return getCellString(cell, checkIfDate, removeLinebreaks, true);
-//	}
-	
 	private String getCellString(Cell cell, boolean checkIfDate, boolean removeLinebreaks, boolean reportLineBreaks) throws Exception {
-		if (cell == null) return null;
-			
-		CellType cellType = cell.getCellType();
-		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
+//		if (cell == null) return null;
+//		CellType cellType = cell.getCellType();
+		CellType cellType = getEffectiveCellType(cell);
+//		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
+		if (cellType == null) return null;
 		if (cellType == CellType.BLANK) return null;
-		if (cellType == CellType.ERROR) throwCellErrorException(cell);
+//		if (cellType == CellType.ERROR) throwCellErrorException(cell);
+		
 			
 		if (checkIfDate && cellType == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
 			Date date = cell.getDateCellValue();
@@ -805,23 +799,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			// ToDo: Check whether this replacement is sufficient
 			return cell.getBooleanCellValue() ? "TRUE" : "FALSE";
 		}
-			
-//				CellType tmpCellType = cell.getCellType();
-//				Date tmpDate = null;
-//				if (tmpCellType == CellType.NUMERIC) tmpDate = cell.getDateCellValue();
-//				Boolean tmpBool = null;
-//				if (tmpCellType == CellType.BOOLEAN) tmpBool = cell.getBooleanCellValue();
-//				String tmpStr = null;
-//				if (tmpCellType == CellType.STRING) tmpStr = cell.getStringCellValue();
-//				Double tmpNum = null;
-//				if (tmpCellType == CellType.NUMERIC) tmpNum = cell.getNumericCellValue();
-//				
-//				CellType tmpFormResType = null;
-//				if (tmpCellType == CellType.FORMULA) tmpFormResType = cell.getCachedFormulaResultType();
-//				if (tmpFormResType == CellType.STRING) tmpStr = cell.getStringCellValue();
-//				if (tmpFormResType == CellType.BOOLEAN) tmpBool = cell.getBooleanCellValue();
-//				if (tmpFormResType == CellType.NUMERIC) tmpNum = cell.getNumericCellValue();
-				
+							
 		return getStringCellString(cell, removeLinebreaks, reportLineBreaks);
 //				cell.setCellType(CellType.STRING);
 //				String cellString = getStr(cell.getStringCellValue());
@@ -843,39 +821,28 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	
 	private String getStringCellString(Cell cell, boolean removeLinebreaks, boolean reportLineBreaks) {
-		if (cell == null) return null;
-		CellType cellType = cell.getCellType();
-		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
-		if (cellType != CellType.STRING) return null;		
+//		if (cell == null) return null;
+//		CellType cellType = cell.getCellType();
+//		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
+//		if (cellType != CellType.STRING) return null;		
 			
 		String cellString = getStr(cell.getStringCellValue());
 		if (cellString != null && removeLinebreaks && cellString.matches("(.*(\\r|\\n).*)+")) {
 			
 			cellString = getStr(cellString.replaceAll("(\\s*(\\r\n\\|\\r|\\n)\\s*)+", " "));
 			if (cellString != null && reportLineBreaks) {
-				if (cell.getAddress().toString().equals("K5")) {
-					Object tmp = 1;
-				}
-				String tmppCellAddress = cell.getAddress().toString();
 				addWarning(LINE_BREAKS_REMOVED, getWbRelativeCellAddressString(cell));
-				// Set<String> oldWarns = warns.get(LINE_BREAKS_REMOVED);
-				// if (oldWarns == null) oldWarns = new HashSet<>();
-				// oldWarns.add("Sheet: " + cell.getSheet().getSheetName() + ", Cell: " + cell.getAddress().toString()); // cell.getAddress().toString());
 			}
 		};
 		
 		return cellString;				
 	}
 	
-//	private String isStringCellEmpty(Cell cell, boolean labelCell) {
-//		return getStringCellString(cell, !labelCell, false);
-//	}
-	
 	private String getWbRelativeCellAddressString(Cell cell) {
 		return cell.getAddress().toString() + (cell.getSheet().getWorkbook().getNumberOfSheets() == 1 ? "" : " (sheet: " + cell.getSheet().getSheetName() + ")");
 	}
 	
-	private Integer getCellInt(Cell cell) throws NumberFormatException {
+	private Integer getCellInt(Cell cell) {
 		if (cell == null || cell.getCellType() == CellType.BLANK) return null;
 		cell.setCellType(CellType.STRING); 
 		String cellString = cell.getStringCellValue();
@@ -886,35 +853,73 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			// throw new NumberFormatException("Value in cell " + getWbRelativeCellAddressString(cell) + " is expected be a integer.");
 		}
 		return null;
+//		if (cell == null) return null;
+//		CellType cellType = cell.getCellType();
+//		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
+//		
+//		if (cellType == CellType.BLANK) return null;
+//		if (cellType == CellType.ERROR) throwCellErrorException(cell);
+//		if (cellType == CellType.NUMERIC) return (int)cell.getNumericCellValue();
+//		cell.setCellType(CellType.STRING); 
+//		String cellString = cell.getStringCellValue();
+//		try {
+//			return Integer.parseInt(cellString);
+//		} catch(NumberFormatException ex) {
+//			ex.printStackTrace();
+//			// throw new NumberFormatException("Value in cell " + getWbRelativeCellAddressString(cell) + " is expected be a integer.");
+//		}
+//		return null;
 		
 	}
 	
-	private Double getCellDouble(Cell cell) throws NumberFormatException {
-		if (cell == null || cell.getCellType() == CellType.BLANK) return null;
-		if (cell.getCellType() == CellType.NUMERIC) {
-			return cell.getNumericCellValue();
+	private static class InvalidCellValueException extends Exception {
+		private static final long serialVersionUID = -991760986495292191L;
+
+		InvalidCellValueException(String msg) {
+			super(msg);
 		}
-		cell.setCellType(CellType.STRING); 
-		String cellString = cell.getStringCellValue();
-		try {
-			return Double.parseDouble(cellString);
-		} catch(NumberFormatException ex) {
-			throw ex;
-			// throw new NumberFormatException("Value in cell " + getWbRelativeCellAddressString(cell) + " is expected to be a number.");
-		}
-		
 	}
-//	
-//	private Double getCellDbl(Cell cell) {
-//		
-//	}
+	
+	private CellType getEffectiveCellType(Cell cell) throws InvalidCellValueException {
+		if (cell == null) return null;
+		
+		CellType cellType = cell.getCellType();
+		
+		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
+		if (cellType == CellType.ERROR) throwCellErrorException(cell);
+		
+		return cellType;
+	}
+	
+	private Double getCellDouble(Cell cell) throws InvalidCellValueException {
+		return getCellDouble(cell, null, null);
+	}
+	
+	private Double getCellDouble(Cell cell, String valueLabel, List<Exception> exceptions) throws InvalidCellValueException {
+		CellType cellType = getEffectiveCellType(cell);
+		
+		if (cellType == null) return null;
+		if (cellType == CellType.BLANK) return null;
+		if (cellType == CellType.NUMERIC) return cell.getNumericCellValue();
+		
+		if (cellType == CellType.STRING) {
+			String cellString = cell.getStringCellValue();
+			if (cellString == null) return null; 
+			try {
+				return Double.parseDouble(cellString.trim());
+			} catch(NumberFormatException ex) {
+				String msg = "Invalid " + (valueLabel == null ? "value" : valueLabel) +  " ('" + cellString + "') in cell " + getWbRelativeCellAddressString(cell) + ". Value has to be a number.";
+				InvalidCellValueException exception = new InvalidCellValueException(msg);
+				if (exceptions != null) exceptions.add(exception);
+				else throw exception;	
+			}
+		}
+		return null;
+	}
 	
 	private boolean rowEmpty(Row row) throws Exception {
 		for (int i=0;i<row.getPhysicalNumberOfCells();i++) {
-			// ToDo: check whether this is sufficient
 			if (!isCellEmpty(row.getCell(i))) return false;
-//			String cs = getCellString(row.getCell(i));
-//			if (cs != null) return false;
 		}
 		return true;
 	}
@@ -1879,8 +1884,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			startCol = 7;
 		}
 		
-		applyCellDouble(row.getCell(startCol), (x) -> result.setUnitNumber(x));
-		
+		{
+			Cell unitNumberCell = row.getCell(startCol);
+			Double unitNumber = getCellDouble(unitNumberCell, "unit quantity", exceptions);
+			if (unitNumber != null) result.setUnitNumber(unitNumber);
+			// applyCellDouble(row.getCell(startCol), (x) -> result.setUnitNumber(x));
+		}
 		applyCellString(row.getCell(startCol+1), x -> result.setUnitUnit(x));
 		
 		{
@@ -1901,20 +1910,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		addFlexibleFields(titleRow, row, startCol + 4, startCol + 21 - 1, result);
 		return result;
 	}
-	
-//	private String getStr(Cell cell) {
-//		if (cell == null || cell.getCellType() == CellType.BLANK) return null;
-//		cell.setCellType(CellType.STRING);
-//		String s = getStr(cell.getStringCellValue());
-//		return s;
-//	}
-	
-//	private String getStr(Cell cell) {
-//		if (cell == null || cell.getCellType() == CellType.BLANK) return null;
-//		cell.setCellType(CellType.STRING);
-//		String s = getStr(cell.getStringCellValue());
-//		return s;
-//	}
 
 	private Delivery getMultiOutDelivery(List<Exception> exceptions, HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum, String filename, boolean ignoreMissingLotnumbers) throws Exception {
 		if (row == null) return null;
@@ -2001,11 +1996,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return result;
 	}
 	
-	private void throwCellErrorException(Cell cell) throws Exception {
-		throw new Exception("Cell " + getWbRelativeCellAddressString(cell) + " contains an error.");
+	private void throwCellErrorException(Cell cell) throws InvalidCellValueException {
+		throw new InvalidCellValueException("Cell " + getWbRelativeCellAddressString(cell) + " contains an error.");
 	}
 	
-	private boolean isCellEmpty(Cell cell) throws Exception {
+	private boolean isCellEmpty(Cell cell) throws InvalidCellValueException {
 		if (cell == null) return true;
 		CellType cellType = cell.getCellType();
 		
@@ -2108,7 +2103,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		
 		applyDepartureFromCells(delivery, row.getCell(startCol), row.getCell(startCol + 1), row.getCell(startCol + 2));
 		applyArrivalFromCells(delivery, row.getCell(startCol+3), row.getCell(startCol+4), row.getCell(startCol+5));
-		applyCellDouble(row.getCell(startCol+6), x -> delivery.setUnitNumber(x));
+		{
+			Cell unitNumberCell = row.getCell(startCol+6);
+			Double unitNumber = getCellDouble(unitNumberCell, "unit quantity", exceptions);
+			if (unitNumber != null) delivery.setUnitNumber(unitNumber);
+			// applyCellDouble(unitNumberCell, x -> delivery.setUnitNumber(x));
+		}
 		applyCellString(row.getCell(startCol+7), (x) -> delivery.setUnitUnit(x));
 					
 		// ToDo: Please verify return of null, what happens here
@@ -2163,18 +2163,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	
-//	private Double getDbl(String val) {
-//		Double result = null;
-//		if (!val.trim().isEmpty()) result = Double.parseDouble(val.trim());
-//		return result;
-//	}
-	
-//	private Double getDbl(String val) {
-//		Double result = null;
-//		if (!val.trim().isEmpty()) result = Double.parseDouble(val.trim());
-//		return result;
-//	}
 
 	private static String getStr(String val) {
 		if (val == null) return null;
@@ -2200,7 +2188,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 
 		{
-			Double unitNumber = getCellDouble(row.getCell(1));
+			Cell unitNumberCell = row.getCell(1);
+			Double unitNumber = getCellDouble(unitNumberCell, "lot size quantity", exceptions);
 			if (unitNumber != null) {
 				if (lot.getUnitNumber() == null) lot.setUnitNumber(unitNumber);
 				else if (lot.getUnitNumber().doubleValue() != unitNumber) {
@@ -2432,7 +2421,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			throw e;
 		} catch (Exception e) {
 			importResult = false;
-			
+			// ToDo: remove
+			e.printStackTrace();
 			logMessages += "<h1 id=\"error\">'" + filename + "'</h1><ul><li>" + e.getMessage() + "</li></ul>";
 			MyLogger.handleException(e);
 			
