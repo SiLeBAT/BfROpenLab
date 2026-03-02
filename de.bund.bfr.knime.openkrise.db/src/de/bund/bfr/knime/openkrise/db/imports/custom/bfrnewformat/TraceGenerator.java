@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -496,13 +497,16 @@ Erinnerung an die alten Template inhaber senden?
 				}
 			}						
 					
-			String fn = "StationFwdtrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
-			if (lang.equals("de")) fn = "Vorwaertsverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
-			else if (lang.equals("es")) fn = "TrazabilidadAdelante_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			String fn = "StationFwdtrace_request_" + sif + "_" + id + (generateAllData ? "_all":"");
+			if (lang.equals("de")) fn = "Vorwaertsverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"");
+			else if (lang.equals("es")) fn = "TrazabilidadAdelante_" + sif + "_" + id + (generateAllData ? "_all":"");
 			if (startTracing) {
-				fn = "Start_Tracing_Fwd_" + sif + ".xlsx";
-				if (lang.equals("es")) fn = "Inicio_TrazabilidadAdelante_" + sif + ".xlsx";
+				fn = "Start_Tracing_Fwd_" + sif;
+				if (lang.equals("es")) fn = "Inicio_TrazabilidadAdelante_" + sif;
 			}
+			
+			fn = getSanitizedFileNameWithoutSuffix(fn) + ".xlsx";
+			
 			if (save(workbook, outputFolder + File.separator + fn)) {
 				result++;
 			}
@@ -681,7 +685,7 @@ Erinnerung an die alten Template inhaber senden?
 					}
 					
 					//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-					if (save(workbook, outputFolder + File.separator + "Fwdtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
+					if (save(workbook, outputFolder + File.separator + getSanitizedFileNameWithoutSuffix("Fwdtrace_request_" + rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
 						result++;
 					}
 					myxls.close();
@@ -875,7 +879,7 @@ Erinnerung an die alten Template inhaber senden?
 					doFormats(dvHelper, sheetTracing, rowIndex+i, evaluator);
 				}
 				
-				if (save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + getValidFileName(station.getId()) + ".xlsx")) { //  + "_" + getFormattedDate()
+				if (save(workbook, outputFolder + File.separator + getSanitizedFileNameWithoutSuffix("StationFwdtrace_request_" + station.getId()) + ".xlsx")) { //  + "_" + getFormattedDate()
 					result++;
 				}
 				myxls.close();
@@ -1052,13 +1056,16 @@ Erinnerung an die alten Template inhaber senden?
 					} while (rs2.next());
 				}
 			}
-			String fn = "StationBacktrace_request_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
-			if (lang.equals("de")) fn = "Rueckverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
-			else if (lang.equals("es")) fn = "TrazabilidadAtras_" + sif + "_" + id + (generateAllData ? "_all":"") + ".xlsx";
+			String fn = "StationBacktrace_request_" + sif + "_" + id + (generateAllData ? "_all":"");
+			if (lang.equals("de")) fn = "Rueckverfolgung_" + sif + "_" + id + (generateAllData ? "_all":"");
+			else if (lang.equals("es")) fn = "TrazabilidadAtras_" + sif + "_" + id + (generateAllData ? "_all":"");
 			if (startTracing) {
-				fn = "Start_Tracing_" + sif + ".xlsx";
-				if (lang.equals("es")) fn = "Inicio_TrazabilidadAtras_" + sif + ".xlsx";
+				fn = "Start_Tracing_" + sif;
+				if (lang.equals("es")) fn = "Inicio_TrazabilidadAtras_" + sif;
 			}
+			
+			fn = getSanitizedFileNameWithoutSuffix(fn) + ".xlsx";
+			
 			if (save(workbook, outputFolder + File.separator + fn)) {
 				result++;
 			}
@@ -1207,7 +1214,7 @@ Erinnerung an die alten Template inhaber senden?
 				String referenceString = sheetTracing.getSheetName() + "!$A$" + (rowIndex+1) + ":$A$" + (rowIndex+i);
 				reference.setRefersToFormula(referenceString);				
 				
-				String sif = getValidFileName(rs.getString("Station.Serial")); //  + "_" + getFormattedDate()
+				final String sif = rs.getString("Station.Serial"); //  + "_" + getFormattedDate()
 
 				// Ingredients for Lot(s)
 				row = sheetTracing.getRow(rowIndex + i + 2);
@@ -1265,7 +1272,7 @@ Erinnerung an die alten Template inhaber senden?
 				}
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				if (save(workbook, outputFolder + File.separator + "StationBacktrace_request_" + sif + ".xlsx")) {
+				if (save(workbook, outputFolder + File.separator + getSanitizedFileNameWithoutSuffix("StationBacktrace_request_" + sif) + ".xlsx")) {
 					result++;
 				}
 				myxls.close();
@@ -1487,7 +1494,7 @@ Erinnerung an die alten Template inhaber senden?
 					}
 					
 					//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-					if (save(workbook, outputFolder + File.separator + "Backtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
+					if (save(workbook, outputFolder + File.separator + getSanitizedFileNameWithoutSuffix("Backtrace_request_" + rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
 						result++;
 					}
 					myxls.close();
@@ -1806,11 +1813,38 @@ Erinnerung an die alten Template inhaber senden?
 		}
 		return true;
 	}
-	   private String getValidFileName(String fileName) {
-		    String newFileName = fileName.replaceAll("[:\\\\/*?|<>]", "_");
-		    if (newFileName.length()==0)
-		        throw new IllegalStateException(
-		                "File Name " + fileName + " results in an empty fileName!");
-		    return newFileName;
-		}	   
+
+	private String getSanitizedFileNameWithoutSuffix(String fileNameWithoutSuffix) {
+		// illegalWindowsSymbols \/:*?"<>|
+		// other not recommended symbols: #%&;'"!@=+
+		final String illegalWindowsSymbols = "\\/:*?\"<>|";
+	    final String otherNotRecommendedSymbols = "#%&;'!@=+";
+	    final String symbolsToBeRemoved = illegalWindowsSymbols + otherNotRecommendedSymbols;
+	    final String linebreakRegex = "(\\s*(\\r\n\\|\\r|\\n)\\s*)+";
+	    
+	    final String sanitizedFileName = removeSymbolsFromText(fileNameWithoutSuffix, symbolsToBeRemoved).replaceAll(linebreakRegex, " ");
+	    		
+	    if (sanitizedFileName.length()==0) {
+	        throw new IllegalStateException(
+	        	"File Name " + fileNameWithoutSuffix + " results in an empty fileName!");
+	    }
+	    return sanitizedFileName;
+	}
+	
+	private static String removeSymbolsFromText(String text, String symbols) {
+		
+	    StringBuilder sb = new StringBuilder();
+	    Set<Character> symbolSet = new HashSet<>(symbols.length());
+	    for (char c : symbols.toCharArray()) {
+	    	symbolSet.add(c);
+	    }
+
+	    for (char i : text.toCharArray()) {
+	        if (symbolSet.contains(i)) {
+	            continue;
+	        }
+	        sb.append(i);
+	    }
+	    return sb.toString();
+	}
 }
