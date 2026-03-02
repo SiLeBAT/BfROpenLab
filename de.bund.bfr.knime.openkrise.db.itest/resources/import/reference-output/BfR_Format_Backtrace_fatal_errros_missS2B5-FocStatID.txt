@@ -26,8 +26,11 @@ ID | tablename | id | attribute | value
 
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_fatal_errros_missS2B5-FocStatID.xlsx'</h1>
-<ul><li>Station in Focus is missing (cell B5 (sheet: BackTracing)).</li>
+<h2>Sheet 'BackTracing':</h2>
+<ul><li>Missing Station in Focus in cell B5.</li>
 </ul>
 
 
 WarnMessages:
+<h1 id="warning">Warnings for import file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_fatal_errros_missS2B5-FocStatID.xlsx'<h1><h2>No ingredients defined...</h2>
+<li>In sheet 'BackTracing'.</li>

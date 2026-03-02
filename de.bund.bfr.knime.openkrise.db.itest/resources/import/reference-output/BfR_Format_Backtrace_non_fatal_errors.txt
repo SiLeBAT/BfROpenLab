@@ -33,11 +33,11 @@ ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU 
 7 | 1 |  |  |  | 31 | 2 | 2000 |  |  |  |  | 1 | "P1;L1;;;;31;2;2000;;;S3" |  |  |  |  | ";1;" | 
 8 | 1 |  |  |  |  | 2 | 2000 |  |  |  |  | 1 | "P1;L1;;;;;2;2000;;;S3" |  |  |  |  | ";1;" | 
 9 | 1 |  |  |  | 1 | 1 | 25 |  |  |  |  | 1 | "P1;L1;;;;1;1;25;;;S3" |  |  |  |  | ";1;" | 
-10 | 1 | 40 | 2 | 2000 |  |  |  |  |  |  |  | 1 | "P1;L1;40;2;2000;;;;;;S3" |  |  |  |  | ";1;" | 
-11 | 1 |  |  |  | 40 | 2 | 2000 |  |  |  |  | 1 | "P1;L1;;;;40;2;2000;;;S3" |  |  |  |  | ";1;" | 
+10 | 1 |  | 2 | 2000 |  |  |  |  |  |  |  | 1 | "P1;L1;40;2;2000;;;;;;S3" |  |  |  |  | ";1;" | 
+11 | 1 |  |  |  |  | 2 | 2000 |  |  |  |  | 1 | "P1;L1;;;;40;2;2000;;;S3" |  |  |  |  | ";1;" | 
 12 | 1 |  | 2 | 2000 |  |  |  |  |  |  |  | 1 | "P1;L1;Montag;2;2000;;;;;;S3" |  |  |  |  | ";1;" | 
 13 | 1 |  | 2 | 2000 |  |  |  |  |  |  |  | 1 | "P1;L1;;2;2000;;;;;;S3" |  |  |  |  | ";1;" | 
-14 | 1 | 1 | 13 | 2000 |  |  |  |  |  |  |  | 1 | "P1;L1;1;13;2000;;;;;;S3" |  |  |  |  | ";1;" | 
+14 | 1 | 1 |  | 2000 |  |  |  |  |  |  |  | 1 | "P1;L1;1;13;2000;;;;;;S3" |  |  |  |  | ";1;" | 
 15 | 5 |  |  |  |  |  |  |  | "1kg" |  |  | 1 | "P1;LY;;;;;;;;1kg;S3" |  |  |  |  | ";1;" | 
 16 | 6 | 3 | 2 | 2000 | 4 | 2 | 2000 | 10000.0 | "100g Packets" |  |  | 1 | "P1;;3;2;2000;4;2;2000;10000;100g Packets;S3" |  |  |  |  | ";1;" | 
 17 | 1 | 1 | 1 | 25 |  |  |  |  |  |  |  | 1 | "P1;L1;1;1;25;;;;;;S3" |  |  |  |  | ";1;" | 
@@ -46,7 +46,7 @@ ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU 
 20 | 1 |  |  |  | 1 |  | 2000 |  |  |  |  | 1 | "P1;L1;;;;1;March;2000;;;S3" |  |  |  |  | ";1;" | 
 21 | 1 | 31 | 2 | 2000 |  |  |  |  |  |  |  | 1 | "P1;L1;31;2;2000;;;;;;S3" |  |  |  |  | ";1;" | 
 22 | 7 |  |  |  |  |  |  |  |  |  |  | 1 | "P1;Lok;;;;;;;;;S3" |  |  |  |  | ";1;" | 
-23 | 1 |  |  |  | 1 | 13 | 2000 |  |  |  |  | 1 | "P1;L1;;;;1;13;2000;;;S3" |  |  |  |  | ";1;" | 
+23 | 1 |  |  |  | 1 |  | 2000 |  |  |  |  | 1 | "P1;L1;;;;1;13;2000;;;S3" |  |  |  |  | ";1;" | 
 
 Table "ChargenVerbindungen":
 ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
@@ -90,22 +90,23 @@ ID | tablename | id | attribute | value
 
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_non_fatal_errors.xlsx'</h1>
-<ul><li>Station has no ID -> Row 2</li>
-<li>Station ID 'SE_DID' is defined more than once -> Row 4</li>
-<li>Please, do always provide a lot number as this is most helpful! -> Row 13 in 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_non_fatal_errors.xlsx'
-</li>
-<li>Station 'Sunknown' is not correctly defined in Row 17</li>
-<li>Lot information defines same lot number with different quantities -> Row 45</li>
-<li>Lot number unknown in Row number 49</li>
-<li>Lot number unknown in Row number 50</li>
-<li>Lot number unknown in Row number 51</li>
-<li>Lot number unknown in Row number 53</li>
-<li>Lot number unknown in Row number 55</li>
-<li>It is essential to choose the associated Lot number ('Lot Number of  "Product Out"') to the delivery in Row number 61</li>
-<li>Please, do always provide a lot number as this is most helpful! -> Row 64 in 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_non_fatal_errors.xlsx'
-</li>
-<li>Station 'Sunknown' is not correctly defined in Row 66</li>
-<li>Cannot invoke "de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.Station.getID(java.lang.Integer, de.bund.bfr.knime.openkrise.db.MyDBI)" because "receiver" is null</li>
+<h2>Sheet 'Stations':</h2>
+<ul><li>Missing Station ID in cell A2.</li>
+<li>Station ID 'SE_DID' is defined more than once in row 4.</li>
+</ul>
+<h2>Sheet 'BackTracing':</h2>
+<ul><li>Please, do always provide a lot number as this is most helpful! [rows 13, 64]</li>
+<li>Station 'Sunknown' is not correctly defined in rows 17, 66.</li>
+<li>Invalid Delivery Date Day in cells C19, C20, C68, C69, C71.</li>
+<li>Invalid Delivery Date Month in cells D23, D24, D72, D73.</li>
+<li>Invalid Delivery Arrival Date Day in cells F28, F29, F77, F78, F80.</li>
+<li>Invalid Delivery Arrival Date Month in cells G32, G33, G81, G82.</li>
+<li>Lot information defines same lot number with different quantities -&gt; Row 45 in cell B45.</li>
+<li>Unknown Lot Number in rows 49, 50, 51, 53, 55.</li>
+<li>It is essential to choose the associated Lot number ('Lot Number of  &quot;Product Out&quot;') to the delivery in row 61.</li>
+</ul>
+<h2>Other issues:</h2>
+<ul><li>Cannot invoke &quot;de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.Station.getID(java.lang.Integer, de.bund.bfr.knime.openkrise.db.MyDBI)&quot; because &quot;receiver&quot; is null</li>
 </ul>
 
 

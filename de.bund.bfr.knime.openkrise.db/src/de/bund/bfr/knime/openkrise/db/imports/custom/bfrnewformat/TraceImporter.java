@@ -40,18 +40,13 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import java.util.stream.Collectors;
-import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-
-
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
@@ -67,13 +62,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jooq.tools.StringUtils;
-
 import de.bund.bfr.knime.MemoryUtils;
+// import de.bund.bfr.knime.PerformanceUtils;
 import de.bund.bfr.knime.UserCancelException;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
+import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.ReportUtils.WarningSource;
+import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.SheetUtils.InvalidCellValueException;
 import de.bund.bfr.knime.ui.EdtUtils;
 import de.bund.bfr.knime.ui.IProgressMonitor;
 import de.bund.bfr.knime.ui.ProgressMonitorParent;
@@ -96,13 +93,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	
 	private String logMessages = "";
 	private String logWarnings = "";
+	private Map<String, List<WarningSource>> fileRelatedWarns = new HashMap<>();
 	private Map<String, Set<String>> warns = new HashMap<>();
 	private Map<String, Set<String>> warnsBeforeImport = new HashMap<>();
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
-	
-	public Map<String, Set<String>> getLastWarnings() {
-		return warns;
-	}
 	
 	public String getLogWarnings() {
 		return logWarnings;
@@ -120,38 +114,248 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (int i=1;i<numRows;i++) {
 			Row row = businessSheet.getRow(i);
 			if (row != null) {
-				String id = getCellString(row.getCell(0));
+				Cell idCell = row.getCell(0);
 				Cell nameCell = row.getCell(1);
+				if (SheetUtils.isCellEmpty(idCell) && SheetUtils.isCellEmpty(nameCell)) return;
 				
-				if (id == null && isCellEmpty(nameCell)) return;
-				if (id == null) exceptions.add(new Exception("Station has no ID -> Row " + (i+1)));
-				if (stationIDs.contains(id)) exceptions.add(new Exception("Station ID '" + id + "' is defined more than once -> Row " + (i+1)));
+				String id = getRequiredCellString(row, 0, "Station ID", exceptions);
+				
+				if (id == null) continue;
+				// if (id == null && isCellEmpty(nameCell)) return;
+				// if (id == null) exceptions.add(new Exception("Station has no ID -> Row " + (i+1)));
+				// if (stationIDs.contains(id)) exceptions.add(new Exception("Station ID '" + id + "' is defined more than once -> Row " + (i+1)));
+				if (stationIDs.contains(id)) exceptions.add(new InvalidCellValueException("Station ID '" + id + "' is defined more than once", row));
 
 				stationIDs.add(id);
 			}
-			if (taskMonitor.isCanceled()) throw new UserCancelException();
-		}
-	}
-	
-	private void checkDeliveriesFirst(List<Exception> exceptions, Sheet deliverySheet, IProgressMonitor taskMonitor) throws Exception {
-		HashSet<String> deliveryIDs = new HashSet<>();
-		int numRows = deliverySheet.getLastRowNum() + 1;
-		for (int i=2;i<numRows;i++) {
-			Row row = deliverySheet.getRow(i);
-			if (row != null) {
-				String id = getCellString(row.getCell(0));
-				String senderId = getCellString(row.getCell(1));
-				
-				if (id == null && senderId == null) return;
-				if (id == null) exceptions.add(new Exception("Delivery has no ID -> Row " + (i+1)));
-				if (deliveryIDs.contains(id)) exceptions.add(new Exception("Delivery ID '" + id + "' is defined more than once -> Row " + (i+1)));
-				
-				deliveryIDs.add(id);
-			}
-			if (taskMonitor.isCanceled()) throw new UserCancelException();
 			taskMonitor.setProgress(i * 100 / numRows);
+			if (taskMonitor.isCanceled()) throw new UserCancelException();
 		}
 		taskMonitor.setProgress(100);
+	}
+	
+	private HashMap<String, Station> collectStations(List<Exception> exceptions, Sheet stationSheet, IProgressMonitor taskMonitor) throws UserCancelException {
+		debugEnter();
+		HashMap<String, Station> stations = new HashMap<>();
+		HashMap<String, Integer> id2RowNum = new HashMap<>();
+		final int numRows = stationSheet.getLastRowNum() + 1;
+		Row titleRow = stationSheet.getRow(0);
+		
+		for (int rowIndex=1; rowIndex < numRows; rowIndex++) {
+			final Row row = stationSheet.getRow(rowIndex);
+			if (row == null || rowEmpty(row)) break;
+			final int rowNum = rowIndex + 1;
+			final int nE = exceptions.size();
+			
+			Station station = new Station();
+			
+			station.setId(getRequiredCellString(row, StationsSheet.COL_STATION_ID, "Station ID", exceptions));
+			if (station.getId() != null) {
+				if (stations.containsKey(station.getId())) {
+					// exceptions.add(new Exception("Station defined twice -> Row " + rowNum + "; Station Id: '" + station.getId() + "'"));
+					// exceptions.add(new InvalidCellValueException("Duplicate Station ID '" + station.getId() + "' (ID was already defined in row " + id2RowNum.get(station.getId()) + ")", row, StationsSheet.COL_STATION_ID));
+					exceptions.add(new InvalidCellValueException("Duplicate Station ID '" + station.getId() + "' (ID was already defined)", row, StationsSheet.COL_STATION_ID));
+					stations.put(station.getId(), null);
+				}
+				else {
+					id2RowNum.put(station.getId(), rowNum);
+					// boolean isStationValid = nE == exceptions.size();
+					stations.put(station.getId(), station);
+				}
+			}
+
+			
+			station.setName(getCellString(row.getCell(StationsSheet.COL_NAME), exceptions));
+			station.setStreet(getCellString(row.getCell(StationsSheet.COL_STREET), exceptions));
+			station.setNumber(getCellString(row.getCell(StationsSheet.COL_STREET_NO), exceptions));
+			station.setZip(getCellString(row.getCell(StationsSheet.COL_ZIP), exceptions));
+			station.setCity(getCellString(row.getCell(StationsSheet.COL_CITY), exceptions));
+			station.setDistrict(getCellString(row.getCell(StationsSheet.COL_DISTRICT), exceptions));
+			station.setState(getCellString(row.getCell(StationsSheet.COL_STATE), exceptions));
+			station.setCountry(getCellString(row.getCell(StationsSheet.COL_COUNTRY), exceptions));
+			station.setTypeOfBusiness(getCellString(row.getCell(StationsSheet.COL_TOB), exceptions));
+			
+			// Further flexible cells
+			addFlexibleFields(titleRow, row, 10, 19, station, exceptions);
+		
+//			if (station.getId() != null) {
+//				if (stations.containsKey(station.getId())) {
+//					// exceptions.add(new Exception("Station defined twice -> Row " + rowNum + "; Station Id: '" + station.getId() + "'"));
+//					exceptions.add(new InvalidCellValueException("Duplicate Station ID '" + station.getId() + "' (ID was already defined in row " + rowNum + ")", row, StationsSheet.COL_STATION_ID));
+//					stations.put(station.getId(), null);
+//				}
+//				else {
+//					id2RowNum.put(station.getId(), rowNum);
+//					boolean isStationValid = nE == exceptions.size();
+//					stations.put(station.getId(), isStationValid ? station : null);
+//				}
+//			}
+			
+			if (station.getId() != null) { 
+				if (exceptions.size() > nE) stations.put(station.getId(), null);
+			}
+			checkUserCancel(taskMonitor);
+			taskMonitor.setProgress(rowNum * 100 / numRows);
+		}
+		
+		taskMonitor.setProgress(100);
+		debugLeaving();
+		return stations;
+	}
+	
+	private HashMap<String, Delivery> collectDeliveries(List<Exception> exceptions, Sheet deliverySheet, HashMap<String, Station> stations, String stationDefSource, boolean ignoreMissingLotnumbers, IProgressMonitor taskMonitor) throws UserCancelException {
+		debugEnter();
+		final HashMap<String,String> definedLots = new HashMap<>();
+		final HashMap<String, Integer> lotId2RowNum = new HashMap<>(); 
+		final HashMap<String, Integer> deliveryRows = new HashMap<>();
+		
+		final HashMap<String, Delivery> deliveries = new HashMap<>();
+		final int numRows = deliverySheet.getLastRowNum() + 1;
+		final Row titleRow = deliverySheet.getRow(0);
+		
+		for (int rowIndex=2; rowIndex < numRows; rowIndex++) {
+			final Row row = deliverySheet.getRow(rowIndex);
+			if (row == null || rowEmpty(row)) break;
+			final int rowNum = rowIndex + 1;
+			final int nE = exceptions.size();
+			boolean isInvalid = false;
+			
+			Delivery delivery = new Delivery();
+			
+			// ToDO: Verify why is id not required?
+			{
+				delivery.setId(getRequiredCellString(row, DeliveriesSheet.COL_DELIVERY_ID, "Delivery ID", exceptions));
+				if (delivery.getId() != null) {
+					if (deliveries.containsKey(delivery.getId())) {
+						// exceptions.add(new Exception("Delivery defined twice -> in Row " + rowNum + " and in Row " + deliveryRows.get(delivery.getId()) + "; Delivery Id: '" + delivery.getId() + "'"));
+						exceptions.add(new InvalidCellValueException("Duplicate Delivery ID '" + delivery.getId() + "' (ID was already defined)", row, DeliveriesSheet.COL_DELIVERY_ID));
+						deliveries.put(delivery.getId(), null);
+					}
+					else {
+						deliveryRows.put(delivery.getId(), rowNum);
+						deliveries.put(delivery.getId(), delivery);
+					}
+				}
+			}
+			
+			
+			Product p = new Product();
+			{
+				String senderId = getRequiredCellString(row, DeliveriesSheet.COL_SENDER_ID, "Sender ID", exceptions);
+//				if (stationId == null) return null;
+				if (senderId != null) {
+					Station sender = stations.get(senderId);
+					// if (sender == null && !stations.containsKey(senderId)) exceptions.add(new Exception("Station ID in Deliveries not defined in stations sheet: '" + senderId + "'; -> Row " + (rowNum)));
+					if (sender == null) {
+						if (!stations.containsKey(senderId)) exceptions.add(new InvalidCellValueException("Unknown Sender ID '" + senderId + "' (ID has to be listed in " + stationDefSource + ")", row, DeliveriesSheet.COL_SENDER_ID));
+						isInvalid = true;
+					} 
+					else p.setStation(sender);
+				}
+			}
+			
+			p.setName(getCellString(row.getCell(DeliveriesSheet.COL_PRODUCT_NAME), exceptions));
+			
+			Lot lot = new Lot();
+			lot.setProduct(p);
+			
+			{
+				Cell lotNoCell = row.getCell(DeliveriesSheet.COL_LOT_NO);
+				String lotNo = getCellString(lotNoCell, exceptions);
+				if (lotNo != null) lot.setNumber(lotNo);
+				// else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum) + " in '" + filename + "'\n"));}
+				else if (!ignoreMissingLotnumbers) exceptions.add(new InvalidCellValueException("Please, do always provide a lot number as this is most helpful.", row, DeliveriesSheet.COL_LOT_NO)); // -> Row " + (rowNum) + " in '" + filename + "'\n"));}
+			}
+			
+			{
+				AmountParts amountParts = getAmountPartsFromCells(
+						row, 
+						DeliveriesSheet.COL_LOT_SIZE_Q,
+						DeliveriesSheet.COL_LOT_SIZE_U,
+						"Lot Size",
+						exceptions
+				);
+				lot.setUnitNumber(amountParts.quantity);
+				lot.setUnitUnit(amountParts.unit);
+			}
+			
+			{
+				String lotId = (p.getStation() == null) ? "_" + p.getName() + "_" + lot.getNumber() : p.getStation().getId() + "_" + p.getName() + "_" + lot.getNumber();
+				String lotInfo = lot.getUnitNumber() + "_" + lot.getUnitUnit();
+				if (definedLots.containsKey(lotId)) {
+					// ToDo: verify change (verify lot size comparison)
+					// if (!definedLots.get(lotId).equals(lotInfo)) exceptions.add(new Exception("Lot has different quantities -> Lot number: '" + lot.getNumber() + "'; -> Row " + (rowNum+1)));
+					if (!definedLots.get(lotId).equals(lotInfo)) exceptions.add(new InvalidCellValueException("Lot Size is different (from size in row " + lotId2RowNum.get(lotId) + ")", row));
+				}
+				else {
+					definedLots.put(lotId, lotInfo);
+					lotId2RowNum.put(lotId, rowNum);
+				}
+			}
+
+			delivery.setLot(lot);
+			
+			applyDepartureFromCells(delivery, row, 6, 7, 8, exceptions);
+			applyArrivalFromCells(delivery, row, 9, 10, 11, exceptions);
+			
+			{
+				AmountParts amountParts = getAmountPartsFromCells(
+						row,
+						DeliveriesSheet.COL_UNIT_Q,
+						DeliveriesSheet.COL_UNIT_U,
+						"Delivery Size",
+						exceptions
+				);
+				delivery.setUnitNumber(amountParts.quantity);
+				delivery.setUnitUnit(amountParts.unit);
+			}
+			
+			{
+				// String receiverId = getCellString(row.getCell(14));
+				String receiverId = getRequiredCellString(row, DeliveriesSheet.COL_RECIPIENT, "Recipient ID", exceptions);
+				if (receiverId != null) {
+					Station receiver = stations.get(receiverId);
+					if (receiver == null) {
+						if (!stations.containsKey(receiverId)) {
+							// exceptions.add(new Exception("Recipient ID in sheet Deliveries not defined in stations sheet: '" + receiverId + "'; -> Row " + rowNum));
+							// exceptions.add(new InvalidCellValueException("Unknown Recipient ID (ID has to be defined in " +  stationDefSource + ")", row, DeliveriesSheet.COL_RECIPIENT));
+							exceptions.add(new InvalidCellValueException("Unknown Recipient ID '" + receiverId + "' (ID has to be listed in " +  stationDefSource + ")", row, DeliveriesSheet.COL_RECIPIENT));
+						}
+						isInvalid = true;
+					}
+					else delivery.setReceiver(receiver);
+				}
+//				else {
+//					// ToDo: Verify: Why is the missing receiver not thrown?
+//					if (result.getId() == null) return null;
+//					else exceptions.add(new Exception("Recipient ID in sheet Deliveries not defined; -> Row " + (rowNum+1)));
+//				}
+			}
+			
+			// Further flexible cells
+					
+			for (int i=15;i<25;i++) {
+				String fieldKey = getCellString(titleRow.getCell(i), exceptions);
+				if (fieldKey != null) {
+					String fieldValue = getCellString(row.getCell(i), exceptions);
+					if (fieldValue != null) {
+						if (DeliveriesSheet.KNOWN_LOT_FIELDS_LC.contains(fieldKey.toLowerCase())) lot.addFlexibleField(fieldKey, fieldValue);
+						else delivery.addFlexibleField(fieldKey, fieldValue);
+					}
+				}
+			}
+			
+			if (delivery.getId() != null) { 
+				isInvalid = isInvalid || exceptions.size() > nE;
+	
+				if (isInvalid) deliveries.put(delivery.getId(), null);
+			}
+			taskMonitor.setProgress(rowNum * 100 / numRows);
+			checkUserCancel(taskMonitor);
+		}
+		taskMonitor.setProgress(100);
+		debugLeaving();
+		return deliveries;
 	}
 	
 	private void checkTraceDeliveries(List<Exception> exceptions, Sheet deliverySheet, int borderRowBetweenTopAndBottom, boolean isForTracing, boolean isNewFormat_151105, IProgressMonitor taskMonitor) throws Exception {
@@ -164,7 +368,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (int i=2;i<numRows;i++) {
 			Row row = deliverySheet.getRow(i);
 			if (row != null) {
-				String cellString = getCellString(row.getCell(12)); // DeliveryID in DB
+				// String cellString = getCellString(row.getCell(12)); // DeliveryID in DB
+				String cellString = getCellString(row.getCell(12), exceptions); // DeliveryID in DB
 				if (
 					cellString != null && 
 					!cellString.isEmpty() && 
@@ -188,24 +393,25 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				boolean different = false;
 				for (Row tmp : hs) {
 					if (isNewFormat_151105 || tmp.getRowNum() < borderRowBetweenTopAndBottom) {
-						String tkey = getRowKey(tmp, borderRowBetweenTopAndBottom, isForTracing);
+						String tkey = getRowKey(exceptions, tmp, borderRowBetweenTopAndBottom, isForTracing);
 						if (key == null) key = tkey;
 						else if (!key.equals(tkey)) different = true;
 						rows += ";" + (tmp.getRowNum()+1); 
 					}
 				}
-				if (different) exceptions.add(new Exception("Delivery ID '" + val + "' is defined more than once -> Rows: " + rows.substring(1) + ". If you have copy/pasted a new row, please clear the cell for the DeliveryID of the new Row in Column 'M' (expand it firstly to be able to see it)."));
+				// if (different) exceptions.add(new Exception("Delivery ID '" + val + "' is defined more than once -> Rows: " + rows.substring(1) + ". If you have copy/pasted a new row, please clear the cell for the DeliveryID of the new Row in Column 'M' (expand it firstly to be able to see it)."));
+				if (different) exceptions.add(new InvalidCellValueException("Delivery ID '" + val + "' is defined more than once -> Rows: " + rows.substring(1) + ". If you have copy/pasted a new row, please clear the cell for the DeliveryID of the new Row in Column 'M' (expand it firstly to be able to see it).", deliverySheet));
 			}
 			if (taskMonitor.isCanceled()) throw new UserCancelException();
 		}
 		subTaskMonitor.setProgress(100);
 	}
 	
-	private String getRowKey(Row row, int borderRowBetweenTopAndBottom, boolean isForTracing) throws Exception {
+	private String getRowKey(List<Exception> exceptions, Row row, int borderRowBetweenTopAndBottom, boolean isForTracing) throws Exception {
 		boolean isProductsOut = row.getRowNum() < borderRowBetweenTopAndBottom && !isForTracing || isForTracing && row.getRowNum() > borderRowBetweenTopAndBottom;
 		String key = "";
 		for (int j=isProductsOut?0:1;j<row.getLastCellNum();j++) { // Start with Lot Number or after
-			String cellString = getCellString(row.getCell(j));
+			String cellString = getCellString(row.getCell(j), exceptions);
 			key += cellString;
 			key += ";";
 		}
@@ -215,23 +421,23 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return key;
 	}
 	
-	private void loadLookupSheet(Sheet lookupSheet, IProgressMonitor taskMonitor) throws Exception {
+	private void loadLookupSheet(List<Exception> exceptions, Sheet lookupSheet, IProgressMonitor taskMonitor) throws Exception {
 		LookUp lu = new LookUp();
 		int numRows = lookupSheet.getLastRowNum() + 1;
 		for (int i=1;i<numRows;i++) {
 			Row row = lookupSheet.getRow(i);
 			if (row != null) {
 				
-				String sampling = getCellString(row.getCell(0));
+				String sampling = getCellString(row.getCell(0), exceptions);
 				if (sampling != null) lu.addSampling(sampling);
 				
-				String typeOfBusiness = getCellString(row.getCell(1));
+				String typeOfBusiness = getCellString(row.getCell(1), exceptions);
 				if (typeOfBusiness != null) lu.addTypeOfBusiness(typeOfBusiness);
 				
-				String treatment = getCellString(row.getCell(2));
+				String treatment = getCellString(row.getCell(2), exceptions);
 				if (treatment != null) lu.addTreatment(treatment);
 					
-				String unit = getCellString(row.getCell(3));
+				String unit = getCellString(row.getCell(3), exceptions);
 				if (unit != null) lu.addUnit(unit);
 			}
 			if (taskMonitor.isCanceled()) throw new UserCancelException();
@@ -254,6 +460,28 @@ public class TraceImporter extends FileFilter implements MyImporter {
 //		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 //		String time = LocalTime.now().format(formatter);
 //		System.out.println(time + " " + msg);
+	}
+	
+	private void debugL(String msg) {
+//		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+//		for (int i = 1; i < trace.length; i++) {
+//			if (
+//					!trace[i].getClassName().endsWith(".Thread") &&
+//					!trace[i].getMethodName().startsWith("debug")
+//			) {
+//				debug(trace[i].getClassName().replaceFirst("^([A-Za-z\\d_]+\\.)*", "") + "."+ trace[i].getMethodName() + " " + msg + "  " + trace[i].toString());
+//				return;
+//			}
+//		}
+//		debug(msg);
+	}
+	
+	private void debugEnter() {
+		debugL("entered ...");
+	}
+	
+	private void debugLeaving() {
+		debugL("leaving ...");
 	}
 	
 	private String formatDayNanos(long dayNanos) {
@@ -298,85 +526,40 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		
 		int requiredSubTaskMonitorCount = 1;
 		if (deliverySheet != null) {
-			requiredSubTaskMonitorCount = 4 + (d2dSheet != null ? 1 : 0) + (lookupSheet != null ? 1 : 0) + 2;
+			requiredSubTaskMonitorCount = 2 + (d2dSheet != null ? 1 : 0) + (lookupSheet != null ? 1 : 0) + 2;
 		} else {
 			requiredSubTaskMonitorCount = 6 + (lookupSheet != null ? 1 : 0) + (!isForTracing ? 1 : 0);
 		}
 		ProgressMonitorParent taskMonitorParent = new ProgressMonitorParent(taskMonitor, requiredSubTaskMonitorCount);
-		IProgressMonitor subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-				
-		debug("TracingImporter.importWorkbook checking stations ...");
+		IProgressMonitor subTaskMonitor;
 		
-		checkStationsFirst(exceptions, stationSheet, subTaskMonitor);
-		debug("TracingImporter.importWorkbook checking stations done.");
-		subTaskMonitor.setProgress(100);
-		sleep();
-		
-		if (deliverySheet != null) {
-			debug("TracingImporter.importWorkbook checking deliveries ...");
+		if (deliverySheet == null) {
 			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-			
-			checkDeliveriesFirst(exceptions, deliverySheet, subTaskMonitor);
-			
-			debug("TracingImporter.importWorkbook checking deliveries done.");
+			debug("TracingImporter.importWorkbook checking stations ...");
+		
+			checkStationsFirst(exceptions, stationSheet, subTaskMonitor);
+			debug("TracingImporter.importWorkbook checking stations done.");
 			subTaskMonitor.setProgress(100);
 			sleep();
-			
-			debug("TracingImporter.importWorkbook importing stations ...");
-			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-			
+		}
+		
+		if (deliverySheet != null) {
 			// load all Stations
-			HashMap<String, Station> stations = new HashMap<>();
-			int numRows = stationSheet.getLastRowNum() + 1;
-			Row titleRow = stationSheet.getRow(0);
-			for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
-				Station s = getStation(titleRow, stationSheet.getRow(classRowIndex));
-				if (s == null) break;
-				if (stations.containsKey(s.getId())) exceptions.add(new Exception("Station defined twice -> Row " + (classRowIndex+1) + "; Station Id: '" + s.getId() + "'"));
-				stations.put(s.getId(), s);
-				subTaskMonitor.setProgress(classRowIndex * 100 / numRows);
-			}
-			debug("TracingImporter.importWorkbook importing stations done.");
-			subTaskMonitor.setProgress(100);
+			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+			HashMap<String, Station> stations = collectStations(exceptions, stationSheet, subTaskMonitor);
 			sleep();
 			
 			// load all Deliveries
-			debug("TracingImporter.importWorkbook importing deliveries ...");
-			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-			
-			HashMap<String, Delivery> deliveries = new HashMap<>();
-			numRows = deliverySheet.getLastRowNum() + 1;
-			titleRow = deliverySheet.getRow(0);
-			HashMap<String,String> definedLots = new HashMap<>();
-			HashMap<String, Integer> deliveryRows = new HashMap<>();
-			for (classRowIndex=2;classRowIndex<numRows;classRowIndex++) {
-				Delivery d = getMultiOutDelivery(exceptions, stations, titleRow, deliverySheet.getRow(classRowIndex), definedLots, classRowIndex, filename, d2dSheet != null);
-				if (d == null) break;
-				if (deliveries.containsKey(d.getId())) exceptions.add(new Exception("Delivery defined twice -> in Row " + (classRowIndex+1) + " and in Row " + deliveryRows.get(d.getId()) + "; Delivery Id: '" + d.getId() + "'"));
-				else deliveryRows.put(d.getId(), classRowIndex+1);
-				deliveries.put(d.getId(), d);
-				subTaskMonitor.setProgress(classRowIndex * 100 / numRows);
-			}
-			debug("TracingImporter.importWorkbook importing deliveries done.");
-			subTaskMonitor.setProgress(100);
+			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();			
+			// HashMap<String, Delivery> deliveries = collectDeliveries(exceptions, deliverySheet, stations, "sheet '" + stationSheet.getSheetName() + "'", d2dSheet != null, subTaskMonitor);
+			HashMap<String, Delivery> deliveries = collectDeliveries(exceptions, deliverySheet, stations, "sheet '" + stationSheet.getSheetName() + "' in column " + SheetUtils.getColumnAddress(StationsSheet.COL_STATION_ID), d2dSheet != null, subTaskMonitor);
 			sleep();
 			
 			// load Recipes
 			HashSet<D2D> recipes = new HashSet<>();
 			if (d2dSheet != null) {
-				debug("TracingImporter.importWorkbook importing d2ds ...");
 				subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-				numRows = d2dSheet.getLastRowNum() + 1;
-				titleRow = d2dSheet.getRow(0);
-				for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
-					D2D dl = getD2D(exceptions, deliveries, titleRow, d2dSheet.getRow(classRowIndex), classRowIndex);
-					if (dl == null) break;
-					recipes.add(dl);
-					if (taskMonitor.isCanceled()) throw new UserCancelException();
-					subTaskMonitor.setProgress(classRowIndex * 100 / numRows);
-				}
-				debug("TracingImporter.importWorkbook importing d2ds done.");
-				subTaskMonitor.setProgress(100);
+				recipes = collectD2Ds(exceptions, d2dSheet, deliveries, "sheet '" + deliverySheet.getSheetName() + "' in column " + SheetUtils.getColumnAddress(DeliveriesSheet.COL_DELIVERY_ID), subTaskMonitor);
 				sleep();
 			}
 
@@ -386,97 +569,100 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (lookupSheet != null) {
 				debug("TracingImporter.importWorkbook looking up ...");
 				subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-				loadLookupSheet(lookupSheet, subTaskMonitor);
+				loadLookupSheet(exceptions, lookupSheet, subTaskMonitor);
 				debug("TracingImporter.importWorkbook after lookup ...");
 				subTaskMonitor.setProgress(100);
 				sleep();
 			}
-			Integer miDbId = null;
-			try {
-				miDbId = mi.getID(mydbi);
-			}
-			catch (Exception e) {
-				exceptions.add(e);
-			}
-			if (miDbId == null) exceptions.add(new Exception("Template already imported"));
-			if (deliveries.size() == 0) {
-				exceptions.add(new Exception("Template contains no deliveries"));
-			}
-			else {
-				// Predefine DB IDs for Format_2017
-				debug("TracingImporter.importWorkbook predefining ids ...");
-				try {
-					predefineIDs(deliveries.values());
-				}
-				catch (Exception e) {}
-				
-				debug("TracingImporter.importWorkbook processing CB 1 ...");
-				subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-								
-				int iDelivery = -1;
-				long startTime = LocalTime.now().toNanoOfDay();
-				long currentTime = startTime;
 			
-				for (Delivery d : deliveries.values()) {
-					iDelivery++;
-					try {
-						d.getID(miDbId, false, mydbi);
-					} 
-					catch (Exception e) {
-						exceptions.add(e);
-					}
-					//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-					if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
-					if (taskMonitor.isCanceled()) throw new UserCancelException();
-
-					if ((iDelivery % 1000) == 0) {
-						long newCurrentTime = LocalTime.now().toNanoOfDay();
-						debug(	
-							"After DeliveryNo" + StringUtils.leftPad("" + (iDelivery + 1), 6) + ": " +
-							"freespace: " + StringUtils.leftPad(MemoryUtils.getFormatedPresumableFreeMemory(), 14) + ", " +
-							"consumed time: " + StringUtils.leftPad(formatDayNanos(newCurrentTime - startTime), 12)  + " ms, " +
-							"lastDelta time: " + StringUtils.leftPad(formatDayNanos(newCurrentTime - currentTime), 12)  + " ms" //, " +
-//							"ReqestCount: " + StringUtils.leftPad("" + (DBKernel.RequestCount - startRequestCount), 6) + ", " +
-//							"avgRequestCount: " + ((DBKernel.RequestCount - startRequestCount) / (iDelivery + 1))
-						);
-						currentTime = newCurrentTime;
-					}
-					subTaskMonitor.setProgress(iDelivery * 100 / deliveries.size());
-					MemoryUtils.checkMimimumRemainingMemory();
-					checkUserCancel(taskMonitor);
+			if (exceptions.size() == 0) {
+				Integer miDbId = null;
+				try {
+					miDbId = mi.getID(mydbi);
 				}
-				debug("TracingImporter.importWorkbook processing CB 1 done.");
-				subTaskMonitor.setProgress(100);
-				sleep();
-				
-				debug("TracingImporter.importWorkbook processing CB 2 ...");
-				subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-				
-				HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
-				int recipeNo = 0;
-				for (D2D dl : recipes) {
-					recipeNo++;
+				catch (Exception e) {
+					exceptions.add(e);
+				}
+				if (miDbId == null) exceptions.add(new Exception("Template already imported"));
+				if (deliveries.size() == 0) {
+					exceptions.add(new Exception("Template contains no deliveries"));
+				}
+				else {
+					// Predefine DB IDs for Format_2017
+					debug("TracingImporter.importWorkbook predefining ids ...");
 					try {
-						dl.getId(miDbId, mydbi);
+						predefineIDs(deliveries.values());
 					}
-					catch (Exception e) {
-						exceptions.add(e);
-					}
+					catch (Exception e) {}
 					
-					// collect data for checks if data is missing...
-					Delivery d = dl.getTargetDelivery();
-					if (!ingredients.containsKey(d)) ingredients.put(d, new HashSet<Integer>());
-					HashSet<Integer> hd = ingredients.get(d);
-					if (dl.getIngredient() != null) hd.add(dl.getIngredient().getDbId());
-					subTaskMonitor.setProgress(recipeNo * 100 / recipes.size());
-					checkUserCancel(taskMonitor);
-				}
-				debug("TracingImporter.importWorkbook processing CB 2 done.");
-				subTaskMonitor.setProgress(100);
-				sleep();
+					debug("TracingImporter.importWorkbook processing CB 1 ...");
+					subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+									
+					int iDelivery = -1;
+					long startTime = LocalTime.now().toNanoOfDay();
+					long currentTime = startTime;
 				
-				debug("Freespace CP4: " + MemoryUtils.getFormatedPresumableFreeMemory());
-			}			
+					for (Delivery d : deliveries.values()) {
+						iDelivery++;
+						try {
+							d.getID(miDbId, false, mydbi);
+						} 
+						catch (Exception e) {
+							exceptions.add(e);
+						}
+						//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+						if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+						if (taskMonitor.isCanceled()) throw new UserCancelException();
+	
+						if ((iDelivery % 1000) == 0) {
+							long newCurrentTime = LocalTime.now().toNanoOfDay();
+							debug(	
+								"After DeliveryNo" + StringUtils.leftPad("" + (iDelivery + 1), 6) + ": " +
+								"freespace: " + StringUtils.leftPad(MemoryUtils.getFormatedPresumableFreeMemory(), 14) + ", " +
+								"consumed time: " + StringUtils.leftPad(formatDayNanos(newCurrentTime - startTime), 12)  + " ms, " +
+								"lastDelta time: " + StringUtils.leftPad(formatDayNanos(newCurrentTime - currentTime), 12)  + " ms" //, " +
+	//							"ReqestCount: " + StringUtils.leftPad("" + (DBKernel.RequestCount - startRequestCount), 6) + ", " +
+	//							"avgRequestCount: " + ((DBKernel.RequestCount - startRequestCount) / (iDelivery + 1))
+							);
+							currentTime = newCurrentTime;
+						}
+						subTaskMonitor.setProgress(iDelivery * 100 / deliveries.size());
+						MemoryUtils.checkMimimumRemainingMemory();
+						checkUserCancel(taskMonitor);
+					}
+					debug("TracingImporter.importWorkbook processing CB 1 done.");
+					subTaskMonitor.setProgress(100);
+					sleep();
+					
+					debug("TracingImporter.importWorkbook processing CB 2 ...");
+					subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
+					
+					HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
+					int recipeNo = 0;
+					for (D2D dl : recipes) {
+						recipeNo++;
+						try {
+							dl.getId(miDbId, mydbi);
+						}
+						catch (Exception e) {
+							exceptions.add(e);
+						}
+						
+						// collect data for checks if data is missing...
+						Delivery d = dl.getTargetDelivery();
+						if (!ingredients.containsKey(d)) ingredients.put(d, new HashSet<Integer>());
+						HashSet<Integer> hd = ingredients.get(d);
+						if (dl.getIngredient() != null) hd.add(dl.getIngredient().getDbId());
+						subTaskMonitor.setProgress(recipeNo * 100 / recipes.size());
+						checkUserCancel(taskMonitor);
+					}
+					debug("TracingImporter.importWorkbook processing CB 2 done.");
+					subTaskMonitor.setProgress(100);
+					sleep();
+					
+					debug("Freespace CP4: " + MemoryUtils.getFormatedPresumableFreeMemory());
+				}	
+			}
 
 			return exceptions;
 		}
@@ -498,10 +684,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (forwardSheet != null) {
 			// Station in focus
 			{
-				Cell stationInFocusCell = row.getCell(1);
-				String cellString = getCellString(stationInFocusCell);
+				//Cell stationInFocusCell = row.getCell(1);
+				//String cellString = getCellString(row.getCell(1));
+				String cellString = getRequiredCellString(row, 1, "Station in Focus", exceptions); //stationInFocusCell);
 				
-				if (cellString == null) exceptions.add(new Exception("Station in Focus is missing (cell " + getWbRelativeCellAddressString(stationInFocusCell) + ")."));
+				// if (cellString == null) exceptions.add(new Exception("Station in Focus is missing (cell " + getWbRelativeCellAddressString(stationInFocusCell) + ")."));
 				
 				sif = cellString == null ? null : getStation(exceptions, stationSheet, cellString, row);
 			}
@@ -512,7 +699,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			for (;;classRowIndex++) {
 				row = transactionSheet.getRow(classRowIndex);
 				if (row == null) continue;
-				if (isBlockEnd(row, 13, "Reporter Information")) break;
+				if (isBlockEnd(exceptions, row, 13, "Reporter Information")) break;
 				Delivery d = getDelivery(exceptions, stationSheet, sif, row, true, titleRow, filename, false, null, outDeliveries, false, isNewFormat_151105);
 				if (d == null) continue;
 				outDeliveries.put(d.getId(), d);
@@ -520,26 +707,27 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 			
 			// Metadata on Reporter
-			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Reporter Information") + 2;
+			classRowIndex = getNextBlockRowIndex(exceptions, transactionSheet, classRowIndex, "Reporter Information") + 2;
 			row = transactionSheet.getRow(classRowIndex);
 			mi = getMetaInfo(exceptions, row, transactionSheet.getRow(classRowIndex-1));
 			mi.setFilename(filename);	
 		}
 		else { // Reporter shifted to the top
 			// Metadata on Reporter
-			classRowIndex = getNextBlockRowIndex(transactionSheet, 0, "Reporter Information") + 2;
+			classRowIndex = getNextBlockRowIndex(exceptions, transactionSheet, 0, "Reporter Information") + 2;
 			row = transactionSheet.getRow(classRowIndex);
 			mi = getMetaInfo(exceptions, row, transactionSheet.getRow(classRowIndex-1));
 			mi.setFilename(filename);
 
 			// Station in focus
-			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Station in Focus:");
+			classRowIndex = getNextBlockRowIndex(exceptions, transactionSheet, classRowIndex, "Station in Focus:");
 			row = transactionSheet.getRow(classRowIndex);
 			{
-				Cell stationInFocusCell = row.getCell(1);
-				String cellString = getCellString(stationInFocusCell);
+//				Cell stationInFocusCell = row.getCell(1);
+//				String cellString = getCellString(stationInFocusCell);
+				String cellString = getRequiredCellString(row, 1, "Station in Focus", exceptions);
 				
-				if (cellString == null) exceptions.add(new Exception("Station in Focus is missing (cell " + getWbRelativeCellAddressString(stationInFocusCell) + ")."));
+				// if (cellString == null) exceptions.add(new Exception("Station in Focus is missing (cell " + getWbRelativeCellAddressString(stationInFocusCell) + ")."));
 				
 				sif = cellString == null ? null : getStation(exceptions, stationSheet, cellString, row);
 			}
@@ -547,14 +735,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			String label = "Products Out";
 			if (isForTracing) label = "Ingredients In for Lot(s)";
 			// Delivery(s) Outbound
-			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, label) + 3;
+			classRowIndex = getNextBlockRowIndex(exceptions, transactionSheet, classRowIndex, label) + 3;
 			titleRow = transactionSheet.getRow(classRowIndex - 2);
 			cell = titleRow.getCell(0);
 			isNewFormat_151105 = cell.getStringCellValue().equals("Product Lot Number");
 			for (;;classRowIndex++) {
 				row = transactionSheet.getRow(classRowIndex);
 				if (row == null) continue;
-				if (isBlockEnd(row, 13, "Lot Information")) break;
+				if (isBlockEnd(exceptions, row, 13, "Lot Information")) break;
 				Delivery d = getDelivery(exceptions, stationSheet, sif, row, !isForTracing, titleRow, filename, isForTracing, outLots, outDeliveries, false, isNewFormat_151105);
 				if (d == null) continue;
 				outDeliveries.put(d.getId(), d);
@@ -571,15 +759,16 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		String label = "Ingredients In for Lot(s)";
 		if (isForTracing) label = "Products Out";
 		// Lot(s)
-		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Lot Information") + 3;
+		classRowIndex = getNextBlockRowIndex(exceptions, transactionSheet, classRowIndex, "Lot Information") + 3;
 		borderRowLotStart = classRowIndex;
 		titleRow = transactionSheet.getRow(classRowIndex - 2);
 		for (;;classRowIndex++) {
 			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
-			if (isBlockEnd(row, 13, label)) break;
+			if (isBlockEnd(exceptions, row, 13, label)) break;
 			if (!fillLot(exceptions, row, sif, outLots, titleRow, isForTracing ? outDeliveries : null, classRowIndex + 1, isNewFormat_151105)) {
-				exceptions.add(new Exception("Lot number unknown in Row number " + (classRowIndex + 1)));
+				// exceptions.add(new Exception("Lot number unknown in Row number " + (classRowIndex + 1)));
+				exceptions.add(new InvalidCellValueException("Unknown Lot Number", row)); //Lot number unknown in Row number " + (classRowIndex + 1)));
 			}
 		}
 		debug("TracingImporter.importWorkbook importing transactionsheet rows step 2 done.");
@@ -599,22 +788,24 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		boolean hasIngredients = false;
 		label = "Ingredients for Lot(s)";
 		if (isForTracing) label = "Products Out";
-		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, label) + 3;
+		classRowIndex = getNextBlockRowIndex(exceptions, transactionSheet, classRowIndex, label) + 3;
 		HashMap<String, Delivery> inDeliveries = new HashMap<>(); 
 		int numRows = transactionSheet.getLastRowNum() + 1;
 		titleRow = transactionSheet.getRow(classRowIndex - 2);
 		for (;classRowIndex < numRows;classRowIndex++) {
 			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
-			if (isBlockEnd(row, 13, null)) break;
+			if (isBlockEnd(exceptions, row, 13, null)) break;
 			Delivery d = getDelivery(exceptions, stationSheet, sif, row, isForTracing, titleRow, filename, isForTracing, outLots, inDeliveries, false, isNewFormat_151105);
 			if (d == null) continue;
-			if (!isForTracing && d.getTargetLotIds().size() == 0) exceptions.add(new Exception("Lot number unknown in Row number " + (classRowIndex + 1)));
+			// if (!isForTracing && d.getTargetLotIds().size() == 0) exceptions.add(new Exception("Lot number unknown in Row number " + (classRowIndex + 1)));
+			if (!isForTracing && d.getTargetLotIds().size() == 0) exceptions.add(new InvalidCellValueException("Unknown Lot Number", row));
 			inDeliveries.put(d.getId(), d);
 			hasIngredients = true;
 		}
 		if (!hasIngredients) {
-			warns.put("No " + (isForTracing ? "Products Out" : "ingredients") + " defined...", null);
+			// warns.put("No " + (isForTracing ? "Products Out" : "ingredients") + " defined...", null);
+			addFileRelatedWarning("No " + (isForTracing ? "Products Out" : "ingredients") + " defined...", transactionSheet);
 		}
 		debug("TracingImporter.importWorkbook importing transactionsheet rows step 3 done.");
 		subTaskMonitor.setProgress(100);
@@ -644,7 +835,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (lookupSheet != null) {
 			debug("TracingImporter.importWorkbook iloading lookup sheet ...");
 			subTaskMonitor = taskMonitorParent.getNextSubTaskMonitor();
-			loadLookupSheet(lookupSheet, subTaskMonitor);
+			loadLookupSheet(exceptions, lookupSheet, subTaskMonitor);
 			debug("TracingImporter.importWorkbook iloading lookup sheet done.");
 			subTaskMonitor.setProgress(100);
 			checkUserCancel(taskMonitor);
@@ -750,42 +941,67 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		void addFlexibleField(String key, String value);
 	}
 	
-	private void applyCellString(Cell cell, ApplyStringFunction fun) throws Exception {
-		String cellString = getCellString(cell);
-		fun.applyString(cellString);
-	}
+//	private boolean applyCellString__(Cell cell, ApplyStringFunction fun, List<Exception> exceptions) throws InvalidCellValueException {
+//		try {
+//			applyCellString__(cell, fun);
+//			return true;
+//		} catch(InvalidCellValueException ex) {
+//			if (exceptions == null) throw ex;
+//			exceptions.add(ex);
+//		}
+//		return false;
+//	}
 	
-	private void applyCellInt(Cell cell, ApplyIntFunction fun) {
-		Integer cellInt = getCellInt(cell);
-		fun.applyInt(cellInt);
-	}
-	
-	private void applyCellDouble(Cell cell, ApplyDoubleFunction fun) throws InvalidCellValueException {
-		Double cellDouble = getCellDouble(cell);
-		fun.applyDouble(cellDouble);
-	}
+//	private void applyCellString__(Cell cell, ApplyStringFunction fun) throws InvalidCellValueException {
+//		String cellString = getCellString(cell);
+//		fun.applyString(cellString);
+//	}
 	
 	private String getLabelCellString(Cell cell) throws Exception {
 		return getCellString(cell, false, false, false);
 	}
 	
-	private String getCellString(Cell cell) throws Exception {
+	private String getLabelCellString(Cell cell, List<Exception> exceptions) {
+		try {
+			return getLabelCellString(cell);
+		} catch(Exception ex) {
+			exceptions.add(ex);
+		}
+		return null;
+	}
+	
+	private String getCellString(Cell cell, List<Exception> exceptions) {
+		try {
+			return getCellString(cell);
+		} catch (InvalidCellValueException ex) {
+			exceptions.add(ex);
+		}
+		return null;
+	}
+	
+	private String getRequiredCellString(Row row, int colIndex, String valueLabel, List<Exception> exceptions) {
+		try {
+			String text = getCellString(row.getCell(colIndex));
+			if (text == null) exceptions.add(new InvalidCellValueException("Missing " + valueLabel, row, colIndex));
+			return text;
+		} catch (InvalidCellValueException ex) {
+			exceptions.add(ex);
+		}
+		return null;
+	}
+	
+	private String getCellString(Cell cell) throws InvalidCellValueException {
 		return getCellString(cell, false, true, true);
 	}
 	
-	private String getCellString(Cell cell, boolean checkIfDate) throws Exception {
+	private String getCellString(Cell cell, boolean checkIfDate) throws InvalidCellValueException {
 		return getCellString(cell, checkIfDate, true, true);
 	}
 	
-	private String getCellString(Cell cell, boolean checkIfDate, boolean removeLinebreaks, boolean reportLineBreaks) throws Exception {
-//		if (cell == null) return null;
-//		CellType cellType = cell.getCellType();
-		CellType cellType = getEffectiveCellType(cell);
-//		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
+	private String getCellString(Cell cell, boolean checkIfDate, boolean removeLinebreaks, boolean reportLineBreaks) throws InvalidCellValueException {
+		CellType cellType = SheetUtils.getEffectiveCellType(cell);
 		if (cellType == null) return null;
 		if (cellType == CellType.BLANK) return null;
-//		if (cellType == CellType.ERROR) throwCellErrorException(cell);
-		
 			
 		if (checkIfDate && cellType == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
 			Date date = cell.getDateCellValue();
@@ -801,125 +1017,99 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 							
 		return getStringCellString(cell, removeLinebreaks, reportLineBreaks);
-//				cell.setCellType(CellType.STRING);
-//				String cellString = getStr(cell.getStringCellValue());
-//				if (cellString != null && cellString.matches("\\r\n\\|\\r|\\n")) {
-//					Set<String> oldWarns = warns.get(LINE_BREAKS_REMOVED);
-//					if (oldWarns == null) oldWarns = new HashSet<>();
-//					oldWarns.add("Sheet: " + cell.getSheet().getSheetName() + ", Cell: " + cell.getAddress().toString()); // cell.getAddress().toString());
-//					cellString = getStr(cellString.replaceAll("\\r\n\\|\\r|\\n", " "));
-//				};
-//				
-//				return cellString;				
-//			}
-//			// return null;
-//		} 
-//		return null;
-//		catch(IllegalStateException ex) {
-//			throw new IllegalStateException(ex.getMessage() + " (Cell: " + cell.getAddress().toString() + ")");
-//		}
 	}
 	
-	private String getStringCellString(Cell cell, boolean removeLinebreaks, boolean reportLineBreaks) {
-//		if (cell == null) return null;
-//		CellType cellType = cell.getCellType();
-//		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
-//		if (cellType != CellType.STRING) return null;		
+	private String getStringCellString(Cell cell, boolean removeLinebreaks, boolean reportLineBreaks) {	
 			
 		String cellString = getStr(cell.getStringCellValue());
 		if (cellString != null && removeLinebreaks && cellString.matches("(.*(\\r|\\n).*)+")) {
 			
 			cellString = getStr(cellString.replaceAll("(\\s*(\\r\n\\|\\r|\\n)\\s*)+", " "));
 			if (cellString != null && reportLineBreaks) {
-				addWarning(LINE_BREAKS_REMOVED, getWbRelativeCellAddressString(cell));
+				addFileRelatedWarning(LINE_BREAKS_REMOVED, cell);
 			}
 		};
 		
 		return cellString;				
 	}
-	
-	private String getWbRelativeCellAddressString(Cell cell) {
-		return cell.getAddress().toString() + (cell.getSheet().getWorkbook().getNumberOfSheets() == 1 ? "" : " (sheet: " + cell.getSheet().getSheetName() + ")");
+		
+	private Integer getCellInt(Cell cell, String valueLabel) throws InvalidCellValueException {
+		return getCellInt(cell, valueLabel, null);
 	}
 	
-	private Integer getCellInt(Cell cell) {
-		if (cell == null || cell.getCellType() == CellType.BLANK) return null;
-		cell.setCellType(CellType.STRING); 
-		String cellString = cell.getStringCellValue();
-		try {
-			return Integer.parseInt(cellString);
-		} catch(NumberFormatException ex) {
-			ex.printStackTrace();
-			// throw new NumberFormatException("Value in cell " + getWbRelativeCellAddressString(cell) + " is expected be a integer.");
-		}
-		return null;
-//		if (cell == null) return null;
-//		CellType cellType = cell.getCellType();
-//		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
-//		
-//		if (cellType == CellType.BLANK) return null;
-//		if (cellType == CellType.ERROR) throwCellErrorException(cell);
-//		if (cellType == CellType.NUMERIC) return (int)cell.getNumericCellValue();
-//		cell.setCellType(CellType.STRING); 
-//		String cellString = cell.getStringCellValue();
-//		try {
-//			return Integer.parseInt(cellString);
-//		} catch(NumberFormatException ex) {
-//			ex.printStackTrace();
-//			// throw new NumberFormatException("Value in cell " + getWbRelativeCellAddressString(cell) + " is expected be a integer.");
-//		}
-//		return null;
-		
-	}
-	
-	private static class InvalidCellValueException extends Exception {
-		private static final long serialVersionUID = -991760986495292191L;
-
-		InvalidCellValueException(String msg) {
-			super(msg);
-		}
-	}
-	
-	private CellType getEffectiveCellType(Cell cell) throws InvalidCellValueException {
-		if (cell == null) return null;
-		
-		CellType cellType = cell.getCellType();
-		
-		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
-		if (cellType == CellType.ERROR) throwCellErrorException(cell);
-		
-		return cellType;
-	}
-	
-	private Double getCellDouble(Cell cell) throws InvalidCellValueException {
-		return getCellDouble(cell, null, null);
-	}
-	
-	private Double getCellDouble(Cell cell, String valueLabel, List<Exception> exceptions) throws InvalidCellValueException {
-		CellType cellType = getEffectiveCellType(cell);
-		
+	private Integer getCellInt(Cell cell, String valueLabel, List<Exception> exceptions) throws InvalidCellValueException {
+		CellType cellType = SheetUtils.getEffectiveCellType(cell);
+		//if (cell == null || cell.getCellType() == CellType.BLANK) return null;
 		if (cellType == null) return null;
 		if (cellType == CellType.BLANK) return null;
-		if (cellType == CellType.NUMERIC) return cell.getNumericCellValue();
-		
+		if (cellType == CellType.NUMERIC) return (int)cell.getNumericCellValue();
 		if (cellType == CellType.STRING) {
-			String cellString = cell.getStringCellValue();
-			if (cellString == null) return null; 
+			String cellString = getStringCellString(cell, true, false);
+			if (cellString == null) return null;
 			try {
-				return Double.parseDouble(cellString.trim());
+				return Integer.parseInt(cellString);
 			} catch(NumberFormatException ex) {
-				String msg = "Invalid " + (valueLabel == null ? "value" : valueLabel) +  " ('" + cellString + "') in cell " + getWbRelativeCellAddressString(cell) + ". Value has to be a number.";
-				InvalidCellValueException exception = new InvalidCellValueException(msg);
-				if (exceptions != null) exceptions.add(exception);
-				else throw exception;	
+				ex.printStackTrace();
+				// throw new NumberFormatException("Value in cell " + getWbRelativeCellAddressString(cell) + " is expected be a integer.");
 			}
+		}
+		if (valueLabel == null) valueLabel = "integer value";
+		InvalidCellValueException exception = new InvalidCellValueException("Invalid " + valueLabel  + "", cell);
+		if (exceptions == null) throw exception;
+		exceptions.add(exception);
+		return null;
+	}
+	
+//	private Double getCellDouble_(Cell cell, String valueLabel, List<Exception> exceptions) throws InvalidCellValueException {
+//		CellType cellType = SheetUtils.getEffectiveCellType(cell);
+//		
+//		if (cellType == null) return null;
+//		if (cellType == CellType.BLANK) return null;
+//		if (cellType == CellType.NUMERIC) return cell.getNumericCellValue();
+//		
+//		if (cellType == CellType.STRING) {
+//			String cellString = cell.getStringCellValue();
+//			if (cellString == null) return null; 
+//			try {
+//				return Double.parseDouble(cellString.trim());
+//			} catch(NumberFormatException ex) {
+//				// String msg = "Invalid " + (valueLabel == null ? "value" : valueLabel) +  " ('" + cellString + "') in cell " + getWbRelativeCellAddressString(cell) + ". Value has to be a number.";
+//				InvalidCellValueException exception = new InvalidCellValueException("Invalid " + valueLabel, cell);
+//				if (exceptions != null) exceptions.add(exception);
+//				else throw exception;	
+//			}
+//		}
+//		return null;
+//	}
+	
+	private Double getCellDouble(Cell cell, String valueLabel, List<Exception> exceptions) {
+		try {
+			CellType cellType = SheetUtils.getEffectiveCellType(cell);
+			
+			if (cellType == null) return null;
+			if (cellType == CellType.BLANK) return null;
+			if (cellType == CellType.NUMERIC) return cell.getNumericCellValue();
+			
+			if (cellType == CellType.STRING) {
+				String cellString = cell.getStringCellValue();
+				if (cellString == null) return null; 
+				try {
+					return Double.parseDouble(cellString.trim());
+				} catch(NumberFormatException ex) {
+					// InvalidCellValueException exception = new InvalidCellValueException("Invalid " + valueLabel, cell);
+					InvalidCellValueException exception = new InvalidCellValueException("Invalid " + valueLabel + " '" + cellString + "' (value has to be a number)", cell);
+					exceptions.add(exception);	
+				}
+			}
+		} catch(InvalidCellValueException ex) {
+			exceptions.add(ex);
 		}
 		return null;
 	}
 	
-	private boolean rowEmpty(Row row) throws Exception {
+	private boolean rowEmpty(Row row) {
 		for (int i=0;i<row.getPhysicalNumberOfCells();i++) {
-			if (!isCellEmpty(row.getCell(i))) return false;
+			if (!SheetUtils.isCellEmpty(row.getCell(i))) return false;
 		}
 		return true;
 	}
@@ -959,6 +1149,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		LinkedHashMap<Integer, HashSet<Delivery>> olddelsLot = new LinkedHashMap<>();
 		HashMap<String, Integer> lotNumberToLotId = new HashMap<>();
 		HashSet<String> lotDoublettes = new HashSet<>();
+		
+		String[] expectedTables;
+		if (isAllInOneTemplate) expectedTables = new String[] {"deliveries"};
+		else if (backtracing) expectedTables = new String[] {"outgoing deliveries", "incoming deliveries"};
+		else expectedTables = new String[] {"incoming deliveries", "outgoing deliveries"};
+		if (!isProduction && !isAllInOneTemplate) expectedTables = new String[] {expectedTables[1]};
+		
 
 		if (sheet != null) {
 			// region sheet_exists
@@ -970,13 +1167,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				focusStation = new Station();
 				row = sheet.getRow(0);
 				HashMap<String, Integer> hmS = TraceGenerator.getFirstRow(sheet);
-				String cs = getCellString(row.getCell(hmS.get("name")));
+				String cs = getCellString(row.getCell(hmS.get("name")), exceptions);
 				focusStation.setName(cs);
-				String address = getCellString(row.getCell(hmS.get("address")));
+				String address = getCellString(row.getCell(hmS.get("address")), exceptions);
 				focusStation.setAddress(address);
-				focusStation.setCountry(getCellString(row.getCell(hmS.get("country"))));
+				focusStation.setCountry(getCellString(row.getCell(hmS.get("country")), exceptions));
 				if (!isProduction && hmS.get("tob") >= 0) {
-					focusStation.setTypeOfBusiness(getCellString(row.getCell(hmS.get("tob"))));
+					focusStation.setTypeOfBusiness(getCellString(row.getCell(hmS.get("tob")), exceptions));
 				}
 				focusStation.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + 1);
 				int sID = genDbId(""+cs+address);
@@ -992,6 +1189,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			XlsLot xlsL = new XlsLot();
 			XlsDelivery xlsD = new XlsDelivery();
 			XlsOther xlsO = new XlsOther();
+			int startedTableCount = 0;
+			boolean headerFound = false;
 			boolean doPreCollect = false;
 			boolean chargenLinkTypeChecked = false;
 			ChargenLinkType preferedChargenLinkType = null;
@@ -1001,14 +1200,21 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				row = sheet.getRow(iRow);
 				if (row != null) {
 					if (!rowEmpty(row)) {
-						String cellString__ = getCellString(row.getCell(0), false, false, false);
-						if (cellString__ != null && !isAllInOneTemplate || isAllInOneTemplate && iRow > 1) doPreCollect = false; //  && cs.startsWith(XlsStruct.TOP_END_LINE)
+						// ToDo: verify change
+						final String cell0Label = getLabelCellString(row.getCell(0), exceptions);
+						if (cell0Label != null && !isAllInOneTemplate || isAllInOneTemplate && iRow > 1) doPreCollect = false; //  && cs.startsWith(XlsStruct.TOP_END_LINE)
+						
 						if (doCollect || doPreCollect) {
 							//System.err.print(i+1);
 							if (isAllInOneTemplate) {
+								if (!headerFound) {
+									exceptions.add(new InvalidCellValueException("Delivery Table Header not found", sheet));
+									return exceptions;
+								}
+
 								focusStation = null;
-								String name = getCellString(row.getCell(xlsSRecipient.getNameCol()));
-								String address = getCellString(row.getCell(xlsSRecipient.getAddressCol()));
+								String name = getCellString(row.getCell(xlsSRecipient.getNameCol()), exceptions);
+								String address = getCellString(row.getCell(xlsSRecipient.getAddressCol()), exceptions);
 								int sID = genDbId(""+name+address);
 								if (idToStationMap.containsKey(sID)) {
 									focusStation = idToStationMap.get(sID);
@@ -1018,24 +1224,34 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									focusStation = new Station();
 									focusStation.setName(name);
 									focusStation.setAddress(address);
-									if (xlsSRecipient.getCountryCol() >= 0) focusStation.setCountry(getCellString(row.getCell(xlsSRecipient.getCountryCol())));
-									if (xlsSRecipient.getTobCol() >= 0) focusStation.setTypeOfBusiness(getCellString(row.getCell(xlsSRecipient.getTobCol())));
+									if (xlsSRecipient.getCountryCol() >= 0) focusStation.setCountry(getCellString(row.getCell(xlsSRecipient.getCountryCol()), exceptions));
+									if (xlsSRecipient.getTobCol() >= 0) focusStation.setTypeOfBusiness(getCellString(row.getCell(xlsSRecipient.getTobCol()), exceptions));
 									focusStation.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 									focusStation.setId(""+sID);
 									idToStationMap.put(sID, focusStation);
 								}
 								if (xlsSRecipient.getExtraVals().size() > 0) {
 									for (int colnum : xlsSRecipient.getExtraVals().keySet()) {
-										String val = getCellString(row.getCell(colnum));
+										String val = getCellString(row.getCell(colnum), exceptions);
 										if (val != null) {
 											focusStation.addFlexibleField(xlsSRecipient.getExtraVals().get(colnum), val);
 										}
 									}
 								}
 							}
-
-							String name = getCellString(row.getCell(xlsS.getNameCol()));
-							String address = getCellString(row.getCell(xlsS.getAddressCol()));
+			
+							if (!headerFound) {
+//								String table;
+//								if (isAllInOneTemplate) table = "deliveries";
+//								else if (backtracing == (startedTableCount == 0)) table = "incoming deliveries";
+//								else table = "outgoing deliveries";
+										
+								exceptions.add(new InvalidCellValueException("Table header for " + expectedTables[startedTableCount] + " not found", sheet));
+								return exceptions;
+							}
+				
+							String name = getCellString(row.getCell(xlsS.getNameCol()), exceptions);
+							String address = getCellString(row.getCell(xlsS.getAddressCol()), exceptions);
 							int sID = genDbId(""+name+address);
 							Station supplierS = null;
 							if (idToStationMap.containsKey(sID)) {
@@ -1046,23 +1262,23 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								supplierS = new Station();
 								supplierS.setName(name);
 								supplierS.setAddress(address);
-								if (xlsS.getCountryCol() >= 0) supplierS.setCountry(getCellString(row.getCell(xlsS.getCountryCol())));
-								if (xlsS.getTobCol() >= 0) supplierS.setTypeOfBusiness(getCellString(row.getCell(xlsS.getTobCol())));
+								if (xlsS.getCountryCol() >= 0) supplierS.setCountry(getCellString(row.getCell(xlsS.getCountryCol()), exceptions));
+								if (xlsS.getTobCol() >= 0) supplierS.setTypeOfBusiness(getCellString(row.getCell(xlsS.getTobCol()), exceptions));
 								supplierS.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
 								supplierS.setId(""+sID);
 								idToStationMap.put(sID, supplierS);
 							}
 							if (xlsS.getExtraVals().size() > 0) {
 								for (int colnum : xlsS.getExtraVals().keySet()) {
-									String val = getCellString(row.getCell(colnum));
+									String val = getCellString(row.getCell(colnum), exceptions);
 									if (val != null) {
 										supplierS.addFlexibleField(xlsS.getExtraVals().get(colnum), val);
 									}
 								}
 							}
 							
-							String f2 = getCellString(row.getCell(xlsP.getNameCol()));
-							String f3 = xlsP.getEanCol() < 0 ? null : getCellString(row.getCell(xlsP.getEanCol()));
+							String f2 = getCellString(row.getCell(xlsP.getNameCol()), exceptions);
+							String f3 = xlsP.getEanCol() < 0 ? null : getCellString(row.getCell(xlsP.getEanCol()), exceptions);
 							int pID = genDbId(""+(backtracing==doPreCollect?focusStation.getId():supplierS.getId()) + f2 + f3);
 							//System.err.println(pID + " - " + f2 + " - " + f3 + " - " + focusS.getId() + " - " + supplierS.getId() + " - " + backtracing + " - " + doPreCollect);
 							Product p = null;
@@ -1088,7 +1304,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 							if (xlsP.getExtraVals().size() > 0) {
 								for (int colnum : xlsP.getExtraVals().keySet()) {
-									String val = getCellString(row.getCell(colnum));
+									String val = getCellString(row.getCell(colnum), exceptions);
 									if (val != null) {
 										p.addFlexibleField(xlsP.getExtraVals().get(colnum), val);
 									}
@@ -1129,32 +1345,36 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 							}
 							else {
-								if (xlsD.getDayCol()<0) { 
-									if (xlsD.getDeliveryDateCol()<0)  {
-										throw new Exception("Delivery date columns not found.");
-									} else {
-										throw new Exception("Delivery date day column not found.");
-									}
-								}
-								f4 = getInt(getCellString(row.getCell(xlsD.getDayCol())));
-								if (xlsD.getMonthCol()<0) { throw new Exception("Delivery date month column not found."); }
-								f5 = getInt(getCellString(row.getCell(xlsD.getMonthCol())));
-								if (xlsD.getYearCol()<0) { throw new Exception("Delivery date year column not found."); }
-								f6 = getInt(getCellString(row.getCell(xlsD.getYearCol())));
+//								if (xlsD.getDayCol()<0) { 
+//									if (xlsD.getDeliveryDateCol()<0)  {
+//										throw new Exception("Delivery date columns not found.");
+//									} else {
+//										throw new Exception("Delivery date day column not found.");
+//									}
+//								}
+//								f4 = getInt(getCellString(row.getCell(xlsD.getDayCol())));
+//								if (xlsD.getMonthCol()<0) { throw new Exception("Delivery date month column not found."); }
+//								f5 = getInt(getCellString(row.getCell(xlsD.getMonthCol())));
+//								if (xlsD.getYearCol()<0) { throw new Exception("Delivery date year column not found."); }
+//								f6 = getInt(getCellString(row.getCell(xlsD.getYearCol())));
+								DateParts dateParts = getDatePartsFromCells(row, xlsD.getDayCol(), xlsD.getMonthCol(), xlsD.getYearCol(), "Delivery Date", exceptions);
+								f4 = dateParts.day;
+								f5 = dateParts.month;
+								f6 = dateParts.year;
 							}
-							String f7 = xlsD.getAmountCol() >= 0 ? getCellString(row.getCell(xlsD.getAmountCol())) : null;
+							String f7 = xlsD.getAmountCol() >= 0 ? getCellString(row.getCell(xlsD.getAmountCol()), exceptions) : null;
 							if (xlsD.getCommentCol() >= 0) {
-								String val = getCellString(row.getCell(xlsD.getCommentCol()));
+								String val = getCellString(row.getCell(xlsD.getCommentCol()), exceptions);
 								if (val != null) f8 += val + "\n";
 							}
 							if (xlsO.getCommentCol() >= 0) {
-								String val = getCellString(row.getCell(xlsO.getCommentCol()));
+								String val = getCellString(row.getCell(xlsO.getCommentCol()), exceptions);
 								if (val != null) f8 += val + "\n";
 							}
 							f8 = f8.trim();
 							if (f8.isEmpty()) f8 = null;
 							if (isAllInOneTemplate) {
-								f2 = getCellString(row.getCell(6)); // Erzeugercode(s)
+								f2 = getCellString(row.getCell(6), exceptions); // Erzeugercode(s)
 							}
 							if (isAllInOneTemplate && f2 == null && f3 == null) {
 								f2 = "L." + iRow + ".";
@@ -1168,7 +1388,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 							else {
 								if (f4 == null && f5 == null && f6 == null && f7 == null && supplierS.getName() == null) {
-									exceptions.add(new Exception("You have no lot information at all in Row " + (iRow+1) + "."));
+									// exceptions.add(new Exception("You have no lot information at all in Row " + (iRow+1) + "."));
+									exceptions.add(new InvalidCellValueException("You have no lot information at all", row));
 								}
 								else if (f4 == null && f5 == null && f6 == null && f7 == null) {
 									if (isProduction && backtracing && doPreCollect) f2 = "[receiver: " + supplierS.getName() + "]";
@@ -1199,7 +1420,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 							if (xlsL.getExtraVals().size() > 0) {
 								for (int colnum : xlsL.getExtraVals().keySet()) {
-									String val = getCellString(row.getCell(colnum));
+									String val = getCellString(row.getCell(colnum), exceptions);
 									if (val != null) {
 										lot.addFlexibleField(xlsL.getExtraVals().get(colnum), val);
 									}
@@ -1260,7 +1481,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 								if (xlsD.getExtraVals().size() > 0) {
 									for (int colnum : xlsD.getExtraVals().keySet()) {
-										String val = getCellString(row.getCell(colnum));
+										String val = getCellString(row.getCell(colnum), exceptions);
 										if (val != null) {
 											d.addFlexibleField(xlsD.getExtraVals().get(colnum), val);
 										}
@@ -1268,7 +1489,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 								if (xlsO.getExtraVals().size() > 0) {
 									for (int colnum : xlsO.getExtraVals().keySet()) {
-										String val = getCellString(row.getCell(colnum));
+										String val = getCellString(row.getCell(colnum), exceptions);
 										if (val != null) {
 											d.addFlexibleField(xlsO.getExtraVals().get(colnum), val);
 										}
@@ -1293,7 +1514,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									
 									chargenLinkTypeChecked = true;
 								}
-								String key = getCellString(row.getCell(xlsD.getChargenLinkCol()));
+								Cell chargenLinkCell = row.getCell(xlsD.getChargenLinkCol());
+								String key = getCellString(chargenLinkCell, exceptions);
 								if (key != null) {
 									// if (chargenLinkType != ChargenLinkType.lineNo && lotNumberToLotId.containsKey(key)) {
 									if (
@@ -1301,7 +1523,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 										(preferedChargenLinkType != ChargenLinkType.lineNo || !olddelsRow.containsKey(key))
 									) {
 										if (lotDoublettes.contains(key)) {
-											exceptions.add(new Exception("[" + (iRow+1) + "] Unclear to which lot the ingredients should be connected - same Lot number (" + key + ") is used for different products.\nTry to make use of the Line Number as connection key."));											
+											// ToDo: Verify whether this message is also delivered in case of forward tracing
+											// exceptions.add(new Exception("[" + (iRow+1) + "] Unclear to which lot the ingredients should be connected - same Lot number (" + key + ") is used for different products.\nTry to make use of the Line Number as connection key."));
+											exceptions.add(new InvalidCellValueException("Unclear to which lot the ingredients should be connected to. The Lot number '" + key + "' is used for different products.\nTry to make use of the Line Number as connection key.", chargenLinkCell));
 										}
 
 										HashSet<Delivery> odhs = olddelsLot.get(lotNumberToLotId.get(key));
@@ -1328,7 +1552,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 										}
 									}
 									else {
-										exceptions.add(new Exception("[" + (iRow+1) + "] Value " + key + " in column " + xlsD.getChargenLinkCol() + " does not match a lot number or a line number."));
+										// exceptions.add(new Exception("[" + (iRow+1) + "] Value " + key + " in column " + xlsD.getChargenLinkCol() + " does not match a lot number or a line number."));
+										// exceptions.add(new InvalidCellValueException("Value '" + key + "' in cell " + chargenLinkCell.getAddress().toString() + " does not match a lot number or a line number.", row.getSheet()));
+										if (backtracing) exceptions.add(new InvalidCellValueException("Unknown outgoing goods reference (value does not match a lot number or a line number from outgoing goods table)", row, xlsD.getChargenLinkCol()));
+										else exceptions.add(new InvalidCellValueException("Unknown incoming goods reference (value does not match a lot number or a line number from incoming goods table)", row, xlsD.getChargenLinkCol()));
 									}
 								}
 							}
@@ -1345,20 +1572,30 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							
 						}
 						else if (
-								isAllInOneTemplate && iRow == 0 ||
-								backtracing && cellString__ != null && (cellString__.trim().startsWith(XlsStruct.getBACK_NEW_DATA_START(lang)) || cellString__.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) ||
-								!backtracing && cellString__ != null && (cellString__.trim().startsWith(XlsStruct.getFWD_NEW_DATA_START(lang)) || cellString__.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) ||
-								isProduction && iRow==3) {
+							isAllInOneTemplate && iRow == 0 ||
+//							backtracing && cellLabel != null && (cellLabel.trim().startsWith(XlsStruct.getBACK_NEW_DATA_START(lang)) || cellLabel.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) ||
+							backtracing && cell0Label != null && (
+								cell0Label.trim().startsWith(XlsStruct.getBACK_NEW_DATA_START(lang)) && startedTableCount == 0 || 
+								cell0Label.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang)) && startedTableCount == 1 && isProduction
+							) ||
+//							!backtracing && cellLabel != null && (cellLabel.trim().startsWith(XlsStruct.getFWD_NEW_DATA_START(lang)) || cellLabel.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) ||
+							!backtracing && cell0Label != null && (
+								cell0Label.trim().startsWith(XlsStruct.getFWD_NEW_DATA_START(lang)) && startedTableCount == 0 || 
+								cell0Label.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang)) && startedTableCount == 1 && isProduction
+							) ||
+							isProduction && iRow==3
+						) {
 							xlsS = new XlsStation();
 							xlsSRecipient = new XlsStation();
 							xlsP = new XlsProduct();
 							xlsL = new XlsLot();
 							xlsD = new XlsDelivery();
 							xlsO = new XlsOther();
+							// headerFound = true;
 							// Header for Entities
 							row = sheet.getRow(iRow);
 							for (int iCell=0;iCell<row.getLastCellNum();iCell++) {
-								String str = getLabelCellString(row.getCell(iCell));
+								String str = getLabelCellString(row.getCell(iCell), exceptions);
 								if (str != null) {
 									str = str.trim();
 									boolean isRecipient = str.equalsIgnoreCase(XlsStation.BLOCK_RECIPIENT(lang));
@@ -1367,7 +1604,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 										else xlsS.setStartCol(iCell);
 										iCell++;										
 										while(true) {
-											String string = getCellString(row.getCell(iCell));
+											String string = getLabelCellString(row.getCell(iCell), exceptions);
 											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
 											if (iCell >= row.getLastCellNum()) break;
@@ -1381,7 +1618,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									else if ((str.equalsIgnoreCase(XlsProduct.BLOCK_INGREDIENT(lang)) || str.equalsIgnoreCase(XlsProduct.BLOCK_PRODUCT(lang)))) {
 										xlsP.setStartCol(iCell); iCell++;
 										while(true) {
-											String string = getCellString(row.getCell(iCell));
+											String string = getLabelCellString(row.getCell(iCell), exceptions);
 											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
 											if (iCell >= row.getLastCellNum()) break;
@@ -1392,7 +1629,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									else if (str.equalsIgnoreCase(XlsLot.BLOCK(lang))) {
 										xlsL.setStartCol(iCell); iCell++;
 										while(true) {
-											String string = getCellString(row.getCell(iCell));
+											String string = getLabelCellString(row.getCell(iCell), exceptions);
 											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
 											if (iCell >= row.getLastCellNum()) break;
@@ -1403,7 +1640,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									else if (str.equalsIgnoreCase(XlsDelivery.BLOCK(lang))) {
 										xlsD.setStartCol(iCell); iCell++;
 										while(true) {
-											String string = getCellString(row.getCell(iCell));
+											String string = getLabelCellString(row.getCell(iCell), exceptions);
 											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
 											if (iCell >= row.getLastCellNum()) break;
@@ -1414,7 +1651,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									else if (str.equalsIgnoreCase(XlsOther.BLOCK(lang))) {
 										xlsO.setStartCol(iCell); iCell++;
 										while(true) {
-											String string = getCellString(row.getCell(iCell));
+											String string = getLabelCellString(row.getCell(iCell), exceptions);
 											System.err.println(iCell + "-" + string);
 											if (string != null && !string.trim().isEmpty()) break;
 											if (iCell >= row.getLastCellNum()) break;
@@ -1427,34 +1664,43 @@ public class TraceImporter extends FileFilter implements MyImporter {
 									}
 								}
 							}
+							
 							// Fields for Entities
 							iRow++;
 							row = sheet.getRow(iRow);
-							for (int ii=xlsS.getStartCol();ii<=xlsS.getEndCol();ii++) {
-								String str = getLabelCellString(row.getCell(ii));
-								xlsS.addField(str, ii, lang);
+							if (xlsS.getStartCol() >= 0) {
+								for (int ii=xlsS.getStartCol();ii<=xlsS.getEndCol();ii++) {
+									String str = getLabelCellString(row.getCell(ii));
+									xlsS.addField(str, ii, lang);
+								}
 							}
-							if (isAllInOneTemplate) {
+							if (isAllInOneTemplate && xlsSRecipient.getStartCol() >= 0) {
 								for (int ii=xlsSRecipient.getStartCol();ii<=xlsSRecipient.getEndCol();ii++) {
-									String str = getCellString(row.getCell(ii));
+									String str = getLabelCellString(row.getCell(ii), exceptions);
 									xlsSRecipient.addField(str, ii, lang);
 								}								
 							}
-							for (int ii=xlsP.getStartCol();ii<=xlsP.getEndCol();ii++) {
-								String str = getLabelCellString(row.getCell(ii));
-								xlsP.addField(str, ii, lang);
+							if (xlsP.getStartCol() >= 0) {
+								for (int ii=xlsP.getStartCol();ii<=xlsP.getEndCol();ii++) {
+									String str = getLabelCellString(row.getCell(ii), exceptions);
+									xlsP.addField(str, ii, lang);
+								}
 							}
-							for (int ii=xlsL.getStartCol();ii<=xlsL.getEndCol();ii++) {
-								String str = getLabelCellString(row.getCell(ii));
-								xlsL.addField(str, ii, lang);
+							if (xlsL.getStartCol() >= 0) {
+								for (int ii=xlsL.getStartCol();ii<=xlsL.getEndCol();ii++) {
+									String str = getLabelCellString(row.getCell(ii), exceptions);
+									xlsL.addField(str, ii, lang);
+								}
 							}
-							for (int ii=xlsD.getStartCol();ii<=xlsD.getEndCol();ii++) {
-								String str = getLabelCellString(row.getCell(ii));
-								xlsD.addField(str, ii, lang);
+							if (xlsD.getStartCol() >= 0) {
+								for (int ii=xlsD.getStartCol();ii<=xlsD.getEndCol();ii++) {
+									String str = getLabelCellString(row.getCell(ii), exceptions);
+									xlsD.addField(str, ii, lang);
+								}
 							}
 							if (xlsO.getStartCol() >= 0 && xlsO.getEndCol() >= 0) {
 								for (int ii=xlsO.getStartCol();ii<=xlsO.getEndCol();ii++) {
-									String str = getLabelCellString(row.getCell(ii));
+									String str = getLabelCellString(row.getCell(ii), exceptions);
 									xlsO.addField(str, ii, lang);
 								}								
 							}
@@ -1463,7 +1709,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								xlsD.setChargenLinkCol(-1);
 								doPreCollect = true;
 							}
-							else if (cellString__.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) { // "Zeilennummer"
+							else if (cell0Label != null && cell0Label.trim().startsWith(XlsStruct.getPROD_NEW_DATA_START(lang))) { // "Zeilennummer"
 								xlsD.setChargenLinkCol(0);
 								doCollect = true;
 							}
@@ -1472,12 +1718,62 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								doCollect = true;
 							}
 							if (!isAllInOneTemplate) iRow++;
+							
+							{
+								// header validation
+								List<Exception> headerExceptions = new ArrayList<>();
+								
+								String stationType;
+								if (isAllInOneTemplate) stationType = "Supplier";
+								else if (backtracing == (startedTableCount == 0)) stationType = "Recipient";
+								else stationType = "Supplier";
+								
+								if (xlsS.getNameCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing " + stationType + " Name Column", sheet));
+								if (xlsS.getAddressCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing " + stationType + " Address Column", sheet));
+								if (xlsP.getNameCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Product Name Column", sheet));
+								if (xlsL.getLotCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Lot Number Column", sheet));
+								if (xlsL.getMhdCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Mhd Column", sheet));
+								if (xlsD.getDayCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Delivery Date Day Column", sheet));
+								if (xlsD.getMonthCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Delivery Date Month Column", sheet));
+								if (xlsD.getYearCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Delivery Date Year Column", sheet));
+								
+								if (isAllInOneTemplate) {
+									if (xlsSRecipient.getNameCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Recipient Name Column", sheet));
+									if (xlsSRecipient.getAddressCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Recpient Address Column", sheet));	
+								}
+								
+								if (!headerExceptions.isEmpty()) {
+//									String table;
+//									if (isAllInOneTemplate) table = "deliveries";
+//									else if (backtracing == (startedTableCount == 0)) table = "incoming deliveries";
+//									else table = "outgoing deliveries";
+											
+									exceptions.add(new InvalidCellValueException("Invalid table header for " + expectedTables[startedTableCount], sheet));
+									exceptions.addAll(headerExceptions);
+									return exceptions;
+								}
+								headerFound = true;
+								startedTableCount++;
+							}
 							continue;
 						}
 					}
 				}
-				// if (taskMonitor.isCanceled()) throw new UserCancelException();
-				taskMonitor.setProgress((int)((iRow + 1) / (double)numRows * 100));
+				if (taskMonitor.isCanceled()) throw new UserCancelException();
+				// taskMonitor.setProgress((int)((iRow + 1) / (double)numRows * 100));
+				taskMonitor.setProgress(100 * iRow / numRows);
+			}
+			{
+				// final int expectedTableCount = isAllInOneTemplate || !isProduction ? 1 : 2;
+				if (startedTableCount < expectedTables.length) {
+//					String table;
+//					if (isAllInOneTemplate) table = "deliveries";
+//					else if (backtracing == (startedTableCount == 0)) table = "incoming deliveries";
+//					else table = "outgoing deliveries";
+							
+					exceptions.add(new InvalidCellValueException("Missing table for " + expectedTables[startedTableCount], sheet));
+					return exceptions;
+				}
 			}
 		}
 		else {
@@ -1525,6 +1821,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		catch (Exception e) {
 			exceptions.add(e);
+			e.printStackTrace();
 		}
 
 		return exceptions;
@@ -1592,11 +1889,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 	}
 
-	private boolean isBlockEnd(Row row, int numCols2Check, String nextBlockIdentifier) throws Exception {
+	private boolean isBlockEnd(List<Exception> exceptions, Row row, int numCols2Check, String nextBlockIdentifier) throws Exception {
 		if (row == null) return true;
 		for (int j=0;j<numCols2Check;j++) {
 
-			String cellString = getCellString(row.getCell(j)); 
+			String cellString = getCellString(row.getCell(j), exceptions); 
 			if (cellString == null) continue;
 			if (j == 0 && nextBlockIdentifier != null && cellString.equals(nextBlockIdentifier)) return true;
 			if (!cellString.isEmpty()) return false;
@@ -1604,11 +1901,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return true;
 	}
 	
-	private int getNextBlockRowIndex(Sheet transactionSheet, int rowIndex, String nextBlockIdentifier) throws Exception {
+	private int getNextBlockRowIndex(List<Exception> exceptions, Sheet transactionSheet, int rowIndex, String nextBlockIdentifier) throws Exception {
 		int numRows = transactionSheet.getLastRowNum() + 1;
 		for (;rowIndex < numRows;rowIndex++) {
 			Row row = transactionSheet.getRow(rowIndex);
-			String cellString = getCellString(row.getCell(0));
+			String cellString = getCellString(row.getCell(0), exceptions);
 			if (cellString == null) continue;
 			if (cellString.equals(nextBlockIdentifier)) return rowIndex;
 		}
@@ -1676,79 +1973,128 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (int i=0;i<numRows;i++) {
 			Row row = businessSheet.getRow(i);
 			if (row != null) {
-				String cellString = getCellString(row.getCell(0));
+				String cellString = getCellString(row.getCell(0), exceptions);
 				if (cellString != null && cellString.equals(lookup)) {
-					station = getStation(businessSheet.getRow(0), row);
+					station = getStation(businessSheet.getRow(0), row, exceptions);
 					break;
 				}
 			}
 		}
 		if (station == null) {
-			StackTraceElement[] tmpTrace = Thread.currentThread().getStackTrace();
-			System.err.println(tmpTrace.toString());
-			exceptions.add(new Exception("Station '" + lookup + "' is not correctly defined in Row " + (srcrow.getRowNum() + 1)));
+			// ToDo: remove
+//			StackTraceElement[] tmpTrace = Thread.currentThread().getStackTrace();
+//			System.err.println(tmpTrace.toString());
+			 // exceptions.add(new Exception("Station '" + lookup + "' is not correctly defined in Row " + (srcrow.getRowNum() + 1)));
+			exceptions.add(new InvalidCellValueException("Station '" + lookup + "' is not correctly defined", srcrow));
 		}
 		return station;
 	}
 	
-	private Station getStation(Row titleRow, Row row) throws Exception {
+	private Station getStation(Row titleRow, Row row, List<Exception> exceptions) {
 		if (row == null) return null;
 		Station station = new Station();
 		{
-			String id = getCellString(row.getCell(0));
+			String id = getRequiredCellString(row, StationsSheet.COL_STATION_ID, "'Station ID'", exceptions);
 			if (id != null) station.setId(id);
 			else return null;
 		}
 		
-		applyCellString(row.getCell(1), x -> station.setName(x));
-		applyCellString(row.getCell(2), x -> station.setStreet(x));
-		applyCellString(row.getCell(3), x -> station.setNumber(x));
-		applyCellString(row.getCell(4), x -> station.setZip(x));
-		applyCellString(row.getCell(5), x -> station.setCity(x));
-		applyCellString(row.getCell(6), x -> station.setDistrict(x));
-		applyCellString(row.getCell(7), x -> station.setState(x));
-		applyCellString(row.getCell(8), x -> station.setCountry(x));
-		applyCellString(row.getCell(9), x -> station.setTypeOfBusiness(x));
+		station.setName(getCellString(row.getCell(StationsSheet.COL_NAME), exceptions));
+		station.setStreet(getCellString(row.getCell(StationsSheet.COL_STREET), exceptions));
+		station.setNumber(getCellString(row.getCell(StationsSheet.COL_STREET_NO), exceptions));
+		station.setZip(getCellString(row.getCell(StationsSheet.COL_ZIP), exceptions));
+		station.setCity(getCellString(row.getCell(StationsSheet.COL_CITY), exceptions));
+		station.setDistrict(getCellString(row.getCell(StationsSheet.COL_DISTRICT), exceptions));
+		station.setState(getCellString(row.getCell(StationsSheet.COL_STATE), exceptions));
+		station.setCountry(getCellString(row.getCell(StationsSheet.COL_COUNTRY), exceptions));
+		station.setTypeOfBusiness(getCellString(row.getCell(StationsSheet.COL_TOB), exceptions));
 
 		// Further flexible cells
-		addFlexibleFields(titleRow, row, 10, 19, station);
+		addFlexibleFields(titleRow, row, 10, 19, station, exceptions);
 		return station;
 	}
 	
-	private D2D getD2D(List<Exception> exceptions, HashMap<String, Delivery> deliveries, Row titleRow, Row row, int rowNum) throws Exception {
-		if (row == null) return null;
-		D2D d2d = new D2D();
-		{
-			String deliveryId = getCellString(row.getCell(0));
-			if (deliveryId == null) return null;
-			Delivery delivery = deliveries.get(deliveryId);
-			if (delivery == null) exceptions.add(new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: '" + deliveryId + "'; -> Row " + (rowNum+1)));
-			d2d.setIngredient(delivery);
-		}
-		{
-			String deliveryId = getCellString(row.getCell(1));
-			if (deliveryId == null) return null;
-			Delivery delivery = deliveries.get(deliveryId);
-			if (delivery == null) exceptions.add(new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: '" + deliveryId + "'; -> Row " + (rowNum+1)));
-			d2d.setTargetDelivery(delivery);
-		}
-		if (d2d.getIngredient() != null && d2d.getTargetDelivery() != null) {
-			if (!d2d.getIngredient().getReceiver().getId().equals(d2d.getTargetDelivery().getLot().getProduct().getStation().getId())) {
-				exceptions.add(new Exception("Recipient does not match Supplier; in sheet Deliveries2Deliveries: '" + d2d.getIngredient().getId() + "' -> '" + d2d.getTargetDelivery().getId() + "'; -> Row " + (rowNum+1)));
+	private HashSet<D2D> collectD2Ds(List<Exception> exceptions, Sheet d2dSheet, HashMap<String, Delivery> deliveries, String deliveryDefSource, IProgressMonitor taskMonitor) throws UserCancelException {
+		debugEnter();
+		final HashSet<D2D> recipes = new HashSet<>();
+		
+		final int numRows = d2dSheet.getLastRowNum() + 1;
+		final Row titleRow = d2dSheet.getRow(0);
+		for (int rowIndex=1; rowIndex < numRows; rowIndex++) {
+			final Row row = d2dSheet.getRow(rowIndex);
+			if (row == null || rowEmpty(row)) break;
+			final int rowNum = rowIndex + 1;
+			final int nE = exceptions.size();
+			boolean isInvalid = false;
+			
+			final D2D d2d = new D2D();
+			{
+				String fromDeliveryId = getRequiredCellString(row, D2DSheet.COL_FROM_ID, "'Delivery ID'", exceptions);
+				
+				if (fromDeliveryId != null) {
+					Delivery fromDelivery = deliveries.get(fromDeliveryId);
+					if (fromDelivery == null) {
+						if (!deliveries.containsKey(fromDeliveryId)) {
+							// exceptions.add(new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: '" + fromDeliveryId + "'; -> Row " + (rowNum)));
+							// exceptions.add(new InvalidCellValueException("Unknown From Delivery ID (ID has to be defined in " + deliveryDefSource + ")", row, D2DSheet.COL_FROM_ID));
+							exceptions.add(new InvalidCellValueException("Unknown Delivery ID (ID has to be listed in " + deliveryDefSource + ")", row, D2DSheet.COL_FROM_ID));
+						}
+						isInvalid = true;
+					} 
+					else d2d.setIngredient(fromDelivery);
+				}
 			}
-		}
-		// Please continue here 
-		// Further flexible cells
+			
+			{
+				String toDeliveryId = getRequiredCellString(row, D2DSheet.COL_TO_ID, "'Delivery ID'", exceptions);
+				if (toDeliveryId != null) {
+					Delivery toDelivery = deliveries.get(toDeliveryId);
+					if (toDelivery == null) {
+						if (!deliveries.containsKey(toDeliveryId)) { 
+							// exceptions.add(new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: '" + toDeliveryId + "'; -> Row " + (rowNum)));
+							exceptions.add(new InvalidCellValueException("Unknown Delivery ID (ID has to be defined in " + deliveryDefSource + ")", row, D2DSheet.COL_TO_ID));
+						}
+						isInvalid = true;
+					} 
+					else d2d.setTargetDelivery(toDelivery);
+				}
+			}
+			
+			if (d2d.getIngredient() != null && d2d.getTargetDelivery() != null) {
+				Station fromDeliveryReceiver = d2d.getIngredient().getReceiver();
+				Station toDeliverySender = d2d.getTargetDelivery().getLot().getProduct().getStation();
+				// String fromDeliveryReceiverId = d2d.getIngredient().getReceiver() == null ? null : 
+				//if (!d2d.getIngredient().getReceiver().getId().equals(d2d.getTargetDelivery().getLot().getProduct().getStation().getId())) {
+				if (fromDeliveryReceiver != null && toDeliverySender != null && fromDeliveryReceiver != toDeliverySender) {
+					// exceptions.add(new Exception("Recipient does not match Supplier; in sheet Deliveries2Deliveries: '" + d2d.getIngredient().getId() + "' -> '" + d2d.getTargetDelivery().getId() + "'; -> Row " + (rowNum+1)));
+					exceptions.add(new InvalidCellValueException("Invalid Delivery to Delivery assignment. Recipient does not match supplier", row));
+				}
+			}
+			// Please continue here 
+			// Further flexible cells
 
-		addFlexibleFields(titleRow, row, 2, 9, d2d);
-		return d2d;
+			addFlexibleFields(titleRow, row, 2, 9, d2d, exceptions);
+			if (!isInvalid && exceptions.size() == nE) {
+				recipes.add(d2d);
+			}
+//			return d2d;
+//			if (dl == null) break;
+//			recipes.add(dl);
+			checkUserCancel(taskMonitor);
+			taskMonitor.setProgress(rowNum * 100 / numRows);
+		}
+		// debug("importing d2ds done.");
+		taskMonitor.setProgress(100);
+		// sleep();
+		debugLeaving();
+		return recipes;
 	}
 	
-	private void addFlexibleFields(Row titleRow, Row row, int fromIndex, int toIndex, IFlexibleFieldContainer flexibleFieldContainer) throws Exception {
+	private void addFlexibleFields(Row titleRow, Row row, int fromIndex, int toIndex, IFlexibleFieldContainer flexibleFieldContainer, List<Exception> exceptions) {
 		for (int i = fromIndex;i <= toIndex; i++) {
-			String titleCellString = getCellString(titleRow.getCell(i));
+			String titleCellString = getCellString(titleRow.getCell(i), exceptions);
 			if (titleCellString != null) {
-				String rowCellString = getCellString(row.getCell(i));
+				String rowCellString = getCellString(row.getCell(i), exceptions);
 				if (rowCellString != null) flexibleFieldContainer.addFlexibleField(titleCellString, rowCellString);
 			}
 		}
@@ -1766,17 +2112,41 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 	}
 	
-//	private DateParts getDatePartsFromCells(Row row, int startIndex) {
-//		return getDatePartsFromCells(row.getCell(startIndex), row.getCell(startIndex + 1), row.getCell(startIndex + 2));
+	class AmountParts {
+		public Double quantity;
+		public String unit;
+		
+		public AmountParts(Double quantity, String unit) {
+			this.quantity = quantity;
+			this.unit = unit;
+		}
+	}
+	
+//	private void addWarning(String key, String source) {
+//		Set<String> sources = warns.get(key);
+//		if (sources == null) {
+//			sources = new LinkedHashSet<>();
+//			warns.put(key, sources);
+//		}
+//		sources.add(source);
 //	}
 	
-	private void addWarning(String key, String source) {
-		Set<String> sources = warns.get(key);
+	private void addFileRelatedWarning(String warning, Cell cell) {
+		List<WarningSource> sources = fileRelatedWarns.get(warning);
 		if (sources == null) {
-			sources = new LinkedHashSet<>();
-			warns.put(key, sources);
+			sources = new ArrayList<>();
+			fileRelatedWarns.put(warning, sources);
 		}
-		sources.add(source);
+		sources.add(new WarningSource(cell));
+	}
+	
+	private void addFileRelatedWarning(String warning, Sheet sheet) {
+		List<WarningSource> sources = fileRelatedWarns.get(warning);
+		if (sources == null) {
+			sources = new ArrayList<>();
+			fileRelatedWarns.put(warning, sources);
+		}
+		sources.add(new WarningSource(sheet));
 	}
 	
 	private boolean isLeapYear(int year) {
@@ -1789,77 +2159,82 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		
 		List<Integer> monthsWith31Days = Arrays.asList(1, 3, 5, 7, 8, 10, 12);
 		
-		if (day == 31 && monthsWith31Days.contains(day)) return false;
-		if (day == 30 && month == 2) return false;
-		if (year == null) return true;
-		
-		if (day == 29 && !isLeapYear(year)) return false;
-		
-		return false;
+		if (day == 31 && monthsWith31Days.contains(day)) return true;
+		return month != 2 || (day != 30 && (day != 29 || year == null || !isLeapYear(year))); 
 	}
 //	
-	private DateParts getDatePartsFromCells(Cell dayCell, Cell monthCell, Cell yearCell) {
-		if (true) return new DateParts(getCellInt(dayCell), getCellInt(monthCell), getCellInt(yearCell));
+	private DateParts getDatePartsFromCells(Row row, int dayColIndex, int monthColIndex, int yearColIndex, String valueLabel, List<Exception> exceptions) {
 		Integer day = null;
 		Integer month = null;
 		Integer year = null; 
-		boolean yearError = false;
-		boolean monthError = false;
-		boolean dayError = false;
+		Exception yearEx = null;
+		Exception monthEx = null;
+		Exception dayEx = null;
 		
 		try { 
-			year = getCellInt(yearCell); 
+			// year = getCellInt(row.getCell(yearColIndex), valueLabel); 
+			year = getCellInt(row.getCell(yearColIndex), valueLabel + " Year"); 
 		}
-		catch(NumberFormatException ex) {
-			yearError = true;
-			addWarning("Invalid year.", getWbRelativeCellAddressString(yearCell));
+		catch(NumberFormatException | InvalidCellValueException ex) {
+			yearEx = ex;
 		}
 		try { 
-			month = getCellInt(monthCell); 
+			// month = getCellInt(row.getCell(monthColIndex), valueLabel);
+			month = getCellInt(row.getCell(monthColIndex), valueLabel + " Month");
 		}
-		catch(NumberFormatException ex) { 
-			monthError = true;
-			addWarning("Invalid month (number).", getWbRelativeCellAddressString(monthCell));
+		catch(NumberFormatException | InvalidCellValueException ex) { 
+			monthEx = ex;
 		}
-		try { day = getCellInt(dayCell); }
-		catch(NumberFormatException ex) { 
-			addWarning("Invalid day.", getWbRelativeCellAddressString(dayCell));
+		try { 
+			// day = getCellInt(row.getCell(dayColIndex), valueLabel);
+			day = getCellInt(row.getCell(dayColIndex), valueLabel + " Day");
+		}
+		catch(NumberFormatException | InvalidCellValueException ex) { 
+			dayEx = ex;
 		}
 		// checkNumberRanges
 		if (year != null && (year < 1 || year > 9999)) {
 			year = null;
-			yearError = true;
-			addWarning("Invalid year.", getWbRelativeCellAddressString(yearCell));
+			yearEx = new InvalidCellValueException("Invalid " + valueLabel + " Year", row, yearColIndex);
 		}
 		if (month != null && (month < 1 || month > 12)) {
 			month = null;
-			monthError = true;
-			addWarning("Invalid month.", getWbRelativeCellAddressString(monthCell));
+			monthEx = new InvalidCellValueException("Invalid " + valueLabel + " Month", row, monthColIndex);
 		}
 		if (day != null && !isValidDay(day, month, year)) {
-			addWarning("Invalid day.", getWbRelativeCellAddressString(dayCell));
+			day = null;
+			dayEx = new InvalidCellValueException("Invalid " + valueLabel + " Day", row, dayColIndex);
 		}
 		
-		if (
-				!dayError && !monthError && !yearError && // no Error
-				(day != null || month != null || year != null) // some part is given
-		) {
-			Cell missingCell = year == null ? yearCell : (month == null ? monthCell : dayCell);
-			addWarning("Incomplete date.", getWbRelativeCellAddressString(missingCell));
-		}
+		for (Exception ex : new Exception[] {dayEx, monthEx, yearEx}) if (ex != null) exceptions.add(ex);
+				
 		return new DateParts(day, month, year);
 	}
 	
-	// private applyDatePartsFromCells(Cell dayCell, Cell monthCell, Cell yearCell, ApplyIntFunction applyDayFun, ApplyIntFunction applyMonthFun, ApplyInt)
-	private void applyDepartureFromCells(Delivery delivery, Cell dayCell, Cell monthCell, Cell yearCell) {
-		DateParts dateParts = getDatePartsFromCells(dayCell, monthCell, yearCell);
+	private AmountParts getAmountPartsFromCells(Row row, int quantityColIndex, int unitColIndex, String valueLabel, List<Exception> exceptions) {
+		Double quantity = null;
+		String unit = null;
+		
+		unit = getCellString(row.getCell(unitColIndex), exceptions);
+		quantity = getCellDouble(row.getCell(quantityColIndex), valueLabel + " Quantity", exceptions);
+//		try {
+//			quantity = getCellDouble(row.getCell(quantityColIndex), valueLabel + " Quantity", null);
+//			if (unit != null && quantity == null) exceptions.add(new InvalidCellValueException("Missing " + valueLabel + " Quantity", row, quantityColIndex));
+//		} catch(InvalidCellValueException ex) {
+//			exceptions.add(ex);
+//		}
+		return new AmountParts(quantity, unit);
+	}
+	
+	private void applyDepartureFromCells(Delivery delivery, Row row, int dayColIndex, int monthColIndex, int yearColIndex, List<Exception> exceptions) {
+		DateParts dateParts = getDatePartsFromCells(row, dayColIndex, monthColIndex, yearColIndex, "Delivery Date", exceptions);
 		delivery.setDepartureDay(dateParts.day);
 		delivery.setDepartureMonth(dateParts.month);
 		delivery.setDepartureYear(dateParts.year);
 	}
 	
-	private void applyArrivalFromCells(Delivery delivery, Cell dayCell, Cell monthCell, Cell yearCell) {
-		DateParts dateParts = getDatePartsFromCells(dayCell, monthCell, yearCell);
+	private void applyArrivalFromCells(Delivery delivery, Row row, int dayColIndex, int monthColIndex, int yearColIndex, List<Exception> exceptions) {
+		DateParts dateParts = getDatePartsFromCells(row, dayColIndex, monthColIndex, yearColIndex, "Delivery Arrival Date", exceptions);
 		delivery.setArrivalDay(dateParts.day);
 		delivery.setArrivalMonth(dateParts.month);
 		delivery.setArrivalYear(dateParts.year);
@@ -1869,37 +2244,56 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (row == null) return null;
 		Lot lot = null;
 		{
-			String lotString = getCellString(row.getCell(0));
+			String lotString = getCellString(row.getCell(0), exceptions);
 			if (lotString != null) lot = lots.get(lotString);
 		}
 		if (lot == null) return null;
 		Delivery result = new Delivery();
 		result.setLot(lot);
 		
-		applyDepartureFromCells(result, row.getCell(1), row.getCell(2), row.getCell(3));
+		applyDepartureFromCells(result, row, 1, 2, 3, exceptions);
 		
 		int startCol = 4;
 		if (isNewFormat_151105) {
-			applyArrivalFromCells(result, row.getCell(4), row.getCell(5), row.getCell(6));
+			applyArrivalFromCells(result, row, 4, 5, 6, exceptions);
 			startCol = 7;
 		}
 		
+//		{
+//			Cell unitNumberCell = row.getCell(startCol);
+//			Double unitNumber = getCellDouble(unitNumberCell, "Delivery Size Quantity", exceptions);
+//			if (unitNumber != null) result.setUnitNumber(unitNumber);
+//			// applyCellDouble(row.getCell(startCol), (x) -> result.setUnitNumber(x));
+//		}
+//		applyCellString(row.getCell(startCol+1), x -> result.setUnitUnit(x));
 		{
-			Cell unitNumberCell = row.getCell(startCol);
-			Double unitNumber = getCellDouble(unitNumberCell, "unit quantity", exceptions);
-			if (unitNumber != null) result.setUnitNumber(unitNumber);
-			// applyCellDouble(row.getCell(startCol), (x) -> result.setUnitNumber(x));
+			AmountParts amountParts = getAmountPartsFromCells(row, startCol, startCol + 1, "Delivery Size", exceptions);
+			if (amountParts.quantity != null) result.setUnitNumber(amountParts.quantity);
+			if (amountParts.unit != null) result.setUnitUnit(amountParts.unit);
 		}
-		applyCellString(row.getCell(startCol+1), x -> result.setUnitUnit(x));
 		
 		{
-			String receiverId = getCellString(row.getCell(startCol+2));
+//			String receiverId = getCellString(row.getCell(startCol+2));
+//			if (receiverId != null) {
+//				Station receiver = getStation(exceptions, stationSheet, receiverId, row);
+//				// if (receiver == null) exceptions.add(new Exception("Recipient station '" + receiverId + "' not correctly defined / not known in Forward Tracing sheet"));
+//				if (receiver == null) exceptions.add(new Exception("Recipient station '" + receiverId + "' not correctly defined / not known in Forward Tracing sheet"));
+//				result.setReceiver(receiver);
+//			}
+//			else {
+//				exceptions.add(new Exception("No Recipient Station defined in Forward Tracing sheet"));
+//			}
+			
+			String receiverId = getRequiredCellString(row, startCol + 2, "Recipient Id", exceptions);
 			if (receiverId != null) {
 				Station receiver = getStation(exceptions, stationSheet, receiverId, row);
-				if (receiver == null) exceptions.add(new Exception("Recipient station '" + receiverId + "' not correctly defined / not known in Forward Tracing sheet"));
+				// if (receiver == null) exceptions.add(new Exception("Recipient station '" + receiverId + "' not correctly defined / not known in Forward Tracing sheet"));
+				if (receiver == null) exceptions.add(new InvalidCellValueException("Recipient station '" + receiverId + "' not correctly defined / not known", row, startCol + 2)); // Recipient station '" + receiverId + "' not correctly defined / not known in Forward Tracing sheet"));
 				result.setReceiver(receiver);
 			}
-			else exceptions.add(new Exception("No Recipient Station defined in Forward Tracing sheet"));
+//			else {
+//				exceptions.add(new Exception("No Recipient Station defined in Forward Tracing sheet"));
+//			}
 		}
 		
 		result.setId(getNewSerial(lot, result));
@@ -1907,119 +2301,141 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		
 		// Further flexible cells
 
-		addFlexibleFields(titleRow, row, startCol + 4, startCol + 21 - 1, result);
+		addFlexibleFields(titleRow, row, startCol + 4, startCol + 21 - 1, result, exceptions);
 		return result;
 	}
 
-	private Delivery getMultiOutDelivery(List<Exception> exceptions, HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum, String filename, boolean ignoreMissingLotnumbers) throws Exception {
-		if (row == null) return null;
-		Delivery result = new Delivery();
-
-		// ToDO: Verify why is id not required?
-		applyCellString(row.getCell(0), x -> result.setId(x));
-		
-		Product p = new Product();
-		{
-			String stationId = getCellString(row.getCell(1));
-			// ToDo: Verify: Why is no exception thrown?
-			if (stationId == null) return null;
-			Station station = stations.get(stationId);
-			if (station == null) exceptions.add(new Exception("Station ID in Deliveries not defined in stations sheet: '" + stationId + "'; -> Row " + (rowNum+1)));
-			p.setStation(station);
-		}
-		
-		applyCellString( row.getCell(2), x -> p.setName(x));
-		Lot l = new Lot();
-		l.setProduct(p);
-		
-		{
-			String lotNo = getCellString(row.getCell(3));
-			if (lotNo != null) {l.setNumber(lotNo);}
-			else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n"));}
-		}
-		
-		applyCellDouble(row.getCell(4), (x) -> l.setUnitNumber(x));
-		applyCellString(row.getCell(5), (x) -> l.setUnitUnit(x));
-		
-		String lotId = (p.getStation() == null) ? "_" + p.getName() + "_" + l.getNumber() : p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
-		String lotInfo = l.getUnitNumber() + "_" + l.getUnitUnit();
-		if (definedLots.containsKey(lotId)) {
-			if (!definedLots.get(lotId).equals(lotInfo)) exceptions.add(new Exception("Lot has different quantities -> Lot number: '" + l.getNumber() + "'; -> Row " + (rowNum+1)));
-		}
-		else definedLots.put(lotId, lotInfo);
-
-		result.setLot(l);
-		
-		applyDepartureFromCells(result, row.getCell(6), row.getCell(7), row.getCell(8));
-		applyArrivalFromCells(result, row.getCell(9), row.getCell(10), row.getCell(11));
-		
-		applyCellDouble(row.getCell(12), x -> result.setUnitNumber(x));
-		applyCellString(row.getCell(13), (x) -> result.setUnitUnit(x));
-		
-		{
-			String receiverId = getCellString(row.getCell(14));
-			if (receiverId != null) {
-				Station receiver = stations.get(receiverId);
-				if (receiver == null) {
-					exceptions.add(new Exception("Recipient ID in sheet Deliveries not defined in stations sheet: '" + receiverId + "'; -> Row " + (rowNum+1)));
-				}
-				result.setReceiver(receiver);
-			}
-			else {
-				// ToDo: Verify: Why is the missing receiver not thrown?
-				if (result.getId() == null) return null;
-				else exceptions.add(new Exception("Recipient ID in sheet Deliveries not defined; -> Row " + (rowNum+1)));
-			}
-		}
-		
-		// Further flexible cells
-		UnaryOperator<String> normalizeStringFun = (String x) -> x.toLowerCase();
-		
-		Set<String> knownLotFields = Stream.of(new String[] {
-				"Production date",
-				"Best before date",
-				"Treatment of product during production",
-				"Sampling"
-		}).map(normalizeStringFun).collect(Collectors.toSet());
-				
-		for (int i=15;i<25;i++) {
-			String fieldKey = getCellString(titleRow.getCell(i));
-			if (fieldKey != null) {
-				String fieldValue = getCellString(row.getCell(i));
-				if (fieldValue != null) {
-					if (knownLotFields.contains(normalizeStringFun.apply(fieldKey))) l.addFlexibleField(fieldKey, fieldValue);
-					else result.addFlexibleField(fieldKey, fieldValue);
-				}
-			}
-		}
-		
-		return result;
-	}
-	
-	private void throwCellErrorException(Cell cell) throws InvalidCellValueException {
-		throw new InvalidCellValueException("Cell " + getWbRelativeCellAddressString(cell) + " contains an error.");
-	}
-	
-	private boolean isCellEmpty(Cell cell) throws InvalidCellValueException {
-		if (cell == null) return true;
-		CellType cellType = cell.getCellType();
-		
-		if (cellType == CellType.FORMULA) cellType = cell.getCachedFormulaResultType();
-		if (cellType == CellType.BLANK) return true;
-		if (cellType == CellType.ERROR) throwCellErrorException(cell);
-		if (cellType != CellType.STRING) return false;
-		
-		return getStringCellString(cell, true, false) == null;
-	}
+//	private Delivery getMultiOutDelivery(List<Exception> exceptions, HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum, String filename, boolean ignoreMissingLotnumbers) throws Exception {
+//		if (row == null) return null;
+//		Delivery result = new Delivery();
+//		
+//		if (row.getRowNum() == 66) {
+//			rowNum = rowNum + 0;
+//		}
+//
+//		// ToDO: Verify why is id not required?
+//		try {applyCellString(row.getCell(0), x -> result.setId(x));} catch(Exception ex) {}
+//		
+//		
+//		Product p = new Product();
+//		{
+//			String stationId = getCellString(row.getCell(1), exceptions);
+//			// ToDo: Verify: Why is no exception thrown?
+//			if (stationId == null) return null;
+//			Station station = stations.get(stationId);
+//			if (station == null) exceptions.add(new Exception("Station ID in Deliveries not defined in stations sheet: '" + stationId + "'; -> Row " + (rowNum+1)));
+//			p.setStation(station);
+//		}
+//		
+//		applyCellString(row.getCell(2), x -> p.setName(x), exceptions);
+//		Lot l = new Lot();
+//		l.setProduct(p);
+//		
+//		{
+//			String lotNo = getCellString(row.getCell(3));
+//			if (lotNo != null) {l.setNumber(lotNo);}
+//			// else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n"));}
+//			else if (!ignoreMissingLotnumbers) {exceptions.add(new InvalidCellValueException("Please, do always provide a lot number as this is most helpful!", row));}
+//		}
+//		
+////		{
+////			Cell lotUnitNumberCell = row.getCell(4);
+////			Double lotUnitNumber = getCellDouble(lotUnitNumberCell, "Lot Size Quantity", exceptions);
+////			if (lotUnitNumber != null) l.setUnitNumber(lotUnitNumber);
+////			// applyCellDouble(row.getCell(4), (x) -> l.setUnitNumber(x));
+////			AmountParts amountParts = getAmountPartsFromCells(row, 4, 5, "Lot Size", exceptions);
+////			
+////			
+////		}
+////		applyCellString(row.getCell(5), (x) -> l.setUnitUnit(x));
+//		
+//		{
+//			AmountParts amountParts = getAmountPartsFromCells(row, 4, 5, "Lot Size", exceptions);
+//			l.setUnitNumber(amountParts.quantity);
+//			l.setUnitUnit(amountParts.unit);
+//		}
+//		
+//		String lotId = (p.getStation() == null) ? "_" + p.getName() + "_" + l.getNumber() : p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
+//		String lotInfo = l.getUnitNumber() + "_" + l.getUnitUnit();
+//		if (definedLots.containsKey(lotId)) {
+//			if (!definedLots.get(lotId).equals(lotInfo)) exceptions.add(new Exception("Lot has different quantities -> Lot number: '" + l.getNumber() + "'; -> Row " + (rowNum+1)));
+//		}
+//		else definedLots.put(lotId, lotInfo);
+//
+//		result.setLot(l);
+//		
+//		applyDepartureFromCells(result, row, 6, 7, 8, exceptions);
+//		applyArrivalFromCells(result, row, 9, 10, 11, exceptions);
+//		
+//		{
+//			AmountParts amountParts = getAmountPartsFromCells(row, 12, 13, "Delivery Size", exceptions);
+//			
+//			result.setUnitNumber(amountParts.quantity);
+//			result.setUnitUnit(amountParts.unit);
+//		}
+//		// applyAmountParts(result, row, 12, 13, "unit", exceptions);
+//		
+//		//applyCellDouble(row.getCell(12), x -> result.setUnitNumber(x));
+////		{
+////			Cell unitNumberCell = row.getCell(12);
+////			Double unitNumber = getCellDouble(unitNumberCell, "unit quantity", exceptions);
+////			if (unitNumber != null) result.setUnitNumber(unitNumber);
+////		}
+////		applyCellString(row.getCell(13), (x) -> result.setUnitUnit(x));
+//		
+//		{
+//			String receiverId = getCellString(row.getCell(14));
+//			if (receiverId != null) {
+//				Station receiver = stations.get(receiverId);
+//				if (receiver == null) {
+//					exceptions.add(new Exception("Recipient ID in sheet Deliveries not defined in stations sheet: '" + receiverId + "'; -> Row " + (rowNum+1)));
+//				}
+//				result.setReceiver(receiver);
+//			}
+//			else {
+//				// ToDo: Verify: Why is the missing receiver not thrown?
+//				if (result.getId() == null) return null;
+//				else exceptions.add(new Exception("Recipient ID in sheet Deliveries not defined; -> Row " + (rowNum+1)));
+//			}
+//		}
+//		
+//		// Further flexible cells
+//		UnaryOperator<String> normalizeStringFun = (String x) -> x.toLowerCase();
+//		
+//		Set<String> knownLotFields = Stream.of(new String[] {
+//				"Production date",
+//				"Best before date",
+//				"Treatment of product during production",
+//				"Sampling"
+//		}).map(normalizeStringFun).collect(Collectors.toSet());
+//				
+//		for (int i=15;i<25;i++) {
+//			String fieldKey = getCellString(titleRow.getCell(i));
+//			if (fieldKey != null) {
+//				String fieldValue = getCellString(row.getCell(i));
+//				if (fieldValue != null) {
+//					if (knownLotFields.contains(normalizeStringFun.apply(fieldKey))) l.addFlexibleField(fieldKey, fieldValue);
+//					else result.addFlexibleField(fieldKey, fieldValue);
+//				}
+//			}
+//		}
+//		
+//		return result;
+//	}
 	
 	private Delivery getDelivery(List<Exception> exceptions, Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, boolean isForTracing, HashMap<String, Lot> outLots, HashMap<String, Delivery> existingDeliveries, boolean ignoreMissingLotnumbers, boolean isNewFormat_151105) throws Exception {
 		Cell cell;
+		if (sif == null) {
+			sif = null;
+		}
 		if (isNewFormat_151105) {
 			cell = row.getCell(0);
-			if (isCellEmpty(cell)) {
+			if (SheetUtils.isCellEmpty(cell)) {
 				Cell cell10 = row.getCell(10); 
-				if (!isForTracing || !isCellEmpty(cell10)) {
-					exceptions.add(new Exception("It is essential to choose the associated Lot number ('Lot Number of " + (isForTracing ? "" : " \"") + "Product" + (isForTracing ? "" : " Out\"") + "') to the delivery in Row number " + (classRowIndex + 1)));
+				// ToDo: check change
+				if (!isForTracing || !SheetUtils.isCellEmpty(cell10)) {
+					// exceptions.add(new Exception("It is essential to choose the associated Lot number ('Lot Number of " + (isForTracing ? "" : " \"") + "Product" + (isForTracing ? "" : " Out\"") + "') to the delivery in Row number " + (classRowIndex + 1)));
+					exceptions.add(new InvalidCellValueException("It is essential to choose the associated Lot number ('Lot Number of " + (isForTracing ? "" : " \"") + "Product" + (isForTracing ? "" : " Out\"") + "') to the delivery", row));
 				}
 				return null;
 			}
@@ -2027,18 +2443,20 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		else {
 			cell = row.getCell(12);
-			if (isCellEmpty(cell)) {
+			if (SheetUtils.isCellEmpty(cell)) {
 				Cell cell10 = row.getCell(10); 
 				Cell cell0 = row.getCell(0); 
-				if ((!isForTracing && !isCellEmpty(cell0)) || !isCellEmpty(cell10)) {
-					exceptions.add(new Exception("It is essential to choose the associated Lot number ('Lot Number of " + (isForTracing ? "" : " \"") + "Product" + (isForTracing ? "" : " Out\"") + "') to the delivery in Row number " + (classRowIndex + 1)));
+				// ToDo: check change
+				if ((!isForTracing && !SheetUtils.isCellEmpty(cell0)) || !SheetUtils.isCellEmpty(cell10)) {
+					// exceptions.add(new Exception("It is essential to choose the associated Lot number ('Lot Number of " + (isForTracing ? "" : " \"") + "Product" + (isForTracing ? "" : " Out\"") + "') to the delivery in Row number " + (classRowIndex + 1)));
+					exceptions.add(new InvalidCellValueException("It is essential to choose the associated Lot number ('Lot Number of " + (isForTracing ? "" : " \"") + "Product" + (isForTracing ? "" : " Out\"") + "') to the delivery", row));
 				}
 				return null;
 			}
 		}
 		
 		Delivery delivery = new Delivery();
-		String lotDelNumber = getCellString(cell);
+		String lotDelNumber = getCellString(cell, exceptions);
 		if (lotDelNumber != null) {
 			if (isNewFormat_151105) {
 				delivery.setId(lotDelNumber);
@@ -2051,11 +2469,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		Lot l;
 		if (isForTracing && outbound) {
-			String cellString = getCellString(row.getCell(0));
+			String cellString = getCellString(row.getCell(0), exceptions);
 			// ToDo: check (BfR_Format_Fortrace.xlsx) (first 2 columns are empty)
 			// Why is this done here (in the code above the appropriate lot no is already checked)
 			if (cellString != null) lotDelNumber = cellString;
-			if (lotDelNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}
+			// if (lotDelNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}
+			if (lotDelNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new InvalidCellValueException("Please, do always provide a lot number as this is most helpful!", row));}
 			l = outLots.get(lotDelNumber);
 		}
 		else {
@@ -2066,33 +2485,41 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			String lotNumber = null;
 			if (isNewFormat_151105) {
 				if (outbound) {
-					lotNumber = getCellString(row.getCell(0));
-					if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}					
+					lotNumber = getCellString(row.getCell(0), exceptions);
+					// if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}
+					if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new InvalidCellValueException("Please, do always provide a lot number as this is most helpful!", row)); }
 					l.setNumber(lotNumber);
 					if (outLots.containsKey(lotNumber)) {
 						l = outLots.get(lotNumber);
 					}
 				}				
 				else {
-					lotNumber = getCellString(row.getCell(0));
+					// ToDo: What is going on here?
+					lotNumber = getCellString(row.getCell(0), exceptions);
 					if (lotNumber != null) delivery.addTargetLotId(lotNumber);
 
-					applyCellString(row.getCell(1), (x) -> p.setName(x));
-					lotNumber = getCellString(row.getCell(2));
-					if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}
+					// applyCellString(row.getCell(1), (x) -> p.setName(x));
+					p.setName(getCellString(row.getCell(1), exceptions));
+					lotNumber = getCellString(row.getCell(2), exceptions);
+//					if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}
+					if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new InvalidCellValueException("Please, do always provide a lot number as this is most helpful!", row));}
 					l.setNumber(lotNumber);
 					if (lotNumber == null && p.getName() == null) {
-						exceptions.add(new Exception("Lot number undefined in Row number " + (classRowIndex + 1)));
+						// exceptions.add(new Exception("Lot number undefined in Row number " + (classRowIndex + 1)));
+						exceptions.add(new InvalidCellValueException("Lot Number is missing", row));
 					}
 				}
 			}
 			else {
-				applyCellString(row.getCell(0), (x) -> p.setName(x));
-				lotNumber = getCellString(row.getCell(1));
-				if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}
+				// applyCellString(row.getCell(0), (x) -> p.setName(x));
+				p.setName(getCellString(row.getCell(0), exceptions));
+				lotNumber = getCellString(row.getCell(1), exceptions);
+				// if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}
+				if (lotNumber == null && !ignoreMissingLotnumbers) {exceptions.add(new InvalidCellValueException("Please, do always provide a lot number as this is most helpful!", row));}
 				l.setNumber(lotNumber);
 				if (lotNumber == null && p.getName() == null) {
-					exceptions.add(new Exception("Lot number and product name undefined in Row number " + (classRowIndex + 1)));
+					// exceptions.add(new Exception("Lot number and product name undefined in Row number " + (classRowIndex + 1)));
+					exceptions.add(new InvalidCellValueException("Lot number and product name undefined", row));
 				}
 			}
 		}
@@ -2101,20 +2528,27 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (!outbound) delivery.setReceiver(sif);
 		int startCol = isNewFormat_151105 ? 3 : 2;
 		
-		applyDepartureFromCells(delivery, row.getCell(startCol), row.getCell(startCol + 1), row.getCell(startCol + 2));
-		applyArrivalFromCells(delivery, row.getCell(startCol+3), row.getCell(startCol+4), row.getCell(startCol+5));
+		applyDepartureFromCells(delivery, row, startCol, startCol + 1, startCol + 2, exceptions);
+		applyArrivalFromCells(delivery, row, startCol + 3, startCol + 4, startCol+ 5, exceptions);
+//		{
+//			Cell unitNumberCell = row.getCell(startCol+6);
+//			Double unitNumber = getCellDouble(unitNumberCell, "unit quantity", exceptions);
+//			if (unitNumber != null) delivery.setUnitNumber(unitNumber);
+//			// applyCellDouble(unitNumberCell, x -> delivery.setUnitNumber(x));
+//		}
+//		applyCellString(row.getCell(startCol+7), (x) -> delivery.setUnitUnit(x));
 		{
-			Cell unitNumberCell = row.getCell(startCol+6);
-			Double unitNumber = getCellDouble(unitNumberCell, "unit quantity", exceptions);
-			if (unitNumber != null) delivery.setUnitNumber(unitNumber);
-			// applyCellDouble(unitNumberCell, x -> delivery.setUnitNumber(x));
+			AmountParts amountParts = getAmountPartsFromCells(row, startCol + 6, startCol + 7, "Delivery Size", exceptions);
+			if (amountParts.quantity != null) delivery.setUnitNumber(amountParts.quantity);
+			if (amountParts.unit != null) delivery.setUnitUnit(amountParts.unit);
 		}
-		applyCellString(row.getCell(startCol+7), (x) -> delivery.setUnitUnit(x));
 					
 		// ToDo: Please verify return of null, what happens here
 		{
-			String stationId = getCellString(row.getCell(startCol+8));
-			if (stationId == null) return null;
+			String stationId = getCellString(row.getCell(startCol+8), exceptions);
+			if (stationId == null) {
+				return null;
+			}
 			Station station = getStation(exceptions, businessSheet, stationId, row);
 			// ToDo: Please verify return of null, what happens here
 			if (outbound) delivery.setReceiver(station);
@@ -2135,7 +2569,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		
 		// Further flexible cells
-		addFlexibleFields(titleRow, row, 13, 19, delivery);
+		addFlexibleFields(titleRow, row, 13, 19, delivery, exceptions);
 		
 		return delivery;
 	}
@@ -2174,7 +2608,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		Lot lot = null;
 	
 		{
-			String lotNumber = getCellString(row.getCell(0));
+			String lotNumber = getCellString(row.getCell(0), exceptions);
 			// ToDo: Why is the lotNumber not checked for null Verify Code Change
 			lot = outLots.get(lotNumber);
 			if (lot == null) {
@@ -2187,30 +2621,46 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 
-		{
-			Cell unitNumberCell = row.getCell(1);
-			Double unitNumber = getCellDouble(unitNumberCell, "lot size quantity", exceptions);
-			if (unitNumber != null) {
-				if (lot.getUnitNumber() == null) lot.setUnitNumber(unitNumber);
-				else if (lot.getUnitNumber().doubleValue() != unitNumber) {
-					exceptions.add(new Exception("Lot information defines same lot number with different quantities -> Row " + rowIndex));
-				}
-			}
-		}
+//		{
+//			Cell unitNumberCell = row.getCell(1);
+//			Double unitNumber = getCellDouble(unitNumberCell, "lot size quantity", exceptions);
+//			if (unitNumber != null) {
+//				if (lot.getUnitNumber() == null) lot.setUnitNumber(unitNumber);
+//				else if (lot.getUnitNumber().doubleValue() != unitNumber) {
+//					exceptions.add(new Exception("Lot information defines same lot number with different quantities -> Row " + rowIndex));
+//				}
+//			}
+//		}
+//		
+//		{
+//			String unitUnit = getCellString(row.getCell(2));
+//			if (unitUnit != null) {
+//				if (lot.getUnitUnit() == null) lot.setUnitUnit(unitUnit);
+//				else if (!lot.getUnitUnit().equals(unitUnit)) {
+//					exceptions.add(new Exception("Lot information defines same lot number with different units -> Row " + rowIndex));
+//				}
+//			}
+//		}
 		
 		{
-			String unitUnit = getCellString(row.getCell(2));
-			if (unitUnit != null) {
-				if (lot.getUnitUnit() == null) lot.setUnitUnit(unitUnit);
-				else if (!lot.getUnitUnit().equals(unitUnit)) {
-					exceptions.add(new Exception("Lot information defines same lot number with different units -> Row " + rowIndex));
+			AmountParts amountParts = getAmountPartsFromCells(row, 1, 2, "Lot Size", exceptions);
+			if (amountParts.quantity != null) {
+				if (lot.getUnitNumber() == null) lot.setUnitNumber(amountParts.quantity);
+				else if (lot.getUnitNumber().doubleValue() != amountParts.quantity.doubleValue()) {
+					exceptions.add(new InvalidCellValueException("Lot information defines same lot number with different quantities -> Row " + rowIndex, row, 1));
+				}
+			}
+			if (amountParts.unit != null) {
+				if (lot.getUnitUnit() == null) lot.setUnitUnit(amountParts.unit);
+				else if (!lot.getUnitUnit().equals(amountParts.unit)) {
+					exceptions.add(new InvalidCellValueException("Lot information defines same lot number with different units -> Row " + rowIndex, row, 2));
 				}
 			}
 		}
 		
 		if (isNewFormat_151105 || outDeliveries != null) {
 
-			String productName = getCellString(row.getCell(3));
+			String productName = getCellString(row.getCell(3), exceptions);
 			if (productName != null) {
 				if (lot.getProduct() == null) {
 					Product p = new Product(); p.setName(productName); lot.setProduct(p); p.setStation(sif);
@@ -2219,11 +2669,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					lot.getProduct().setName(productName);
 				}
 				else if (!lot.getProduct().getName().equals(productName)) {
-					exceptions.add(new Exception("Lot information defines same lot number with different product names -> Row " + rowIndex));
+					// exceptions.add(new Exception("Lot information defines same lot number with different product names -> Row " + rowIndex));
+					exceptions.add(new InvalidCellValueException("Lot information defines same lot number with different product names -> Row " + rowIndex, row.getSheet()));
 				}
 			}
 			if (!isNewFormat_151105) {
-				String deliveryId = getCellString(row.getCell(4));
+				String deliveryId = getCellString(row.getCell(4), exceptions);
 				// ToDo: Verify: Why is missing deliveryId not thrown
 				if (deliveryId != null) {
 					Delivery d = outDeliveries.get(deliveryId); 
@@ -2235,7 +2686,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		
 		// Further flexible cells
-		addFlexibleFields(titleRow, row, 12, 19, lot);
+		addFlexibleFields(titleRow, row, 12, 19, lot, exceptions);
 		return true;
 	}
 	
@@ -2256,7 +2707,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return links;
 	}
 	
-	private String getFormatedCellAddressesString(String[] addresses) {
+	private static String getFormatedCellAddressesString(String[] addresses) {
 		final int maxCount = 5;
 		String[] filteredAddresses = ArrayUtils.subarray(addresses, 0, maxCount);
 		return String.join(", ", filteredAddresses) + (filteredAddresses.length < addresses.length ? ", ..." : "");
@@ -2350,6 +2801,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		debug("Before loading stream freespace: " + MemoryUtils.getFormatedPresumableFreeMemory());
 		importResult = false;
 		
+//		PerformanceUtils.packageName = "de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat";
+//		PerformanceUtils.reset();
+//		PerformanceUtils.start(PerformanceUtils.getMethodPath());
+		// PerformanceUtils.clearEnterings();
+		
 		InputStream is = null;
 	
 		taskMonitor.setProgress(0);
@@ -2374,51 +2830,39 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			debug("Loading wb done (freespace: " + MemoryUtils.getFormatedPresumableFreeMemory() + ").");
 			MemoryUtils.checkMimimumRemainingMemory();
 			
-			Station.reset(); Lot.reset(); Delivery.reset();
+			Station.reset(); Lot.reset(); Delivery.reset(); 
+			
 			warns = new HashMap<>();
+			fileRelatedWarns = new LinkedHashMap<>();
+			
+			// addWarning("Some test warning", "CellXY"); // for test purposes
 								
 			List<Exception> exceptions = importWorkbook(wb, filename, owner, taskMonitor);
+//			if (exceptions == null) exceptions = new ArrayList<>(); // for temp test
+//			if (exceptions.size() == 0) exceptions.add(new Exception("Dummy Error.")); // for temp test
 			
 			if (exceptions != null && exceptions.size() > 0) {
-	
 				importResult = false;
-				if (existsDBKernel()) {
-					warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
-				}
-				else if (mydbi != null) {
-					warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
-				}
-				doWarns(filename);
-				
-				boolean somethingIn = false;
-				logMessages += "<h1 id=\"error\">Error in file '" + filename + "'</h1><ul>";
-				for (Exception e : exceptions) {
-					if (e.getMessage() != null) {
-						logMessages += "<li>" + e.getMessage() + "</li>";
-						MyLogger.handleException(e);	
-						somethingIn = true;
-					}
-				}
-				if (!somethingIn) logMessages += "<li>some undefined problems occurred - contact the support team</li>";
-				logMessages += "</ul>";
-				
-//				try {
-//					is.close();
-//				} catch (IOException e1) {}
-				
+				logMessages += ReportUtils.exceptions2Html(exceptions, filename);
 			}
 			else {
 				importResult = true;
-				if (existsDBKernel()) {
-					warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
-				}
-				else if (mydbi != null) {
-					warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
-				}
-				doWarns(filename);
 			}
+			if (existsDBKernel()) {
+				warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
+			}
+			else if (mydbi != null) {
+				warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
+			}
+			doWarns(filename);
 		} catch (OutOfMemoryError | UserCancelException e) {
+//			if (e instanceof UserCancelException) {
+//				PerformanceUtils.stop(PerformanceUtils.getMethodPath());
+//				PerformanceUtils.print();
+//			}
 			throw e;
+//		} catch (PerformanceUtils.StopError e) {
+//			importResult = false;
 		} catch (Exception e) {
 			importResult = false;
 			// ToDo: remove
@@ -2428,6 +2872,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 		}
 		finally {
+			// SerialCache.emptyCache();
+			// PerformanceUtils.printEnterings();
+//			PerformanceUtils.stop(PerformanceUtils.getMethodPath());
+//			PerformanceUtils.print();
 			if (is != null) {
 				try {
 					is.close();
@@ -2443,33 +2891,35 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	
 	private void doWarns(String filename) {
-		if (warns.size() > 0) {
-			String newFileLogs = "";
-			if (filename != null) {
-				newFileLogs += "<h1 id=\"warning\">Warnings for import file '" + filename + "'<h1>";
-				
-			}
-			for (String key : warns.keySet()) {
-				String newLogs = "<h2>" + key + "</h2>";
-				Set<String> oldWarns = warnsBeforeImport.get(key);
-				
-				if (warns.get(key) != null && !warns.get(key).isEmpty()) {
-					newLogs += "<ul>";
-					for (String w : warns.get(key)) {
-						if (oldWarns == null || !oldWarns.contains(w)) {
-							if (logWarnings.indexOf("<li>" + w + "</li>") < 0) newLogs += "<li>" + w + "</li>";							
-						}
-					}
-					newLogs += "</ul>";
-				}
-				if (newLogs.length() > ("<h2>" + key + "</h2><ul></ul>").length()) {
-					newFileLogs += newLogs;					
-				}
-			}		
-			if (newFileLogs.length() > ("<h1 id=\"warning\">Warnings for import file '" + filename + "'<h1>").length()) {
-				logWarnings += newFileLogs;
-			}
-		}
+		String html = ReportUtils.warns2Html(filename, fileRelatedWarns, warns, warnsBeforeImport);
+		if (html != null && !html.isEmpty()) logWarnings += html;
+//		if (warns.size() > 0) {
+//			String newFileLogs = "";
+//			if (filename != null) {
+//				newFileLogs += "<h1 id=\"warning\">Warnings for import file '" + filename + "'<h1>";
+//				
+//			}
+//			for (String key : warns.keySet()) {
+//				String newLogs = "<h2>" + key + "</h2>";
+//				Set<String> oldWarns = warnsBeforeImport.get(key);
+//				
+//				if (warns.get(key) != null && !warns.get(key).isEmpty()) {
+//					newLogs += "<ul>";
+//					for (String w : warns.get(key)) {
+//						if (oldWarns == null || !oldWarns.contains(w)) {
+//							if (logWarnings.indexOf("<li>" + w + "</li>") < 0) newLogs += "<li>" + w + "</li>";							
+//						}
+//					}
+//					newLogs += "</ul>";
+//				}
+//				if (newLogs.length() > ("<h2>" + key + "</h2><ul></ul>").length()) {
+//					newFileLogs += newLogs;					
+//				}
+//			}		
+//			if (newFileLogs.length() > ("<h1 id=\"warning\">Warnings for import file '" + filename + "'<h1>").length()) {
+//				logWarnings += newFileLogs;
+//			}
+//		}
 	}
 
 	private String getExtension(File f) {

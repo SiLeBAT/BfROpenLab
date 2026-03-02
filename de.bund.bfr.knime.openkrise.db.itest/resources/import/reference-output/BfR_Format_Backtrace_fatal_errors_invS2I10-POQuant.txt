@@ -38,10 +38,12 @@ ID | tablename | id | attribute | value
 
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_fatal_errors_invS2I10-POQuant.xlsx'</h1>
-<ul><li>Invalid unit quantity ('AA') in cell I10 (sheet: BackTracing). Value has to be a number.</li>
-<li>Invalid unit quantity ('AA') in cell I11 (sheet: BackTracing). Value has to be a number.</li>
-<li>Lot number unknown in Row number 17</li>
+<h2>Sheet 'BackTracing':</h2>
+<ul><li>Invalid Delivery Size Quantity 'AA' (value has to be a number) in cells I10, I11.</li>
+<li>Unknown Lot Number in row 17.</li>
 </ul>
 
 
 WarnMessages:
+<h1 id="warning">Warnings for import file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_fatal_errors_invS2I10-POQuant.xlsx'<h1><h2>No ingredients defined...</h2>
+<li>In sheet 'BackTracing'.</li>

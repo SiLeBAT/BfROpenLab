@@ -45,8 +45,8 @@ ID | tablename | id | attribute | value
 
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_sug_fatal_errors_invS2J20DelQuant.xlsx'</h1>
-<ul><li>Invalid unit quantity ('1kg') in cell J20 (sheet: BackTracing). Value has to be a number.</li>
-<li>Invalid unit quantity ('1kg') in cell J21 (sheet: BackTracing). Value has to be a number.</li>
+<h2>Sheet 'BackTracing':</h2>
+<ul><li>Invalid Delivery Size Quantity '1kg' (value has to be a number) in cells J20, J21.</li>
 </ul>
 
 

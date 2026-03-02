@@ -14,23 +14,23 @@ ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code 
 2 | 3 |  | "Zutat83" |  |  |  |  |  |  | ";1;" | 
 3 | 3 |  | "Zutat63" |  |  |  |  |  |  | ";1;" | 
 4 | 3 |  | "Zutat71" |  |  |  |  |  |  | ";1;" | 
-5 | 3 |  | "Zutat73" |  |  |  |  |  |  | ";1;" | 
-6 | 3 |  | "Zutat74" |  |  |  |  |  |  | ";1;" | 
+5 | 3 |  | "Zutat74" |  |  |  |  |  |  | ";1;" | 
+6 | 3 |  | "Zutat73" |  |  |  |  |  |  | ";1;" | 
 7 | 3 |  | "Zutat72" |  |  |  |  |  |  | ";1;" | 
 8 | 3 |  | "Zutat82" |  |  |  |  |  |  | ";1;" | 
-9 | 3 |  | "Zutat66" |  |  |  |  |  |  | ";1;" | 
-10 | 3 |  | "Zutat76" |  |  |  |  |  |  | ";1;" | 
-11 | 3 |  | "Zutat77" |  |  |  |  |  |  | ";1;" | 
-12 | 3 |  | "Zutat69" |  |  |  |  |  |  | ";1;" | 
+9 | 3 |  | "Zutat67" |  |  |  |  |  |  | ";1;" | 
+10 | 3 |  | "Zutat65" |  |  |  |  |  |  | ";1;" | 
+11 | 3 |  | "Zutat66" |  |  |  |  |  |  | ";1;" | 
+12 | 3 |  | "Zutat77" |  |  |  |  |  |  | ";1;" | 
 13 | 3 |  | "Zutat75" |  |  |  |  |  |  | ";1;" | 
 14 | 3 |  | "Zutat64" |  |  |  |  |  |  | ";1;" | 
-15 | 3 |  | "Zutat65" |  |  |  |  |  |  | ";1;" | 
-16 | 3 |  | "Zutat67" |  |  |  |  |  |  | ";1;" | 
-17 | 3 |  | "Zutat58" |  |  |  |  |  |  | ";1;" | 
-18 | 3 |  | "Zutat60" |  |  |  |  |  |  | ";1;" | 
-19 | 3 |  | "Zutat70" |  |  |  |  |  |  | ";1;" | 
-20 | 3 |  | "Zutat81" |  |  |  |  |  |  | ";1;" | 
-21 | 3 |  | "Zutat80" |  |  |  |  |  |  | ";1;" | 
+15 | 3 |  | "Zutat76" |  |  |  |  |  |  | ";1;" | 
+16 | 3 |  | "Zutat58" |  |  |  |  |  |  | ";1;" | 
+17 | 3 |  | "Zutat60" |  |  |  |  |  |  | ";1;" | 
+18 | 3 |  | "Zutat70" |  |  |  |  |  |  | ";1;" | 
+19 | 3 |  | "Zutat81" |  |  |  |  |  |  | ";1;" | 
+20 | 3 |  | "Zutat80" |  |  |  |  |  |  | ";1;" | 
+21 | 3 |  | "Zutat69" |  |  |  |  |  |  | ";1;" | 
 22 | 3 |  | "Zutat78" |  |  |  |  |  |  | ";1;" | 
 23 | 3 |  | "Zutat79" |  |  |  |  |  |  | ";1;" | 
 24 | 3 |  | "Zutat68" |  |  |  |  |  |  | ";1;" | 
@@ -41,24 +41,24 @@ ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | M
 2 | 2 |  | "L83" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 3 | 3 |  | "L63" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 4 | 4 |  | "L71" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-5 | 5 |  | "L73" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-6 | 6 |  | "L74" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+5 | 5 |  | "L74" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+6 | 6 |  | "L73" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 7 | 7 |  | "L72" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 8 | 8 |  | "L82" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 9 | 2 |  | "L59" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-10 | 9 |  | "L66" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-11 | 10 |  | "L76" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-12 | 11 |  | "L77" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-13 | 12 |  | "L69" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+10 | 9 |  | "L67" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+11 | 10 |  | "L65" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+12 | 11 |  | "L66" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+13 | 12 |  | "L77" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 14 | 13 |  | "L75" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 15 | 14 |  | "L64" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-16 | 15 |  | "L65" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-17 | 16 |  | "L67" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-18 | 17 |  | "L58" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-19 | 18 |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-20 | 19 |  | "L70" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-21 | 20 |  | "L81" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
-22 | 21 |  | "L80" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+16 | 15 |  | "L76" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+17 | 16 |  | "L58" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+18 | 17 |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+19 | 18 |  | "L70" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+20 | 19 |  | "L81" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+21 | 20 |  | "L80" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+22 | 21 |  | "L69" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 23 | 22 |  | "L78" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 24 | 23 |  | "L79" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
 25 | 24 |  | "L68" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
@@ -69,25 +69,25 @@ ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU 
 2 | 2 |  |  |  |  |  |  |  |  |  |  | 2 | "S1;Zutat83;L83;null;null;null;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
 3 | 3 |  |  |  |  |  |  |  | "1kg" |  |  | 2 | "S1;Zutat63;L63;null;null;null;null;null;null;null;1kg;S2" |  |  |  |  | ";1;" | 
 4 | 4 | 2 | 2 | 25 |  |  |  |  |  |  |  | 2 | "S1;Zutat71;L71;2;2;25;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-5 | 5 |  |  |  |  | 2 | 2025 |  |  |  |  | 2 | "S1;Zutat73;L73;null;null;null;null;2;2025;null;null;S2" |  |  |  |  | ";1;" | 
-6 | 6 |  |  |  | 32 | 2 | 2025 |  |  |  |  | 2 | "S1;Zutat74;L74;null;null;null;32;2;2025;null;null;S2" |  |  |  |  | ";1;" | 
+5 | 5 |  |  |  |  | 2 | 2025 |  |  |  |  | 2 | "S1;Zutat74;L74;null;null;null;null;2;2025;null;null;S2" |  |  |  |  | ";1;" | 
+6 | 6 |  |  |  |  | 2 | 2025 |  |  |  |  | 2 | "S1;Zutat73;L73;null;null;null;null;2;2025;null;null;S2" |  |  |  |  | ";1;" | 
 7 | 7 | 2 | 2 |  |  |  |  |  |  |  |  | 2 | "S1;Zutat72;L72;2;2;null;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
 8 | 8 | 3 | 2 | 2025 | 2 | 2 | 2025 |  |  |  |  | 2 | "S1;Zutat82;L82;3;2;2025;2;2;2025;null;null;S2" |  |  |  |  | ";1;" | 
 9 | 9 |  |  |  |  |  |  |  |  |  |  | 2 | "S1;null;L59;null;null;null;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-10 | 10 |  | 2 | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat66;L66;null;2;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-11 | 11 |  |  |  | 30 | 2 | 2025 |  |  |  |  | 2 | "S1;Zutat76;L76;null;null;null;30;2;2025;null;null;S2" |  |  |  |  | ";1;" | 
-12 | 12 |  |  |  | 1 |  | 2025 |  |  |  |  | 2 | "S1;Zutat77;L77;null;null;null;1;null;2025;null;null;S2" |  |  |  |  | ";1;" | 
-13 | 13 | 2 | 13 | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat69;L69;2;13;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
+10 | 10 |  | 2 | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat67;L67;null;2;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
+11 | 11 |  | 2 | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat65;L65;null;2;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
+12 | 12 |  | 2 | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat66;L66;null;2;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
+13 | 13 |  |  |  | 1 |  | 2025 |  |  |  |  | 2 | "S1;Zutat77;L77;null;null;null;1;null;2025;null;null;S2" |  |  |  |  | ";1;" | 
 14 | 14 |  |  |  |  | 2 | 2025 |  |  |  |  | 2 | "S1;Zutat75;L75;null;null;null;null;2;2025;null;null;S2" |  |  |  |  | ";1;" | 
 15 | 15 |  | 2 | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat64;L64;null;2;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-16 | 16 | 32 | 2 | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat65;L65;32;2;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-17 | 17 | 30 | 2 | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat67;L67;30;2;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-18 | 18 |  |  |  |  |  |  |  |  |  |  | 2 | "S1;Zutat58;L58;null;null;null;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-19 | 19 |  |  |  |  |  |  |  |  |  |  | 2 | "S1;Zutat60;null;null;null;null;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-20 | 20 | 2 |  | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat70;L70;2;null;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
-21 | 21 |  |  |  | 2 | 2 |  |  |  |  |  | 2 | "S1;Zutat81;L81;null;null;null;2;2;null;null;null;S2" |  |  |  |  | ";1;" | 
-22 | 22 |  |  |  | 2 | 2 | 25 |  |  |  |  | 2 | "S1;Zutat80;L80;null;null;null;2;2;25;null;null;S2" |  |  |  |  | ";1;" | 
-23 | 23 |  |  |  | 2 | 13 | 2025 |  |  |  |  | 2 | "S1;Zutat78;L78;null;null;null;2;13;2025;null;null;S2" |  |  |  |  | ";1;" | 
+16 | 16 |  |  |  |  | 2 | 2025 |  |  |  |  | 2 | "S1;Zutat76;L76;null;null;null;null;2;2025;null;null;S2" |  |  |  |  | ";1;" | 
+17 | 17 |  |  |  |  |  |  |  |  |  |  | 2 | "S1;Zutat58;L58;null;null;null;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
+18 | 18 |  |  |  |  |  |  |  |  |  |  | 2 | "S1;Zutat60;null;null;null;null;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
+19 | 19 | 2 |  | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat70;L70;2;null;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
+20 | 20 |  |  |  | 2 | 2 |  |  |  |  |  | 2 | "S1;Zutat81;L81;null;null;null;2;2;null;null;null;S2" |  |  |  |  | ";1;" | 
+21 | 21 |  |  |  | 2 | 2 | 25 |  |  |  |  | 2 | "S1;Zutat80;L80;null;null;null;2;2;25;null;null;S2" |  |  |  |  | ";1;" | 
+22 | 22 | 2 |  | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat69;L69;2;null;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
+23 | 23 |  |  |  | 2 |  | 2025 |  |  |  |  | 2 | "S1;Zutat78;L78;null;null;null;2;null;2025;null;null;S2" |  |  |  |  | ";1;" | 
 24 | 24 |  |  |  | 2 |  | 2025 |  |  |  |  | 2 | "S1;Zutat79;L79;null;null;null;2;null;2025;null;null;S2" |  |  |  |  | ";1;" | 
 25 | 25 | 1 |  | 2025 |  |  |  |  |  |  |  | 2 | "S1;Zutat68;L68;1;null;2025;null;null;null;null;null;S2" |  |  |  |  | ";1;" | 
 
@@ -103,24 +103,24 @@ ID | tablename | id | attribute | value
 8 | "Lieferungen" | 2 | "Item Number" | "Five"
 11 | "Lieferungen" | 3 | "Comment" | "Missing Quantity"
 14 | "Lieferungen" | 4 | "Comment" | "OutOfRange DDYear"
-17 | "Lieferungen" | 5 | "Comment" | "Invalid Format ADDay"
-20 | "Lieferungen" | 6 | "Comment" | "OutOfRange ADDay"
+17 | "Lieferungen" | 5 | "Comment" | "OutOfRange ADDay"
+20 | "Lieferungen" | 6 | "Comment" | "Invalid Format ADDay"
 23 | "Lieferungen" | 7 | "Comment" | "Missing DDYear"
 26 | "Lieferungen" | 8 | "Comment" | "ADate < DDate"
 29 | "Lieferungen" | 9 | "Comment" | "Missing Zutat name"
-32 | "Lieferungen" | 10 | "Comment" | "Missing DDDay"
-35 | "Lieferungen" | 11 | "Comment" | "OutOfRelRange ADDay"
-38 | "Lieferungen" | 12 | "Comment" | "Invalid Format ADMonth"
-41 | "Lieferungen" | 13 | "Comment" | "OutOfRange DDMonth"
+32 | "Lieferungen" | 10 | "Comment" | "OutOfRelRange DDDay"
+35 | "Lieferungen" | 11 | "Comment" | "OutOfRange DDDay"
+38 | "Lieferungen" | 12 | "Comment" | "Missing DDDay"
+41 | "Lieferungen" | 13 | "Comment" | "Invalid Format ADMonth"
 44 | "Lieferungen" | 14 | "Comment" | "Missing ADDay"
 47 | "Lieferungen" | 15 | "Comment" | "Invalid Format DDDay"
-50 | "Lieferungen" | 16 | "Comment" | "OutOfRange DDDay"
-53 | "Lieferungen" | 17 | "Comment" | "OutOfRelRange DDDay"
-56 | "Lieferungen" | 18 | "Comment" | "Unknown Lot Number"
-60 | "Lieferungen" | 19 | "Comment" | "Missing Zutat lot"
-63 | "Lieferungen" | 20 | "Comment" | "Missing DDMonth"
-66 | "Lieferungen" | 21 | "Comment" | "Missing ADYear"
-69 | "Lieferungen" | 22 | "Comment" | "OutOfRange ADYear"
+50 | "Lieferungen" | 16 | "Comment" | "OutOfRelRange ADDay"
+53 | "Lieferungen" | 17 | "Comment" | "Unknown Lot Number"
+57 | "Lieferungen" | 18 | "Comment" | "Missing Zutat lot"
+60 | "Lieferungen" | 19 | "Comment" | "Missing DDMonth"
+63 | "Lieferungen" | 20 | "Comment" | "Missing ADYear"
+66 | "Lieferungen" | 21 | "Comment" | "OutOfRange ADYear"
+69 | "Lieferungen" | 22 | "Comment" | "OutOfRange DDMonth"
 72 | "Lieferungen" | 23 | "Comment" | "OutOfRange ADMonth"
 75 | "Lieferungen" | 24 | "Comment" | "Missing ADMonth"
 76 | "Station" | 2 | "Comment" | "ok"
@@ -133,25 +133,23 @@ ID | tablename | id | attribute | value
 
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_sug_non_fatal_errors.xlsx'</h1>
-<ul><li>Station has no ID -> Row 2</li>
-<li>Station ID 'SE_DID' is defined more than once -> Row 4</li>
-<li>It is essential to choose the associated Lot number ('Lot Number of  "Product Out"') to the delivery in Row number 10</li>
-<li>Station 'Sunknown' is not correctly defined in Row 14</li>
-<li>Lot number unknown in Row number 41</li>
-<li>Lot number unknown in Row number 42</li>
-<li>Lot information defines same lot number with different product names -> Row 44</li>
-<li>Lot number unknown in Row number 45</li>
-<li>Lot number unknown in Row number 46</li>
-<li>Lot number unknown in Row number 47</li>
-<li>Lot number unknown in Row number 48</li>
-<li>Lot number unknown in Row number 50</li>
-<li>Lot number unknown in Row number 51</li>
-<li>Lot number unknown in Row number 52</li>
-<li>It is essential to choose the associated Lot number ('Lot Number of  "Product Out"') to the delivery in Row number 57</li>
-<li>Please, do always provide a lot number as this is most helpful! -> Row 60 in 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_sug_non_fatal_errors.xlsx'
-</li>
-<li>Station 'Sunknown' is not correctly defined in Row 62</li>
-<li>addendum: Product unknown...</li>
+<h2>Sheet 'Stations':</h2>
+<ul><li>Missing Station ID in cell A2.</li>
+<li>Station ID 'SE_DID' is defined more than once in row 4.</li>
+</ul>
+<h2>Sheet 'BackTracing':</h2>
+<ul><li>It is essential to choose the associated Lot number ('Lot Number of  &quot;Product Out&quot;') to the delivery in rows 10, 57.</li>
+<li>Station 'Sunknown' is not correctly defined in rows 14, 62.</li>
+<li>Invalid Delivery Date Day in cells D16, D17, D64, D65, D67.</li>
+<li>Invalid Delivery Date Month in cells E20, E21, E68, E69.</li>
+<li>Invalid Delivery Arrival Date Day in cells G25, G26, G73, G74, G76.</li>
+<li>Invalid Delivery Arrival Date Month in cells H29, H30, H77, H78.</li>
+<li>Unknown Lot Number in rows 41, 42, 45, 46, 47, 48, 50, 51, 52.</li>
+<li>Lot information defines same lot number with different product names -&gt; Row 44</li>
+<li>Please, do always provide a lot number as this is most helpful! [row 60]</li>
+</ul>
+<h2>Other issues:</h2>
+<ul><li>addendum: Product unknown...</li>
 <li>addendum: Lot unknown...</li>
 </ul>
 
