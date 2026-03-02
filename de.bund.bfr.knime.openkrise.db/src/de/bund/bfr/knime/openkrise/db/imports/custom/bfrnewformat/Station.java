@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
+import de.bund.bfr.knime.openkrise.db.SqlUtils;
 
 public class Station implements IFlexibleFieldContainer {
 
@@ -184,19 +185,19 @@ public class Station implements IFlexibleFieldContainer {
 					sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
 							" WHERE " + MyDBI.delimitL("tablename") + "='Station'" +
 							" AND " + MyDBI.delimitL("id") + "=" + dbId +
-							" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+							" AND " + MyDBI.delimitL("attribute") + "='" + SqlUtils.escapeText(es.getKey()) + "'";
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
 				}
 				if (doUpdate) {
-					sql = "UPDATE " + MyDBI.delimitL("ExtraFields") + " SET " + MyDBI.delimitL("value") + "=CONCAT(" + MyDBI.delimitL("value") + ",';;; " + es.getValue().replace("'", "''") + "')" +
+					sql = "UPDATE " + MyDBI.delimitL("ExtraFields") + " SET " + MyDBI.delimitL("value") + "=CONCAT(" + MyDBI.delimitL("value") + ",';;; " + SqlUtils.escapeText(es.getValue()) + "')" +
 							" WHERE " + MyDBI.delimitL("tablename") + "='Station' AND " + MyDBI.delimitL("id") + "=" + dbId +
-							" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+							" AND " + MyDBI.delimitL("attribute") + "='" + SqlUtils.escapeText(es.getKey()) + "'";
 				}
 				else {
 					sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
 							" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-							") VALUES ('Station'," + dbId + ",'" + es.getKey() + "','" + es.getValue().replace("'", "''") + "')";
+							") VALUES ('Station'," + dbId + ",'" + SqlUtils.escapeText(es.getKey()) + "','" + SqlUtils.escapeText(es.getValue()) + "')";
 				}
 				if (mydbi != null) mydbi.sendRequest(sql, false, false);
 				else DBKernel.sendRequest(sql, false);
@@ -211,10 +212,12 @@ public class Station implements IFlexibleFieldContainer {
 		String serialWhere = "";
 		for (int i=0;i<feldnames.length;i++) {
 			if (feldVals[i] != null) {
-				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].replace("'", "''").toUpperCase() + "'";
+				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + SqlUtils.escapeText(feldVals[i]).toUpperCase() + "'";
 				in += "," + MyDBI.delimitL(feldnames[i]);
-				iv += ",'" + feldVals[i].replace("'", "''") + "'";
-				if (feldnames[i].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].replace("'", "''").toUpperCase() + "'";
+				iv += ",'" + SqlUtils.escapeText(feldVals[i]) + "'";
+				if (feldnames[i].equalsIgnoreCase("Serial")) {
+					serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + SqlUtils.escapeText(feldVals[i]).toUpperCase() + "'";
+				}
 			}
 		}
 		/*
@@ -235,7 +238,7 @@ public class Station implements IFlexibleFieldContainer {
 			result = rs.getInt(1);
 			rs.close();
 		}
-
+		
 		if (result != null) {
 			sql = "UPDATE " + MyDBI.delimitL("Station") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
 			if (mydbi != null) mydbi.sendRequest(sql, false, false);
@@ -275,7 +278,7 @@ public class Station implements IFlexibleFieldContainer {
 				}
 			}
 		}
-
+		
 		return result;
 	}
 	

@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
+import de.bund.bfr.knime.openkrise.db.SqlUtils;
 
 public class Product {
 
@@ -105,9 +106,9 @@ public class Product {
 		String iv = dbStatID + ",';" + miDbId + ";'";
 		for (int i=0;i<feldnames.length;i++) {
 			if (feldVals[i] != null) {
-				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
+				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + SqlUtils.escapeText(feldVals[i].toUpperCase()) + "'";
 				in += "," + MyDBI.delimitL(feldnames[i]);
-				iv += ",'" + feldVals[i].replace("'", "''") + "'";
+				iv += ",'" + SqlUtils.escapeText(feldVals[i]) + "'";
 			}
 		}
 
@@ -152,13 +153,13 @@ public class Product {
 					String sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
 							" WHERE " + MyDBI.delimitL("tablename") + "='Produktkatalog'" +
 							" AND " + MyDBI.delimitL("id") + "=" + dbId +
-							" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+							" AND " + MyDBI.delimitL("attribute") + "='" + SqlUtils.escapeText(es.getKey()) + "'";
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
 					
 					sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
 							" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-							") VALUES ('Produktkatalog'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+							") VALUES ('Produktkatalog'," + dbId + ",'" + SqlUtils.escapeText(es.getKey()) + "','" + SqlUtils.escapeText(es.getValue()) + "')";
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
 				}

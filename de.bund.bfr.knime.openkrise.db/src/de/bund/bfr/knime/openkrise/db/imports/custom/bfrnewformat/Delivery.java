@@ -31,13 +31,18 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.DBUtils;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
+import de.bund.bfr.knime.openkrise.db.SqlUtils;
 
 public class Delivery implements IFlexibleFieldContainer {
 
 	public static HashMap<String, Delivery> gathereds = new HashMap<>();
 	private boolean alreadyInDb = false;
 	private HashMap<String, String> flexibles = new HashMap<>();
+	
+	private static SerialCache serialCache = new SerialCache("Lieferungen");
+	
 	public String getFlexible(String key) {
 		if (flexibles.containsKey(key)) return flexibles.get(key);
 		else return null;
@@ -56,6 +61,7 @@ public class Delivery implements IFlexibleFieldContainer {
 	}
 	public static void reset() {
 		gathereds = new HashMap<>();
+		serialCache.clear();
 	}
 	
 	@Override
@@ -189,12 +195,12 @@ public class Delivery implements IFlexibleFieldContainer {
 				String sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
 						" WHERE " + MyDBI.delimitL("tablename") + "='Lieferungen'" +
 						" AND " + MyDBI.delimitL("id") + "=" + dbId +
-						" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+						" AND " + MyDBI.delimitL("attribute") + "='" + SqlUtils.escapeText(es.getKey()) + "'";
 				if (mydbi != null) mydbi.sendRequest(sql, false, false);
 				else DBKernel.sendRequest(sql, false);
 				sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
 						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-						") VALUES ('Lieferungen'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+						") VALUES ('Lieferungen'," + dbId + ",'" + SqlUtils.escapeText(es.getKey()) + "','" + SqlUtils.escapeText(es.getValue()) + "')";
 				if (mydbi != null) mydbi.sendRequest(sql, false, false);
 				else DBKernel.sendRequest(sql, false);
 			}
@@ -202,6 +208,7 @@ public class Delivery implements IFlexibleFieldContainer {
 	}
 
 	private Integer getID(Lot lot, Station receiver, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId, boolean dataMayhaveChanged, MyDBI mydbi) throws Exception {
+		
 		Integer dbRecID = receiver.getID(miDbId, mydbi);
 		//if (!receiver.getLogMessages().isEmpty()) logMessages += receiver.getLogMessages() + "\n";
 		if (receiver.getExceptions().size() > 0) exceptions.addAll(receiver.getExceptions());
@@ -220,13 +227,13 @@ public class Delivery implements IFlexibleFieldContainer {
 					" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +
 					" ON " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("Artikel") +
 					" WHERE " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Empfänger") + "=" + dbRecID +
-					" AND UCASE(" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Serial") + ")='" + id.toUpperCase() + "'" +
+					" AND UCASE(" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Serial") + ")='" + SqlUtils.escapeText(id).toUpperCase() + "'" +
 					" AND " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Station") + "=" + lot.getProduct().getStation().getID(miDbId, mydbi);
 			ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 			if (rs != null && rs.first()) {
 				lot.getProduct().setDbId(rs.getInt("Produktkatalog.ID"));
 				if (lot.getProduct().getName() != null && !lot.getProduct().getName().isEmpty()) {
-					sql = "UPDATE " + MyDBI.delimitL("Produktkatalog") + " SET " + MyDBI.delimitL("Bezeichnung") + " = '" + lot.getProduct().getName() + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID");
+					sql = "UPDATE " + MyDBI.delimitL("Produktkatalog") + " SET " + MyDBI.delimitL("Bezeichnung") + " = '" + SqlUtils.escapeText(lot.getProduct().getName()) + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID");
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
 					sql = "UPDATE " + MyDBI.delimitL("Produktkatalog") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID");
@@ -236,7 +243,7 @@ public class Delivery implements IFlexibleFieldContainer {
 
 				lot.setDbId(rs.getInt("Chargen.ID"));
 				if (lot.getNumber() != null && !lot.getNumber().isEmpty()) {
-					sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("ChargenNr") + " = '" + lot.getNumber() + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
+					sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("ChargenNr") + " = '" + SqlUtils.escapeText(lot.getNumber()) + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
 					if (lot.getUnitNumber() != null) {
@@ -245,7 +252,7 @@ public class Delivery implements IFlexibleFieldContainer {
 						else DBKernel.sendRequest(sql, true);
 					}
 					if (lot.getUnitUnit() != null) {						
-						sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("Einheit") + " = '" + lot.getUnitUnit() + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
+						sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("Einheit") + " = '" + SqlUtils.escapeText(lot.getUnitUnit()) + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
 						if (mydbi != null) mydbi.sendRequest(sql, true, false);
 						else DBKernel.sendRequest(sql, true);
 					}
@@ -300,7 +307,7 @@ public class Delivery implements IFlexibleFieldContainer {
 					updated = true;
 				}
 				if (getUnitUnit() != null) {
-					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("typePU") + " = '" + getUnitUnit() + "' WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("typePU") + " = '" + SqlUtils.escapeText(getUnitUnit()) + "' WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
 					updated = true;
@@ -342,13 +349,17 @@ public class Delivery implements IFlexibleFieldContainer {
 			String un = ("" + unitNumber).replace(",", ".");
 			iv += "," + un;
 		}
+		String serialValue = null;
 		for (int j=0;j<sFeldVals.length;j++) {
 			if (sFeldVals[j] != null) {
 				//if (!feldnames[i+1+j].equals("Serial"))
-				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
+				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i+1+j]) + ")='" + SqlUtils.escapeText(sFeldVals[j]).toUpperCase() + "'";
 				in += "," + MyDBI.delimitL(feldnames[i+1+j]);
-				iv += ",'" + sFeldVals[j] + "'";
-				if (feldnames[i+1+j].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
+				iv += ",'" + SqlUtils.escapeText(sFeldVals[j]) + "'";
+				if (feldnames[i+1+j].equalsIgnoreCase("Serial")) {
+					serialValue = sFeldVals[j];
+					serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i+1+j]) + ")='" + SqlUtils.escapeText(sFeldVals[j]).toUpperCase() + "'";
+				}
 			}
 		}
 		/*
@@ -381,29 +392,49 @@ public class Delivery implements IFlexibleFieldContainer {
 			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			try {
 				if (ps.executeUpdate() > 0) {
-					result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+					// result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+					result = DBUtils.getLastInsertedID(mydbi, ps);
+					serialCache.insert(result, serialValue);
 					if (serialWhere.length() == 0) {
 						sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("Serial") + "=" + MyDBI.delimitL("ID") + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
-						if (mydbi != null) mydbi.sendRequest(sql, false, false);
-						else DBKernel.sendRequest(sql, false);
+//						boolean updateResult = false;
+//						if (mydbi != null) updateResult = mydbi.sendRequest(sql, false, false);
+//						else updateResult = DBKernel.sendRequest(sql, false);
+//						if (updateResult) serialCache.update(result, "" + result);
+						if (!DBUtils.sendRequest(mydbi, sql, false, false)) serialCache.invalidate();
+						serialCache.update(result, "" + result);
+						
+						serialValue = "" + result;
 						serialWhere = "UCASE(" + MyDBI.delimitL("Serial") + ")='" + result + "'";
 					}
-					int numSameSerials = (mydbi != null ? mydbi.getRowCount("Lieferungen", " WHERE " + serialWhere) : DBKernel.getRowCount("Lieferungen", " WHERE " + serialWhere));
+					// int numSameSerials = (mydbi != null ? mydbi.getRowCountTest("Lieferungen", " WHERE " + serialWhere) : DBKernel.getRowCount("Lieferungen", " WHERE " + serialWhere));
+					int numSameSerials = serialCache.isValid() ?
+							serialCache.getCountOfLieferungenMatchingUCaseOfSerial(serialValue) :
+							DBUtils.getRowCount(mydbi, "Lieferungen", " WHERE " + serialWhere);
+					// int numSameSerials = serialCache.getUCSerialOccurenceCount(serialValue);
 					if (numSameSerials > 1) {
 						sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("Serial") + "=CONCAT(" + MyDBI.delimitL("Serial") + ",'_" + result + "') WHERE " + MyDBI.delimitL("ID") + "=" + result;
-						if (mydbi != null) mydbi.sendRequest(sql, false, false);
-						else DBKernel.sendRequest(sql, false);
+//						boolean updateResult = false;
+//						if (mydbi != null) updateResult = mydbi.sendRequest(sql, false, false);
+//						else updateResult = DBKernel.sendRequest(sql, false);
+						if (!DBUtils.sendRequest(mydbi, sql, false, false)) serialCache.invalidate();
+						if (serialCache.isValid()) serialCache.update(result, serialCache.getSerial(result) + "_" + result);
+						
+//						if (updateResult) serialCache.update(result, serialCache.getSerial(result) + "_" + result);
 					}
 				}
 			}
 			catch (SQLException e) {
 				if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
 					result = dbId; // Format_2017;//throw new Exception("Delivery ID is already assigned\n" + e.toString() + "\n" + sql); //  " + intId + "
+					// id and serial should be already in serial cache 
 				}
-				else throw e;
+				else {
+					serialCache.invalidate();
+					throw e;
+				}
 			}
 		}
-
 		return result;
 	}
 	
@@ -449,19 +480,23 @@ public class Delivery implements IFlexibleFieldContainer {
 	      if (comment != null) ps.setString(1, comment);
 	      //boolean newlyInserted = false;
 	      try {
-	              if (ps.executeUpdate() > 0) {
-	                      dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
-	                      //newlyInserted = true;
-	              }
+              if (ps.executeUpdate() > 0) {
+                      // dbId = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+            	  	dbId = DBUtils.getLastInsertedID(mydbi, ps);
+                     //newlyInserted = true;
+                    serialCache.insert(dbId, id);
+              }
 	      }
 	      catch (SQLException e) {
-              if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
+	    	  if (e.getSQLState().equals("23505")) { // && e.getErrorCode() == -104   e.getMessage().startsWith("integrity constraint violation")) {
                       dbId = Integer.parseInt(id);
                       //throw new Exception("Delivery ID " + dbId + " is already assigned\n" + e.toString() + "\n" + sql);
+                      // id and serial should be already in serialCache
               }
               else {
-                      System.err.println(sql);
-                      throw e;
+            	  serialCache.invalidate();
+                  System.err.println(sql);
+                  throw e;
               }
 	      }
 	      handleFlexibles(mydbi);

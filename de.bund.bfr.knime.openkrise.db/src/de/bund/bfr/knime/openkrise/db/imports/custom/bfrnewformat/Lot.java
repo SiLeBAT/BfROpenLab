@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
+import de.bund.bfr.knime.openkrise.db.SqlUtils;
 
 public class Lot implements IFlexibleFieldContainer {
 
@@ -141,13 +142,13 @@ public class Lot implements IFlexibleFieldContainer {
 					String sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
 							" WHERE " + MyDBI.delimitL("tablename") + "='Chargen'" +
 							" AND " + MyDBI.delimitL("id") + "=" + dbId +
-							" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+							" AND " + MyDBI.delimitL("attribute") + "='" + SqlUtils.escapeText(es.getKey()) + "'";
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
 					
 					sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
 							" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-							") VALUES ('Chargen'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+							") VALUES ('Chargen'," + dbId + ",'" + SqlUtils.escapeText(es.getKey()) + "','" + SqlUtils.escapeText(es.getValue()) + "')";
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
 				}
@@ -165,12 +166,12 @@ public class Lot implements IFlexibleFieldContainer {
 
 		Integer result = null;
 		String sql = "SELECT " + MyDBI.delimitL("ID") + " FROM " + MyDBI.delimitL("Chargen") +
-				" WHERE " + MyDBI.delimitL("Artikel") + "=" + dbProdID + " AND " + MyDBI.delimitL("ChargenNr") + "='" + number + "'";
+				" WHERE " + MyDBI.delimitL("Artikel") + "=" + dbProdID + " AND " + MyDBI.delimitL("ChargenNr") + "='" + SqlUtils.escapeText(number) + "'";
 		String in = MyDBI.delimitL("Artikel") + "," + MyDBI.delimitL("ImportSources");
 		String iv = dbProdID + ",';" + miDbId + ";'";
 		if (number != null) {
 			in += "," + MyDBI.delimitL("ChargenNr");
-			iv += ",'" + number + "'";
+			iv += ",'" + SqlUtils.escapeText(number) + "'";
 		}
 		if (unitNumber != null) {
 			//sql += " AND " + MyDBI.delimitL("Menge") + "=" + unitNumber + "";
@@ -181,7 +182,7 @@ public class Lot implements IFlexibleFieldContainer {
 		if (unitUnit != null) {
 			//sql += " AND UCASE(" + MyDBI.delimitL("Einheit") + ")='" + unitUnit.toUpperCase() + "'";
 			in += "," + MyDBI.delimitL("Einheit");
-			iv += ",'" + unitUnit + "'";
+			iv += ",'" + SqlUtils.escapeText(unitUnit) + "'";
 		}
 
 		if (number != null) {
