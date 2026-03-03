@@ -39,4 +39,8 @@ public class ExceptionUtils {
 			throw createNewOutOfJavaHeapSpaceError();
 		}
 	}
+	
+	public static boolean isOutOfJavaHeapSpaceError(Throwable throwable) {
+		return throwable instanceof OutOfMemoryError && throwable.getMessage().equals(ERR_MSG_OUT_OF_JAVA_HEAP_SPACE);
+	}
 }

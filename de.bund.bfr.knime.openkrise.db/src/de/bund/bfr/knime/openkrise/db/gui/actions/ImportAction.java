@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import de.bund.bfr.knime.ExceptionUtils;
 import de.bund.bfr.knime.UserCancelException;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
@@ -127,22 +128,31 @@ public class ImportAction extends AbstractAction {
 	private void reportTraceImportResult(TraceImporter traceImporter, TaskResult<Boolean> taskResult) {
 		String errors = traceImporter.getLogMessages();
 		String warnings = traceImporter.getLogWarnings();
-		boolean success = errors.isEmpty();
-		boolean result = taskResult.result;
-		if (!result && taskResult.canceled) {
-			// show nothing
-		} else if (!result && taskResult.throwable != null) {
-			JOptionPane.showMessageDialog(DBKernel.mainFrame, taskResult.throwable.getMessage(), "Import failed!",  JOptionPane.ERROR_MESSAGE);
-		} else if (result && success && warnings.isEmpty()) {
+		
+		boolean importSucceeded = taskResult.result;
+		if (!importSucceeded && taskResult.canceled) return;
+			
+		if (!importSucceeded && taskResult.throwable != null) {
+			String msg = ExceptionUtils.isOutOfJavaHeapSpaceError(taskResult.throwable) ?
+					"KNIME ran out of Java heap space. No files were imported.\nTo increase maximum Java heap space for KNIME, go to KNIME installation folder, open knime.ini and increase value for -Xmx (e.g. to -Xmx4g)." :
+					taskResult.throwable.getMessage();
+			JOptionPane.showMessageDialog(DBKernel.mainFrame, msg, "Import failed!", JOptionPane.ERROR_MESSAGE);
+		} 
+		else if (importSucceeded && warnings.isEmpty()) {   
 			JOptionPane.showMessageDialog(DBKernel.mainFrame, "Import successful!", "Import successful", JOptionPane.INFORMATION_MESSAGE);
-		} else if (!success) {
+		} 
+		else if (!importSucceeded && !errors.isEmpty()) {
 			JOptionPane.showOptionDialog(DBKernel.mainFrame, "Errors occured, no files were imported!\nPlease correct errors and try again", "Import failed",
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[] {"Show Details"}, null);
 			NewInfoBox.show(DBKernel.mainFrame, "Errors and Warnings", "<html>" + errors + warnings + "</html>");
-		} else if (!result) {
+		} 
+		else if (importSucceeded && !warnings.isEmpty()) {
 			JOptionPane.showOptionDialog(DBKernel.mainFrame, "Import successful! But some warnings occurred, please check", "Import with Warnings",
 					JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, new String[] {"Show Details"}, null);
 			NewInfoBox.show(DBKernel.mainFrame, "Warnings", "<html>" + warnings + "</html>");
+		} 
+		else if (!importSucceeded) {
+			JOptionPane.showMessageDialog(DBKernel.mainFrame, "Some undefined problems occurred. No files were imported. Please contact the support team.", "Import failed!", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
