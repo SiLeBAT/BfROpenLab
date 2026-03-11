@@ -34,7 +34,7 @@ ID | tablename | id | attribute | value
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_sug_fatal_errors_invS2B16LotQuant.xlsx'</h1>
 <h2>Sheet 'BackTracing':</h2>
-<ul><li>Invalid Lot Size Quantity '1kg' (value has to be a number) in cells B16, B17.</li>
+<ul><li>Invalid Lot Size Quantity (value has to be a number) in cells B16, B17.</li>
 </ul>
 
 

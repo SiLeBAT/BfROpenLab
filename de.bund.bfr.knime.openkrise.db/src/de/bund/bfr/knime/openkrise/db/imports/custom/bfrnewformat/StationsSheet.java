@@ -13,4 +13,6 @@ public class StationsSheet {
 	public static final int COL_TOB = SheetColumns.J;
 	
 	public static final int COL_FIRST_ADDITIONAL = SheetColumns.L;
+	
+	public static final String COL_LABEL_STATION_ID = "Company_ID"; 
 }

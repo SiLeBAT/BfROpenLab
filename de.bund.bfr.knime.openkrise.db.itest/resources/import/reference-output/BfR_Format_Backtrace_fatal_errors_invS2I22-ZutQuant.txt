@@ -42,9 +42,9 @@ ID | tablename | id | attribute | value
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_fatal_errors_invS2I22-ZutQuant.xlsx'</h1>
 <h2>Sheet 'BackTracing':</h2>
-<ul><li>Invalid Lot Size Quantity '1kg' (value has to be a number) in cell B16.</li>
+<ul><li>Invalid Lot Size Quantity (value has to be a number) in cell B16.</li>
 <li>Unknown Lot Number in row 17.</li>
-<li>Invalid Delivery Size Quantity '1kg' (value has to be a number) in cells I22, I23.</li>
+<li>Invalid Delivery Size Quantity (value has to be a number) in cells I22, I23.</li>
 <li>Station 'S0' is not correctly defined in rows 22, 23.</li>
 </ul>
 <h2>Other issues:</h2>

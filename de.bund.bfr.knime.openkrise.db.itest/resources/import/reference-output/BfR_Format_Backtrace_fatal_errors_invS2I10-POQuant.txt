@@ -39,7 +39,7 @@ ID | tablename | id | attribute | value
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_fatal_errors_invS2I10-POQuant.xlsx'</h1>
 <h2>Sheet 'BackTracing':</h2>
-<ul><li>Invalid Delivery Size Quantity 'AA' (value has to be a number) in cells I10, I11.</li>
+<ul><li>Invalid Delivery Size Quantity (value has to be a number) in cells I10, I11.</li>
 <li>Unknown Lot Number in row 17.</li>
 </ul>
 

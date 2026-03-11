@@ -25,6 +25,8 @@ public class DeliveriesSheet {
 	public static final int COL_FIRST_ADDITIONAL = SheetColumns.Q;
 	public static final int COL_LAST_ADDITIONAL = SheetColumns.Y;
 	
+	public static final String COL_LABEL_DELIVERY_ID = "Delivery ID";
+	
 	public static final Set<String> KNOWN_LOT_FIELDS_LC = Stream.of(new String[] {
 			"Production date",
 			"Best before date",

@@ -108,6 +108,24 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return logMessages;
 	}
 	
+	private static InvalidCellValueException createDuplicateIdException(String attributeLabel, String value, Cell cell) {
+		return createDuplicateIdException(attributeLabel, value, cell.getRow(), cell.getColumnIndex());
+	}
+	
+	private static InvalidCellValueException createDuplicateIdException(String attributeLabel, String value, Row row, int colIndex) {
+		return new InvalidCellValueException("Duplicate " + attributeLabel + " '" + value + "' (ID was already defined)",  row, colIndex);
+	}
+	
+	private static InvalidCellValueException createInvalidValueException(String attributeLabel, String hint, Cell cell) {
+		return createInvalidValueException(attributeLabel, hint, cell.getRow(), cell.getColumnIndex());
+	}
+	
+	private static InvalidCellValueException createInvalidValueException(String attributeLabel, String hint, Row row, int colIndex) {
+		String msg = "Invalid " + attributeLabel;
+		if (hint != null && !hint.isEmpty()) msg += " (" + hint + ")";
+		return new InvalidCellValueException(msg,  row, colIndex);
+	}
+	
 	private void checkStationsFirst(List<Exception> exceptions, Sheet businessSheet, IProgressMonitor taskMonitor) throws Exception {
 		HashSet<String> stationIDs = new HashSet<>();
 		int numRows = businessSheet.getLastRowNum() + 1;
@@ -118,13 +136,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				Cell nameCell = row.getCell(1);
 				if (SheetUtils.isCellEmpty(idCell) && SheetUtils.isCellEmpty(nameCell)) return;
 				
-				String id = getRequiredCellString(row, 0, "Station ID", exceptions);
+				String id = getRequiredCellString(row, 0, StationsSheet.COL_LABEL_STATION_ID, exceptions);
 				
 				if (id == null) continue;
 				// if (id == null && isCellEmpty(nameCell)) return;
 				// if (id == null) exceptions.add(new Exception("Station has no ID -> Row " + (i+1)));
 				// if (stationIDs.contains(id)) exceptions.add(new Exception("Station ID '" + id + "' is defined more than once -> Row " + (i+1)));
-				if (stationIDs.contains(id)) exceptions.add(new InvalidCellValueException("Station ID '" + id + "' is defined more than once", row));
+				if (stationIDs.contains(id)) exceptions.add(createDuplicateIdException(StationsSheet.COL_LABEL_STATION_ID, id, idCell));
 
 				stationIDs.add(id);
 			}
@@ -149,12 +167,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 			Station station = new Station();
 			
-			station.setId(getRequiredCellString(row, StationsSheet.COL_STATION_ID, "Station ID", exceptions));
+			station.setId(getRequiredCellString(row, StationsSheet.COL_STATION_ID, StationsSheet.COL_LABEL_STATION_ID, exceptions));
 			if (station.getId() != null) {
 				if (stations.containsKey(station.getId())) {
 					// exceptions.add(new Exception("Station defined twice -> Row " + rowNum + "; Station Id: '" + station.getId() + "'"));
 					// exceptions.add(new InvalidCellValueException("Duplicate Station ID '" + station.getId() + "' (ID was already defined in row " + id2RowNum.get(station.getId()) + ")", row, StationsSheet.COL_STATION_ID));
-					exceptions.add(new InvalidCellValueException("Duplicate Station ID '" + station.getId() + "' (ID was already defined)", row, StationsSheet.COL_STATION_ID));
+					exceptions.add(createDuplicateIdException(StationsSheet.COL_LABEL_STATION_ID, station.getId(), row, StationsSheet.COL_STATION_ID));
 					stations.put(station.getId(), null);
 				}
 				else {
@@ -224,11 +242,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 			// ToDO: Verify why is id not required?
 			{
-				delivery.setId(getRequiredCellString(row, DeliveriesSheet.COL_DELIVERY_ID, "Delivery ID", exceptions));
+				delivery.setId(getRequiredCellString(row, DeliveriesSheet.COL_DELIVERY_ID, DeliveriesSheet.COL_LABEL_DELIVERY_ID, exceptions));
 				if (delivery.getId() != null) {
 					if (deliveries.containsKey(delivery.getId())) {
 						// exceptions.add(new Exception("Delivery defined twice -> in Row " + rowNum + " and in Row " + deliveryRows.get(delivery.getId()) + "; Delivery Id: '" + delivery.getId() + "'"));
-						exceptions.add(new InvalidCellValueException("Duplicate Delivery ID '" + delivery.getId() + "' (ID was already defined)", row, DeliveriesSheet.COL_DELIVERY_ID));
+						exceptions.add(createDuplicateIdException(DeliveriesSheet.COL_LABEL_DELIVERY_ID, delivery.getId(), row, DeliveriesSheet.COL_DELIVERY_ID));
 						deliveries.put(delivery.getId(), null);
 					}
 					else {
@@ -1021,11 +1039,15 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	
 	private String getStringCellString(Cell cell, boolean removeLinebreaks, boolean reportLineBreaks) {	
 			
-		String cellString = getStr(cell.getStringCellValue());
-		if (cellString != null && removeLinebreaks && cellString.matches("(.*(\\r|\\n).*)+")) {
+		String cellString = trim(cell.getStringCellValue());
+		if (cellString == null) return null;
+		
+		if (removeLinebreaks && cellString.matches("(.*(\\r|\\n).*)+")) {
 			
-			cellString = getStr(cellString.replaceAll("(\\s*(\\r\n\\|\\r|\\n)\\s*)+", " "));
-			if (cellString != null && reportLineBreaks) {
+			cellString = trim(cellString.replaceAll("(\\s*(\\r\n\\|\\r|\\n)\\s*)+", " "));
+			if (cellString == null) return null;
+			
+			if (reportLineBreaks) {
 				addFileRelatedWarning(LINE_BREAKS_REMOVED, cell);
 			}
 		};
@@ -1054,7 +1076,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 		if (valueLabel == null) valueLabel = "integer value";
-		InvalidCellValueException exception = new InvalidCellValueException("Invalid " + valueLabel  + "", cell);
+		InvalidCellValueException exception = createInvalidValueException(valueLabel, "value has to be an integer", cell);
 		if (exceptions == null) throw exception;
 		exceptions.add(exception);
 		return null;
@@ -1097,7 +1119,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					return Double.parseDouble(cellString.trim());
 				} catch(NumberFormatException ex) {
 					// InvalidCellValueException exception = new InvalidCellValueException("Invalid " + valueLabel, cell);
-					InvalidCellValueException exception = new InvalidCellValueException("Invalid " + valueLabel + " '" + cellString + "' (value has to be a number)", cell);
+					InvalidCellValueException exception = createInvalidValueException(valueLabel, "value has to be a number", cell);
 					exceptions.add(exception);	
 				}
 			}
@@ -1108,7 +1130,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	
 	private boolean rowEmpty(Row row) {
-		for (int i=0;i<row.getPhysicalNumberOfCells();i++) {
+		int firstCellIndex = row.getFirstCellNum(); // returns zero based cell index
+		if (firstCellIndex < 0) return true;
+		
+		int lastCellNum = row.getLastCellNum(); // returns one based cell num
+		
+		for (int i = firstCellIndex; i < lastCellNum; i++) {
 			if (!SheetUtils.isCellEmpty(row.getCell(i))) return false;
 		}
 		return true;
@@ -1981,10 +2008,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 		if (station == null) {
-			// ToDo: remove
-//			StackTraceElement[] tmpTrace = Thread.currentThread().getStackTrace();
-//			System.err.println(tmpTrace.toString());
-			 // exceptions.add(new Exception("Station '" + lookup + "' is not correctly defined in Row " + (srcrow.getRowNum() + 1)));
 			exceptions.add(new InvalidCellValueException("Station '" + lookup + "' is not correctly defined", srcrow));
 		}
 		return station;
@@ -1994,7 +2017,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (row == null) return null;
 		Station station = new Station();
 		{
-			String id = getRequiredCellString(row, StationsSheet.COL_STATION_ID, "'Station ID'", exceptions);
+			String id = getRequiredCellString(row, StationsSheet.COL_STATION_ID, StationsSheet.COL_LABEL_STATION_ID, exceptions);
 			if (id != null) station.setId(id);
 			else return null;
 		}
@@ -2029,7 +2052,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 			final D2D d2d = new D2D();
 			{
-				String fromDeliveryId = getRequiredCellString(row, D2DSheet.COL_FROM_ID, "'Delivery ID'", exceptions);
+				String fromDeliveryId = getRequiredCellString(row, D2DSheet.COL_FROM_ID, "Delivery ID", exceptions);
 				
 				if (fromDeliveryId != null) {
 					Delivery fromDelivery = deliveries.get(fromDeliveryId);
@@ -2046,13 +2069,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 			
 			{
-				String toDeliveryId = getRequiredCellString(row, D2DSheet.COL_TO_ID, "'Delivery ID'", exceptions);
+				String toDeliveryId = getRequiredCellString(row, D2DSheet.COL_TO_ID, "Delivery ID", exceptions);
 				if (toDeliveryId != null) {
 					Delivery toDelivery = deliveries.get(toDeliveryId);
 					if (toDelivery == null) {
 						if (!deliveries.containsKey(toDeliveryId)) { 
 							// exceptions.add(new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: '" + toDeliveryId + "'; -> Row " + (rowNum)));
-							exceptions.add(new InvalidCellValueException("Unknown Delivery ID (ID has to be defined in " + deliveryDefSource + ")", row, D2DSheet.COL_TO_ID));
+							exceptions.add(new InvalidCellValueException("Unknown Delivery ID (ID has to be listed in " + deliveryDefSource + ")", row, D2DSheet.COL_TO_ID));
 						}
 						isInvalid = true;
 					} 
@@ -2067,7 +2090,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				//if (!d2d.getIngredient().getReceiver().getId().equals(d2d.getTargetDelivery().getLot().getProduct().getStation().getId())) {
 				if (fromDeliveryReceiver != null && toDeliverySender != null && fromDeliveryReceiver != toDeliverySender) {
 					// exceptions.add(new Exception("Recipient does not match Supplier; in sheet Deliveries2Deliveries: '" + d2d.getIngredient().getId() + "' -> '" + d2d.getTargetDelivery().getId() + "'; -> Row " + (rowNum+1)));
-					exceptions.add(new InvalidCellValueException("Invalid Delivery to Delivery assignment. Recipient does not match supplier", row));
+					// exceptions.add(new InvalidCellValueException("Invalid Delivery to Delivery assignment. Recipient does not match supplier", row));
+					exceptions.add(new InvalidCellValueException(
+						"Invalid Delivery to Delivery assignment. " + 
+						"Recipient of \"" + D2DSheet.COL_LABEL_FROM_ID + "\" does not match Sender of \"" + D2DSheet.COL_LABEL_TO_ID + "\"", 
+						row
+					));
 				}
 			}
 			// Please continue here 
@@ -2195,15 +2223,15 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		// checkNumberRanges
 		if (year != null && (year < 1 || year > 9999)) {
 			year = null;
-			yearEx = new InvalidCellValueException("Invalid " + valueLabel + " Year", row, yearColIndex);
+			yearEx = createInvalidValueException(valueLabel + " Year", null, row, yearColIndex);
 		}
 		if (month != null && (month < 1 || month > 12)) {
 			month = null;
-			monthEx = new InvalidCellValueException("Invalid " + valueLabel + " Month", row, monthColIndex);
+			monthEx = createInvalidValueException(valueLabel + " Month", null, row, monthColIndex);
 		}
 		if (day != null && !isValidDay(day, month, year)) {
 			day = null;
-			dayEx = new InvalidCellValueException("Invalid " + valueLabel + " Day", row, dayColIndex);
+			dayEx = createInvalidValueException(valueLabel + " Day", null, row, dayColIndex);
 		}
 		
 		for (Exception ex : new Exception[] {dayEx, monthEx, yearEx}) if (ex != null) exceptions.add(ex);
@@ -2604,6 +2632,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return val.trim();
 	}
 	
+	private static String trim(String text) {
+		if (text == null) return null;
+		text = text.trim();
+		if (text.isEmpty()) return null;
+		return text;
+	}
+	
 	private boolean fillLot(List<Exception> exceptions, Row row, Station sif, HashMap<String, Lot> outLots, Row titleRow, HashMap<String, Delivery> outDeliveries, int rowIndex, boolean isNewFormat_151105) throws Exception {
 		Lot lot = null;
 	
@@ -2855,6 +2890,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
 			}
 			doWarns(filename);
+			
 		} catch (OutOfMemoryError | UserCancelException e) {
 //			if (e instanceof UserCancelException) {
 //				PerformanceUtils.stop(PerformanceUtils.getMethodPath());
@@ -2872,7 +2908,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 		}
 		finally {
-			// SerialCache.emptyCache();
+			Delivery.reset();
 			// PerformanceUtils.printEnterings();
 //			PerformanceUtils.stop(PerformanceUtils.getMethodPath());
 //			PerformanceUtils.print();

@@ -27,18 +27,22 @@ ID | tablename | id | attribute | value
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/AiO-template_en.xlsx'</h1>
 <h2>Sheet 'Stations':</h2>
-<ul><li>Missing Station ID in cell A5.</li>
-<li>Duplicate Station ID 'SE_DID' (ID was already defined) in cell A7.</li>
+<ul><li>Missing Company_ID in cell A5.</li>
+<li>Duplicate Company_ID 'SE_DID' (ID was already defined) in cell A7.</li>
 </ul>
 <h2>Sheet 'Deliveries':</h2>
 <ul><li>Missing Sender ID in cell B9.</li>
 <li>Missing Recipient ID in cells O9, O11, O42.</li>
 <li>Unknown Sender ID 'Sunkown' (ID has to be listed in sheet 'Stations' in column A) in cell B10.</li>
 <li>Unknown Recipient ID 'Sunknown' (ID has to be listed in sheet 'Stations' in column A) in cells O10, O43.</li>
-<li>Invalid Delivery Date Day in cells G12, G13, G15, G45, G46.</li>
-<li>Invalid Delivery Date Month in cells H16, H17, H49, H50.</li>
-<li>Invalid Delivery Arrival Date Day in cells J21, J22, J24, J54, J55.</li>
-<li>Invalid Delivery Arrival Date Month in cells K25, K26, K58, K59.</li>
+<li>Invalid Delivery Date Day (value has to be an integer) in cells G12, G45.</li>
+<li>Invalid Delivery Date Day in cells G13, G15, G46.</li>
+<li>Invalid Delivery Date Month (value has to be an integer) in cells H16, H49.</li>
+<li>Invalid Delivery Date Month in cells H17, H50.</li>
+<li>Invalid Delivery Arrival Date Day (value has to be an integer) in cells J21, J54.</li>
+<li>Invalid Delivery Arrival Date Day in cells J22, J24, J55.</li>
+<li>Invalid Delivery Arrival Date Month (value has to be an integer) in cells K25, K58.</li>
+<li>Invalid Delivery Arrival Date Month in cells K26, K59.</li>
 </ul>
 
 

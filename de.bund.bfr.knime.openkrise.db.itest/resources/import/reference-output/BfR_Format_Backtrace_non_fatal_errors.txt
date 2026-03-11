@@ -91,16 +91,20 @@ ID | tablename | id | attribute | value
 LogMessages:
 <h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/BfR_Format_Backtrace_non_fatal_errors.xlsx'</h1>
 <h2>Sheet 'Stations':</h2>
-<ul><li>Missing Station ID in cell A2.</li>
-<li>Station ID 'SE_DID' is defined more than once in row 4.</li>
+<ul><li>Missing Company_ID in cell A2.</li>
+<li>Duplicate Company_ID 'SE_DID' (ID was already defined) in cell A4.</li>
 </ul>
 <h2>Sheet 'BackTracing':</h2>
 <ul><li>Please, do always provide a lot number as this is most helpful! [rows 13, 64]</li>
 <li>Station 'Sunknown' is not correctly defined in rows 17, 66.</li>
-<li>Invalid Delivery Date Day in cells C19, C20, C68, C69, C71.</li>
-<li>Invalid Delivery Date Month in cells D23, D24, D72, D73.</li>
-<li>Invalid Delivery Arrival Date Day in cells F28, F29, F77, F78, F80.</li>
-<li>Invalid Delivery Arrival Date Month in cells G32, G33, G81, G82.</li>
+<li>Invalid Delivery Date Day (value has to be an integer) in cells C19, C68.</li>
+<li>Invalid Delivery Date Day in cells C20, C69, C71.</li>
+<li>Invalid Delivery Date Month (value has to be an integer) in cells D23, D72.</li>
+<li>Invalid Delivery Date Month in cells D24, D73.</li>
+<li>Invalid Delivery Arrival Date Day (value has to be an integer) in cells F28, F77.</li>
+<li>Invalid Delivery Arrival Date Day in cells F29, F78, F80.</li>
+<li>Invalid Delivery Arrival Date Month (value has to be an integer) in cells G32, G81.</li>
+<li>Invalid Delivery Arrival Date Month in cells G33, G82.</li>
 <li>Lot information defines same lot number with different quantities -&gt; Row 45 in cell B45.</li>
 <li>Unknown Lot Number in rows 49, 50, 51, 53, 55.</li>
 <li>It is essential to choose the associated Lot number ('Lot Number of  &quot;Product Out&quot;') to the delivery in row 61.</li>
