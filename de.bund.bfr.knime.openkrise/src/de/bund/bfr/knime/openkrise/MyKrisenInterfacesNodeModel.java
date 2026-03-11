@@ -194,6 +194,7 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 	}
 
 	private DataTableSpec getStationSpec(Connection conn, boolean useSerialAsId, boolean isFormat2017) {
+		this.extraFieldS = new HashMap<>();
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
@@ -266,6 +267,7 @@ public class MyKrisenInterfacesNodeModel extends NoInternalsNodeModel {
 	}
 
 	private DataTableSpec getDeliverySpec(Connection conn, boolean useSerialAsId, boolean isFormat2017) {
+		this.extraFieldD = new HashMap<>();
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		addSpec(columns, TracingColumns.ID, StringCell.TYPE);
