@@ -126,11 +126,13 @@ public class ImportAction extends AbstractAction {
 	}
 	
 	private void reportTraceImportResult(TraceImporter traceImporter, TaskResult<Boolean> taskResult) {
+		
+		if (taskResult.canceled) return;
+		
 		String errors = traceImporter.getLogMessages();
 		String warnings = traceImporter.getLogWarnings();
 		
 		boolean importSucceeded = taskResult.result;
-		if (!importSucceeded && taskResult.canceled) return;
 			
 		if (!importSucceeded && taskResult.throwable != null) {
 			String msg = ExceptionUtils.isOutOfJavaHeapSpaceError(taskResult.throwable) ?
@@ -138,19 +140,16 @@ public class ImportAction extends AbstractAction {
 					taskResult.throwable.getMessage();
 			JOptionPane.showMessageDialog(DBKernel.mainFrame, msg, "Import failed!", JOptionPane.ERROR_MESSAGE);
 		} 
-		else if (importSucceeded && warnings.isEmpty()) {   
-			JOptionPane.showMessageDialog(DBKernel.mainFrame, "Import successful!", "Import successful", JOptionPane.INFORMATION_MESSAGE);
-		} 
 		else if (!importSucceeded && !errors.isEmpty()) {
 			JOptionPane.showOptionDialog(DBKernel.mainFrame, "Errors occured, no files were imported!\nPlease correct errors and try again", "Import failed",
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[] {"Show Details"}, null);
 			NewInfoBox.show(DBKernel.mainFrame, "Errors and Warnings", "<html>" + errors + warnings + "</html>");
 		} 
-		else if (importSucceeded && !warnings.isEmpty()) {
-			JOptionPane.showOptionDialog(DBKernel.mainFrame, "Import successful! But some warnings occurred, please check", "Import with Warnings",
-					JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, new String[] {"Show Details"}, null);
-			NewInfoBox.show(DBKernel.mainFrame, "Warnings", "<html>" + warnings + "</html>");
+		else if (importSucceeded) {   
+			// if present warnings were already shown for user consent
+			JOptionPane.showMessageDialog(DBKernel.mainFrame, "Import successful!", "Import successful", JOptionPane.INFORMATION_MESSAGE);
 		} 
+		
 		else if (!importSucceeded) {
 			JOptionPane.showMessageDialog(DBKernel.mainFrame, "Some undefined problems occurred. No files were imported. Please contact the support team.", "Import failed!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -165,6 +164,13 @@ public class ImportAction extends AbstractAction {
 		MyLogger.handleMessage("Importing - FinFin!");
 	}	
 	
+	private boolean getUserConsentForCommitWithWarnings(String warnings) {
+		JOptionPane.showOptionDialog(DBKernel.mainFrame, "Some warnings occurred, please check.", "Warnings",
+				JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, new String[] {"Show Details"}, null);
+		int userDecision = NewInfoBox.show(DBKernel.mainFrame, "Warnings", "<html>" + warnings + "</html>", new String[] {"Continue template import", "Cancel template import"}, 0);
+		return userDecision == 0;
+	}
+	
 	private void handleTraceImport(final TraceImporter traceImporter, File[] selectedFiles) {
 		if (selectedFiles == null || selectedFiles.length == 0) return;
 		
@@ -177,18 +183,32 @@ public class ImportAction extends AbstractAction {
 		BiConsumer<Boolean, TaskResult<Boolean>> postTaskCallback = (result, taskResult) -> {
 			System.out.println("postTaskCallback entered (result: " + result + ") ...");
 			// post task things
+			
+			progressDialog.close();
+			
+			boolean useCommit = false;
+			
 			if (result) {
+				String warnings = traceImporter.getLogWarnings();
+				if (warnings.isEmpty()) useCommit = true;
+				else {
+					if (getUserConsentForCommitWithWarnings(warnings)) useCommit = true;
+					else taskResult.canceled = true;
+				}
+			}
+			
+			if (useCommit) {
 				commitTA();
 				if (progressBar1 != null) {
 					// Refreshen:
 					refreshTableView();
 				}
-			} else {
+			} 
+			else {
 				rollbackTA();
 			}
-			progressDialog.close();
-		
-			reportTraceImportResult(traceImporter, taskResult);
+			
+			if (!taskResult.canceled) reportTraceImportResult(traceImporter, taskResult);
 			runSharedPostImportOps();
 		};
 		

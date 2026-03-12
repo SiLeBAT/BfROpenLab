@@ -29,11 +29,14 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
+import javax.swing.WindowConstants;
 import javax.swing.text.html.HTMLEditorKit;
 
 import de.bund.bfr.knime.UI;
@@ -41,12 +44,19 @@ import de.bund.bfr.knime.UI;
 public class NewInfoBox extends JDialog {
 
 	private static final long serialVersionUID = 1L;
+	private static final String[] DEFAULT_OPTIONS = new String[] {"OK"};
+	private int result = -1;
 
 	public static void show(Frame owner, String title, String text) {
-		new NewInfoBox(owner, title, text);
+		show(owner, title, text, DEFAULT_OPTIONS, 0);
+	}
+	
+	public static int show(Frame owner, String title, String text, String[] options, int defaultOptionIndex) {
+		NewInfoBox infoBox = new NewInfoBox(owner, title, text, options, defaultOptionIndex);
+		return infoBox.result;
 	}
 
-	private NewInfoBox(Frame owner, String title, String text) {
+	private NewInfoBox(Frame owner, String title, String text, String[] options, int defaultOptionIndex) {
 		super(owner, title, true);
 
 		JEditorPane infoTextArea = new JEditorPane();
@@ -65,23 +75,30 @@ public class NewInfoBox extends JDialog {
 		infoTextArea.setCaretPosition(0);
 		infoTextArea.setEditable(false);
 
-		JButton okButton = new JButton("OK");
+		List<JButton> optionButtons = new ArrayList<>();
+		
+		for (int i = 0; i < options.length; i++) {
+			JButton optionButton = new JButton(options[i]);
+			final int optionButtonResult = i;
+			optionButton.addActionListener(new ActionListener() {
 
-		okButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dispose();
-			}
-		});
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					result = optionButtonResult;
+					dispose();
+				}
+			});
+			optionButtons.add(optionButton);
+		}
 
 		setLayout(new BorderLayout());
+		if (options.length > 1) this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		add(new JScrollPane(infoTextArea), BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)), BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(optionButtons.toArray(new JButton[0]))), BorderLayout.SOUTH);
 		pack();
 		adjustDialog(this, 0.8, 0.8);
 		setLocationRelativeTo(owner);
-		getRootPane().setDefaultButton(okButton);
+		getRootPane().setDefaultButton(optionButtons.get(defaultOptionIndex));
 		setVisible(true);
 	}
 
