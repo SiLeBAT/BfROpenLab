@@ -30,7 +30,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -40,12 +39,12 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import java.util.stream.Collectors;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
@@ -2725,8 +2724,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return true;
 	}
 	
-	private Map<String, String> getChargenLinks(Sheet sheet, int colIndex, int rowStartIndex, int rowEndIndex) throws Exception {
-		Map<String, String> links = new HashMap<>();
+	private LinkedHashMap<String, String> getChargenLinks(Sheet sheet, int colIndex, int rowStartIndex, int rowEndIndex) throws Exception {
+		LinkedHashMap<String, String> links = new LinkedHashMap<>();
 		for (int iR = rowStartIndex; iR <= rowEndIndex; iR++) {
 			Row row = sheet.getRow(iR);
 			if (row != null) {
@@ -2755,49 +2754,51 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			String filepath
 	) throws Exception {
 		// collect chargenRefs 
-		Map<String, String> chargenLinksToCellAddressMap = getChargenLinks(sheet, colIndex, rowStartIndex, rowEndIndex);
+		LinkedHashMap<String, String> chargenLinksToCellAddressMap = getChargenLinks(sheet, colIndex, rowStartIndex, rowEndIndex);
 		
 		Set<String> chargenLinks = chargenLinksToCellAddressMap.keySet();
-		Set<String> ambiguousLinks = chargenLinks.stream()
+
+		LinkedHashSet<String> ambiguousLinks = new LinkedHashSet<>();
+		chargenLinks.stream()
 			.filter(ref -> 
 				lotNoToLotIdMap.containsKey(ref) && 
 				rowNoToReferableDeliveryMap.containsKey(ref) && 
 				!ref.equals(rowNoToReferableDeliveryMap.get(ref).getLot().getNumber())
-			).collect(Collectors.toSet());
-		long lotNoMatchCount = chargenLinks.stream().filter(ref -> lotNoToLotIdMap.containsKey(ref)).count();
-		long lineNoMatchCount = chargenLinks.stream().filter(ref -> rowNoToReferableDeliveryMap.containsKey(ref)).count();
+			).forEach(ref -> ambiguousLinks.add(ref));
 				
 		if (!ambiguousLinks.isEmpty()) {
-			long misMatchCount = chargenLinks.stream().filter(ref -> !lotNoToLotIdMap.containsKey(ref) && !rowNoToReferableDeliveryMap.containsKey(ref)).count();
+			long matchCount = chargenLinks.stream().filter(ref -> lotNoToLotIdMap.containsKey(ref) || rowNoToReferableDeliveryMap.containsKey(ref)).count();
+			long lotNoMatchCount = chargenLinks.stream().filter(ref -> lotNoToLotIdMap.containsKey(ref)).count();
+			long lineNoMatchCount = chargenLinks.stream().filter(ref -> rowNoToReferableDeliveryMap.containsKey(ref)).count();
 			
 			
 			String[] options = {
-				"Lot Number", //+ XlsLot.NUMBER(lang),
-                "Line Number", 
+				"Lot Numbers", //+ XlsLot.NUMBER(lang),
+                "Line Numbers", 
                 "Cancel"
 	        };
-			String fileame = "";
 			
-			String cellAddresses = getFormatedCellAddressesString(ambiguousLinks.stream().map(ref -> chargenLinksToCellAddressMap.get(ref)).toArray(String[]::new));
+			String[] cellAddresses = ambiguousLinks.stream().map(ref -> chargenLinksToCellAddressMap.get(ref)).toArray(String[]::new);
+			String formatedCellAddressesString = getFormatedCellAddressesString(cellAddresses);
 			long unambiguousLotNoMatchCount = lotNoMatchCount - ambiguousLinks.size();
 			long unambiguousRowNoMatchCount = lineNoMatchCount - ambiguousLinks.size();
+			long unambiguousMatchCount = matchCount - ambiguousLinks.size();
 			
 			String msg = "<html>" + 
 					"Sheet '" + StringEscapeUtils.escapeHtml4(sheet.getSheetName()) + "' " +
 					"in file '" + StringEscapeUtils.escapeHtml4(new File(filepath).getName()) + "'<br>" + 
-					"contains " + ambiguousLinks.size() + " ambiguous lot reference(s) in cell(s) " + cellAddresses + ".<br>" + 
-					unambiguousLotNoMatchCount + " of the " + (chargenLinks.size() - ambiguousLinks.size()) + " unambiguous lot references match lot numbers " + 
-					"and " + unambiguousRowNoMatchCount + " match line numbers. " +
-					(misMatchCount == 0 ? "" : ("<br>" + misMatchCount + " references have no match at all. ")) + 
-					"<br><br>Are the ambiguous references refering to lot numbers or to line numbers?" +
+					"contains " + ambiguousLinks.size() + " ambiguous lot reference(s) in cell(s) " + formatedCellAddressesString + ".<br><br>" + 
+					unambiguousMatchCount + " lot reference(s) can be clearly assigned:<br>" +
+					unambiguousLotNoMatchCount + " match lot numbers.<br>" +
+					unambiguousRowNoMatchCount + " match line numbers.<br><br>" +
+					"Please have a look at this file in your spreadsheet software.<br>" + 
+					"Are the ambiguous references referring to lot numbers or to line numbers?" +
 					"</html>";
-			
-			// System.err.println(msg);
 			
 			int answer = EdtUtils.askQuestionInEdt(
 				DBKernel.mainFrame,
 				msg,
-				"Choose reference type",
+				"Choose lot reference type",
 				JOptionPane.YES_NO_CANCEL_OPTION,
 				null,
 				options,
