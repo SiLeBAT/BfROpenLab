@@ -49,6 +49,14 @@ public class XlsLot {
 		else return null;
 	}
 
+	public static String MHD_PREFIX(String lang) {
+		if (lang == null) return null;
+		if (lang.equals("de")) return "MHD";
+		else if (lang.equals("en")) return "Best Before";
+		else if (lang.equals("es")) return "Fecha de consumo";
+		else return null;
+	}
+	
 	public void addField(String fieldname, int index, String lang) {
 		if (fieldname != null) {
 			String s = fieldname.replaceAll("\\s+","");

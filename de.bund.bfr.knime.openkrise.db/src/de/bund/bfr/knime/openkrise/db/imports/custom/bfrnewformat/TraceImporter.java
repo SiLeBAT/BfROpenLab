@@ -44,7 +44,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
@@ -1140,10 +1142,28 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return true;
 	}
 	
+	private static InvalidCellValueException createInvalidOrMissingTableHeaderException(int startRowNumber, int headerRowCount, String tableName, Sheet sheet) {
+		return createInvalidOrMissingTableHeaderException(
+				"rows " + startRowNumber + "-" + (startRowNumber + headerRowCount - 1),
+				tableName,
+				sheet
+		);
+	}
+	
+	private static InvalidCellValueException createInvalidOrMissingTableHeaderException(String where, String tableName, Sheet sheet) {
+		return new InvalidCellValueException("There is no heading or there are missing headings in " + where + ". Data for " + tableName + " cannot be found.", sheet);
+	}
+	
 	private List<Exception> importSingleSheetWorkbook(Workbook wb, String filename, Window owner, IProgressMonitor taskMonitor) throws Exception {
 		System.out.println("TracingImporter.importSingleSheetWorkbook entered ...");
 		
 		List<Exception> exceptions = new ArrayList<>();
+		
+		final int AIO_HEADER_ROW_START_NUMBER = 1;
+		final int AIO_HEADER_ROW_COUNT = 2;
+		final int PROD_FIRST_HEADER_ROW_START_INDEX = 3;
+		final int BWD_FWD_HEADER_ROW_COUNT = 3;
+		final String LOWER_TEMPLATE_PART = "the lower part of the template";
 		
 		boolean backtracing = true;
 		boolean isProduction = false;
@@ -1177,12 +1197,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		HashSet<String> lotDoublettes = new HashSet<>();
 		
 		String[] expectedTables;
-		if (isAllInOneTemplate) expectedTables = new String[] {"deliveries"};
+		if (isAllInOneTemplate || !isProduction) expectedTables = new String[] {"deliveries"};
 		else if (backtracing) expectedTables = new String[] {"outgoing deliveries", "incoming deliveries"};
 		else expectedTables = new String[] {"incoming deliveries", "outgoing deliveries"};
-		if (!isProduction && !isAllInOneTemplate) expectedTables = new String[] {expectedTables[1]};
 		
-
 		if (sheet != null) {
 			// region sheet_exists
 			Station focusStation = null;
@@ -1234,7 +1252,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							//System.err.print(i+1);
 							if (isAllInOneTemplate) {
 								if (!headerFound) {
-									exceptions.add(new InvalidCellValueException("Delivery Table Header not found", sheet));
+									exceptions.add(createInvalidOrMissingTableHeaderException(AIO_HEADER_ROW_START_NUMBER, AIO_HEADER_ROW_COUNT, expectedTables[0], sheet));
 									return exceptions;
 								}
 
@@ -1267,12 +1285,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							}
 			
 							if (!headerFound) {
-//								String table;
-//								if (isAllInOneTemplate) table = "deliveries";
-//								else if (backtracing == (startedTableCount == 0)) table = "incoming deliveries";
-//								else table = "outgoing deliveries";
-										
-								exceptions.add(new InvalidCellValueException("Table header for " + expectedTables[startedTableCount] + " not found", sheet));
+								if (isProduction) 
+									exceptions.add(createInvalidOrMissingTableHeaderException(PROD_FIRST_HEADER_ROW_START_INDEX + 1, BWD_FWD_HEADER_ROW_COUNT, expectedTables[startedTableCount], sheet));
+								else 
+									exceptions.add(createInvalidOrMissingTableHeaderException(LOWER_TEMPLATE_PART, expectedTables[startedTableCount], sheet));
 								return exceptions;
 							}
 				
@@ -1743,8 +1759,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								xlsD.setChargenLinkCol(-1);
 								doCollect = true;
 							}
-							if (!isAllInOneTemplate) iRow++;
-							
 							{
 								// header validation
 								List<Exception> headerExceptions = new ArrayList<>();
@@ -1754,11 +1768,17 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								else if (backtracing == (startedTableCount == 0)) stationType = "Recipient";
 								else stationType = "Supplier";
 								
+								String productType;
+								if (startedTableCount == 1 && backtracing) productType = "Ingredient";
+								else productType = "Product";
+								
 								if (xlsS.getNameCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing " + stationType + " Name Column", sheet));
 								if (xlsS.getAddressCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing " + stationType + " Address Column", sheet));
-								if (xlsP.getNameCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Product Name Column", sheet));
+								if (xlsP.getNameCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing " + productType + " Name Column", sheet));
 								if (xlsL.getLotCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Lot Number Column", sheet));
-								if (xlsL.getMhdCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Mhd Column", sheet));
+								if (xlsL.getMhdCol() < 0) {
+									headerExceptions.add(new InvalidCellValueException("Missing Column starting with '" + XlsLot.MHD_PREFIX(lang) + "'.", sheet));
+								}
 								if (xlsD.getDayCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Delivery Date Day Column", sheet));
 								if (xlsD.getMonthCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Delivery Date Month Column", sheet));
 								if (xlsD.getYearCol() < 0) headerExceptions.add(new InvalidCellValueException("Missing Delivery Date Year Column", sheet));
@@ -1769,35 +1789,30 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 								
 								if (!headerExceptions.isEmpty()) {
-//									String table;
-//									if (isAllInOneTemplate) table = "deliveries";
-//									else if (backtracing == (startedTableCount == 0)) table = "incoming deliveries";
-//									else table = "outgoing deliveries";
-											
-									exceptions.add(new InvalidCellValueException("Invalid table header for " + expectedTables[startedTableCount], sheet));
+
+									exceptions.add(createInvalidOrMissingTableHeaderException(iRow, isAllInOneTemplate ? AIO_HEADER_ROW_COUNT : BWD_FWD_HEADER_ROW_COUNT, expectedTables[startedTableCount], sheet));
 									exceptions.addAll(headerExceptions);
 									return exceptions;
 								}
 								headerFound = true;
 								startedTableCount++;
 							}
+							if (!isAllInOneTemplate) iRow++;
 							continue;
 						}
 					}
 				}
 				if (taskMonitor.isCanceled()) throw new UserCancelException();
-				// taskMonitor.setProgress((int)((iRow + 1) / (double)numRows * 100));
 				taskMonitor.setProgress(100 * iRow / numRows);
 			}
 			{
-				// final int expectedTableCount = isAllInOneTemplate || !isProduction ? 1 : 2;
 				if (startedTableCount < expectedTables.length) {
-//					String table;
-//					if (isAllInOneTemplate) table = "deliveries";
-//					else if (backtracing == (startedTableCount == 0)) table = "incoming deliveries";
-//					else table = "outgoing deliveries";
-							
-					exceptions.add(new InvalidCellValueException("Missing table for " + expectedTables[startedTableCount], sheet));
+					if (isAllInOneTemplate) 
+						exceptions.add(createInvalidOrMissingTableHeaderException(AIO_HEADER_ROW_START_NUMBER, AIO_HEADER_ROW_COUNT, expectedTables[startedTableCount], sheet));
+					else if (isProduction && startedTableCount == 0)
+						exceptions.add(createInvalidOrMissingTableHeaderException(PROD_FIRST_HEADER_ROW_START_INDEX + 1, BWD_FWD_HEADER_ROW_COUNT, expectedTables[startedTableCount], sheet));
+					else 
+						exceptions.add(createInvalidOrMissingTableHeaderException(LOWER_TEMPLATE_PART, expectedTables[startedTableCount], sheet));
 					return exceptions;
 				}
 			}

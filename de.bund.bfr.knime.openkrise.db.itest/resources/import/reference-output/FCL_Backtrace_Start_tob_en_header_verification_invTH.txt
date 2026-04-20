@@ -1,0 +1,42 @@
+ImportResult: false
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+
+
+--- DB Content End ---
+
+
+LogMessages:
+<h1 id="error">Error in file 'de.bund.bfr.knime.openkrise.db.itest/resources/import/templates/FCL_Backtrace_Start_tob_en_header_verification_invTH.xlsx'</h1>
+<h2>Sheet 'Backtracing':</h2>
+<ul><li>There is no heading or there are missing headings in rows 9-11. Data for deliveries cannot be found.</li>
+<li>Missing Recipient Name Column</li>
+<li>Missing Recipient Address Column</li>
+<li>Missing Product Name Column</li>
+<li>Missing Lot Number Column</li>
+<li>Missing Column starting with 'Best Before'.</li>
+<li>Missing Delivery Date Day Column</li>
+<li>Missing Delivery Date Month Column</li>
+<li>Missing Delivery Date Year Column</li>
+</ul>
+
+
+WarnMessages:
