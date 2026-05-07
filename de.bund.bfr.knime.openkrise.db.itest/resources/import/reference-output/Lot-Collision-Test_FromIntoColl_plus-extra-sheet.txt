@@ -1,0 +1,50 @@
+ImportResult: true
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+-1140075732 |  | "Station 1" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "1" | ";1;" |  | 
+-1139152211 |  | "Station 2" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "2" | ";1;" |  | 
+-1138228690 |  | "Station 3" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "3" | ";1;" |  | 
+-1137305169 |  | "Station 4" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "4" | ";1;" |  | 
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+429310642 | -1139152211 |  | "B" |  |  |  |  |  |  | ";1;" | 
+1177521495 | -1140075732 |  | "A" |  |  |  |  |  |  | ";1;" | 
+1634755098 | -1138228690 |  | "Bprocessed" |  |  |  |  |  |  | ";1;" | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+-1815586776 | 1634755098 |  | "L100WSB" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+-1166945974 | 1177521495 |  | "L67ZP95" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+-541643337 | 429310642 |  | "L17E" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+776167022 | -1166945974 | 8 | 7 | 2025 |  |  |  | 10.0 | "kg" |  |  | -1138228690 | "1" |  |  |  |  | ";1;" | 
+861858251 | -541643337 | 5 | 7 | 2025 |  |  |  | 50.0 | "kg" |  |  | -1138228690 | "2" |  |  |  |  | ";1;" | 
+1882528460 | -1815586776 | 6 | 7 | 2025 |  |  |  | 25.0 | "kg" |  |  | -1137305169 | "3" |  |  |  |  | ";1;" | 
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+1 | 861858251 | -1815586776 |  | ";1;" | 
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+1 | "Chargen" | -1166945974 | "Sampling" | "not detected"
+2 | "Lieferungen" | 776167022 | "Amount" | "10.0 kg"
+3 | "Chargen" | -541643337 | "Sampling" | "150 KbE/g"
+4 | "Lieferungen" | 861858251 | "Amount" | "50.0 kg"
+5 | "Chargen" | -1815586776 | "Sampling" | "120 KbE/g"
+6 | "Lieferungen" | 1882528460 | "Amount" | "25.0 kg"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+
+
+WarnMessages:

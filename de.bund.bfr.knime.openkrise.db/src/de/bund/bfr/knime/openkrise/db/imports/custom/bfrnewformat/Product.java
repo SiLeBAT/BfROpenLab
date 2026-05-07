@@ -35,6 +35,8 @@ import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.SqlUtils;
 
 public class Product {
+	
+	public final static String EXTRA_FIELD_EAN = "EAN";
 
 	private List<Exception> exceptions = new ArrayList<>();
 	private boolean alreadyInDb = false;

@@ -37,6 +37,8 @@ import de.bund.bfr.knime.openkrise.db.SqlUtils;
 
 public class Delivery implements IFlexibleFieldContainer {
 
+	public final static String EXTRA_FIELD_AMOUNT = "Amount";
+	
 	public static HashMap<String, Delivery> gathereds = new HashMap<>();
 	private boolean alreadyInDb = false;
 	private HashMap<String, String> flexibles = new HashMap<>();

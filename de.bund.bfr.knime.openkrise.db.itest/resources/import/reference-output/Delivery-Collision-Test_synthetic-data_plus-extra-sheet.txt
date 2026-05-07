@@ -1,0 +1,55 @@
+ImportResult: true
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+-1139152211 |  | "Station 2" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "2" | ";1;" |  | 
+-1137305169 |  | "Station 4" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "4" | ";1;" |  | 
+-1136381648 |  | "Station 5" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "5" | ";1;" |  | 
+-335934108 |  | "Station 3" | "Ritterstraße" | "51" |  | "34311" | "Heimarshausen" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "3" | ";1;" |  | "Ritterstraße 51, 34311 Heimarshausen"
+1896715870 |  | "Station 1" | "Messeler Straße" | "4" |  | "64732" | "Kimbach" |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | "1" | ";1;" |  | "Messeler Straße 4, 64732 Kimbach"
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+-239933942 | -1137305169 |  | "Processed B" |  |  |  |  |  |  | ";1;" | 
+113257794 | -335934108 |  | "B" |  |  |  |  |  |  | ";1;" | 
+660209791 | -1139152211 |  | "Processed A" |  |  |  |  |  |  | ";1;" | 
+871216750 | 1896715870 |  | "A" |  |  |  |  |  |  | ";1;" | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+-769503209 | -239933942 |  | "L250615" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+-589303504 | 660209791 |  | "L034" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+966524835 | 113257794 |  | "L89" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+1652973982 | 871216750 |  | "L13X" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+-1685334773 | -769503209 |  |  |  |  |  |  |  |  |  |  | -1136381648 | "4" |  |  |  |  | ";1;" | 
+-982152438 | 1652973982 | 13 | 6 | 2025 |  |  |  | 10.0 | "kg" |  |  | -1139152211 | "1" |  |  |  |  | ";1;" | 
+-381954456 | 966524835 | 15 | 6 | 2025 |  |  |  | 5.0 | "kg" |  |  | -1137305169 | "3" |  |  |  |  | ";1;" | 
+1718634447 | -589303504 |  |  |  |  |  |  |  |  |  |  | -1136381648 | "2" |  |  |  |  | ";1;" | 
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+1 | -982152438 | -589303504 |  | ";1;" | 
+2 | -381954456 | -769503209 |  | ";1;" | 
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+1 | "Lieferungen" | -982152438 | "Liefernummer" | "01"
+2 | "Lieferungen" | -982152438 | "Amount" | "10.0 kg"
+3 | "Lieferungen" | 1718634447 | "Liefernummer" | "02"
+4 | "Lieferungen" | -381954456 | "Liefernummer" | "03"
+5 | "Lieferungen" | -381954456 | "Amount" | "5.0 kg"
+6 | "Lieferungen" | -1685334773 | "Liefernummer" | "04"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+
+
+WarnMessages:

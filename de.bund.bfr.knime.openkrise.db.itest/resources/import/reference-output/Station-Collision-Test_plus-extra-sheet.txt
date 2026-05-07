@@ -1,0 +1,45 @@
+ImportResult: true
+
+--- DB Content Start ---
+
+Table "Station":
+ID | Produktkatalog | Name | Strasse | Hausnummer | Postfach | PLZ | Ort | District | Bundesland | Land | Longitude | Latitude | Ansprechpartner | Telefon | Fax | EMail | Webseite | Betriebsnummer | Betriebsart | VATnumber | Code | CasePriority | AnzahlFaelle | AlterMin | AlterMax | DatumBeginn | DatumHoehepunkt | DatumEnde | Erregernachweis | Serial | ImportSources | Kommentar | Adresse
+-584249155 |  | "Station 2" | "Torweg" | "5" |  | "10115" | "Berlin" |  |  |  |  |  |  |  |  |  |  |  | "Processor" |  |  |  |  |  |  |  |  |  |  | "2" | ";1;" |  | "Torweg 5, 10115 Berlin"
+1149331705 |  | "Station 1" | "Kneippstraße" | "95" |  | "63633" | "Untersotzbach" |  |  |  |  |  |  |  |  |  |  |  | "Primary Producer" |  |  |  |  |  |  |  |  |  |  | "1" | ";1;" |  | "Kneippstraße 95, 63633 Untersotzbach"
+1269544537 |  | "Station 3" | "Albrechtstraße" | "1" |  | "37249" | "Hebenshausen" |  |  |  |  |  |  |  |  |  |  |  | "Consumer" |  |  |  |  |  |  |  |  |  |  | "3" | ";1;" |  | "Albrechtstraße 1, 37249 Hebenshausen"
+
+Table "Produktkatalog":
+ID | Station | Artikelnummer | Bezeichnung | Prozessierung | IntendedUse | Code | Matrices | Chargen | Serial | ImportSources | Kommentar
+-408105640 | 1149331705 |  | "A" |  |  |  |  |  |  | ";1;" | 
+907580139 | -584249155 |  | "B" |  |  |  |  |  |  | ";1;" | 
+
+Table "Chargen":
+ID | Artikel | Zutaten | ChargenNr | Menge | Einheit | Lieferungen | MHD_day | MHD_month | MHD_year | pd_day | pd_month | pd_year | Serial | OriginCountry | MicrobioSample | ImportSources | Kommentar
+-267946569 | 907580139 |  | "L2" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+880385623 | -408105640 |  | "L1" |  |  |  |  |  |  |  |  |  |  |  |  | ";1;" | 
+
+Table "Lieferungen":
+ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU | typePU | Unitmenge | UnitEinheit | Empfänger | Serial | EndChain | Explanation_EndChain | Contact_Questions_Remarks | Further_Traceback | ImportSources | Kommentar
+659511881 | 880385623 | 4 | 7 | 2025 |  |  |  | 50.0 | "kg" |  |  | -584249155 | "1" |  |  |  |  | ";1;" | 
+2092105736 | -267946569 | 5 | 7 | 2025 |  |  |  | 50.0 | "kg" |  |  | 1269544537 | "2" |  |  |  |  | ";1;" | 
+
+Table "ChargenVerbindungen":
+ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
+1 | 659511881 | -267946569 |  | ";1;" | 
+
+Table "ExtraFields":
+ID | tablename | id | attribute | value
+2 | "Station" | 1149331705 | "Zulassungsnummer" | "DEHE-1"
+3 | "Lieferungen" | 659511881 | "Amount" | "50.0 kg"
+4 | "Station" | 1269544537 | "Zulassungsnummer" | "DEHE-3"
+5 | "Station" | -584249155 | "Zulassungsnummer" | "DEBE-2"
+6 | "Lieferungen" | 2092105736 | "Amount" | "50.0 kg"
+
+
+--- DB Content End ---
+
+
+LogMessages:
+
+
+WarnMessages:
