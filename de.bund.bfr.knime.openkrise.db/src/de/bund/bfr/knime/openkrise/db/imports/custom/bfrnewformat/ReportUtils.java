@@ -20,7 +20,6 @@
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,50 +53,6 @@ public class ReportUtils {
 			this.cellAddress = null;
 		}
 	}
-//	static String exceptions2Html_old(List<Exception> exceptions) {
-//		StringBuilder builder = new StringBuilder();
-//		LinkedHashMap<String, LinkedHashSet<String>> msg2Addresses = new LinkedHashMap<>();
-//		for (Exception e : exceptions) {
-//			String msg = e.getMessage();
-//			if (msg == null) continue;
-//			
-//			String address = null;
-//			if (e instanceof InvalidCellValueException) {
-//				InvalidCellValueException invCellValueEx = (InvalidCellValueException) e;
-//				if (invCellValueEx.sheet != null) msg = "Sheet '" + invCellValueEx.sheet + "': " + msg;
-//				
-//				address = invCellValueEx.address;
-//			}
-//			
-//			LinkedHashSet<String> msgAddresses = msg2Addresses.get(msg);
-//			if (msgAddresses == null) {
-//				msgAddresses = new LinkedHashSet<>();
-//				msg2Addresses.put(msg, msgAddresses);
-//			}
-//			if (address != null) msgAddresses.add(address);
-//			MyLogger.handleException(e);	
-//		}
-//		
-//		List<String> msgs = new ArrayList<>();
-//		msgAddresses.entrySet()
-//		
-//		for (String msg : msg2Addresses.keySet()) {
-//			String aggregatedMsg = msg;
-//			
-//			lines.add(msg);
-//			LinkedHashMap<String, List<String>> sheetMap = map.get(msg);
-//			if (sheetMap != null) {
-//				for (String sheet : sheetMap.keySet()) {
-//					List<String> addresses = sheetMap.get(sheet);
-//					if (addresses.size() == 1) lines.add("Sheet: " + sheet + ", cell: " + addresses.get(0));
-//					else if (addresses.size() <= 11) lines.add("Sheet: " + sheet + ", cells: " + String.join(", ", addresses));
-//					else lines.add("Sheet: " + sheet + ", cells: " + String.join(", ", addresses.subList(0, 10)) + " ... (" + (addresses.size() - 10) + " others).");
-//				}
-//			}
-//			builder.append("<li>" + String.join("<br>", lines.stream().map(line -> StringEscapeUtils.escapeHtml4(line)).toList()) +  "</li>");
-//		}
-//		return builder.toString();
-//	}
 	
 	static String exceptions2Html_v1(List<Exception> exceptions) {
 		StringBuilder builder = new StringBuilder();
@@ -166,50 +121,7 @@ public class ReportUtils {
 		
 		return result; 
 	}
-	
-//	private static String getFormatedCellAddressesString(List<String> addresses) {
-//		final int LIMIT = 11;
-//		if (addresses.size() == 1) return "cell " + addresses.get(0);
-//		else if (addresses.size() <= LIMIT) return "cells " + String.join(", ", addresses);
-//		
-//		return "cells " + String.join(", ", addresses.subList(0, 10)) + " ... (" + (addresses.size() - 10) + " others).";
-//	}
-//	
-//	private static String getFormatedRowAddressesString(List<Integer> numbers) {
-//		final int LIMIT = 11;
-//		List<String> strNumbers = numbers.stream().map(x -> "" + x).toList();
-//		if (numbers.size() == 1) return "row " + numbers.get(0);
-//		else if (numbers.size() <= LIMIT) return "rows " + String.join(", ", strNumbers);
-//		
-//		return "rows " + String.join(", ", strNumbers.subList(0, 10)) + " ... (" + (strNumbers.size() - 10) + " others).";
-//	}
-	
-//	private static String msgExceptions2Html(List<InvalidCellValueException> msgExceptions) {
-//		List<String> lines = new ArrayList<>();
-//		for (InvalidCellValueException ex : msgExceptions) {
-//			if (ex == null) continue;
-//			if (ex.address != null) lines.add(ex.address);
-//			else if (ex.rowNum != null) lines.add("" + ex.rowNum); 
-//			// else lines.add("" + ex.rowNum);
-//		}
-//		if (lines.size() == 0) return "";
-//		// return "<ul><li>" + String.join("</li><li>", lines.stream().map(line -> StringEscapeUtils.escapeHtml4(line)).toList()) +  "</li></ul>";
-//		return StringEscapeUtils.escapeHtml4(getFormatedCellAddressesString(lines));
-//	}
-	
-//	private static String msgExceptions2Addresses(List<InvalidCellValueException> msgExceptions) {
-//		List<String> lines = new ArrayList<>();
-//		for (InvalidCellValueException ex : msgExceptions) {
-//			if (ex == null) continue;
-//			if (ex.address != null) lines.add(ex.address);
-//			else if (ex.rowNum != null) lines.add("" + ex.rowNum); 
-//			// else lines.add("" + ex.rowNum);
-//		}
-//		if (lines.size() == 0) return "";
-//		// return "<ul><li>" + String.join("</li><li>", lines.stream().map(line -> StringEscapeUtils.escapeHtml4(line)).toList()) +  "</li></ul>";
-//		return getFormatedCellAddressesString(lines);
-//	}
-	
+
 	private static String msgExceptions2Addresses(List<InvalidCellValueException> msgExceptions) {
 		List<String> cells = new ArrayList<>();
 		List<Integer> rows =  new ArrayList<>();
@@ -217,13 +129,9 @@ public class ReportUtils {
 			if (ex == null) continue;
 			if (ex.address != null) cells.add(ex.address);
 			else if (ex.rowNum != null) rows.add(ex.rowNum); 
-			// else lines.add("" + ex.rowNum);
 		}
 		if (cells.size() == 0 && rows.size() == 0) return "";
-		// String cellAdresses = getFormatedCellAddressesString(cells);
-		// String rowAdresses = getFormatedRowAddressesString(rows);
-		// return "<ul><li>" + String.join("</li><li>", lines.stream().map(line -> StringEscapeUtils.escapeHtml4(line)).toList()) +  "</li></ul>";
-		// return getFormatedCellAddressesString(lines);
+		
 		return getFormatedAddressListString(cells, rows);
 	}
 	
@@ -231,12 +139,9 @@ public class ReportUtils {
 		if (sheetExceptions == null) return "";
 		
 		List<String> lines = new ArrayList<>();
-		//for (String msg : sheetExceptions.keySet()) {
 		for (Map.Entry<String, List<InvalidCellValueException>> entry : sheetExceptions.entrySet()) {
 			String msg = entry.getKey();
-			// String html = msgExceptions2Html(sheetExceptions.get(msg));
 			String addresses = msgExceptions2Addresses(sheetExceptions.get(msg));
-			//lines.add(StringEscapeUtils.escapeHtml4(msg) + (html != null || html.isEmpty() ? "" : " in ") + html);
 			if (addresses != null && !addresses.isEmpty()) {
 				if (msg.endsWith(".") || msg.endsWith("!")) msg += " [" + addresses + "]";
 				else msg += " in " + addresses + ".";
@@ -250,7 +155,6 @@ public class ReportUtils {
 	
 	
 	static String exceptions2Html_new(List<Exception> exceptions) {
-		// StringBuilder builder = new StringBuilder();
 		LinkedHashMap<String, LinkedHashMap<String, List<InvalidCellValueException>>> sheet2Exceptions = new LinkedHashMap<>();
 		
 		for (Exception e : exceptions) {
@@ -273,7 +177,6 @@ public class ReportUtils {
 		}
 		
 		List<String> lines = new ArrayList<>();
-		// for (String sheet : sheet2Exceptions.keySet()) {
 		for (Map.Entry<String, LinkedHashMap<String, List<InvalidCellValueException>>> entry : sheet2Exceptions.entrySet()) {
 			String sheet = entry.getKey();
 			if (sheet == null) continue;
@@ -298,9 +201,7 @@ public class ReportUtils {
 		
 		return "<h1 id=\"error\">Error in file '" + StringEscapeUtils.escapeHtml4(filePath) + "'</h1>" + html;
 	}
-	
-//	static String
-//	
+		
 	private static LinkedHashSet<String> cloneToLinkedHashSet(Collection<String> value) {
 		if (value == null) return null;
 		LinkedHashSet<String> linkedHashSet = new LinkedHashSet<>();

@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -86,7 +85,6 @@ public class SheetUtils {
 	}
 	
 	static void throwCellErrorException(Cell cell) throws InvalidCellValueException {
-		// throw new InvalidCellValueException("Cell " + getWbRelativeCellAddressString(cell) + " contains an error.");
 		throw new InvalidCellValueException("Cell Error", cell);
 	}
 	
@@ -103,16 +101,5 @@ public class SheetUtils {
 		}
 		
 		return false;
-//		if (cellType == CellType.ERROR) throwCellErrorException(cell);
-//		if (cellType != CellType.STRING) return false;
-//		
-//		return getStringCellString(cell, true, false) == null;
 	}
-	
-	private static String getFormatedCellAddressesString(String[] addresses) {
-		final int maxCount = 5;
-		String[] filteredAddresses = ArrayUtils.subarray(addresses, 0, maxCount);
-		return String.join(", ", filteredAddresses) + (filteredAddresses.length < addresses.length ? ", ..." : "");
-	}
-	
 }

@@ -39,10 +39,8 @@ public class PlausibleAction extends AbstractAction {
 	 * 
 	 */
 	private static final long serialVersionUID = 5441488921384865553L;
-	private MyDBTable myDB;
 
 	public PlausibleAction(final String name, final Icon icon, final String toolTip, final JProgressBar progressBar1, final MyDBTable myDB) {
-	  	this.myDB = myDB;
 	    putValue(Action.NAME, name);
 	    putValue(Action.SHORT_DESCRIPTION, toolTip);
 	    putValue(Action.SMALL_ICON, icon);
