@@ -221,6 +221,7 @@ public class Lot implements IFlexibleFieldContainer {
 	}	
 	
 	public Integer insertIntoDb(MyDBI mydbi) throws Exception {
+		// System.out.println("Lot.insertIntoDb entered .. (F:" + this.getProduct().getStation().getName() + ";P:" + this.getProduct().getName() + ";L:" + this.getNumber() + ")");
 		if (alreadyInDb) return dbId;
 		//dbId = null;
 		int productId = this.getProduct().insertIntoDb(mydbi);

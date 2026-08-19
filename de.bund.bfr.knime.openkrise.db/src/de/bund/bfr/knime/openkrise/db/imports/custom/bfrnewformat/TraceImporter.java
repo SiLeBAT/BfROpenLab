@@ -1453,6 +1453,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							if (idToLotMap.containsKey(lotId)) {
 								lot = idToLotMap.get(lotId);
 								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), lot.getFlexible(XlsStruct.getOUT_SOURCE_KEY(lang)) + "; " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));
+								delivery.setLot(lot);
 							}
 							else {
 								lot.addFlexibleField(XlsStruct.getOUT_SOURCE_KEY("en"), filename + " - " + XlsStruct.getOUT_SOURCE_VAL(lang) + " " + (iRow+1));

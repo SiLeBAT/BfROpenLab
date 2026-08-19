@@ -33,8 +33,8 @@ ID | Charge | dd_day | dd_month | dd_year | ad_day | ad_month | ad_year | numPU 
 
 Table "ChargenVerbindungen":
 ID | Zutat | Produkt | MixtureRatio | ImportSources | Kommentar
-1 | -982152438 | -589303504 |  | ";1;" | 
-2 | -381954456 | -769503209 |  | ";1;" | 
+1 | -381954456 | -769503209 |  | ";1;" | 
+2 | -982152438 | -589303504 |  | ";1;" | 
 
 Table "ExtraFields":
 ID | tablename | id | attribute | value

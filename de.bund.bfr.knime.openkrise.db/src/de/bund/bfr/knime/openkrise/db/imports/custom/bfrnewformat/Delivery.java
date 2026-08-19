@@ -455,6 +455,7 @@ public class Delivery implements IFlexibleFieldContainer {
 	}
 	
 	public Integer insertIntoDb(MyDBI mydbi) throws Exception {
+		// System.out.println("Delivery.insertIntoDb entered .. (F:" + this.getLot().getProduct().getStation().getName() + ";P:" + this.getLot().getProduct().getName() + ";L:" + this.getLot().getNumber() + ";DD:" + this.getArrivalYear() + "-"+ this.getArrivalMonth() + "-" + this.getArrivalDay() + ";T:" + this.getReceiver().getName() + ")");
 		if (alreadyInDb) return dbId;
 		//dbId = null;
 		int lotId = this.getLot().insertIntoDb(mydbi);
