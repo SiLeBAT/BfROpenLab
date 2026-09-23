@@ -45,13 +45,14 @@ public class SimSearchDataSource extends SimSearch.DataSource{
   
   @Override
   public void findSimilarities(SimSearch.Settings settings) throws Exception {
-    //this.test();
     if(this.addLDFunctionToDB(settings)) {
       if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.STATION)) findSimilarStations(settings);
       if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.PRODUCT)) findSimilarProducts(settings);
       if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.LOT)) findSimilarLots(settings);
       if(!this.getSearchStopped() && settings.isChecked(SimSearch.SimSet.Type.DELIVERY)) findSimilarDeliveries(settings);
       this.removeLDFunctionFromDB();
+    } else {
+    	throw new Exception("Databse could not be prepared for similarity search.");
     }
   }
     
